@@ -15,6 +15,9 @@ export default function InfoSalle(){
     const [nomSalle, setNomSalle] = useState('')
     const [numRegistre, setNumRegistre] = useState('')
     const [numFiscale, setNumFiscale] = useState('')
+    const [ville, setVille] = useState('')
+    const [pays, setPays] = useState('')
+    const [region, setRegion] = useState('')
     const [modalForfait, setModalForfait] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
@@ -27,6 +30,8 @@ export default function InfoSalle(){
 
     const fileRegistre = useRef(null)
     const fileFiscale = useRef(null)
+    const fileRegistreVerso = useRef(null)
+    const fileFiscaleVerso = useRef(null)
 
 
     const {apiUrl} = useGetUrl()
@@ -68,8 +73,13 @@ export default function InfoSalle(){
         formData.append("nomSalle", nomSalle)
         formData.append("numRegistre", numRegistre) 
         formData.append("numFiscale", numFiscale) 
+        formData.append("ville", ville)
+        formData.append("region", region) 
+        formData.append("pays", pays) 
         formData.append("fileR", fileRegistre)
         formData.append("fileF", fileFiscale) 
+        formData.append("fileRVerso", fileRegistreVerso)
+        formData.append("fileFVerso", fileFiscaleVerso) 
 
         try{
             const response = await fetch(`${apiUrl}info-salle`,{
@@ -107,14 +117,14 @@ export default function InfoSalle(){
                 className=" "
             />
         </div>
-        <div className=" bg-orange-100/50 z-30 relative flex justify-center  items-center h-screen">
+        <div className=" bg-orange-100/50 z-30 relative flex justify-center h-screen items-center py-10">
             <div>
-                <div className="mb-8 text-center">
+                <div className="mb-8 mt-5 text-center">
                     <p className="fuzzy-bubbles-bold uppercase text-4xl mb-2">Finalisez votre inscription</p>
                     <p className="text-gray-600">Renseignez les informations de votre salle de sport.</p>
                 </div>
 
-                <div className="flex items-center justify-between py-5 px-8 mb-8 bg-white shadow-xl border-3 border-gray-100 rounded-lg">
+                <div className="flex w-150 mx-auto items-center justify-between py-5 px-8 mb-8 bg-white shadow-xl border-3 border-gray-100 rounded-lg">
                     <div>
                         <p className="text-gray-600 text-sm">Forfait choisi</p>
                         <p className="fuzzy-bubbles-bold">{forfait}</p>
@@ -154,97 +164,159 @@ export default function InfoSalle(){
                 <form onSubmit={handleSalle} className="bg-white shadow-xl border-3 border-gray-100 rounded-lg mb-10">
                     
 
-                    <div className="py-5 px-8">
-                        <p className="mb-4 fuzzy-bubbles-bold text-xl">Informations sur votre salle</p>
-                        <div className="mb-4">
-                            <p className="text-sm font-semibold mb-1">Nom de la salle de sport <span className="text-orange-600">*</span></p>
-                            <Input 
-                                type={'text'}
-                                value={nomSalle}
-                                placeholder={'Ex: GymPlus Centre'}
-                                onChange={(e)=>{setNomSalle(e.target.value)}}
-                                className={'w-full focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-sm border-1 border-gray-300'}
-                            />
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-semibold mb-1">Numéro de registre de commerce <span className="text-orange-600">*</span></p>
+                    <div className="grid grid-cols-3 place-items-center ">
+                        <div className=" py-5 px-8">
+                            <p className="mb-4 fuzzy-bubbles-bold text-xl">Informations sur votre salle</p>
+                            <div className="mb-4">
+                                <p className="text-sm font-semibold mb-1">Nom de la salle de sport <span className="text-orange-600">*</span></p>
                                 <Input 
-                                    type={'tel'}
-                                    value={numRegistre}
-                                    placeholder={'Ex: 123 456 789'}
-                                    pattern={"[0-9]+"}
-                                    onChange={(e)=>{setNumRegistre(e.target.value)}}
+                                    type={'text'}
+                                    value={nomSalle}
+                                    placeholder={'Ex: GymPlus Centre'}
+                                    onChange={(e)=>{setNomSalle(e.target.value)}}
                                     className={'w-full focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-sm border-1 border-gray-300'}
                                 />
                             </div>
+                            <div className="mb-4">
+                                <p className="text-sm font-semibold mb-1">Pays <span className="text-orange-600">*</span></p>
+                                <Input 
+                                    type={'text'}
+                                    value={pays}
+                                    placeholder={'Ex: Burkina Faso'}
+                                    onChange={(e)=>{setPays(e.target.value)}}
+                                    className={'w-full focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-sm border-1 border-gray-300'}
+                                />
+                            </div>
+                            {/* <div className="flex items-center justify-between"> */}
+                                <div className="mb-4">
+                                    <p className="text-sm font-semibold mb-1">Ville <span className="text-orange-600">*</span></p>
+                                    <Input 
+                                        type={'text'}
+                                        value={ville}
+                                        placeholder={'Ex: Ouagadougou'}
+                                        onChange={(e)=>{setVille(e.target.value)}}
+                                        className={'w-full focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-sm border-1 border-gray-300'}
+                                    />
+                                </div>
 
-                            <div>
-                                <p className="text-sm font-semibold mb-1">Numéro d'identification fiscale (NIF) <span className="text-orange-600">*</span></p>
-                                <Input 
-                                    type={'tel'}
-                                    value={numFiscale}
-                                    placeholder={'Ex: 0012545678901'}
-                                    pattern={"[0-9]+"}
-                                    onChange={(e)=>{setNumFiscale(e.target.value)}}
-                                    className={'w-full focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-sm border-1 border-gray-300'}
-                                
-                                />
-                            </div>
+                                <div className="mb-4">
+                                    <p className="text-sm font-semibold mb-1">Région<span className="text-orange-600">*</span></p>
+                                    <Input 
+                                        type={'text'}
+                                        value={region}
+                                        placeholder={'Ex: Centre'}
+                                        onChange={(e)=>{setRegion(e.target.value)}}
+                                        className={'w-full focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-sm border-1 border-gray-300'}
+                                    
+                                    />
+                                </div>
+                            {/* </div> */}
+                            {/* <div className="flex items-center justify-between"> */}
+                                <div className="mb-4">
+                                    <p className="text-sm font-semibold mb-1">Numéro de registre de commerce <span className="text-orange-600">*</span></p>
+                                    <Input 
+                                        type={'tel'}
+                                        value={numRegistre}
+                                        placeholder={'Ex: 123 456 789'}
+                                        pattern={"[0-9]+"}
+                                        onChange={(e)=>{setNumRegistre(e.target.value)}}
+                                        className={'w-full focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-sm border-1 border-gray-300'}
+                                    />
+                                </div>
+
+                                <div >
+                                    <p className="text-sm font-semibold mb-1">Numéro d'identification fiscale (NIF) <span className="text-orange-600">*</span></p>
+                                    <Input 
+                                        type={'tel'}
+                                        value={numFiscale}
+                                        placeholder={'Ex: 0012545678901'}
+                                        pattern={"[0-9]+"}
+                                        onChange={(e)=>{setNumFiscale(e.target.value)}}
+                                        className={'w-full focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-sm border-1 border-gray-300'}
+                                    
+                                    />
+                                </div>
+                            {/* </div> */}
                         </div>
+
+                        {/* <div className=" h-90 border-2 text-gray-200"></div> */}
+
+                        <div className="  col-span-2 py-5 px-8 border-1 border-gray-300">
+                            <p className="mb-4 text-xl fuzzy-bubbles-bold">Documents à fournir</p>
+                        
+                            <div className="flex flex-col gap-5 ">
+                                
+                                    <p className="text-sm font-semibold mb-1">Registre de commerce (Recto & Verso) <span className="text-orange-600">*</span></p>
+                                    <div className="grid grid-cols-2 gap-5 place-items-center ">
+                                        <div className="flex bg-orange-50 rounded-lg flex-col gap-2 items-center justify-center relative border-3 border-gray-300 border-dotted px-4 py-8">
+                                            
+                                            <Download className="text-orange-600 h-5 w-5"/> 
+                                            
+                                            <Input 
+                                                type={'file'}
+                                                onChange={(e)=>{fileRegistre.current.files[0]}}
+                                                className={'text-xs cursor-pointer w-50 '}
+                                            />
+                                            <p className="text-xs text-gray-500">Recto PDF, PNG, JPG (MAX: 5Mo)</p>
+                                            
+                                            
+                                        </div>
+
+                                        <div className="flex bg-orange-50 rounded-lg flex-col gap-2 items-center justify-center relative border-3 border-gray-300 border-dotted px-4 py-8">
+                                            
+                                            <Download className="text-orange-600 h-5 w-5"/> 
+                                            
+                                            <Input 
+                                                type={'file'}
+                                                onChange={(e)=>{fileRegistreVerso.current.files[0]}}
+                                                className={'text-xs cursor-pointer w-50 '}
+                                            />
+                                            <p className="text-xs text-gray-500">Verso PDF, PNG, JPG (MAX: 5Mo)</p>
+                                            
+                                            
+                                        </div>
+                                    
+                                    </div>
+
+                                
+                                    <p className="text-sm font-semibold mb-1">Carte d'identification fiscale (NIF) (Recto-Verso) <span className="text-orange-600">*</span></p>
+                                    <div className="grid grid-cols-2  gap-5 place-items-center ">
+                                        <div className="flex bg-orange-50 rounded-lg flex-col gap-2 items-center justify-center relative border-3 border-gray-300 border-dotted px-4 py-8">
+                                            
+                                            <Download className="text-orange-600 h-5 w-5"/> 
+                                            
+                                            <Input 
+                                                type={'file'}
+                                                onChange={(e)=>{fileFiscale.current.files[0]}}
+                                                className={'text-xs cursor-pointer w-50 '}
+                                            />
+                                            <p className="text-xs text-gray-500">Recto PDF, PNG, JPG (MAX: 5Mo)</p>
+                                        </div>
+
+                                        <div className="flex bg-orange-50 rounded-lg flex-col gap-2 items-center justify-center relative border-3 border-gray-300 border-dotted px-4 py-8">
+                                            
+                                            <Download className="text-orange-600 h-5 w-5"/> 
+                                            
+                                            <Input 
+                                                type={'file'}
+                                                onChange={(e)=>{fileFiscaleVerso.current.files[0]}}
+                                                className={'text-xs cursor-pointer w-50 '}
+                                            />
+                                            <p className="text-xs text-gray-500">Verso PDF, PNG, JPG (MAX: 5Mo)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                        {error && (
+                                <span className="mt-2 mb-2 flex items-center gap-1 text-red-500 text-sm italic">
+                                    <XCircle className="h-4 w-4"/>{error}</span>
+                                )}
+                                {success && (
+                                    <span className="mt-2 mb-2 flex items-center gap-1 text-green-500 text-sm italic">
+                                        <CheckCircle className="h-4 w-4"/>Informations de la salle validées !</span>
+                                )}
+
                     </div>
-
-                    <hr className=" mb-3 mt-3 text-gray-200"/>
-
-                    <div className="py-5 px-8">
-                        <p className="mb-4 text-xl fuzzy-bubbles-bold">Documents à fournir</p>
-                    
-                        <div className="flex items-center gap-2 justify-between">
-                            <div>
-                                <p className="text-sm font-semibold mb-1">Registre de commerce <span className="text-orange-600">*</span></p>
-                                
-                                <div className="flex bg-orange-50 rounded-lg flex-col gap-2 items-center justify-center relative border-3 border-gray-300 border-dotted px-4 py-8">
-                                    
-                                    <Download className="text-orange-600 h-5 w-5"/> 
-                                    
-                                    <Input 
-                                        type={'file'}
-                                        onChange={(e)=>{fileRegistre.current.files[0]}}
-                                        className={'text-xs cursor-pointer'}
-                                    />
-                                    <p className="text-xs text-gray-500">PDF, PNG, JPG (MAX: 5Mo)</p>
-                                    
-                                    
-                                </div>
-                                
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-semibold mb-1">Carte d'identification fiscale (NIF) <span className="text-orange-600">*</span></p>
-                                <div className="flex bg-orange-50 rounded-lg flex-col gap-2 items-center justify-center relative border-3 border-gray-300 border-dotted px-4 py-8">
-                                    
-                                    <Download className="text-orange-600 h-5 w-5"/> 
-                                    
-                                    <Input 
-                                        type={'file'}
-                                        onChange={(e)=>{fileFiscale.current.files[0]}}
-                                        className={'text-xs cursor-pointer'}
-                                    />
-                                    <p className="text-xs text-gray-500">PDF, PNG, JPG (MAX: 5Mo)</p>
-                                </div>
-                            </div>
-                            </div>
-
-                            {error && (
-                            <span className="mt-4 flex items-center gap-1 text-red-500 text-sm italic">
-                                <XCircle className="h-4 w-4"/>{error}</span>
-                            )}
-                            {success && (
-                                <span className="mt-4 flex items-center gap-1 text-green-500 text-sm italic">
-                                    <CheckCircle className="h-4 w-4"/>Informations de la salle validées !</span>
-                            )}
-
-                        </div>
 
                         
 
@@ -253,11 +325,11 @@ export default function InfoSalle(){
                             whileHover={{scale: 1.05}}
                             whileTap={{scale: 0.95}}
                             disabled={loading || !nomSalle.trim() || !numFiscale.trim() ||
-                                !numRegistre.trim() || !fileFiscale || !fileRegistre
+                                !numRegistre.trim() || !fileFiscale || !fileRegistre || !fileFiscaleVerso || !fileRegistreVerso
                             }
                             className={`${
                                 !nomSalle.trim() || !numFiscale.trim() ||
-                                !numRegistre.trim() || !fileFiscale || !fileRegistre ? 'bg-gray-300 border-1 border-gray-300' : 'hover:bg-white hover:text-black bg-orange-600 border-1 border-orange-600'} 
+                                !numRegistre.trim() || !fileFiscale || !fileRegistre || !fileFiscaleVerso || !fileRegistreVerso ? 'bg-gray-300 border-1 border-gray-300' : 'hover:bg-white hover:text-black bg-orange-600 border-1 border-orange-600'} 
                                 text-xs font-bold text-white flex gap-1 items-center py-2 px-4 rounded-lg
                                 `}
                         >
