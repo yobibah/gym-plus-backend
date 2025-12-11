@@ -1,9 +1,25 @@
 import React from "react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import Hero from "../components/Hero";
+import Features from "../components/Features";
+import Suscribe from "../components/Suscribe";
+import Contact from "../components/Contact";
 
 export default function Home() {
   return (
-    <div className="container mx-auto p-4">
-      Non implementé pour l'instant
+    <div>
+      <Header />
+      
+      <Hero />
+
+      <Features />
+
+      <Suscribe />
+
+      <Contact />
+
+      <Footer />
     </div>
   );
 }
