@@ -5,7 +5,7 @@ import Input from "../../components/ui/input";
 import authimage from '../../assets/images/authimage.png'
 import useGetUrl from "../../hooks/useGetUrl";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, KeyIcon, Loader2, Lock } from "lucide-react";
 
 
@@ -15,10 +15,14 @@ export default function ChangePassword(){
     const {apiUrl} = useGetUrl()
     const [showPassword, setShowPassword] = useState(false)
     const [password, setPassword] = useState('')
-    const [newPassword, setNewPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const [success, setSuccess] = useState(null)
+
+    const [params] = useSearchParams()
+    const token = params.get('token')
+    const email = params.get('email')
 
 
 
@@ -33,11 +37,13 @@ export default function ChangePassword(){
                 method: "POST",
                 headers : {
                     "Content-Type" : "application/json",
-                    "Accpet" : "application/json"
+                    "Accept" : "application/json"
                 },
                 body : JSON.stringify({
+                    token: token,
+                    email: email,
                     password : password,
-                    newPassword : newPassword
+                    password_confirmation: confirmPassword
                 })
             })
 
@@ -50,7 +56,7 @@ export default function ChangePassword(){
             setSuccess(true)
             setTimeout(()=>{
                 navigate('/auth')
-            }, 1500)
+            }, 2000)
             
         } catch(e){
             setError(e.message || 'Erreur! Veuillez réessayer')
@@ -112,9 +118,9 @@ export default function ChangePassword(){
                         </div>
                         <Input 
                             type={showPassword ? "text" : "password"}
-                            value={newPassword}
+                            value={confirmPassword}
                             placeholder={"confirmer mot de passe"}
-                            onChange={(e)=>{setNewPassword(e.target.value)
+                            onChange={(e)=>{setConfirmPassword(e.target.value)
                                 setError("")
                                 setSuccess('')}}
                             className={"text-white focus:outline-none focus:ring-1 focus:ring-orange-500 bg-transparent border-2 border-orange-500 rounded-lg w-full block pl-12 pr-9  text-xl h-10  "}
@@ -130,8 +136,8 @@ export default function ChangePassword(){
                 <motion.button
                     whileHover={{scale: 1.05}}
                     whileTap={{scale: 0.95}}
-                    disabled={loading || !password.trim() || !newPassword.trim() || password !== newPassword}
-                    className={`flex items-center gap-2 font-semibold transition-colors duration-200 ${!password.trim() || !newPassword.trim() || password !== newPassword ? 'border-gray-400 bg-gray-400' : 'hover:bg-transparent border-orange-500 bg-orange-500'} border-2 text-xl mx-auto  text-white p-2 px-4 rounded-lg cursor-pointer my-5`}
+                    disabled={loading || !password.trim() || !confirmPassword.trim() || password !== confirmPassword}
+                    className={`flex items-center gap-2 font-semibold transition-colors duration-200 ${!password.trim() || !confirmPassword.trim() || password !== confirmPassword ? 'border-gray-400 bg-gray-400' : 'hover:bg-transparent border-orange-500 bg-orange-500'} border-2 text-xl mx-auto  text-white p-2 px-4 rounded-lg cursor-pointer my-5`}
                 >
                     {loading ? (
                         <>

@@ -46,9 +46,6 @@ export default function ResetPassword(){
             }
 
             setSuccess(true)
-            // setTimeout(()=>{
-            //     navigate('/change-password', {state: email})
-            // }, 1500)
             
         } catch(e){
             setError(e.message || 'Erreur! Veuillez réessayer')
