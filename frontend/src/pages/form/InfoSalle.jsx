@@ -70,13 +70,13 @@ export default function InfoSalle(){
         formData.append("numFiscale", numFiscale) 
         formData.append("fileR", fileRegistre)
         formData.append("fileF", fileFiscale) 
-        formData.append("token", token)
 
         try{
             const response = await fetch(`${apiUrl}info-salle`,{
                 method: "POST",
                 headers: {
-                    "Accpet" : "application/json"
+                    "Accept" : "application/json",
+                    "Authorization" : `Bearer ${token}`, 
                 },
                 body: formData
             })

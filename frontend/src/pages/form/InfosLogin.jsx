@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import Input from "../../components/ui/input";
 import { useSearchParams, Link } from "react-router-dom";
-import { ArrowRight, CheckCircle, XCircle, Loader2, LoaderIcon } from "lucide-react";
+import { ArrowRight, CheckCircle, XCircle, Loader2, LoaderIcon, Beaker } from "lucide-react";
 import useGetUrl from "../../hooks/useGetUrl";
 import Cookies from 'js-cookie'
 import { useNavigate } from "react-router-dom";
@@ -109,10 +109,10 @@ export default function InfosLogin(){
                 method : 'POST',
                 headers : {
                     "Content-Type" : "application/json",
+                    "Authorization" : `Bearer ${token}`, 
                     "Accept" : "application/json"
                 },
                 body : JSON.stringify({
-                    token: token,
                     codeOtp: otp,
                 })
             })

@@ -46,10 +46,11 @@ export default function Paiement(){
                 method: "POST",
                 headers:{
                     "Content-Type":"application/json",
+
+                    "Authorization" : `Bearer ${token}`, 
                     "Accept":"application/json",
                 },
                 body: JSON.stringify({
-                    "token" : token,
                     "forfait" : forfait,
                     "montant" : montant
                 })
