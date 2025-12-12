@@ -8,9 +8,9 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Validation\Rules\Email;
 
-class demandeDemo extends Mailable
+
+class demandeDemo extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -18,18 +18,19 @@ class demandeDemo extends Mailable
      * Create a new message instance.
      */
     public $email;
-    public $message;
+    public $mess;
     
-    public function __construct(Email $email,string $message)
+    public function __construct($email, $message)
     {
         $this->email=$email;
-        $this->message=$message;
+        $this->mess=$message;
     
     }
 
     public function build(){
         return $this->subject('Demande de demonstration de l\'application ')->with([
-            'message'=>$this->message
+            'content'=>$this->mess,
+            'email'=>$this->email
         ])->view('emails.demo');
     }
 

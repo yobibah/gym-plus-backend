@@ -10,11 +10,11 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [AuthController::class, 'Login']);
 Route::post('/infos-perso', [AuthController::class, 'Register']);
 Route::post('/forgot-password', [AuthController::class, 'sendLink']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');;
-
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
+Route::post('/accueil-form', [AuthController::class, 'demo']);
 
 Route::middleware('auth:sanctum')->group(function () {
-Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
+    Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
 
     Route::post('/adherant', [UserController::class, 'AjouterAdherant']);
     Route::post('/info-salle', [SalleController::class, 'AjouterSalle']);

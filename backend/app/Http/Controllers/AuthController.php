@@ -314,18 +314,20 @@ class AuthController extends Controller
 
         try {
 
-            if (!Mail::to(env('AMDIN'))->send(new demandeDemo($request->email, $request->messsage))) {
+            if (Mail::to(env('ADMIN'))->queue(new demandeDemo($request->email, $request->message)))
+
 
                 return response()->json([
-                    'message' => 'votre demande n\'a pas ete envoyer. Oups une erreur s\'est produite '
-                ]);
+                    'message' => 'votre demande a ete prise en compte nou vous enverrons un message de confirmation'
+                ], 200);
 
-            }
-            return response()->json([
-                'message' => 'votre demande a ete prise en compte nou vous enverrons un message de confirmation'
-            ]);
+
+
+
         } catch (Exception $th) {
-
+            return response()->json([
+                'message' => 'une errreur est survenue'
+            ], 500);
         }
     }
 }
