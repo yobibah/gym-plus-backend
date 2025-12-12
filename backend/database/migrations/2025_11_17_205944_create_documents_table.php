@@ -14,6 +14,14 @@ return new class extends Migration
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->enum('type',['cni','passport']);
+            $table->string('numero_identite');
+            $table->string('recto');
+            $table->string('verso');
+            $table->enum('status',['attente','verifie','rejette']);
+            $table->foreignId('salle_id')->constrained('salles');
+            $table->dateTime('date_soumission');
+           $table->dateTime('date_verification');
         });
     }
 

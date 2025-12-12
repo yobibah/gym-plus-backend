@@ -1,6 +1,7 @@
 <?php
 
 return [
+    
 
     'models' => [
 
@@ -199,4 +200,7 @@ return [
 
         'store' => 'default',
     ],
+    'default'=>[
+        'guard'=>'api'
+    ]
 ];

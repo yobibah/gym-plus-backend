@@ -14,6 +14,13 @@ return new class extends Migration
         Schema::create('paiements', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->foreignId('gerant_id')->constrained('users');
+            $table->string('moyen paiment');
+            $table->enum('status',['attente','echoue','reussi']);
+            $table->float('montant',2);
+            $table->string('transId');
+            $table->dateTime('debut');
+            $table->dateTime('fin');
         });
     }
 

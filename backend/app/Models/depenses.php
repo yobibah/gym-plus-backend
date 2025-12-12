@@ -6,5 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class depenses extends Model
 {
-    //
+    protected $fillable=[
+        
+    ]; 
 }

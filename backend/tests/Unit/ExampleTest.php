@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Http\Controllers\AuthController;
 use PHPUnit\Framework\TestCase;
 
 class ExampleTest extends TestCase
@@ -11,6 +12,17 @@ class ExampleTest extends TestCase
      */
     public function test_that_true_is_true(): void
     {
-        $this->assertTrue(true);
+        //    $user=[
+        //     'email'=>'yobibah7295@gmail'
+        // ];
+        // $otp = new \App\Services\Otp($user);
+
+        // dd($otp::generete());
+        // dd($otp->sendOTp());
+        // dd($otp->verifierOtp(123456));
+
+        $email ='ckprod7295@gmail.com';
+        $senlink = new AuthController();
+        $senlink->ReinitialiserCompte($email);
     }
 }

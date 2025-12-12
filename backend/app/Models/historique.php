@@ -6,5 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class historique extends Model
 {
-    //
+    protected $fillable = [
+        'date_connexion',
+
+        'gerant_id'
+
+
+    ];
 }

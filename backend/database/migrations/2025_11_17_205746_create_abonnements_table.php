@@ -14,6 +14,14 @@ return new class extends Migration
         Schema::create('abonnements', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('transID');
+            $table->enum('plan',['mensuel','trimestriel','annuel'])->default('mensuel');
+            $table->float('montant',2);
+            $table->dateTime('debut');
+            $table->dateTime('fin');
+            $table->foreignId('adherant_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('salle_id')->constrained('salles')->onDelete('cascade');
+            
         });
     }
 
