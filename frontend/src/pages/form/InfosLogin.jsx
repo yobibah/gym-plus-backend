@@ -45,15 +45,27 @@ export default function InfosLogin(){
     const choix_forfait = JSON.parse(localStorage.getItem('choix_forfait'))
 
     useEffect(()=>{
-        
+        const token = Cookies.get('token')
         const status_salle = localStorage.getItem('status_salle')
         const infosEnregistre = localStorage.getItem('form')
         const otp_valide = localStorage.getItem('status_otp')
-        if(infosEnregistre && otp_valide === 'otp_verifie'){
-            navigate(`/infos-salle?forfait=${choix_forfait.forfait}&prix=${choix_forfait.montant}`)
-        } else if(status_salle === 'salle_info_remplie' && infosEnregistre && otp_valide === 'otp_verifie'){
-            navigate(`/paiement?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
+
+        if(!token){
+            localStorage.removeItem('form')
+            localStorage.removeItem('status_otp')
+            localStorage.removeItem('status_salle')
+            navigate('/form-subscribe', {replace: true})
+            return
         }
+
+
+        if( token && status_salle === 'salle_info_remplie' && infosEnregistre && otp_valide === 'otp_verifie'){
+            navigate(`/paiement?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
+        } else if(token && infosEnregistre && otp_valide === 'otp_verifie'){
+            navigate(`/infos-salle?forfait=${choix_forfait.forfait}&prix=${choix_forfait.montant}`)
+        } 
+
+
     },[])
 
     useEffect(()=>{
@@ -141,7 +153,7 @@ export default function InfosLogin(){
             localStorage.setItem('status_otp', 'otp_verifie')
             setTimeout(()=>{
                 navigate(`/infos-salle?forfait=${choix_forfait.forfait}&prix=${choix_forfait.montant}`)
-            }, 2000)
+            }, 2500)
         } catch(e){
             setErrorOtp(e.message || 'Erreur! Réessayer')
         } finally{

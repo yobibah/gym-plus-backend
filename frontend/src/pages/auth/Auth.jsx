@@ -38,7 +38,7 @@ export default function Auth (){
                     "Accept" : "application/json"
                 },
                 body : JSON.stringify({
-                    identifiant : identifiant,
+                    username : identifiant,
                     password : password
                 })
             })
@@ -53,7 +53,7 @@ export default function Auth (){
             Cookies.set('token', data.token, {expires: 365})
             setTimeout(()=>{
                 navigate('/dashboard')
-            },1500)
+            },2000)
 
         }catch(e){
             setError(e.message || 'Erreur! Vérifier vos informations')
@@ -86,7 +86,7 @@ export default function Auth (){
 
                     {error && (<span className="text-base font-bold text-center text-red-500 italic ml-2">{error}</span>  
                     )}
-                    {success && (<span className="text-base font-bold text-center text-green-500 italic ml-2">Connexions réussie, redirection...</span>  
+                    {success && (<span className="text-base font-bold text-green- flex items-center justify-center italic ml-2">Connexions réussie, redirection... <Loader2 className="h-5 w-5"/></span>  
                     )} 
                     <div className=" px-10">
                     <p className="text-2xl font-semibold text-white mb-2">Identifiant</p>
