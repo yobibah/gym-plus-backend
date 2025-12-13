@@ -18,6 +18,8 @@ export default function Paiement(){
     const forfaitUrl = params.get('forfait')
     const montantUrl = params.get('montant')
 
+    const choix_forfait = JSON.parse(localStorage.getItem('choix_forfait')) 
+
     const navigate = useNavigate()
     const {apiUrl} = useGetUrl()
 
@@ -64,8 +66,13 @@ export default function Paiement(){
             setSuccess(true)
             
             setTimeout(()=>{
-                navigate(`/confirmation?forfait=${forfait}&montant=${montant}`)
+                navigate(`/confirmation?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
             }, 1500)
+
+            localStorage.removeItem('form')
+            localStorage.removeItem('status_otp')
+            localStorage.removeItem('status_salle')
+            localStorage.removeItem('choix_forfait')
 
         } catch(e){
             setError(e.message || 'Erreur de paiement')

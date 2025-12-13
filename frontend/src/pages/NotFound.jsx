@@ -11,7 +11,7 @@ export default function NotFound() {
   const navigate = useNavigate()
 
   function goBack(){
-    navigate(-1)
+    navigate('/')
   }
 
   return (
@@ -22,10 +22,9 @@ export default function NotFound() {
         style={" mx-auto w-150 h-150 animate-pulse"}
       />
 
-      <p className="text-gray-500 text-2xl italic">Lien incorrect où page inexistante</p>
 
 
-      <Button onClick={goBack} title={'retour'} icon={<ArrowLeft className="h-5 w-5"/>} className={"bg-orange-500 flex items-center justify-center gap-2 rounded-lg text-xl cursor-pointer hover:text-black hover:bg-orange-100 hover:border-2 hover:border-orange-500 p-2"}/>
+      <Button onClick={goBack} title={'retour à l\'accuei'} icon={<ArrowLeft className="h-5 w-5"/>} className={"bg-orange-500 flex items-center transition-colors duration-200 justify-center gap-2 rounded-lg text-xl cursor-pointer hover:text-black hover:bg-orange-100 border-2 border-orange-500 p-2"}/>
     </div>
   );
 }

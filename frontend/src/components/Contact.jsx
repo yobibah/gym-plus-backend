@@ -11,8 +11,8 @@ export default function Contact(){
     const [email, setEmail] = useState("")
     const [message, setMessage] = useState("")
     const [loading, setLoading] = useState(false)
-    const [success, setSuccess] = useState('')
-    const [error, setError] = useState('')
+    const [success, setSuccess] = useState(null)
+    const [error, setError] = useState(null)
 
     const {apiUrl} = useGetUrl()
 
@@ -20,21 +20,16 @@ export default function Contact(){
     async function Submit(e){
          e.preventDefault()
         setLoading(true)
-        setSuccess('')
-        setError('')
+        setSuccess(null)
+        setError(null)
 
         try{
-
-            // url: /accueil-form
-            // données que j'nevoie: email et message
-            // réponse attendu en json, je ne gère pas les codes réponses non plus
-            // je pers sur un truc basique 'vrai ou faux', si la requête est passée c'est bon
-            // mais si y'a erreur ça renvoie juste un echec
 
             const response = await fetch(`${apiUrl}accueil-form`,{
                 method : "POST",
                 headers : {
-                    "content-type" : "application/json"
+                    "Content-Type" : "application/json",
+                    "Accept" : "application/json"
                 },
                 body : JSON.stringify({
                     email : email,
@@ -48,11 +43,13 @@ export default function Contact(){
                 throw new Error(data.message || 'Echec! réeesayez')
             }
 
-            setSuccess(`Succès! votre demande à été prise en compte \nNous vous répondrons dans un délai de 48h`)
+            setSuccess(true)
+            setEmail('')
+            setMessage('')
            
             console.log(data)
         } catch (e){
-            setError('Echec! Veuillez réessayez.')
+            setError(e.message || 'Echec! Veuillez réessayez.')
         } finally{
             setLoading(false)
         }
@@ -100,7 +97,7 @@ export default function Contact(){
                             <form onSubmit={Submit} className="w-full max-w-md bg-white shadow-lg rounded-xl p-6 md:p-8 flex flex-col gap-4 md:gap-6">
                                 
                                 {success && (
-                                    <p className="text-green-500 text-sm text-center">{success}</p>
+                                    <p className="text-green-500 text-sm text-center">{`Succès! votre demande à été prise en compte \nNous vous répondrons dans un délai de 48h`}</p>
                                 )}
                                 {error && (
                                     <p className="text-red-500 text-sm text-center">{error}</p>

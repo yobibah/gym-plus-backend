@@ -42,6 +42,19 @@ export default function InfosLogin(){
         {id:3, forfait:"Premium", montant: 40000}, 
     ]
 
+    const choix_forfait = JSON.parse(localStorage.getItem('choix_forfait'))
+
+    useEffect(()=>{
+        
+        const status_salle = localStorage.getItem('status_salle')
+        const infosEnregistre = localStorage.getItem('form')
+        const otp_valide = localStorage.getItem('status_otp')
+        if(infosEnregistre && otp_valide === 'otp_verifie'){
+            navigate(`/infos-salle?forfait=${choix_forfait.forfait}&prix=${choix_forfait.montant}`)
+        } else if(status_salle === 'salle_info_remplie' && infosEnregistre && otp_valide === 'otp_verifie'){
+            navigate(`/paiement?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
+        }
+    },[])
 
     useEffect(()=>{
         if(!forfait || !montant){
@@ -82,12 +95,13 @@ export default function InfosLogin(){
             const data = await response.json()
 
             if(!response.ok){
-                throw new Error(data.error || 'Erreur survenue lors de la récupération de données')
+                throw new Error(data.error || 'Erreur lors de l\'inscription! Réessayez')
             }
 
             setSuccess(true)
             Cookies.set('token', data.token, {expires: 365})
-
+            
+            localStorage.setItem('form', JSON.stringify({nom, prenom, tel, email}))
             setOtpStep(true)
         } catch(e){
             setError(e.message || 'Erreur! Veuillez réessayer')
@@ -124,9 +138,10 @@ export default function InfosLogin(){
             }
 
             setSuccessOtp(true)
+            localStorage.setItem('status_otp', 'otp_verifie')
             setTimeout(()=>{
-                navigate(`/infos-salle?forfait=${forfait}&prix=${montant}`)
-            }, 1500)
+                navigate(`/infos-salle?forfait=${choix_forfait.forfait}&prix=${choix_forfait.montant}`)
+            }, 2000)
         } catch(e){
             setErrorOtp(e.message || 'Erreur! Réessayer')
         } finally{

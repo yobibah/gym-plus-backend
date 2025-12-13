@@ -14,6 +14,7 @@ export default function Suscribe(){
     function handleSubscribe(forfait, montant){
         setForfait(forfait)
         setMontant(montant)
+        localStorage.setItem('choix_forfait', JSON.stringify({forfait, montant}))
         navigate(`/form-subscribe?forfait=${forfait}&montant=${montant}`)
     }
 
