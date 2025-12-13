@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Models\paiement;
 use App\Models\User;
 
 use App\Models\salle;
@@ -53,7 +54,7 @@ class Otp
     }
 
     // envoyer le username et le mots de passe 
-    public function sendLoginInformation(string $mdp)
+    public function sendLoginInformation(string $mdp, ?paiement $paiement=null)
     {
 
         $gerant = User::where('email', $this->user->email)->first();

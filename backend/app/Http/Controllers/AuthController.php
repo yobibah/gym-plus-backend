@@ -215,50 +215,57 @@ class AuthController extends Controller
 
     }
 
-    public function SendLink(Request $request)
-    {
 
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email'
+public function SendLink(Request $request)
+{
+
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Veuillez saisir une adresse email valide'
+        ], 400);
+    }
+
+    try {
+     
+        $gerant = User::where('email', $request->email)
+            ->whereHas('roles', fn ($q) => $q->where('name', 'Gerant'))
+            ->first();
+
+        if (!$gerant) {
+            return response()->json([
+                'message' => 'Cette adresse email n’est pas associée à un compte gerant'
+            ], 404);
+        }
+
+ 
+        $status = Password::sendResetLink([
+            'email' => $request->email
         ]);
 
-        if ($validator->fails()) {
-            Log::info($validator->fails());
-            return response()->json([
-                'message' => 'veuillez saisir un mail valide'
-            ], 400);
-
-        }
-        // verifier et envoyer un lien de renitiallisation
-
-        try {
-            $gerant = User::where('email', $request->email)
-                ->whereHas('roles', fn($q) => $q->where('name', 'Gerant'))
-                ->exists();
-
-                
-
-            if (!$gerant) {
-                return response()->json([
-                    'message' => 'cet adresse email n\'est pas associe a un compte '
-                ]);
-            }
-
-        $status = Password::sendResetLink($request->only(('email')));
         if ($status === Password::RESET_LINK_SENT) {
             return response()->json([
-                'message' => 'un lien de recuperation a ete envoyer sur ' . $request->email,
+                'message' => 'Un lien de récupération a été envoyé à ' . $request->email
             ], 200);
         }
-        } catch (\Throwable $th) {
-            Log::info($th->getMessage());
 
-            return response()->json([
-                'message'=> $th->getMessage()
-                ], 500);
-        }
+   
+        return response()->json([
+            'message' => 'Impossible d’envoyer le lien de réinitialisation'
+        ], 400);
 
+    } catch (\Throwable $th) {
+        Log::error($th);
+
+        return response()->json([
+            'message' => 'Erreur interne du serveur'
+        ], 500);
     }
+}
+
 
 
 

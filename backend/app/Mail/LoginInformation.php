@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\paiement;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -16,10 +17,13 @@ class LoginInformation extends Mailable implements ShouldQueue
     public string $username;
     public string $password;
 
-    public function __construct(string $username, string $password)
+    public $paiement;
+
+    public function __construct(string $username, string $password, ?paiement $paiement = null)
     {
         $this->username = $username;
         $this->password = $password;
+        $this->paiement = $paiement;
     }
 
     /**
@@ -42,6 +46,7 @@ class LoginInformation extends Mailable implements ShouldQueue
             with: [
                 'username' => $this->username,
                 'mdp'      => $this->password,
+                'paiement'=>$this->paiement
             ]
         );
     }

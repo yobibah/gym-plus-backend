@@ -39,6 +39,11 @@ class salle extends Model
         return $this->belongsTo(User::class, 'gerant_id');
     }
 
+
+    public function documents(){
+        return $this->hasMany(Document::class,'salle_id','id');
+    }
+
     public function adherents()
     {
         return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')

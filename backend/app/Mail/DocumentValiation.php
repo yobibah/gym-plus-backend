@@ -2,67 +2,38 @@
 
 namespace App\Mail;
 
-use App\Models\document;
+use App\Models\Document;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class DocumentValiation extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
+    public $gerant;
+    public $documment;
 
-   public  $gerant ;
-   public $documment;
-    public function __construct(User $gerant, document $documment)
+    public function __construct(User $gerant, Document $documment)
     {
-        $gerant = $this->gerant;
-        $documment = $this->documment;
+        // ✅ CORRECTION ICI
+        $this->gerant = $gerant;
+        $this->documment = $documment;
     }
 
-    /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
+    public function build()
     {
-        return new Envelope(
-            subject: 'Document Valiation',
-        );
-    }
-
-
-    public function build(){
+        // Récupère la salle liée au document
         $salle = $this->documment->salle;
-        return $this->subject('Validation des docuement d\'un nouveau client')->with([
-            'document'=>$this->documment,
-            'gerant'=>$this->gerant,
-            'salle'=>$salle
-        ])->view('emails.DocumentValidation');
-    }
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'view.name',
-        );
-    }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
+        return $this->subject('Validation des documents d\'un nouveau client')
+                    ->with([
+                        'document' => $this->documment,
+                        'gerant' => $this->gerant,
+                        'salle' => $salle
+                    ])
+                    ->view('emails.DocumentValidation');
     }
 }

@@ -6,14 +6,31 @@ use Illuminate\Database\Eloquent\Model;
 
 class paiement extends Model
 {
-    protected $fillable=[
-        
-    ]; 
+    protected $fillable = [
+        "gerant_id",
 
-public function gerant()
-{
-    return $this->belongsTo(User::class, 'gerant_id', 'id');
-}
+        "moyen paiment",
+
+        "status",
+
+        "montant",
+
+        "transId",
+
+        "debut",
+
+        "fin",
+
+        "plan"
+    ];
+
+
+
+
+    public function gerant()
+    {
+        return $this->belongsTo(User::class, 'gerant_id', 'id');
+    }
 
 
 

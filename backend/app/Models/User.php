@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\salle;
+use App\Notifications\CustomResetPassword;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -18,7 +19,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles, HasPermissions, HasApiTokens;
-
+    // protected $table = 'users';
 
     /**
      * The attributes that are mass assignable.
@@ -59,6 +60,12 @@ class User extends Authenticatable
     }
 
 
+
+
+public function sendPasswordResetNotification($token)
+{
+    $this->notify(new CustomResetPassword($token));
+}
 
 
     public function salle(): HasOne

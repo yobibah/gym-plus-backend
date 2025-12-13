@@ -34,6 +34,6 @@ class document extends Model
     }
 
     public function salle(){
-        return $this->hasMany(salle::class,'salle_id');
+        return $this->belongsTo(salle::class,'salle_id');
     }
 }
