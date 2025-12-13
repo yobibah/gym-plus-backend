@@ -41,6 +41,7 @@ export default function ChangePassword(){
                     "Accept" : "application/json"
                 },
                 body : JSON.stringify({
+                    token: token,
                     email: email,
                     password : password,
                     password_confirmation: confirmPassword
