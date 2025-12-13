@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\salle;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
@@ -60,19 +61,26 @@ class User extends Authenticatable
 
 
 
-public function salles(): HasMany
-{
-     if (!$this->hasRole('Gerant')) {
-            throw new HttpResponseException(
-                response()->json([
-                    'message' => 'Vous n\'êtes pas autorisé'
-                ], 401)
-            );
-        }
-    return $this->hasMany(Salle::class, 'gerant_id', 'id');
-}
+    public function salle(): HasOne
+    {
+        // if (!$this->hasRole('Gerant')) {
+        //     throw new HttpResponseException(
+        //         response()->json([
+        //             'message' => 'Vous n\'êtes pas autorisé'
+        //         ], 401)
+        //     );
+        // }
+        return $this->HasOne(Salle::class, 'gerant_id', 'id');
+    }
 
 
+    //salle avec adherant
+    public function salles()
+    {
+        return $this->belongsToMany(Salle::class, 'adherent_salle', 'adherent_id', 'salle_id')
+            ->withPivot(['date_inscription', 'statut'])
+            ->withTimestamps();
+    }
 
 
 
@@ -82,15 +90,15 @@ public function salles(): HasMany
     // pour le gerant
     public function paiements(): HasMany
     {
-        if (!$this->hasRole('Gerant')) {
-            throw new HttpResponseException(
-                response()->json([
-                    'message' => 'Vous n\'êtes pas autorisé'
-                ], 401)
-            );
-        }
+        // if (!$this->hasRole('Gerant')) {
+        //     throw new HttpResponseException(
+        //         response()->json([
+        //             'message' => 'Vous n\'êtes pas autorisé'
+        //         ], 401)
+        //     );
+        // }
 
-        return $this->hasMany(paiement::class, 'gerant_id','id');
+        return $this->hasMany(paiement::class, 'gerant_id', 'id');
     }
     // public function paiements()
 // {
@@ -99,49 +107,36 @@ public function salles(): HasMany
 
     public function document(): HasMany
     {
-        return $this->hasRole('Gerant') ? $this->hasMany(document::class, 'gerant_id') : throw new HttpResponseException(
-            response()->json([
-                'message' => 'vous n\'ete pas autorise'
-            ], 401)
-        );
+        return $this->hasMany(document::class, 'gerant_id') ;
     }
 
 
-    public function historique(){
-        return $this->hasRole('Gerant') ? $this->hasMany(historique::class,'gerant_id') : throw new HttpResponseException( 
-            response()->json([
-                'message'=> ''
-                ], 401)
-                );
+    public function historique()
+    {
+        return  $this->hasMany(historique::class, 'gerant_id') ;
 
     }
 
-        public function historique_Mdp(){
-        return $this->hasRole('Gerant') ? $this->hasMany(HistoriqueMdp::class,'gerant_id') : throw new HttpResponseException( 
-            response()->json([
-                'message'=> ''
-                ], 401)
-                );
-
+    public function historique_Mdp()
+    {
+        return $this->hasMany(HistoriqueMdp::class, 'gerant_id') ;
     }
 
     // Espace adherant ici je vais declarer tte les methodes lier a l'adherant
 
     /// pour l'adherant 
 
-    public function Abonnement(): HasMany
+    public function abonnements(): HasMany
     {
-        if (!$this->hasRole('Adherant')) {
-            throw new HttpResponseException(
-                response()->json([
-                    'message' => 'Vous n\'êtes pas autorisé'
-                ], 401)
-            );
-        }
 
         return $this->hasMany(abonnement::class, 'adherant_id');
     }
 
 
+    // recuperer avec le dernier abonnement peut importe si ces expirer ou a jour
+    public function dernierAbonnement()
+    {
+        return $this->hasOne(abonnement::class, 'adherant_id')->latestOfMany('fin');
+    }
 
 }

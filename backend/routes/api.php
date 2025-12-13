@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GerantController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SalleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -17,6 +18,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
 
     Route::post('/adherant', [UserController::class, 'AjouterAdherant']);
+     Route::get('/mes-adherant', [HomeController::class, 'MesAdherants']);
+    
     Route::post('/info-salle', [SalleController::class, 'AjouterSalle']);
 
 });

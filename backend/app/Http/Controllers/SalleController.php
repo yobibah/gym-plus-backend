@@ -52,7 +52,7 @@ class SalleController extends Controller
         try {
 
 
-            $salle = Salle::create([
+            $salle = salle::create([
                 'nom_salle' => $request->nomSalle,
                 'numero_salle' => $current->telephone,
                 'ville' => $request->ville,
@@ -74,7 +74,7 @@ class SalleController extends Controller
 
             // recto et verso des fichier a verifier si ca concorde
             if ($request->hasFile('fileF') && $request->hasFile('fileRVerso')) {
-                $rectoName = $salle->id . '_recto_' . time() . '.' . $request->file('recto')->extension();
+                $rectoName = $salle->id . '_recto_' . time() . '.' . $request->file('fileF')->extension();
                 $versoName = $salle->id . '_verso_' . time() . '.' . $request->file('fileRVerso')->extension();
                 // $versoName = $salle->id . "." . $request->file('verso')->extension() . rand(111, 999);
                 if ($rectoName && $versoName) {
@@ -88,7 +88,7 @@ class SalleController extends Controller
             //apres je viens verifier ici
             $documment = document::create([
                 //type = cni ou passport
-                "type" => $request->type_document ? $request->type_document : ' pas preciser',
+                "type" => $request->type_document ? $request->type_document : 'cni',
                 "numero_identite" => $request->numRegistre .' ' .$request->numFiscale,
                 "recto" => $rectoName,
                 "verso" => $versoName,

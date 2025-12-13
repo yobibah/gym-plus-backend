@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('recto');
             $table->string('verso');
             $table->enum('status',['attente','verifie','rejette']);
-            $table->foreignId('salle_id')->constrained('salles');
+            $table->foreignId('salle_id')->constrained('salle');
             $table->dateTime('date_soumission');
            $table->dateTime('date_verification');
         });

@@ -23,7 +23,8 @@ class DocumentValiation extends Mailable implements ShouldQueue
    public $documment;
     public function __construct(User $gerant, document $documment)
     {
-        //
+        $gerant = $this->gerant;
+        $documment = $this->documment;
     }
 
     /**

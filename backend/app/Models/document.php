@@ -20,6 +20,7 @@ class document extends Model
         "date_soumission",
 
         "date_verification",
+        "type",
     ];
 
 

@@ -13,10 +13,10 @@ class RolSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::firstOrCreate(['name' => 'Adherant','guard_name'=>'api']);
-        Role::firstOrCreate(['name' => 'Gerant','guard_name'=>'api']);
-        Role::firstOrCreate(['name' => 'Employe','guard_name'=>'api']);
-        Role::firstOrCreate(['name' => 'Admin','guard_name'=>'api']);
-        Role::firstOrCreate(['name' => 'SuperAdmin','guard_name'=>'api']);
+        Role::firstOrCreate(['name' => 'Adherant','guard_name'=>'web']);
+        Role::firstOrCreate(['name' => 'Gerant','guard_name'=>'web']);
+        Role::firstOrCreate(['name' => 'Employe','guard_name'=>'web']);
+        Role::firstOrCreate(['name' => 'Admin','guard_name'=>'web']);
+        Role::firstOrCreate(['name' => 'SuperAdmin','guard_name'=>'web']);
     }
 }

@@ -34,11 +34,11 @@ class Otp
                 new sendOtpMail($this->user, $otp)
             )
         ) {
-            if ($gerant->exists() && $gerant->wasRecentlyCreated) {
+         
                 //je vais logger pour voir si ca fonctionne ou pas avant d'enregisrter
                 $gerant->otp = $otp;
                 $gerant->save();
-            }
+            
 
         }
 
@@ -49,7 +49,7 @@ class Otp
 
     public function verifierOtp(int $Otp): bool
     {
-        return $this->user->otp === $Otp;
+        return (int)$this->user->otp === (int)$Otp;
     }
 
     // envoyer le username et le mots de passe 

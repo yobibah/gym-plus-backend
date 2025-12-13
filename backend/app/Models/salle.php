@@ -29,10 +29,21 @@ class salle extends Model
 
 
 
-public function Gerant()
-{
-    return $this->belongsTo(Salle::class, 'gerant_id');
-}
+    // public function Gerant()
+// {
+//     return $this->belongsTo(Salle::class, 'gerant_id');
+// }
 
+    public function gerant()
+    {
+        return $this->belongsTo(User::class, 'gerant_id');
+    }
+
+    public function adherents()
+    {
+        return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
+            ->withPivot(['date_inscription', 'statut'])
+            ->withTimestamps();
+    }
 
 }

@@ -200,10 +200,13 @@ class AuthController extends Controller
         
     $current->update(['email_verified' => Carbon::now()]);
       }
-       if (!$current->email_verified_at) {
+       if ($current->email_verified_at) {
           $mdp = (Str::random(10));
                 $otp->sendLoginInformation($mdp);
-                $current->update(['password',$mdp]);
+                $current->update([
+                    'password',$mdp,
+                    'otp'=> null
+            ]);
             }
           
         return response()->json([
