@@ -44,10 +44,24 @@ export default function InfoSalle(){
     const choix_forfait = JSON.parse(localStorage.getItem('choix_forfait'))
 
     useEffect(()=>{
-        const infosEnregistre = localStorage.getItem('form')
+
+         const infosEnregistre = localStorage.getItem('form')
         const otp_valide = localStorage.getItem('status_otp')
         const status_salle = localStorage.getItem('status_salle')
-        if(status_salle === 'salle_info_remplie' && infosEnregistre && otp_valide === 'otp_verifie'){
+        const token = Cookies.get('token')
+        
+        if(!token){
+            
+            localStorage.removeItem('form')
+            localStorage.removeItem('status_otp')
+            localStorage.removeItem('status_salle')
+            navigate('/form-subscribe', {replace: true})
+            
+            return
+        }
+
+       
+        if(token && status_salle === 'salle_info_remplie' && infosEnregistre && otp_valide === 'otp_verifie'){
             navigate(`/paiement?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
         }
     }, [])
@@ -108,7 +122,7 @@ export default function InfoSalle(){
             localStorage.setItem('status_salle', 'salle_info_remplie')
             setTimeout(()=>{
                 navigate(`/paiement?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
-            }, 1500)
+            }, 2500)
         } catch(e){
             setError(e.message || 'Erreur survenue')
         } finally{

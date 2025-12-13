@@ -24,6 +24,18 @@ export default function Paiement(){
     const {apiUrl} = useGetUrl()
 
     useEffect(()=>{
+        const token = Cookies.get('token')
+        if(!token){
+            
+            localStorage.removeItem('form')
+            localStorage.removeItem('status_otp')
+            localStorage.removeItem('status_salle')
+            navigate('/form-subscribe', {replace: true})
+            return
+        }
+    }, [])
+
+    useEffect(()=>{
         if(!forfait || !montant){
             navigate('/not-found', {replace: true})
             return
@@ -67,7 +79,7 @@ export default function Paiement(){
             
             setTimeout(()=>{
                 navigate(`/confirmation?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
-            }, 1500)
+            }, 2500)
 
             localStorage.removeItem('form')
             localStorage.removeItem('status_otp')
