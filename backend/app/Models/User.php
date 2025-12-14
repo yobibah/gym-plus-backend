@@ -146,4 +146,16 @@ public function sendPasswordResetNotification($token)
         return $this->hasOne(abonnement::class, 'adherant_id')->latestOfMany('fin');
     }
 
+    public function DernierPaiement(){
+         return $this->hasOne(paiement::class, 'gerant_id')->latestOfMany('fin');
+    }
+
+    public function dernierPaiementReussi()
+{
+    return $this->hasOne(paiement::class, 'gerant_id')
+                ->where('status', 'reussi')
+                ->latestOfMany('fin');
+}
+
+
 }

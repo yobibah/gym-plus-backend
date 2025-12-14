@@ -129,12 +129,12 @@ class AuthController extends Controller
                     'code' => 404
                 ], 404);
             }
-            if ($gerant->email_verified_at == null){
-                      return response()->json([
-                    'message' => 'votre compte n\'a pas ete verifier veuillez verifier.',
-                    'code' => 401
-                ], 401);
-            }
+            // if ($gerant->email_verified_at == null){
+            //           return response()->json([
+            //         'message' => 'votre compte n\'a pas ete verifier veuillez verifier.',
+            //         'code' => 401
+            //     ], 401);
+            // }
             if (!Auth::attempt($credientials)) {
                 return response()->json([
 

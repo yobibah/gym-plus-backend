@@ -275,6 +275,15 @@ class UserController extends Controller
     }
 
 
+      public function PlanChoisit(Request $request){
+        $user = $request->user();
+        $plan = $user->dernierPaiementReussi->plan;
+        return response()->json([
+            'plan'=>$plan
+        ]);
+
+      }
+
     public function NotifierAherant()
     {
 

@@ -19,9 +19,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
 
     Route::post('/adherant', [UserController::class, 'AjouterAdherant']);
+    Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
      Route::get('/mes-adherant', [HomeController::class, 'MesAdherants']);
     
-    Route::post('/info-salle', [SalleController::class, 'AjouterSalle']);
+    Route::post('/info-salle', action: [SalleController::class, 'AjouterSalle']);
     Route::post('/payment', [PaiementController::class,'simulation']);
 
 });
