@@ -181,39 +181,52 @@ class AuthController extends Controller
         }
     }
 
-    public function VerifieEmail(Request $request)
-    {
-        $current = $request->user();
-        $otp = new Otp($current);
-        $validator = Validator::make($request->all(), [
-            'codeOtp' => 'required|max:6'
 
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'remplir les champs avec les bonnes valeurs'
+public function VerifieEmail(Request $request)
+{
+    $current = $request->user();
+    $otpService = new Otp($current);
 
-            ], 400);
-        }
-      if(  $otp->verifierOtp($request->codeOtp) ){
-        
-    $current->update(['email_verified' => Carbon::now()]);
-      }
-       if ($current->email_verified_at) {
-          $mdp = (Str::random(10));
-                $otp->sendLoginInformation($mdp);
-                $current->update([
-                    'password',$mdp,
-                    'otp'=> null
-            ]);
-            }
-          
+    $validator = Validator::make($request->all(), [
+        'codeOtp' => 'required|digits:6'
+    ]);
+
+    if ($validator->fails()) {
         return response()->json([
-            'message' => 'Votre code Otp a ete bien verifie'
-        ], 200);
-
+            'message' => 'Code OTP invalide'
+        ], 422);
     }
+
+    // Vérification OTP
+    if (!$otpService->verifierOtp($request->codeOtp)) {
+        return response()->json([
+            'message' => 'Code OTP incorrect ou expiré'
+        ], 401);
+    }
+
+    // Marquer email comme vérifié
+    $current->update([
+        'email_verified_at' => Carbon::now(),
+        'otp' => null,
+        'otp_expires_at' => null,
+    ]);
+
+    // Génération mot de passe
+    $mdp = Str::random(10);
+
+    $current->update([
+        'password' => $mdp
+    ]);
+
+    // Envoi des infos de connexion
+    $otpService->sendLoginInformation($mdp);
+
+    return response()->json([
+        'message' => 'Votre email a été vérifié avec succès'
+    ], 200);
+}
+
 
 
 public function SendLink(Request $request)

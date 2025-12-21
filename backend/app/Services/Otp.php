@@ -30,19 +30,18 @@ class Otp
         //recuperer l'utilisateur et voir si l'otp est la
         $gerant = User::where('email', $this->user->email)->first();
 
-        if (
+      
             Mail::to($this->user->email)->queue(
                 new sendOtpMail($this->user, $otp)
-            )
-        ) {
+            );
+    
 
             //je vais logger pour voir si ca fonctionne ou pas avant d'enregisrter
             $gerant->otp = $otp;
             $gerant->save();
 
 
-        }
-
+        
     }
 
 
@@ -54,7 +53,7 @@ class Otp
     }
 
     // envoyer le username et le mots de passe 
-    public function sendLoginInformation(string $mdp, ?paiement $paiement = null)
+    public function sendLoginInformation(string $mdp)
     {
 
         $gerant = User::where('email', $this->user->email)->first();

@@ -53,30 +53,13 @@
     <div class="container">
         <h2>Bienvenue sur notre plateforme</h2>
 
-        @if ($paiement->status == 'reussi')
-            <div class="success">
-                <p>✅ Votre paiement a réussi !</p>
-            </div>
-
-            <div class="info">
-                <p><span class="highlight">Date de début :</span> {{ $paiement->debut }}</p>
-                <p><span class="highlight">Date de fin :</span> {{ $paiement->fin }}</p>
-                <p><span class="highlight">Plan choisi :</span> {{ $paiement->plan }}</p>
-                <p><span class="highlight">Transaction :</span> {{ $paiement->transaction ?? 'N/A' }}</p>
-                <p><span class="highlight">Montant :</span> {{ $paiement->montant }} FCFA</p>
-            </div>
 
             <div class="info">
                 <p>Voici vos informations de connexion :</p>
                 <p><strong>Nom d'utilisateur :</strong> {{ $username }}</p>
                 <p><strong>Mot de passe :</strong> {{ $mdp }}</p>
             </div>
-        @else
-            <div class="error">
-                <p>❌ Oups ! Votre paiement a échoué. Veuillez réessayer.</p>
-            </div>
-        @endif
-
+  
         <p>Merci d'utiliser notre service.</p>
     </div>
 </body>

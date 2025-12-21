@@ -64,7 +64,7 @@ class PaiementController extends Controller
         ]);
 
         // Envoyer les informations de connexion
-        $otp->sendLoginInformation($mdp, $paiement);
+        // $otp->sendLoginInformation($mdp, $paiement);
 
         return response()->json([
             'message' => 'Paiement réussi',
