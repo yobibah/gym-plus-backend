@@ -51,4 +51,12 @@ class salle extends Model
             ->withTimestamps();
     }
 
+
+    // public function adherentsActif()
+    // {
+    //     return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
+    //         ->withPivot(['date_inscription', 'statut','=','actif'])
+    //         ->withTimestamps();
+    // }
+
 }

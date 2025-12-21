@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivitesController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GerantController;
 use App\Http\Controllers\HomeController;
@@ -16,14 +17,22 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('
 Route::post('/accueil-form', [AuthController::class, 'demo']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
+  Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
 
-    Route::post('/adherant', [UserController::class, 'AjouterAdherant']);
-    Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
-     Route::get('/mes-adherant', [HomeController::class, 'MesAdherants']);
-    
-    Route::post('/info-salle', action: [SalleController::class, 'AjouterSalle']);
-    Route::post('/payment', [PaiementController::class,'simulation']);
+  //acitive 
+  Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
+  Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
+
+  //gestion des gerants
+  Route::post('/adherant', [UserController::class, 'AjouterAdherant']);
+  Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
+
+  Route::get('/mes-adherant', [HomeController::class, 'MesAdherants']);
+  Route::get('/nbr-adherant', [HomeController::class, 'NbreAdherant']);
+   Route::get('/nbr-adherant-actif', [HomeController::class, 'AdherantActif']);
+
+  Route::post('/info-salle', action: [SalleController::class, 'AjouterSalle']);
+  Route::post('/payment', [PaiementController::class, 'simulation']);
 
 });
 

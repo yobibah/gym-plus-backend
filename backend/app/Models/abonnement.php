@@ -24,6 +24,7 @@ class abonnement extends Model
         "adherant_id",
 
         "salle_id",
+        "actif"
     ];
 
 

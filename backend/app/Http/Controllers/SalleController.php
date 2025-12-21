@@ -22,7 +22,10 @@ class SalleController extends Controller
     {
         $current = $request->user();
         // verifier d'abord s'il a une salle et voir selon son forfaits
-        // $salle = Salle::where('gerant_id',$current->salle_id);
+        $salle = Salle::where('gerant_id', $current->id);
+
+        if ($salle->count->exists())
+            return response()->json(['message' => 'vous avez deja une salle']);
 
         $validator = Validator::make($request->all(), [
             'nomSalle' => 'required|string',
@@ -30,7 +33,6 @@ class SalleController extends Controller
             'region' => 'required|string',
             'pays' => 'required|string',
             'description' => 'nullable|string',
-
             'numRegistre' => 'required|string',
             'numFiscale' => 'required|string',
             // "numero_identite" => "required|max:13",
@@ -38,7 +40,7 @@ class SalleController extends Controller
             'fileRVerso' => 'required|file',
             'fileF' => 'required|file'
         ]);
- 
+
 
         if ($validator->fails()) {
             Log::info($validator->errors()->all());
@@ -61,7 +63,7 @@ class SalleController extends Controller
                 'pays_salle' => $request->pays,
                 'descriptions_salle' => $request->description ?? 'Pas de description',
                 'logo_salle' => '',
-                'adresse_salle' => $request->ville.' '.$request->region.' '.$request->pays,
+                'adresse_salle' => $request->ville . ' ' . $request->region . ' ' . $request->pays,
                 'gerant_id' => $current->id,
                 // 'document_id'       => null, // en attendant l'upload de document
             ]);
@@ -77,11 +79,22 @@ class SalleController extends Controller
                 $rectoName = $salle->id . '_recto_' . time() . '.' . $request->file('fileF')->extension();
                 $versoName = $salle->id . '_verso_' . time() . '.' . $request->file('fileRVerso')->extension();
                 // $versoName = $salle->id . "." . $request->file('verso')->extension() . rand(111, 999);
-                if ($rectoName && $versoName) {
-                    $request->file('fileF')->storeAs('documents', $rectoName, 'public');
-                    $request->file('fileRVerso')->storeAs('documents', $versoName, 'public');
 
+                $rectoPath = Storage::disk('minio')->putFileAs('documents', $request->file('recto'), $rectoName);
+                $versoPath = Storage::disk('minio')->putFileAs('documents', $request->file('verso'), $versoName);
+
+                // Alternative: Utiliser storeAs si la méthode ci-dessus ne fonctionne pas
+                // $rectoPath = $request->file('recto')->storeAs('documents', $rectoName, 'minio');
+                // $versoPath = $request->file('verso')->storeAs('documents', $versoName, 'minio');
+                $rectoUrl = Storage::disk('minio')->url($rectoPath);
+                $versoUrl = Storage::disk('minio')->url($versoPath);
+
+                // Vérification
+                if (!$rectoPath || !$versoPath) {
+                    return response()->json(['message' => 'Échec de l\'upload vers MinIO'], 500);
                 }
+
+
             }
 
 
@@ -89,9 +102,9 @@ class SalleController extends Controller
             $documment = document::create([
                 //type = cni ou passport
                 "type" => $request->type_document ? $request->type_document : 'cni',
-                "numero_identite" => $request->numRegistre .' ' .$request->numFiscale,
-                "recto" => $rectoName,
-                "verso" => $versoName,
+                "numero_identite" => $request->numRegistre . ' ' . $request->numFiscale,
+                "recto" => $rectoUrl,
+                "verso" => $versoUrl,
                 "status" => 'attente',
                 "salle_id" => $salle->id,
                 "date_soumission" => Carbon::now(),
@@ -110,9 +123,6 @@ class SalleController extends Controller
                 'salle' => $salle,
                 'valide' => $salle->active ? 'la salle est active' : ' la salle n\'a pas ete activer veuilez soumettre les documents de verifications',
             ], 201);
-
-
-
 
 
 

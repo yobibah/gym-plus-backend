@@ -47,7 +47,7 @@ class AuthController extends Controller
         }
 
 
-        $gerantExiste = User::where('email', $request->email)
+        $gerantExiste = User::where('email', strtolower($request->email))
             ->whereHas('roles', fn($q) => $q->where('name', 'Gerant'))
             ->exists();
 
@@ -61,7 +61,7 @@ class AuthController extends Controller
         $mdp = (Str::random(10));
         $username = ($request->nom) . '_' . Str::random(6);
         $gerant = User::create([
-            'email' => $request->email,
+            'email' => strtolower($request->email),
             'name' => $request->nom,
             'prenom' => $request->prenom,
             'telephone' => $request->telephone,
@@ -231,7 +231,7 @@ public function SendLink(Request $request)
 
     try {
      
-        $gerant = User::where('email', $request->email)
+        $gerant = User::where('email', strtolower($request->email))
             ->whereHas('roles', fn ($q) => $q->where('name', 'Gerant'))
             ->first();
 
@@ -243,12 +243,12 @@ public function SendLink(Request $request)
 
  
         $status = Password::sendResetLink([
-            'email' => $request->email
+            'email' => strtolower($request->email)
         ]);
 
         if ($status === Password::RESET_LINK_SENT) {
             return response()->json([
-                'message' => 'Un lien de récupération a été envoyé à ' . $request->email
+                'message' => 'Un lien de récupération a été envoyé à ' . strtolower($request->email)
             ], 200);
         }
 
@@ -340,4 +340,6 @@ public function SendLink(Request $request)
             ], 500);
         }
     }
+
+   
 }

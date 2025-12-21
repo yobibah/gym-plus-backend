@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\salle;
 use App\Notifications\CustomResetPassword;
+use App\Services\Activity;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -90,6 +91,7 @@ public function sendPasswordResetNotification($token)
     }
 
 
+    
 
 
 
@@ -157,5 +159,12 @@ public function sendPasswordResetNotification($token)
                 ->latestOfMany('fin');
 }
 
+public function Activites(){
+    return $this->hasMany(Activites::class,'gerant_id');
+}
+
+protected function activityByID($id){
+    return $this->Activites()->where('id', $id)->first();
+}
 
 }

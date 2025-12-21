@@ -148,6 +148,7 @@ class UserController extends Controller
             'telephone' => 'required|min:8',
             //fin ces la fin de l'abonnement
             'fin' => 'required|integer',
+            'status'=>'required|boolean'
 
 
         ]);
@@ -252,6 +253,7 @@ class UserController extends Controller
                 'montant'=>45000,
                 'plan' => 'mensuel',
                 'salle_id' => $salle->id,
+                'status'=>$request->status,
             ]);
 
 
@@ -283,6 +285,8 @@ class UserController extends Controller
         ]);
 
       }
+
+  
 
     public function NotifierAherant()
     {

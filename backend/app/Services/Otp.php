@@ -35,11 +35,11 @@ class Otp
                 new sendOtpMail($this->user, $otp)
             )
         ) {
-         
-                //je vais logger pour voir si ca fonctionne ou pas avant d'enregisrter
-                $gerant->otp = $otp;
-                $gerant->save();
-            
+
+            //je vais logger pour voir si ca fonctionne ou pas avant d'enregisrter
+            $gerant->otp = $otp;
+            $gerant->save();
+
 
         }
 
@@ -50,24 +50,24 @@ class Otp
 
     public function verifierOtp(int $Otp): bool
     {
-        return (int)$this->user->otp === (int)$Otp;
+        return (int) $this->user->otp === (int) $Otp;
     }
 
     // envoyer le username et le mots de passe 
-    public function sendLoginInformation(string $mdp, ?paiement $paiement=null)
+    public function sendLoginInformation(string $mdp, ?paiement $paiement = null)
     {
 
         $gerant = User::where('email', $this->user->email)->first();
         if ($gerant->exists()) {
             if (
                 Mail::to($this->user->email)->queue(
-                    new LoginInformation($gerant->username,$mdp)
+                    new LoginInformation($gerant->username, $mdp)
                 )
             ) {
                 return response()->json([
-                    'message'=>'indentifiant de connexion envoyer avec succes',
-                    'status'=>true,
-                    'code'=>200
+                    'message' => 'indentifiant de connexion envoyer avec succes',
+                    'status' => true,
+                    'code' => 200
                 ]);
 
 
