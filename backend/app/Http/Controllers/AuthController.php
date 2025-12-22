@@ -66,7 +66,7 @@ class AuthController extends Controller
             'prenom' => $request->prenom,
             'telephone' => $request->telephone,
             'username' => $username,
-            'password' => bcrypt($mdp),
+            'password' => Hash::make($mdp),
         ]);
 
 
@@ -206,18 +206,22 @@ public function VerifieEmail(Request $request)
     }
 
     // Marquer email comme vérifié
-    $current->update([
-        'email_verified_at' => Carbon::now(),
-        'otp' => null,
-        'otp_expires_at' => null,
-    ]);
+    $current->email_verified_at= Carbon::now();
+    $current->otp= null;
+    $current->save();
+    // $current->update([
+    //     'email_verified_at' => Carbon::now(),
+    //     'otp' => null,
+        
+    // ]);
 
     // Génération mot de passe
-    $mdp = Str::random(10);
-
-    $current->update([
-        'password' => $mdp
-    ]);
+  $mdp = (Str::random(10));
+  $current->password = Hash::make($mdp);
+  $current->save();
+    // $current->update([
+    //     'password' => Hash::make($mdp)
+    // ]);
 
     // Envoi des infos de connexion
     $otpService->sendLoginInformation($mdp);

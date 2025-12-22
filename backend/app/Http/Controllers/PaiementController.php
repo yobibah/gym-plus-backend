@@ -57,11 +57,11 @@ class PaiementController extends Controller
         ]);
 
         // Générer mot de passe temporaire
-        $mdp = Str::random(10);
-        $current->update([
-            'password' => bcrypt($mdp),
-            'otp' => null
-        ]);
+        // $mdp = Str::random(10);
+        // $current->update([
+        //     'password' => bcrypt($mdp),
+        //     'otp' => null
+        // ]);
 
         // Envoyer les informations de connexion
         // $otp->sendLoginInformation($mdp, $paiement);
@@ -69,7 +69,7 @@ class PaiementController extends Controller
         return response()->json([
             'message' => 'Paiement réussi',
             'paiement' => $paiement,
-            'mdp_temporaire' => $mdp
+            // 'mdp_temporaire' => $mdp
         ], 201);
 
     } catch (\Throwable $th) {
