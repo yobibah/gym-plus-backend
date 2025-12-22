@@ -206,25 +206,26 @@ public function VerifieEmail(Request $request)
     }
 
     // Marquer email comme vérifié
-    $current->email_verified_at= Carbon::now();
-    $current->otp= null;
-    $current->save();
+
     // $current->update([
     //     'email_verified_at' => Carbon::now(),
     //     'otp' => null,
         
     // ]);
 
-    // Génération mot de passe
-  $mdp = (Str::random(10));
-  $current->password = Hash::make($mdp);
-  $current->save();
+//     // Génération mot de passe
+//   $mdp = (Str::random(10));
+//   $current->password = Hash::make($mdp);
+//   $current->save();
+      $current->email_verified_at= Carbon::now();
+    $current->otp= null;
+    $current->save();
     // $current->update([
     //     'password' => Hash::make($mdp)
     // ]);
 
     // Envoi des infos de connexion
-    $otpService->sendLoginInformation($mdp);
+    // $otpService->sendLoginInformation($mdp);
 
     return response()->json([
         'message' => 'Votre email a été vérifié avec succès'
