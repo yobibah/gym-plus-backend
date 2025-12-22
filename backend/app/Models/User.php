@@ -34,7 +34,9 @@ class User extends Authenticatable
         'password',
         'telephone',
         'username',
-        'prenom'
+        'prenom',
+        'email_verified_at',
+        'otp'
     ];
 
     /**

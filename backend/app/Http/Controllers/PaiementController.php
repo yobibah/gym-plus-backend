@@ -56,16 +56,19 @@ class PaiementController extends Controller
             'status' => 'reussi',
         ]);
 
+        if ($paiement->status == 'reussi'){
+
+    
         // Générer mot de passe temporaire
-        // $mdp = Str::random(10);
-        // $current->update([
-        //     'password' => bcrypt($mdp),
-        //     'otp' => null
-        // ]);
+        $mdp = Str::random(10);
+        $current->update([
+            'password' => bcrypt($mdp),
+            'otp' => null
+        ]);
 
         // Envoyer les informations de connexion
-        // $otp->sendLoginInformation($mdp, $paiement);
-
+        $otp->sendLoginInformation($mdp);
+    }
         return response()->json([
             'message' => 'Paiement réussi',
             'paiement' => $paiement,
