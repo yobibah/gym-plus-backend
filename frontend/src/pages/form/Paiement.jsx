@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import { useSearchParams } from "react-router-dom";
 import form3 from '../../assets/images/form3.png'
 import Cookies from 'js-cookie'
+import { getToken } from "../../hooks/getToken";
 import useGetUrl from "../../hooks/useGetUrl";
 import { useNavigate } from "react-router-dom";
 import { usePayment } from "../../contexts/PaymentContext";
@@ -23,7 +24,8 @@ export default function Paiement(){
     const {apiUrl} = useGetUrl()
 
     useEffect(()=>{
-        const token = Cookies.get('token')
+
+        const token = getToken();
         if(!token){
             
             localStorage.removeItem('form')

@@ -3,12 +3,12 @@ import Input from "../../components/ui/input";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle, Download, Loader2, XCircle } from "lucide-react";
 import useGetUrl from "../../hooks/useGetUrl";
-import Cookies from 'js-cookie'
 import { motion } from "framer-motion";
 import form2 from '../../assets/images/form2.png'
 import { usePayment } from "../../contexts/PaymentContext";
 import { infosSalle } from "../../data/subscribe/infosSalle";
 import { useMutation } from "@tanstack/react-query";
+import { getToken } from "../../hooks/getToken";
 
 
 
@@ -47,7 +47,8 @@ export default function InfoSalle(){
          const infosEnregistre = localStorage.getItem('form')
         const otp_valide = localStorage.getItem('status_otp')
         const status_salle = localStorage.getItem('status_salle')
-        const token = Cookies.get('token')
+        
+        const token = getToken();
         
         if(!token){
             

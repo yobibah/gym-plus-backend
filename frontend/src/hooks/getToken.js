@@ -2,4 +2,7 @@ import React from "react";
 import Cookies from "js-cookie";
 
 
-export const token = Cookies.get('token');
+export function getToken() {
+    const token = Cookies.get('token');
+    return token;
+}

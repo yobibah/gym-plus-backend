@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import React from "react";
+import { getToken } from "./getToken";
 
 export function useAuth() {
     const [loading, setLoading] = useState(true);
@@ -10,7 +12,7 @@ export function useAuth() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const token = Cookies.get("token");
+        const token = getToken();
 
         if (!token) {
             setError("Authentification requise !");

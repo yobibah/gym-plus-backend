@@ -6,19 +6,25 @@ import { Loader2, XCircle } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDataPlan } from "../data/fetchPlan";
-import { token } from "../hooks/getToken";
+
 
 export default function Dashboard(){
 
     useAuth()
 
+    const navigate = useNavigate()
+
     const planChoisit = useQuery({
-        queryKey : ['plan', token],
-        queryFn : fetchDataPlan,
-        enabled: !!token
+        queryKey : ['plan'],
+        queryFn : fetchDataPlan
     })
 
-    if(planChoisit.isLoading){
+    function logout() {
+        Cookies.remove('token');
+        navigate('/auth', {replace: true});
+    }
+
+    if(planChoisit.isPending){
         return(
             <div className="bg-orange-50 flex items-center h-screen justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-orange-500"/>  
@@ -38,7 +44,12 @@ export default function Dashboard(){
 
     return(
         <div>
-            {planChoisit.data.plan === 'Standard' && <div>Standard</div>}
+            {planChoisit.data.plan === 'Standard' && 
+                <div className="flex items-center justify-center">
+                    Standard
+                    <button onClick={logout} className="bg-orange-500 p-3 ">deconnecter</button>
+                </div>
+            }
             {planChoisit.data.plan === 'Pro' && <div>Pro</div>}
             {planChoisit.data.plan === 'Premium' && <div>Premium</div>}
         </div>

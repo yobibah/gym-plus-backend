@@ -2,10 +2,12 @@ import React from "react";
 import Cookies from 'js-cookie'
 // import useGetUrl from "../hooks/useGetUrl";
 import { apiUrl } from "../../../env";
-import { token } from "../hooks/getToken";
+// import { token } from "../hooks/getToken";
+import { getToken } from "../hooks/getToken";
 
 export async function fetchDataPlan() {
 
+    const token = getToken();
     const response = await fetch(`${apiUrl}plan-choisit`,{
         method: "GET",
         headers: {

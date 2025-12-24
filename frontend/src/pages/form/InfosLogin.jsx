@@ -4,6 +4,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { ArrowRight, CheckCircle, XCircle, Loader2, LoaderIcon, Beaker } from "lucide-react";
 import useGetUrl from "../../hooks/useGetUrl";
 import Cookies from 'js-cookie'
+import { getToken } from "../../hooks/getToken";
 import { useNavigate } from "react-router-dom";
 import form1 from '../../assets/images/form1.png'
 import { motion } from "framer-motion";
@@ -42,7 +43,7 @@ export default function InfosLogin(){
     const choix_forfait = JSON.parse(localStorage.getItem('choix_forfait'))
 
     useEffect(()=>{
-        const token = Cookies.get('token')
+        const token = getToken();
         const status_salle = localStorage.getItem('status_salle')
         const infosEnregistre = localStorage.getItem('form')
         const otp_valide = localStorage.getItem('status_otp')

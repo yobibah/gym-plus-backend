@@ -1,11 +1,12 @@
 import React from "react";
 import { apiUrl } from "../../../../env";
 import Cookies from "js-cookie";
+import { getToken } from "../../hooks/getToken";
 
 export async function infosSalle({formData}){
 
 
-    const token = Cookies.get('token')
+    const token = getToken();   
     
     const response = await fetch(`${apiUrl}info-salle`,{
         method: "POST",

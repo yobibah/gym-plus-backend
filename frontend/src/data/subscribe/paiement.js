@@ -1,10 +1,13 @@
 import React from "react";
 import { apiUrl } from "../../../../env";
 import Cookies from "js-cookie";
-import { token } from "../../hooks/getToken";
+import { getToken } from "../../hooks/getToken";
+// import { token } from "../../hooks/getToken";
 
 
 export async function Payment({forfait, montant}){
+
+        const token = getToken();
 
         const response = await fetch(`${apiUrl}payment`,{
             method: "POST",
