@@ -7,6 +7,8 @@ import Cookies from 'js-cookie'
 import { motion } from "framer-motion";
 import form2 from '../../assets/images/form2.png'
 import { usePayment } from "../../contexts/PaymentContext";
+import { infosSalle } from "../../data/subscribe/infosSalle";
+import { useMutation } from "@tanstack/react-query";
 
 
 
@@ -19,11 +21,9 @@ export default function InfoSalle(){
     const [pays, setPays] = useState('')
     const [region, setRegion] = useState('')
     const [modalForfait, setModalForfait] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(null)
-    const [success, setSuccess] = useState(null)
     
     const {forfait,montant, setForfait, setMontant} = usePayment()
+
     const [params, setParams] = useSearchParams()
     const forfaitUrl = params.get('forfait')
     const montantUrl = params.get('montant')
@@ -32,7 +32,6 @@ export default function InfoSalle(){
     const [fileFiscale, setFileFiscale] = useState(null)
 
 
-    const {apiUrl} = useGetUrl()
     const navigate = useNavigate()
 
     const forfaitList = [
@@ -79,19 +78,25 @@ export default function InfoSalle(){
 
     
 
+    const infos = useMutation({
+        mutationFn : infosSalle,
+        onSuccess : ()=>{
+            localStorage.setItem('status_salle', 'salle_info_remplie')
+            setTimeout(()=>{
+                navigate(`/paiement?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
+            }, 2500)
+        }
+    })
 
-    const token = Cookies.get('token')
-
-
-
+    const loading = infos.isPending
+    const error = infos.isError
+    const success = infos.isSuccess
 
     async function handleSalle(e){
         e.preventDefault()
-        setLoading(true)
-        setError(null)
-        setSuccess(null)
 
         const formData = new FormData()
+
         formData.append("nomSalle", nomSalle)
         formData.append("numRegistre", numRegistre) 
         formData.append("numFiscale", numFiscale) 
@@ -100,36 +105,12 @@ export default function InfoSalle(){
         formData.append("pays", pays) 
         formData.append("fileRVerso", fileRegistre)
         formData.append("fileF", fileFiscale) 
+
         
+        infos.mutate({ formData  })
 
-        try{
-            const response = await fetch(`${apiUrl}info-salle`,{
-                method: "POST",
-                headers: {
-                    "Accept" : "application/json",
-                    "Authorization" : `Bearer ${token}`, 
-                },
-                body: formData
-            })
-
-            const data = await response.json()
-
-            if(!response.ok){
-                throw new Error(data.message || 'Erreur de recup de données')
-            }
-
-            setSuccess(true)
-            localStorage.setItem('status_salle', 'salle_info_remplie')
-            setTimeout(()=>{
-                navigate(`/paiement?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
-            }, 2500)
-        } catch(e){
-            setError(e.message || 'Erreur survenue')
-        } finally{
-            setLoading(false)
-        }
+       
     }
-
 
 
     return(
@@ -304,7 +285,7 @@ export default function InfoSalle(){
                     </div>
                     {error && (
                                 <span className="mb-2 flex justify-center items-center gap-1 text-red-500 text-sm italic">
-                                    <XCircle className="h-4 w-4"/>{error}</span>
+                                    <XCircle className="h-4 w-4"/>{infos.error.message}</span>
                                 )}
                                 {success && (
                                     <span className="mt-2 mb-2 justify-center flex items-center gap-1 text-green-500 text-sm italic">

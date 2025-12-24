@@ -14,6 +14,7 @@ import InfoSalle from './pages/form/InfoSalle.jsx'
 import Paiement from './pages/form/Paiement.jsx'
 import SuccessPaiement from './pages/form/SuccessPaiement.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
+import DashboardStandard from './dashboard/standard/DashboardStandard.jsx'
 
 function App() {
 
@@ -27,7 +28,8 @@ function App() {
     <Route path='/infos-salle' element={<InfoSalle/>}/> 
     <Route path='/paiement' element={<Paiement/>}/> 
     <Route path='/confirmation' element={<SuccessPaiement/>}/> 
-    <Route path='/dashboard' element={<Dashboard/>}/> 
+    <Route path='/dashboard' element={<Dashboard/>}/>
+    <Route path='/dashboard-standard' element={<DashboardStandard/>}/> 
     <Route path='*' element={<NotFound/>}/> 
    </Routes>
   )

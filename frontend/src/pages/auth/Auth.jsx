@@ -9,58 +9,41 @@ import Button from "../../components/ui/button";
 import { motion } from "framer-motion";
 import useGetUrl from "../../hooks/useGetUrl";
 import Cookies from "js-cookie";
+import { useMutation } from "@tanstack/react-query";
+import { postLogin } from "../../data/auth/postLogin";
 
 
 export default function Auth (){
 
     const [identifiant, setIdentifiant] = useState('')
     const [password, setPassword] = useState('')
-    const [loading, setLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
-    const [error, setError] = useState(null)
-    const [success, setSuccess] = useState(null)
-    const navigate = useNavigate()
-    const {apiUrl} = useGetUrl()
 
-    
+    const navigate = useNavigate()
+
+    const login = useMutation({
+        mutationFn: postLogin,
+
+        onSuccess: (data) => {
+            Cookies.set("token", data.token, { expires: 365 });
+
+            setTimeout(() => {
+                navigate("/dashboard", {replace : true});
+            }, 2500);
+        },
+    });
+
+    const loading = login.isPending
+    const error = login.isError
+    const success = login.isSuccess
 
     async function handleConnect(e){
         e.preventDefault()
-        setLoading(true)
-        setError(null)
-        setSuccess(null)
-
-        try{
-            const response = await fetch(`${apiUrl}login`,{
-                method : "POST",
-                headers : {
-                    "Content-Type" : "application/json",
-                    "Accept" : "application/json"
-                },
-                body : JSON.stringify({
-                    username : identifiant,
-                    password : password
-                })
-            })
-
-            const data = await response.json()
-
-            if(!response.ok){
-                throw new Error(data.message || 'Erreur de connexion')
-            }
-
-            setSuccess(true)
-            Cookies.set('token', data.token, {expires: 365})
-            setTimeout(()=>{
-                navigate('/dashboard')
-            },2000)
-
-        }catch(e){
-            setError(e.message || 'Erreur! Vérifier vos informations')
-        }finally{
-            setLoading(false)
-        }
+        login.mutate({username: identifiant, password})
     }
+
+
+    
 
     return(
         <>
@@ -84,9 +67,9 @@ export default function Auth (){
                     <span className="text-base italic ml-2">Le logiciel tout en un</span>
                     </p>  
 
-                    {error && (<span className="text-base font-bold text-center text-red-500 italic ml-2">{error}</span>  
+                    {error && (<span className="text-base font-bold text-center text-red-500 italic ml-2">{login.error.message}</span>  
                     )}
-                    {success && (<span className="text-base font-bold text-green- flex items-center justify-center italic ml-2">Connexions réussie, redirection... <Loader2 className="h-5 w-5"/></span>  
+                    {success && (<span className="text-base font-bold text-green-500 flex items-center justify-center italic ml-2 ">Connexions réussie, redirection... <Loader2 className="h-5 w-5 animate-spin text-green-500"/></span>  
                     )} 
                     <div className=" px-10">
                     <p className="text-2xl font-semibold text-white mb-2">Identifiant</p>
@@ -100,8 +83,7 @@ export default function Auth (){
                             value={identifiant}
                             placeholder={"entrez votre identifiant"}
                             onChange={(e)=>{setIdentifiant(e.target.value)
-                                setError("")
-                                setSuccess('')
+                                login.reset();
                             }}
                         />
                     </div>
@@ -118,8 +100,8 @@ export default function Auth (){
                             value={password}
                             placeholder={"entrez votre mot de passe"}
                             onChange={(e)=>{setPassword(e.target.value)
-                                setError("")
-                                setSuccess('')}}
+                                login.reset();
+                               }}
                             className={"text-white focus:outline-none focus:ring-1 focus:ring-orange-500 bg-transparent border-2 border-orange-500 rounded-lg w-full block pl-12 pr-9  text-xl h-10  "}
                         />
                         <div className="absolute right-0 mr-2 " onClick={(e)=>{setShowPassword(!showPassword)}}>

@@ -7,63 +7,40 @@ import useGetUrl from "../../hooks/useGetUrl";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, KeyIcon, Loader2, Lock } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { changePassword } from "../../data/auth/postChangePassword";
 
 
 export default function ChangePassword(){
 
     const navigate = useNavigate()
-    const {apiUrl} = useGetUrl()
     const [showPassword, setShowPassword] = useState(false)
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(null)
-    const [success, setSuccess] = useState(null)
 
     const [params] = useSearchParams()
     const token = params.get('token')
     const email = params.get('email')
 
 
-
-    async function handleReset(e) {
-        e.preventDefault()
-        setLoading(true)
-        setError(null)
-        setSuccess(null)
-
-        try{
-            const response =  await fetch(`${apiUrl}reset-password`,{
-                method: "POST",
-                headers : {
-                    "Content-Type" : "application/json",
-                    "Accept" : "application/json"
-                },
-                body : JSON.stringify({
-                    token: token,
-                    email: email,
-                    password : password,
-                    password_confirmation: confirmPassword
-                })
-            })
-
-            const data = await response.json()
-
-            if(!response.ok){
-                throw new Error(data.message || 'Erreur! Veuillez réessayer')
-            }
-
-            setSuccess(true)
+    const change = useMutation({
+        mutationFn : changePassword,
+        onSuccess : ()=>{
             setTimeout(()=>{
                 navigate('/auth')
             }, 2000)
-            
-        } catch(e){
-            setError(e.message || 'Erreur! Veuillez réessayer')
-            
-        } finally{
-            setLoading(false)
         }
+    })
+
+    const loading = change.isPending
+    const error = change.isError
+    const success = change.isSuccess
+
+    async function handleReset(e){
+        e.preventDefault()
+        change.mutate({
+            token, email, password, password_confirmation : confirmPassword
+        })
     }
 
     return(
@@ -88,9 +65,9 @@ export default function ChangePassword(){
                     <span className="text-base italic ml-2">Le logiciel tout en un</span>
                     </p>  
 
-                    {error && (<span className="text-base font-bold text-center text-red-500 italic ml-2">{error}</span>  
+                    {error && (<span className="text-base font-bold text-center text-red-500 italic ml-2">{change.error.message}</span>  
                     )}
-                    {success && (<span className="text-base font-bold text-center text-green-500 italic ml-2">Changement réussie, redirection...</span>  
+                    {success && (<span className="text-base font-bold text-green-500 flex items-center justify-center italic ml-2">Changement réussie, redirection... <Loader2 className="h-5 w-5 animate-spin text-green-500"/></span>  
                     )} 
                     <div className="px-10">
                     <p className="text-2xl text-white font-semibold mb-2">Mot de passe</p>
@@ -103,8 +80,7 @@ export default function ChangePassword(){
                             value={password}
                             placeholder={"nouveau mot de passe"}
                             onChange={(e)=>{setPassword(e.target.value)
-                                setError("")
-                                setSuccess('')}}
+                                change.reset()}}
                             className={"text-white focus:outline-none focus:ring-1 focus:ring-orange-500 bg-transparent border-2 border-orange-500 rounded-lg w-full block pl-12 pr-9  text-xl h-10  "}
                         />
                     </div>
@@ -121,8 +97,7 @@ export default function ChangePassword(){
                             value={confirmPassword}
                             placeholder={"confirmer mot de passe"}
                             onChange={(e)=>{setConfirmPassword(e.target.value)
-                                setError("")
-                                setSuccess('')}}
+                                change.reset()}}
                             className={"text-white focus:outline-none focus:ring-1 focus:ring-orange-500 bg-transparent border-2 border-orange-500 rounded-lg w-full block pl-12 pr-9  text-xl h-10  "}
                         />
                         <div className="absolute right-0 mr-2 " onClick={(e)=>{setShowPassword(!showPassword)}}>
@@ -136,7 +111,7 @@ export default function ChangePassword(){
                 <motion.button
                     whileHover={{scale: 1.05}}
                     whileTap={{scale: 0.95}}
-                    disabled={loading || !password.trim() || !confirmPassword.trim() || password !== confirmPassword}
+                    disabled={loading || !password.trim() || !confirmPassword.trim() || password !== confirmPassword || password.length < 8}
                     className={`flex items-center gap-2 font-semibold transition-colors duration-200 ${!password.trim() || !confirmPassword.trim() || password !== confirmPassword ? 'border-gray-400 bg-gray-400' : 'hover:bg-transparent border-orange-500 bg-orange-500'} border-2 text-xl mx-auto  text-white p-2 px-4 rounded-lg cursor-pointer my-5`}
                 >
                     {loading ? (

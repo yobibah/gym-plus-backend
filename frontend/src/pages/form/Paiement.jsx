@@ -6,12 +6,11 @@ import useGetUrl from "../../hooks/useGetUrl";
 import { useNavigate } from "react-router-dom";
 import { usePayment } from "../../contexts/PaymentContext";
 import { CheckCircle, Loader2, Lock, WalletCards, Smartphone } from "lucide-react";
+import { Payment } from "../../data/subscribe/paiement";
+import { useMutation } from "@tanstack/react-query";
 
 
 export default function Paiement(){
-    const [error, setError] = useState(null)
-    const [success, setSuccess] = useState(null)
-    const [loading, setLoading] = useState(false)
 
     const {forfait, montant} = usePayment()
     const [params, setParams] = useSearchParams()
@@ -47,51 +46,31 @@ export default function Paiement(){
     }, [montant,forfait, montantUrl, forfaitUrl])
 
 
-
-
-    async function handlePayment(){
-        setError(null)
-        setSuccess(null)
-        setLoading(true)
-
-        try{
-            const token = Cookies.get('token')
-            const response = await fetch(`${apiUrl}payment`,{
-                method: "POST",
-                headers:{
-                    "Content-Type":"application/json",
-
-                    "Authorization" : `Bearer ${token}`, 
-                    "Accept":"application/json",
-                },
-                body: JSON.stringify({
-                    "forfait" : forfait,
-                    "montant" : montant
-                })
-            })
-
-            const data = await response.json()
-            if(!response.ok){
-                throw new Error(data.message || 'Erreur lors du paiement')
-            }
-
-            setSuccess(true)
-            
-            setTimeout(()=>{
-                navigate(`/confirmation?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
-            }, 2500)
-
+    const paiement = useMutation({
+        mutationFn : Payment,
+        onSuccess : ()=>{
+             
             localStorage.removeItem('form')
             localStorage.removeItem('status_otp')
             localStorage.removeItem('status_salle')
             localStorage.removeItem('choix_forfait')
 
-        } catch(e){
-            setError(e.message || 'Erreur de paiement')
-        } finally{
-            setLoading(false)
+            setTimeout(()=>{
+                navigate(`/confirmation?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
+            }, 2500)
+
         }
+    })
+
+    const loading = paiement.isPending
+    const error = paiement.isError
+    const success = paiement.isSuccess
+
+    async function handlePayment(e) {
+        e.preventDefault()
+        paiement.mutate({forfait, montant})
     }
+
 
     return(
         <>
@@ -171,7 +150,7 @@ export default function Paiement(){
 
                         {error && (
                             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                <p className="text-red-600 text-sm">{error}</p>
+                                <p className="text-red-600 text-sm">{paiement.error.message}</p>
                             </div>
                         )}
 

@@ -7,53 +7,29 @@ import useGetUrl from "../../hooks/useGetUrl";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { KeyIcon, Loader2 } from "lucide-react";
-
+import { postResetPassword } from "../../data/auth/postResetPassword";
+import { useMutation } from "@tanstack/react-query";
 
 export default function ResetPassword(){
 
-    const navigate = useNavigate()
-    const {apiUrl} = useGetUrl()
-
     const [email, setEmail] = useState('')
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(null)
-    const [success, setSuccess] = useState(null)
 
-    
-
-    async function handleReset(e) {
-        e.preventDefault()
-        setLoading(true)
-        setError(null)
-        setSuccess(null)
-
-        try{
-            const response =  await fetch(`${apiUrl}forgot-password`,{
-                method: "POST",
-                headers : {
-                    "Content-Type" : "application/json",
-                    "Accept" : "application/json"
-                },
-                body : JSON.stringify({
-                    email : email
-                })
-            })
-
-            const data = await response.json()
-
-            if(!response.ok){
-                throw new Error(data.message || 'Erreur! Veuillez réessayer')
-            }
-
-            setSuccess(true)
-            
-        } catch(e){
-            setError(e.message || 'Erreur! Veuillez réessayer')
-            
-        } finally{
-            setLoading(false)
+    const resetPass = useMutation({
+        mutationFn : postResetPassword,
+        onSuccess : ()=>{
+            setEmail('')
         }
+    })
+
+    const loading = resetPass.isPending
+    const error = resetPass.isError
+    const success = resetPass.isSuccess
+
+    function handleReset(e){
+        e.preventDefault()
+        resetPass.mutate({email})
     }
+
 
     return(
          <>
@@ -63,8 +39,6 @@ export default function ResetPassword(){
             <div className="absolute z-20 inset-y-0 w-full items-center flex justify-center">
                 <ContactImage source={coverhero} label={'illustration'} style={" w-200 h-200"} />
             </div>
-
-
             
             <div className="w-full flex items-center justify-center relative min-h-screen z-40">
                 
@@ -77,7 +51,7 @@ export default function ResetPassword(){
                     <span className="text-base italic ml-2">Le logiciel tout en un</span>
                     </p>  
 
-                    {error && (<span className="text-base font-bold text-center text-red-500 italic ml-2">{error}</span>  
+                    {error && (<span className="text-base font-bold text-center text-red-500 italic ml-2">{resetPass.error.message}</span>  
                     )}
                     {success && (<span className="text-base font-bold text-center text-green-500 italic ml-2">Un lien de reinitialisation a été envoyé sur votre adresse mail</span>  
                     )} 
@@ -93,8 +67,7 @@ export default function ResetPassword(){
                             value={email}
                             placeholder={"entrez votre adresse e-mail"}
                             onChange={(e)=>{setEmail(e.target.value)
-                                setError("")
-                                setSuccess('')
+                                resetPass.reset()
                             }}
                         />
                     </div>
@@ -112,7 +85,7 @@ export default function ResetPassword(){
                             <Loader2 className="h-5 w-5 animate-spin text-white"/>
                             <div>Réinitialisation</div>
                         </>
-                    ):(
+                    ): (
                         "Réinitialiser"
                     )}
                     </motion.button>

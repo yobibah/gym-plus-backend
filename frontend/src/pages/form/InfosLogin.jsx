@@ -8,6 +8,9 @@ import { useNavigate } from "react-router-dom";
 import form1 from '../../assets/images/form1.png'
 import { motion } from "framer-motion";
 import { usePayment } from "../../contexts/PaymentContext";
+import { infosPerso } from "../../data/subscribe/infosPerso";
+import { useMutation } from "@tanstack/react-query";
+import { Otp } from "../../data/subscribe/otp";
 
 
 
@@ -19,21 +22,15 @@ export default function InfosLogin(){
     const [email, setEmail] = useState('')
     const [otp, setOtp] = useState('')
     const [modalForfait, setModalForfait] = useState(false)
-    const [error, setError] = useState(null)
-    const [success, setSuccess] = useState(null)
-    const [errorOtp, setErrorOtp] = useState(null)
-    const [successOtp, setSuccessOtp] = useState(null)
-    const [loading, setLoading] = useState(false)
-    const [loadingOtp, setLoadingOtp] = useState(false)
+    
     const [otpStep, setOtpStep] = useState(false)
 
     const {montant, forfait, setMontant, setForfait} = usePayment()
+
     const [params, setParams] = useSearchParams()
     const forfaitUrl = params.get('forfait')
     const montantUrl = params.get('montant')
 
-
-    const {apiUrl} = useGetUrl()
     const navigate = useNavigate()
     
     const forfaitList = [
@@ -80,86 +77,47 @@ export default function InfosLogin(){
     },[forfait, montant, forfaitUrl, montantUrl])
 
 
-
-    async function handleInfos(e){
-        e.preventDefault()
-        setError(null)
-        setSuccess(null)
-        setLoading(true)
-        setOtpStep(false)
-        
-
-        try{
-            const response = await fetch(`${apiUrl}infos-perso`,{
-                method : 'POST',
-                headers : {
-                    "Content-Type" : "application/json",
-                    "Accept" : "application/json"
-                },
-                body : JSON.stringify({
-                    nom: nom,
-                    prenom: prenom,
-                    telephone : tel,
-                    email: email
-                })
-            })
-
-            const data = await response.json()
-
-            if(!response.ok){
-                throw new Error(data.error || 'Erreur lors de l\'inscription! Réessayez')
-            }
-
-            setSuccess(true)
+    const infos = useMutation({
+        mutationFn : infosPerso,
+        onSuccess : (data)=>{
             Cookies.set('token', data.token, {expires: 365})
             
             localStorage.setItem('form', JSON.stringify({nom, prenom, tel, email}))
             setOtpStep(true)
-        } catch(e){
-            setError(e.message || 'Erreur! Veuillez réessayer')
-        } finally{
-            setLoading(false)
         }
-    }
+    })
 
-
-    async function handleOtp(e) {
-        e.preventDefault()
-        setErrorOtp(null)
-        setSuccessOtp(null)
-        setOtpStep(true)
-        setLoadingOtp(true)
-        try{
-            const token = Cookies.get('token')
-            const response = await fetch(`${apiUrl}validation-email`,{
-                method : 'POST',
-                headers : {
-                    "Content-Type" : "application/json",
-                    "Authorization" : `Bearer ${token}`, 
-                    "Accept" : "application/json"
-                },
-                body : JSON.stringify({
-                    codeOtp: otp,
-                })
-            })
-
-            const data = await response.json()
-
-            if(!response.ok){
-                throw new Error(data.error || 'Erreur survenue lors de la récupération de données')
-            }
-
-            setSuccessOtp(true)
+    const code = useMutation({
+        mutationFn : Otp,
+        onSuccess : ()=>{
             localStorage.setItem('status_otp', 'otp_verifie')
             setTimeout(()=>{
                 navigate(`/infos-salle?forfait=${choix_forfait.forfait}&prix=${choix_forfait.montant}`)
             }, 2500)
-        } catch(e){
-            setErrorOtp(e.message || 'Erreur! Réessayer')
-        } finally{
-            setLoadingOtp(false)
         }
-        
+    }) 
+
+
+    const loadingInfos = infos.isPending
+    const errorInfos = infos.isError 
+    const successInfos = infos.isSuccess
+
+    const loadingCode = code.isPending
+    const errorCode = code.isError 
+    const successCode = code.isSuccess
+
+    async function handleInfos(e){
+        e.preventDefault()
+        infos.mutate({
+            nom, prenom, email, telephone : tel
+        })
+    }
+
+    async function handleOtp(e){
+        e.preventDefault()
+        code.mutate({
+            codeOtp : otp
+        })
     }
 
 
@@ -229,12 +187,12 @@ export default function InfosLogin(){
                                 <Input 
                                     type={'text'}
                                     value={nom}
-                                    disabled={success}
+                                    disabled={successInfos}
                                     placeholder={'Ex: Joseph'}
                                     onChange={(e)=>{setNom(e.target.value),
-                                        setError('')
+                                        infos.reset()
                                     }}
-                                    className={`w-full ${success ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
+                                    className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
                                 />
                             </div>
 
@@ -243,12 +201,12 @@ export default function InfosLogin(){
                                 <Input 
                                     type={'text'}
                                     value={prenom}
-                                    disabled={success}
+                                    disabled={successInfos}
                                     placeholder={'Ex: Ouedraogo'}
                                     onChange={(e)=>{setPrenom(e.target.value),
-                                        setError('')
+                                        infos.reset()
                                     }}
-                                    className={`w-full ${success ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
+                                    className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
             
                                 
                                 />
@@ -260,37 +218,37 @@ export default function InfosLogin(){
                             <Input 
                                 type={'tel'}
                                 value={tel}
-                                disabled={success}
+                                disabled={successInfos}
                                 placeholder={'Ex: 70000000'}
                                 pattern={"[0-9]+"}
                                 onChange={(e)=>{setTel(e.target.value),
-                                    setError('')
+                                    infos.reset()
                                 }}
-                                    className={`w-full ${success ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
+                                    className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
                
                             />
                         </div>
 
-                        <div className={`${error || success ? 'mb-4' : ''}`}>
+                        <div className={`${errorInfos || successInfos ? 'mb-4' : ''}`}>
                             <label className="text-sm font-semibold mb-1">Adresse e-mail <span className="text-orange-600">*</span></label>
                             <Input 
                                 type={'email'}
                                 value={email}
-                                disabled={success}
+                                disabled={successInfos}
                                 placeholder={'Ex: adresse@domaine.com'}
                                 onChange={(e)=>{setEmail(e.target.value),
-                                    setError('')
+                                    infos.reset()
                                 }}
-                                    className={`w-full ${success ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
+                                    className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
          
                             />
                         </div>
 
-                        {error && (
+                        {errorInfos && (
                             <span className="flex items-center gap-1 text-red-500 text-sm italic">
-                                <XCircle className="h-4 w-4"/>{error}</span>
+                                <XCircle className="h-4 w-4"/>{infos.error.message}</span>
                         )}
-                        {success && (
+                        {successInfos && (
                             <span className="flex items-center gap-1 text-green-500 text-sm italic">
                                 <CheckCircle className="h-4 w-4"/>Informations personnelles validées !</span>
                         )}
@@ -307,7 +265,7 @@ export default function InfosLogin(){
 
                                 
                         
-                                <div className={`${successOtp || errorOtp ? 'mb-1' : ''}`}>
+                                <div className={`${successCode || errorCode ? 'mb-1' : ''}`}>
                                     <p className="text-sm text-gray-600 font-semibold mb-1">Un code de vérification a été envoyé sur <span className="text-orange-600 italic underline"> {email} </span> </p>
                                     
                                     <Input 
@@ -316,17 +274,17 @@ export default function InfosLogin(){
                                         pattern={"[0-9]{6}"}
                                         placeholder={'code à 6 chiffres'}
                                         onChange={(e)=>{setOtp(e.target.value),
-                                            setErrorOtp('')
+                                            code.reset()
                                         }}
                                         className={'w-full focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-sm border-1 border-gray-300'}  
                                     /> 
 
                                 </div>
-                                {errorOtp && (
+                                {errorCode && (
                                     <span className="flex items-center gap-1 text-red-500 text-sm italic">
-                                        <XCircle className="h-4 w-4"/>{errorOtp}</span>
+                                        <XCircle className="h-4 w-4"/>{code.error.message}</span>
                                 )}
-                                {successOtp && (
+                                {successCode && (
                                     <span className="flex items-center gap-1 text-green-500 text-sm italic">
                                         <CheckCircle className="h-4 w-4"/>Code Validé !</span>
                                 )}
@@ -342,13 +300,13 @@ export default function InfosLogin(){
                             <motion.button
                                 whileHover={{scale: 1.05}}
                                 whileTap={{scale: 0.95}}
-                                disabled={loadingOtp || !otp.trim() || otp.length < 6 }
+                                disabled={loadingCode || !otp.trim() || otp.length < 6 }
                                 className={`${
                                     !otp.trim() || otp.length < 6 ? 'bg-gray-300 border-1 border-gray-300' : 'hover:bg-white hover:text-black bg-orange-600 border-1 border-orange-600'} 
                                     text-xs font-bold text-white flex gap-1 items-center py-2 px-4  rounded-lg
                                     `}
                             >
-                                {loadingOtp ? (
+                                {loadingCode ? (
                                     <>
                                     <Loader2 className="h-4 w-4 animate-spin"/>
                                     </>
@@ -365,7 +323,7 @@ export default function InfosLogin(){
                             <motion.button
                                 whileHover={{scale: 1.05}}
                                 whileTap={{scale: 0.95}}
-                                disabled={loading || !email.trim() || !nom.trim() ||
+                                disabled={loadingInfos || !email.trim() || !nom.trim() ||
                                     !prenom.trim() || !tel.trim()
                                 }
                                 className={`${
@@ -373,7 +331,7 @@ export default function InfosLogin(){
                                     text-xs font-bold text-white flex gap-1 items-center py-2 px-4 rounded-lg
                                     `}
                             >
-                                {loading ? (
+                                {loadingInfos ? (
                                     <>
                                     <Loader2 className="h-4 w-4 animate-spin"/>
                                     </>

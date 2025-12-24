@@ -11,6 +11,11 @@ export default function SuccessPaiement(){
     const forfaitUrl = params.get('forfait')
     const montantUrl = params.get('montant')
 
+    const date = new Date()
+    const jour = date.getDay()
+    const mois = date.getMonth() + 1
+    const annee = date.getFullYear()
+
     const navigate = useNavigate() 
 
     useEffect(()=>{
@@ -56,7 +61,7 @@ export default function SuccessPaiement(){
 
                         <div className="flex items-center justify-between">
                             <p className="text-sm text-gray-500">Date</p>
-                            <p className="text-sm font-semibold">{new Date().getDay()}/{new Date().getMonth()}/{new Date().getUTCFullYear()}</p>
+                            <p className="text-sm font-semibold">{jour}/{mois}/{annee}</p>
                         </div>
                     </div>
 
