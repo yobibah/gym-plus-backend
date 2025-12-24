@@ -6,14 +6,16 @@ import { Loader2, XCircle } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDataPlan } from "../data/fetchPlan";
+import { token } from "../hooks/getToken";
 
 export default function Dashboard(){
 
     useAuth()
 
     const planChoisit = useQuery({
-        queryKey : ['plan'],
-        queryFn : fetchDataPlan
+        queryKey : ['plan', token],
+        queryFn : fetchDataPlan,
+        enabled: !!token
     })
 
     if(planChoisit.isLoading){
