@@ -6,6 +6,7 @@ import { Loader2, XCircle } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDataPlan } from "../data/fetchPlan";
+import DashboardStandard from "./standard/DashboardStandard";
 
 
 export default function Dashboard(){
@@ -44,12 +45,7 @@ export default function Dashboard(){
 
     return(
         <div>
-            {planChoisit.data.plan === 'Standard' && 
-                <div className="flex items-center justify-center">
-                    Standard
-                    <button onClick={logout} className="bg-orange-500 p-3 ">deconnecter</button>
-                </div>
-            }
+            {planChoisit.data.plan === 'Standard' && <DashboardStandard />}
             {planChoisit.data.plan === 'Pro' && <div>Pro</div>}
             {planChoisit.data.plan === 'Premium' && <div>Premium</div>}
         </div>

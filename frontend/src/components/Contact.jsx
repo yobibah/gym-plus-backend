@@ -4,55 +4,28 @@ import ContactImage from "./ui/image";
 import { motion } from "framer-motion";
 import { Mail, Pencil, Loader2 } from "lucide-react";
 import Input from "./ui/input";
-import Button from "./ui/button";
-import useGetUrl from "../hooks/useGetUrl";
+import { useMutation } from "@tanstack/react-query";
+import { ContactHome } from "../data/home/contact";
 
 export default function Contact(){
     const [email, setEmail] = useState("")
     const [message, setMessage] = useState("")
-    const [loading, setLoading] = useState(false)
-    const [success, setSuccess] = useState(null)
-    const [error, setError] = useState(null)
 
-    const {apiUrl} = useGetUrl()
-
-
-    async function Submit(e){
-         e.preventDefault()
-        setLoading(true)
-        setSuccess(null)
-        setError(null)
-
-        try{
-
-            const response = await fetch(`${apiUrl}accueil-form`,{
-                method : "POST",
-                headers : {
-                    "Content-Type" : "application/json",
-                    "Accept" : "application/json"
-                },
-                body : JSON.stringify({
-                    email : email,
-                    message : message
-                })
-            })
-
-            const data = await response.json()
-
-            if(!response.ok){
-                throw new Error(data.message || 'Echec! réeesayez')
-            }
-
-            setSuccess(true)
-            setEmail('')
+    const homeContact = useMutation({
+        mutationFn : ContactHome,
+        onSuccess : ()=>{
+            setEmail(''),
             setMessage('')
-           
-            console.log(data)
-        } catch (e){
-            setError(e.message || 'Echec! Veuillez réessayez.')
-        } finally{
-            setLoading(false)
         }
+    })
+
+    const loading = homeContact.isPending
+    const success = homeContact.isSuccess
+    const error = homeContact.isError
+
+    async function Submit(e) {
+        e.preventDefault()
+        homeContact.mutate({email, message})
     }
     
     return(
@@ -100,7 +73,7 @@ export default function Contact(){
                                     <p className="text-green-500 text-sm text-center">{`Succès! votre demande à été prise en compte \nNous vous répondrons dans un délai de 48h`}</p>
                                 )}
                                 {error && (
-                                    <p className="text-red-500 text-sm text-center">{error}</p>
+                                    <p className="text-red-500 text-sm text-center">{homeContact.error.message}</p>
                                 )}
 
                                 <div className="relative">
@@ -113,8 +86,7 @@ export default function Contact(){
                                         placeholder={"Entrez votre adresse mail"}
                                         onChange={(e)=>{
                                             setEmail(e.target.value);
-                                            setSuccess('')
-                                            setError('')
+                                            homeContact.reset()
                                         }}
                                         className={"block w-full pl-10 pr-3 py-3 rounded-xl bg-orange-100 border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all text-sm md:text-base"}
                                     />
@@ -132,8 +104,7 @@ export default function Contact(){
                                         placeholder="Exprimez-vous..."
                                         onChange={(e)=>{
                                             setMessage(e.target.value),
-                                             setSuccess('')
-                                            setError('')
+                                             homeContact.reset()
                                         }}
                                         rows="6"
                                         className="w-full block bg-orange-100 pl-10 pr-3 py-3 rounded-xl border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all resize-none text-sm md:text-base"

@@ -1,9 +1,16 @@
 import { AlertCircle, BadgeCheck, Calendar, CalendarOff, CalendarX, LayoutDashboard, LayoutDashboardIcon, Loader2, Search, Settings, Settings2, SquarePlus, User, UserPlus, UserPlus2, Users, WalletCards } from "lucide-react";
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, use} from "react";
 import { motion } from "framer-motion";
 import Input from "../../components/ui/input";
 import Cookies from 'js-cookie'
 import useGetUrl from "../../hooks/useGetUrl";
+import { getToken } from "../../hooks/getToken";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiUrl } from "../../../../env";
+import { FetchNombreAdherant } from "../../data/dashboard/standard/nombreAdh";
+import { FetchNombreActif } from "../../data/dashboard/standard/nombreActif";
+import { fetchPrix } from "../../data/dashboard/standard/mesPrix";
+import { AjouterAdherant } from "../../data/dashboard/standard/ajoutAdherant";
 
 
 export default function DashboardStandard(){
@@ -14,23 +21,11 @@ export default function DashboardStandard(){
     const [prenom, setPrenom] = useState('')
     const [email, setEmail] = useState('')
     const [tel, setTel] = useState('')
-    const [duree, setDuree] = useState('')
+    const [type, setType] = useState('')
+    const [showPrix, setShowPrix] = useState(false)
+    const [montant, setMontant] = useState('')
 
-    const [loadingAdherant, setLoadingAdherant] = useState(false)
-    const [errorAdherant, setErrorAdherant] = useState(null)
-    const [successAdherant, setSuccessAdherant] = useState(null)
 
-    const [dataNbrAdherant, setDataNbrAdherant] = useState([])
-    const [loadingNbrAdherant, setLoadingNbrAdherant] = useState(true)
-    const [errorNbrAdherant, setErrorNbrAdherant] = useState(null)
-    const [successNbrAdherant, setSuccessNbrAdherant] = useState(null)
-
-    const [dataNbrActif, setDataNbrActif] = useState([])
-    const [loadingNbrActif, setLoadingNbrActif] = useState(true)
-    const [errorNbrActif, setErrorNbrActif] = useState(null)
-    const [successNbrActif, setSuccessNbrActif] = useState(null)
-
-    const {apiUrl} = useGetUrl()
 
     function ActiveTab(){
 
@@ -65,108 +60,59 @@ export default function DashboardStandard(){
         ActiveTab()
     }, [activeTab])
 
-    async function FetchNombreAdherant(){
-        setLoadingNbrAdherant(true)
-        setErrorNbrAdherant(null)
-        setSuccessNbrAdherant(null)
+    const nbrAdh = useQuery({
+        queryKey : ['nbr_adherant'],
+        queryFn : FetchNombreAdherant
+    })
 
-        const token = Cookies.get('token')
-
-        try{
-            const response = await fetch(`${apiUrl}NbreAdherant`,{
-                method : 'GET',
-                headers : {
-                    "Accept" : "application/json",
-                    "Authorization" : `Bearer ${token}`
-                }
-            })
-
-            const data = await response.json()
-            if(!response.json){
-                throw new Error(data.message || 'Erreur de recup du nombre d\'adherant')
-            }
-
-            setSuccessNbrAdherant(true)
-            setDataNbrAdherant(data)
-        } catch(e){
-            setErrorNbrAdherant(e.message || 'Erreur')
-        } finally{
-            setLoadingNbrAdherant(false)
-        }
-    }
-
-    async function FetchNombreActif(){
-        setLoadingNbrActif(true)
-        setErrorNbrActif(null)
-        setSuccessNbrActif(null)
-
-        const token = Cookies.get('token')
-
-        try{
-            const response = await fetch(`${apiUrl}AdherantActif`,{
-                method : 'GET',
-                headers : {
-                    "Accept" : "application/json",
-                    "Authorization" : `Bearer ${token}`
-                }
-            })
-
-            const data = await response.json()
-            if(!response.json){
-                throw new Error(data.message || 'Erreur de recup du nombre actif d\'adherant')
-            }
-
-            setSuccessNbrActif(true)
-            setDataNbrActif(data)
-        } catch(e){
-            setErrorNbrActif(e.message || 'Erreur')
-        } finally{
-            setLoadingNbrActif(false)
-        }
-    }
+    const loadingNbrAdherant = nbrAdh.isPending
+    const errorNbrAdherant = nbrAdh.isError
 
 
-    async function AjouterAdherant(){
-        setLoadingAdherant(true)
-        setErrorAdherant(null)
-        setSuccessAdherant(null)
+    const nbrActif = useQuery({
+        queryKey : ['nbr_actif'],
+        queryFn : FetchNombreActif
+    })
 
-        const token = Cookies.get('token')
-        const form = {nom, prenom, tel, duree, email}
+    const loadingNbrActif = nbrActif.isPending
+    const errorNbrActif = nbrActif.isError
 
-        try{
-            const response = await fetch(`${apiUrl}adherant`,{
-                method : "POST",
-                headers : {
-                    "Content-Type" : "application/json",
-                    "Accept-Type" : "application/json",
-                    "Authorization" : `Bearer ${token}`
-                },
-                body : JSON.stringify(form)
-            })
+    
+    const prix = useQuery({
+        queryKey : ['prix'],
+        queryFn : fetchPrix
+    })
 
-            const data = await response.json()
+    const loading = prix.isPending
+    const error = prix.isError
 
-            if(!response.ok){
-                throw new Error(data.message || 'Erreur d\'envoie')
-            }
 
-            setSuccessAdherant(true)
+
+    const queryClient = useQueryClient()
+    const addAdh = useMutation({
+        mutationFn : AjouterAdherant,
+        onSuccess : ()=>{
             setNom('')
             setPrenom('')
-            setDuree('')
+            setType('')
             setEmail('')
             setTel('')
-        } catch(e){
-            setErrorAdherant(e.message || 'Erreur d\'envoie')
-        } finally{
-            setLoadingAdherant(false)
+
+            queryClient.invalidateQueries(['nbr_adherant'])
+            queryClient.invalidateQueries(['nbr_actif'])
         }
+    })
+
+    const loadingAdherant = addAdh.isPending
+    const successAdherant = addAdh.isSuccess
+    const errorAdherant = addAdh.isError
+
+    async function handleAdd(e) {
+        e.preventDefault()
+        const form = {nom, prenom, tel, type, email}
+        addAdh.mutate({form})
     }
 
-    // function AjouterAdherant(){
-    //     alert('bien')
-    // }
 
 
     return(
@@ -310,8 +256,9 @@ export default function DashboardStandard(){
                                 <div>
                                     <span className="text-xl font-bold text-gray-400 mb-2">Adhérants</span>
                                     <div className="text-sm text-gray-500 mb-2">
-                                        {dataNbrAdherant ? ( 
-                                             <span className="font-bold text-2xl text-black font-bold">{dataNbrAdherant.nbr_adherant} </span>/200
+                                        {/* {errorAdherant} */}
+                                        {nbrAdh.data ? ( 
+                                             <span className="font-bold text-2xl text-black font-bold">{nbrAdh.data.nbr_adherant} </span>/200
                                        
                                         ):null}
                                     </div>
@@ -341,8 +288,8 @@ export default function DashboardStandard(){
                             )}
                             
                             <div className="text-xl font-bold text-gray-400 mb-2">Abonnements Actifs <br />
-                            {dataNbrActif ? (
-                                <span className="font-bold text-2xl text-black font-bold">{dataNbrActif.nbr_actif}</span>
+                            {nbrActif.data ? (
+                                <span className="font-bold text-2xl text-black font-bold">{nbrActif.data.nbr_actif}</span>
                             ):null}
                             </div>
                             <div className="border-1 border-green-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-green-600"><BadgeCheck className="h-8 w-8"/></div>
@@ -556,7 +503,7 @@ export default function DashboardStandard(){
                         <div className="grid grid-cols-4 gap-5">
                             <div className=""></div>
 
-                            <form onSubmit={AjouterAdherant} className="col-span-2 rounded-lg bg-white shadow-lg px-8 py-5">
+                            <form onSubmit={handleAdd} className="col-span-2 rounded-lg bg-white shadow-lg px-8 py-5">
                                 <div className="flex items-center gap-5">
                                 <div className="flex-col flex gap-2 mb-3">
                                     <label className="font-bold">Nom <span className="text-red-600">*</span></label>
@@ -590,7 +537,7 @@ export default function DashboardStandard(){
                                     />
                                 </div>
                                 </div>
-
+                                <div className="flex items-center gap-5">
                                 <div className="flex-col flex gap-2 mb-3">
                                     <label className="font-bold">Adresse e-mail <span className="text-red-600">*</span></label>
                                     <Input 
@@ -622,31 +569,53 @@ export default function DashboardStandard(){
                                         checked={null}
                                     />
                                 </div>
+                                </div>
 
                 
                                 <div className="grid grid-cols-2">
                                 <div className="flex-col flex gap-2 w-30 ">
                                     <label className="font-bold">Abonnement</label>
-                                    <select value={duree} onChange={(e)=>{setDuree(e.target.value)}}
+                                    <select value={type} onChange={(e)=>{setType(e.target.value)}}
                                             className="border-4 border-gray-300 p-2 border-dotted text-sm"
                                         >
 
-                                        <option value="mensuel">Mensuel</option>
+                                        <option value="">-- Choisir --</option>
+                                        <option value="mensuel" onClick={setShowPrix(!showPrix)}>Mensuel</option>
+                                        <option value="trimestruel">Trimestruel</option>
                                         <option value="annuel">Annuel</option>
-                                        <option value="semestruel">Semestruel</option>
                                     </select>
                                 </div>
 
-                                 <div className="flex items-center my-3">
+                                <div>
+                                    {showPrix && (
+                                        <>
+                                            {loading ? (
+                                                <Loader2 className='h-5 w-5'/>
+                                            ): prix.data.map(item =>(
+                                                    <>
+                                                    <label className="font-bold">Prix</label>
+                                                    <select key={item.id} value={montant} onChange={(e)=>{setMontant(e.target.value)}}
+                                                        className="border-4 border-gray-300 p-2 border-dotted text-sm"
+                                                    >
+                                                        <option value="montant_1">{item.data.montant_1}</option>
+                                                    </select>
+                                                    </>
+                                                )
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                                 
+
+                                
+                                </div>
+                                <div className="flex items-center my-3">
                                     {errorAdherant && (
-                                        <span className="text-red-600 text-sm">{error}</span>
+                                        <span className="text-red-600 text-sm">{addAdh.error.message}</span>
                                     )}
                                     {successAdherant && (
                                         <span className="text-green-600 text-sm">Enregistrement effectué avec succèss</span>
                                     )}
-                                </div>
-
-                                
                                 </div>
 
                                 <div 
@@ -655,8 +624,8 @@ export default function DashboardStandard(){
                                     <motion.button 
                                     whileHover={{scale: 1.1}}
                                     whileTap={{scale: 0.95}}
-                                    disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !duree.trim()}
-                                    className={`flex items-center cursor-pointer  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !duree.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white '} font-bold  py-1 px-5 mx-auto`}
+                                    disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !type.trim()}
+                                    className={`flex items-center cursor-pointer  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !type.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white '} font-bold  py-1 px-5 mx-auto`}
                                     
                                     >
                                         {loadingAdherant ? (
