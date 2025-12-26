@@ -597,7 +597,7 @@ export default function DashboardStandard(){
                                         >
                                         <option value="">-- Choisir --</option>
                                         <option value="mensuel">Mensuel</option>
-                                        <option value="trimestruel">Trimestriel</option>
+                                        <option value="trimestriel">Trimestriel</option>
                                         <option value="annuel">Annuel</option>
                                     </select>
 
