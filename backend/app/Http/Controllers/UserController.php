@@ -36,7 +36,7 @@ class UserController extends Controller
         $adherant = User::create([
             'name' => $data['nom'],
             'email' => $data['email'],
-            'telephone' => $data['telephone'],
+            'telephone' => $data['tel'],
             'prenom' => $data['prenom'],
             'username' => $data['nom'] . ' ' . $data['prenom'],
             'password' => 'adherant'
@@ -178,11 +178,15 @@ class UserController extends Controller
                 'message' => 'les champs ne sont pas correctement renseigne'
             ]);
         }
-         $exist = User::where('email', $request->email)->first()
-            ->whereHas('roles', fn($q) => $q->where('name', 'Adherant'))
-            ->whereHas('salles', fn($q) => $q->where('gerant_id',$gerant->id))
-            // ->where('salle_id', $gerant->salle_id)
-            ->exists();
+   $exist = User::where('email', $request->email)
+    ->whereHas('roles', function ($q) {
+        $q->where('name', 'Adherant');
+    })
+    ->whereHas('salles', function ($q) use ($gerant) {
+        $q->where('gerant_id', $gerant->id);
+    })
+    ->exists();
+
         
             if ($exist) {
                 return response()->json([
@@ -218,7 +222,7 @@ class UserController extends Controller
 
             $limit = [
                 'Pro' => 1000,
-                'standard' => 200,
+                'Standard' => 200,
                 'premium' => PHP_INT_MAX
             ];
 

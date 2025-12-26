@@ -1,14 +1,15 @@
 <?php
 
-use App\Http\Controllers\ActivitesController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\GerantController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PaiementController;
-use App\Http\Controllers\SalleController;
-use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
+use App\Http\Middleware\paiementMid;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\SalleController;
+use App\Http\Controllers\GerantController;
+use App\Http\Controllers\PaiementController;
+use App\Http\Controllers\ActivitesController;
 
 Route::post('/login', [AuthController::class, 'Login']);
 Route::post('/infos-perso', [AuthController::class, 'Register']);
@@ -25,7 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // definitions des prix
     
   Route::post('/ajouter-mes-prix', [UserController::class, 'AddSallePrix']);
-  Route::get('/mes-prix', [UserController::class, 'SallePrix']);
+  Route::get('/mes-prix', [UserController::class, 'SallePrix'])->middleware('paiement');
   //gestion des gerants
   Route::post('/ajouter-adherant', [UserController::class, 'AjouterAdherant']);
   Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
