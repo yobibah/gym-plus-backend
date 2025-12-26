@@ -6,7 +6,7 @@ export async function AjouterAdherant({form}){
 
         const token = getToken()
 
-        const response = await fetch(`${apiUrl}adherant`,{
+        const response = await fetch(`${apiUrl}ajouter-adherant`,{
             method : "POST",
             headers : {
                 "Content-Type" : "application/json",

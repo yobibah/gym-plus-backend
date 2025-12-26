@@ -21,7 +21,7 @@ export default function DashboardStandard(){
     const [prenom, setPrenom] = useState('')
     const [email, setEmail] = useState('')
     const [tel, setTel] = useState('')
-    const [type, setType] = useState('')
+    const [plan, setPlan] = useState('')
     const [showPrix, setShowPrix] = useState(false)
     const [montant, setMontant] = useState('')
 
@@ -65,6 +65,9 @@ export default function DashboardStandard(){
         queryFn : FetchNombreAdherant
     })
 
+    const nbrAdherants = Number(nbrAdh.data?.nbr_adherant) || 0
+
+
     const loadingNbrAdherant = nbrAdh.isPending
     const errorNbrAdherant = nbrAdh.isError
 
@@ -74,6 +77,8 @@ export default function DashboardStandard(){
         queryFn : FetchNombreActif
     })
 
+    const nbrAdherantsActif = Number(nbrActif.data?.nbr_actif) || 0
+
     const loadingNbrActif = nbrActif.isPending
     const errorNbrActif = nbrActif.isError
 
@@ -82,6 +87,9 @@ export default function DashboardStandard(){
         queryKey : ['prix'],
         queryFn : fetchPrix
     })
+    // console.log('PRIX =', prix.data)
+    const prix_standard = Number(prix.data?.montant?.montant_1) || 0
+
 
     const loading = prix.isPending
     const error = prix.isError
@@ -94,7 +102,7 @@ export default function DashboardStandard(){
         onSuccess : ()=>{
             setNom('')
             setPrenom('')
-            setType('')
+            setPlan('')
             setEmail('')
             setTel('')
 
@@ -109,7 +117,7 @@ export default function DashboardStandard(){
 
     async function handleAdd(e) {
         e.preventDefault()
-        const form = {nom, prenom, tel, type, email}
+        const form = {nom, prenom, tel, plan, email, montant}
         addAdh.mutate({form})
     }
 
@@ -256,11 +264,8 @@ export default function DashboardStandard(){
                                 <div>
                                     <span className="text-xl font-bold text-gray-400 mb-2">Adhérants</span>
                                     <div className="text-sm text-gray-500 mb-2">
-                                        {/* {errorAdherant} */}
-                                        {nbrAdh.data ? ( 
-                                             <span className="font-bold text-2xl text-black font-bold">{nbrAdh.data.nbr_adherant} </span>/200
-                                       
-                                        ):null}
+                                        
+                                             <span className="font-bold text-2xl text-black font-bold">{nbrAdherants} </span>/200
                                     </div>
                                 </div>
                                 <div className="border-1 border-orange-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-orange-600"><Users className="h-8 w-8"/></div>
@@ -288,9 +293,10 @@ export default function DashboardStandard(){
                             )}
                             
                             <div className="text-xl font-bold text-gray-400 mb-2">Abonnements Actifs <br />
-                            {nbrActif.data ? (
-                                <span className="font-bold text-2xl text-black font-bold">{nbrActif.data.nbr_actif}</span>
-                            ):null}
+                           
+                                <span className="font-bold text-2xl text-black font-bold">{nbrAdherantsActif}</span>
+                            
+
                             </div>
                             <div className="border-1 border-green-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-green-600"><BadgeCheck className="h-8 w-8"/></div>
                             
@@ -511,7 +517,7 @@ export default function DashboardStandard(){
                                         type={'text'}
                                         value={nom}
                                         onChange={(e)=>{setNom(e.target.value)}}
-                                        className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
+                                        className={'border focus:outline-none  border-gray-300 text-sm p-2 rounded-lg'}
                                         placeholder={'Nom de l\'adhérant'}
                                         disabled={false}
                                         hidden={false}
@@ -537,7 +543,7 @@ export default function DashboardStandard(){
                                     />
                                 </div>
                                 </div>
-                                <div className="flex items-center gap-5">
+                                {/* <div className="flex justify-between items-center gap-5"> */}
                                 <div className="flex-col flex gap-2 mb-3">
                                     <label className="font-bold">Adresse e-mail <span className="text-red-600">*</span></label>
                                     <Input 
@@ -568,42 +574,58 @@ export default function DashboardStandard(){
                                         ref={null}
                                         checked={null}
                                     />
-                                </div>
+                                {/* </div> */}
                                 </div>
 
                 
-                                <div className="grid grid-cols-2">
-                                <div className="flex-col flex gap-2 w-30 ">
+                                <div className="grid grid-cols-2 gap-10">
+                                <div className="flex-col flex gap-2 ">
                                     <label className="font-bold">Abonnement</label>
-                                    <select value={type} onChange={(e)=>{setType(e.target.value)}}
-                                            className="border-4 border-gray-300 p-2 border-dotted text-sm"
-                                        >
+                                
 
+                                    <select
+                                        value={plan}
+                                        onChange={(e) => {
+                                            const value = e.target.value
+                                            setPlan(value)
+                                            setShowPrix(!!value)
+                                        }}
+                                        className="border-4 border-gray-300 p-2 border-dotted text-sm"
+                                        >
                                         <option value="">-- Choisir --</option>
-                                        <option value="mensuel" onClick={setShowPrix(!showPrix)}>Mensuel</option>
-                                        <option value="trimestruel">Trimestruel</option>
+                                        <option value="mensuel">Mensuel</option>
+                                        <option value="trimestruel">Trimestriel</option>
                                         <option value="annuel">Annuel</option>
                                     </select>
+
                                 </div>
 
                                 <div>
+                                   
+
                                     {showPrix && (
+                                    <div className="flex-col flex gap-2">
+                                        {loading ? (
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        ) : (
                                         <>
-                                            {loading ? (
-                                                <Loader2 className='h-5 w-5'/>
-                                            ): prix.data.map(item =>(
-                                                    <>
-                                                    <label className="font-bold">Prix</label>
-                                                    <select key={item.id} value={montant} onChange={(e)=>{setMontant(e.target.value)}}
-                                                        className="border-4 border-gray-300 p-2 border-dotted text-sm"
-                                                    >
-                                                        <option value="montant_1">{item.data.montant_1}</option>
-                                                    </select>
-                                                    </>
-                                                )
-                                            )}
+                                            <label className="font-bold">Prix</label>
+                                            <select
+                                            value={montant}
+                                            onChange={(e) => setMontant(e.target.value)}
+                                            className="border-4 border-gray-300 p-2 border-dotted text-sm"
+                                            >
+                                            <option value="">-- Choisir --</option>
+                                            <option value={prix_standard}>
+                                                {prix_standard}
+                                            </option>
+                                            </select>
                                         </>
+                                        )}
+                                    </div>
                                     )}
+
+
                                 </div>
                                  
 
@@ -622,10 +644,10 @@ export default function DashboardStandard(){
                                     
                                 className="flex items-center my-3">
                                     <motion.button 
-                                    whileHover={{scale: 1.1}}
+                                    whileHover={{scale: 1.03}}
                                     whileTap={{scale: 0.95}}
-                                    disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !type.trim()}
-                                    className={`flex items-center cursor-pointer  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !type.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white '} font-bold  py-1 px-5 mx-auto`}
+                                    disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim()}
+                                    className={`flex items-center cursor-pointer  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white '} font-bold  py-1 px-5 mx-auto`}
                                     
                                     >
                                         {loadingAdherant ? (
