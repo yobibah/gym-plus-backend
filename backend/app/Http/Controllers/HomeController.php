@@ -72,7 +72,7 @@ class HomeController extends Controller
 
             return response()->json([
                 'actif'=>$adhActif,
-                'nbr'=> $adhActif->count() ?? 0
+                'nbr_actif'=> $adhActif->count() ?? 0
              
                 // 'nombre'=>count($actif),
             ],200);

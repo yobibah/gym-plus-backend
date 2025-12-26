@@ -153,8 +153,9 @@ class UserController extends Controller
 
 
         ]);
+        $abonementPlan = strtolower($request->plan);
 
-        switch($request->plan){
+        switch($abonementPlan){
             case 'mensuel':
                 $fin= 1;
                 break;
@@ -276,12 +277,12 @@ class UserController extends Controller
             $transID = Str::random(4) . '#' . Carbon::today() . '@' . rand(111, 999);
             $mtn = $gerant->salleprix;
               $staus =0;
-            if ($request->plan == 'mensuel'){
+            if ($abonementPlan == 'mensuel'){
                  $montant = $mtn->montant_1;
                  $staus =1;
             }
 
-            elseif ($request->plan == 'trimestriel'){
+            elseif ($abonementPlan == 'trimestriel'){
                 $montant = $mtn->montant_2;
                   $staus =1;
             }
@@ -300,7 +301,7 @@ class UserController extends Controller
                 'montant' => $montant,
                 'plan' => $request->plan,
                 'salle_id' => $salle->id,
-                'status' => $staus,
+                'actif' => $staus,
             ]);
             $ab->limit +=1;
             $ab->save();

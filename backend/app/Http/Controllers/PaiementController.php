@@ -53,7 +53,7 @@ class PaiementController extends Controller
             'debut' => Carbon::now(),
             'fin' => Carbon::today()->addMonths((int)$fin),
             'montant' => $request->montant,
-            'plan' => $request->forfait, // utiliser la valeur reçue
+            'plan' => strtolower($request->forfait), // utiliser la valeur reçue
             'gerant_id' => $current->id,
             'transId' => $transID,
             'moyen paiment' => 'OM',
