@@ -154,7 +154,7 @@ public function sendPasswordResetNotification($token)
          return $this->hasOne(paiement::class, 'gerant_id')->latestOfMany('fin');
     }
 
-    public function dernierPaiementReussi()
+    public function dernierPaiementReussi():HasOne
 {
     return $this->hasOne(paiement::class, 'gerant_id')
                 ->where('status', 'reussi')
@@ -164,6 +164,12 @@ public function sendPasswordResetNotification($token)
 public function Activites(){
     return $this->hasMany(Activites::class,'gerant_id');
 }
+
+
+public function salleprix(): HasOne{
+    return $this->hasOne(salleprix::class,'gerant_id');
+}
+        
 
 protected function activityByID($id){
     return $this->Activites()->where('id', $id)->first();

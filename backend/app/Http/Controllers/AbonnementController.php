@@ -18,8 +18,7 @@ class AbonnementController extends Controller
         $validator = Validator::make($request->all(),[
             'id'=>'required|integer',
             'email'=> 'required|email',
-            'nbrmois'=>'required|integer',
-            'montant'=> 'required|decimal',
+             'plan'=> 'required|in:mensuel,trimestriel,annuel'
         ]);
 
         if ($validator->fails()){

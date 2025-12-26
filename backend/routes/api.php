@@ -22,9 +22,12 @@ Route::middleware('auth:sanctum')->group(function () {
   //acitive 
   Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
   Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
-
+// definitions des prix
+    
+  Route::post('/ajouter-mes-prix', [UserController::class, 'AddSallePrix']);
+  Route::get('/mes-prix', [UserController::class, 'SallePrix']);
   //gestion des gerants
-  Route::post('/adherant', [UserController::class, 'AjouterAdherant']);
+  Route::post('/ajouter-adherant', [UserController::class, 'AjouterAdherant']);
   Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
 
   Route::get('/mes-adherant', [HomeController::class, 'MesAdherants']);

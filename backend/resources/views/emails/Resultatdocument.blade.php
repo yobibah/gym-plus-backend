@@ -1,0 +1,1 @@
+<P> Bonjour votre salle a ete activer.</P>

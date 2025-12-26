@@ -19,7 +19,7 @@ class PaiementController extends Controller
 
     $validator = Validator::make($request->all(), [
         "montant" => "required|numeric",
-        "forfait" => "required|in:Pro,Standard,Premium",
+        "forfait" => "required|in:pro,standard,premium",
         'fin' => "nullable|integer"
     ]);
 
@@ -31,6 +31,10 @@ class PaiementController extends Controller
 
     try {
         $fin = $request->fin ?? 1;
+
+        switch ($request->forfait){
+            
+        }
 
         // Vérifier s’il a déjà un abonnement actif
         $hasAbonnement = $current->paiements()
@@ -47,7 +51,7 @@ class PaiementController extends Controller
         $transID = Str::random(4) . Carbon::now()->format('Ymd') . '@' . rand(111, 999);
         $paiement = paiement::create([
             'debut' => Carbon::now(),
-            'fin' => Carbon::now()->addMonths($fin),
+            'fin' => Carbon::today()->addMonths((int)$fin),
             'montant' => $request->montant,
             'plan' => $request->forfait, // utiliser la valeur reçue
             'gerant_id' => $current->id,

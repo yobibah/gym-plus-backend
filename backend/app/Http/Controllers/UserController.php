@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\adherent_salle;
+use App\Models\salleprix;
 use Exception;
 use App\Models\User;
 use App\Models\paiement;
@@ -11,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Log;
+use PHPUnit\Framework\Constraint\IsEmpty;
 
 class UserController extends Controller
 {
@@ -46,7 +49,7 @@ class UserController extends Controller
         ];
     }
 
-//     private function AddAbonnement(array $data, $gerant = null)
+    //     private function AddAbonnement(array $data, $gerant = null)
 //     {
 //         try {
 //             //ajouter email dans le table abonnement
@@ -59,7 +62,7 @@ class UserController extends Controller
 //                 ];
 //             }
 
-//             $transID = Str::random(4) . '#' . Carbon::today() . '@' . rand(111, 999);
+    //             $transID = Str::random(4) . '#' . Carbon::today() . '@' . rand(111, 999);
 //             // $fin= $data['fin'];
 //             // Log::info('la fin'. $fin);
 //             // switch ($fin){
@@ -72,28 +75,28 @@ class UserController extends Controller
 //             //     case 360:
 //             //         $plan = "annuel";
 
-//             // }
+    //             // }
 
-//             // Vérifier que l'utilisateur est bien un gérant
+    //             // Vérifier que l'utilisateur est bien un gérant
 // // if (!$gerant->hasRole('Gerant')) {
 // //     return[
 // //         'message' => "Vous n'êtes pas autorisé"
 // //     ], 401);
 // // }
 
-//             // Le gérant doit avoir UNE salle ACTIVE
+    //             // Le gérant doit avoir UNE salle ACTIVE
 //             $salle = $gerant->salles()->where('active', true)->first();
 
-//             if (!$salle) {
+    //             if (!$salle) {
 //                 return [
-//                     'error' => true,  // 🔥 AJOUT OBLIGATOIRE
+//                     'error' => true,  
 //                     'code' => 404,
 //                     'message' => "Vous devez d'abord créer et valider votre salle avant d'ajouter un abonnement."
 //                 ];
 //             }
 
 
-//             $abonnement = abonnement::create([
+    //             $abonnement = abonnement::create([
 //                 'adherant_id' => $data['adherant']['id'],
 //                 'email' => $data['adherant']['email'],
 //                 'debut' => Carbon::now(),
@@ -105,27 +108,27 @@ class UserController extends Controller
 //                 'salle_id' => $salle->id,
 //             ]);
 
-//             return [
+    //             return [
 //                 'abonnement' => $abonnement,
 //                 'error' => false,
 //                 'code' => 201,
 //                 'message' => 'votre abonnement a ete approuve avec success'
 
-//             ];
+    //             ];
 
-//         } catch (\Throwable $th) {
+    //         } catch (\Throwable $th) {
 
-//             return [
+    //             return [
 
-//                 'error' => true,
+    //                 'error' => true,
 //                 'code' => 500,
 //                 'message' => 'une erreur est survenue lors de l\'abonnement'
 
-//             ];
+    //             ];
 //         }
 
 
-//     }
+    //     }
 
     //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     public function AjouterAdherant(Request $request)
@@ -145,56 +148,81 @@ class UserController extends Controller
             'nom' => 'required|string',
             'prenom' => 'required|string',
             'email' => 'required|email',
-            'telephone' => 'required|min:8',
-            //fin ces la fin de l'abonnement
-            'fin' => 'required|integer',
-            'status'=>'required|boolean'
+            'telephone' => 'required|min:8',    
+            'plan'=> 'required|in:mensuel,trimestriel,annuel'
 
 
         ]);
+
+        switch($request->plan){
+            case 'mensuel':
+                $fin= 1;
+                break;
+            case 'trimestriel':
+                $fin= 3;
+                break;
+            case 'annuel':
+                $fin= 12;
+                break;
+        }
 
         $data = [
             'name' => $request->nom,
             'email' => $request->email,
             'telephone' => $request->telephone,
             'prenom' => $request->prenom,
-            'fin' => $request->fin
+           
         ];
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'les champs ne sont pas correctement renseigne'
             ]);
         }
+         $exist = User::where('email', $request->email)->first()
+            ->whereHas('roles', fn($q) => $q->where('name', 'Adherant'))
+            ->whereHas('salles', fn($q) => $q->where('gerant_id',$gerant->id))
+            // ->where('salle_id', $gerant->salle_id)
+            ->exists();
+        
+            if ($exist) {
+                return response()->json([
+                    'message'=> 'cet utilisateur existe deja',
+                    'user'=>$exist
+                ],200);
+            }
 
 
         try {
 
             //verifier si le paiement est actif avant de continuer
-            $paiement = $gerant->paiements()->where('fin', '>=', Carbon::now())->first();
-            $adherantCount = User::whereHas('roles', function ($q) {
-                $q->where('name', 'Adherant');
-            })
-                ->where('gerant_id', $gerant->id)
-                ->where('salle_id', $gerant->salle_id)
-                ->count();
+            // $paiement = $gerant->paiements()->where('fin', '>=', Carbon::now())->first();
+            // $adherantCount = User::whereHas('roles', function ($q) {
+            //     $q->where('name', 'Adherant');
+            // })
+            //     ->where('gerant_id', $gerant->id)
+            //     ->where('salle_id', $gerant->salle_id)
+            //     ->count();
+
+            $ab = $gerant->dernierPaiementReussi;
+            $adherantCount = $ab->limit;
+            $plan = $ab->plan;
+            if (!$ab) {
+                return response()->json([
+                    'message' => 'Votre abonnement a expiré'
+                ], 403);
+            }
 
 
             Log::info(' poue les adherant ' . $adherantCount);
-            Log::info('abonnemet ' . $paiement);
+            Log::info('abonnemet ' . $ab);
 
             $limit = [
-                'pro' => 1000,
+                'Pro' => 1000,
                 'standard' => 200,
                 'premium' => PHP_INT_MAX
             ];
 
-            if (!$paiement) {
-                return response()->json([
-                    'message' => 'votre abonnement  a expire'
-                ]);
-            }
-
-            if ($adherantCount >= $limit[$paiement->plan]) {
+            if ($adherantCount >= $limit[$plan]) {
                 return response()->json([
                     'message' => 'vous avez atteint la limite autorise. Veuillez passer au plan supererieur'
                 ]);
@@ -228,12 +256,12 @@ class UserController extends Controller
 
             // ici ajouter l'abonnement des adherants
 
-              $salle = $gerant->salles()->first();
-              Log::info('salle '.  $salle->id);
+            $salle = $gerant->salle;
+            Log::info( 'salle ' . $salle->id);
 
             if (!$salle) {
                 return [
-                    'error' => true,  // 🔥 AJOUT OBLIGATOIRE
+                    'error' => true,  
                     'code' => 404,
                     'message' => "Vous devez d'abord créer et valider votre salle avant d'ajouter un abonnement."
                 ];
@@ -241,33 +269,57 @@ class UserController extends Controller
 
 
 
-       $transID = Str::random(4) . '#' . Carbon::today() . '@' . rand(111, 999);
+            $transID = Str::random(4) . '#' . Carbon::today() . '@' . rand(111, 999);
+            $mtn = $gerant->salleprix;
+              $staus =0;
+            if ($request->plan == 'mensuel'){
+                 $montant = $mtn->montant_1;
+                 $staus =1;
+            }
+
+            elseif ($request->plan == 'trimestriel'){
+                $montant = $mtn->montant_2;
+                  $staus =1;
+            }
+            else {
+                $montant = $mtn->montant_3;
+                  $staus =1;
+            }
 
             $abonnement = abonnement::create([
                 'adherant_id' => $res['user']->id,
                 'email' => $res['user']->email,
                 'debut' => Carbon::now(),
-                'fin' => Carbon::now()->addMonths(1),
+                'fin' => Carbon::now()->addMonths($fin),
                 'date_ajout' => Carbon::now(),
                 'transID' => $transID,
-                'montant'=>45000,
-                'plan' => 'mensuel',
+                'montant' => $montant,
+                'plan' => $request->plan,
                 'salle_id' => $salle->id,
-                'status'=>$request->status,
+                'status' => $staus,
+            ]);
+            $ab->limit +=1;
+            $ab->save();
+
+            adherent_salle::forceCreate([
+                'adherent_id'=> $res['user']->id,
+                'salle_id'=>$salle->id,
             ]);
 
 
             return response()->json([
                 'message' => 'adherant cree avec succes',
                 'adherant' => $res['user'],
-                'abonnement'=>$abonnement
+                'abonnement' => $abonnement
             ]);
 
 
         } catch (Exception $th) {
             Log::info($th->getMessage(), $th->getTrace());
             return response()->json([
-                'message' => 'erreur liee au serveur'
+                'message' => 'erreur liee au serveur',
+                'error'=> $th->getMessage(),
+                'line'=>$th->getLine()
             ], 500);
         }
 
@@ -277,16 +329,95 @@ class UserController extends Controller
     }
 
 
-      public function PlanChoisit(Request $request){
+    public function PlanChoisit(Request $request)
+    {
         $user = $request->user();
         $plan = $user->dernierPaiementReussi->plan;
+        $abonnement=$user->dernierPaiementReussi;
         return response()->json([
-            'plan'=>$plan
+            'plan' => $plan,
+        'abonnement'=> $abonnement
+            
         ]);
 
-      }
+    }
 
-  
+
+    public function AddSallePrix(Request $request){
+        $user = $request->user();
+        if (!$user->hasrole('Gerant')) {
+            return response()->json(['message'=>'vous n\etes pas autoriser a effectuer cette action'],401);
+        }
+        $salle = $user->salle;
+        $existsallprix = salleprix::where('gerant_id',$user->id)->where('salle_id',$salle->id)->first();
+        if ($existsallprix) {
+            return response()->json(['message'=> 'vous ne pouvez pas ajouter'],409);
+        }
+        $validator = Validator::make($request->all(),[
+            'montant_1'=>'required|numeric',
+            'montant_2'=>'required|numeric',
+            'montant_3'=>'required|numeric',
+
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message'=>' veuillez remplir correctement les donnees'
+            ],400);
+        }
+
+        try{
+            $sallePrix= salleprix::create([
+                'montant_1'=> $request->montant_1,
+                'montant_2'=> $request->montant_2,
+                'montant_3'=> $request->montant_3,
+                'gerant_id'=>$user->id,
+                'salle_id'=>$salle->id
+            ]);
+
+            return response()->json([
+                'message'=> 'vous venez de definir les prix de votre salle',
+                'data'=> $sallePrix
+            ]);
+        }
+        catch(Exception $e){
+              if ($validator->fails()) {
+            return response()->json([
+                'message'=>' une erreur est survenue',
+                'erro'=> $e->getMessage(),
+                'line'=> $e->getLine(),
+            ],500);
+        }
+        }
+
+
+    }
+
+    public  function  SallePrix(Request $request){
+        $user = $request->user();
+
+        try {
+             if (!$user->hasrole('Gerant')) {
+            return response()->json(['message'=>'vous n\etes pas autoriser a effectuer cette action'],401);
+        }
+
+        $montant = $user->salleprix;
+        if( !$montant){
+            return response()->json(['message'=> 'vous n\'avez pas configuerer les prix pour votre salle'
+        ],404);
+        }
+
+        return response()->json([
+            'montant'=> $montant
+        ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message'=>'une erreur est survenue',
+                'error'=>$th->getMessage(),
+                'line'=>$th->getLine(),
+            ],500);
+        }
+
+    }
 
     public function NotifierAherant()
     {

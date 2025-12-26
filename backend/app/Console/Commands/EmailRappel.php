@@ -35,14 +35,14 @@ class EmailRappel extends Command
         $datef = Carbon::now()->addDays(3)->startOfDay();
 
         
-        $users = User::whereHas('abonnement', function ($q) use ($datef) {
+        $users = User::whereHas('Role',fn($q)=>$q->where('name','Adherant'))->whereHas('abonnement', function ($q) use ($datef) {
             $q->whereDate('fin', '=', $datef);
         })
             ->with('abonnement')
             ->get();
 
         foreach ($users as $user) {
-            Mail::to($user->email)->send(new RappelMail($user));
+            Mail::to($user->email)->queue(new RappelMail($user));
         }
 
         $this->info("Emails envoyés à " . $users->count() . " utilisateur(s).");

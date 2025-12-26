@@ -21,7 +21,8 @@ class paiement extends Model
 
         "fin",
 
-        "plan"
+        "plan",
+        "limit"
     ];
 
 

@@ -17,7 +17,7 @@ class HomeController extends Controller
 
         // Vérifier que l'utilisateur est gérant
         if (!$current->hasRole('Gerant')) {
-            return response()->json(['message' => 'Vous n’êtes pas gérant'], 403);
+            return response()->json(['message' => 'Vous n’êtes pas gérant'], 401);
         }
 
         // Récupérer la salle du gérant
@@ -30,7 +30,7 @@ class HomeController extends Controller
         // Récupérer les adhérents de cette salle
         $adherents = $salle->adherents()
             // ->whereHas('roles', fn($q) => $q->where('name', 'Adherant')) 
-            ->with(['dernierAbonnement'])
+            // ->with(['dernierAbonnement'])
             ->paginate(10);
 
         // 
@@ -38,7 +38,7 @@ class HomeController extends Controller
         // $adherents->paginate(10);
 
         return response()->json([
-            'salle' => $salle,
+        
             'adherents' => $adherents ?? ' pas de d\'adherant',
 
         ]);
@@ -57,36 +57,42 @@ class HomeController extends Controller
     public function AdherantActif(Request $request)
     {
         $user = $request->user();
-        $salle = $user->salle;
-        $adhr = $salle->adherents()
-            // ->whereHas('roles', fn($q) => $q->where('name', 'Adherant')) 
-            ->with(['dernierAbonnement'])
-            ->paginate(10);
-        $adhr = array($adhr);
-        
-
-        // recuperer les adherant actifs 
-        $status = [];
-
-        foreach ($adhr as $ad) {
-            if ($ad['status'] == false) {
-                $this->actif = array_merge($this->actif, $adhr);
-                $this->cpt += 1;
-                $status[] = $ad['status'];
-
-            }
+        if (!$user->hasRole('Gerant')) {
+            return response()->json(['message'=> 'vous n\'etes pas autoriser'], 401);
         }
-        // retourner les utlisateurs actif
-        return response()->json([
-            'adherantActif' => $this->actif,
-            'nbr_actif' => $this->cpt,
-            'status' => $status
-        ]);
+        try {
+            $salle = $user->salle;
+            $actif = $salle->adherentsActif();
+// ici ce quand il n;y pas daderant actif
+            if(!$actif){
+                return response()->json(['message'=> 'aucun adherant est actif'], 404);
+            }
 
+            return response()->json([
+                'actif'=>$actif,
+                // 'nombre'=>count($actif),
+            ],200);
+        } catch (\Exception $th) {
+            return response()->json([
+                'message'=>$th->getMessage(),
+                'line'=>$th->getLine(),
+                
+            ],500);
+        }
+       
+        
     }
 
     public function AdherantExpirer(Request $request)
     {
+        // ici on va selectionner tous les adherant actif.....
+
+        $user = $request->user();
+        if (!$user->hasRole('Gerant')) {
+            return response()->json([
+                'messsage'=>'vous n\'etes pas autorise a utiliser'
+            ],401);
+        }
 
     }
     public function AbonnementExpirer(Request $request)

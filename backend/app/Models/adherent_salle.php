@@ -8,6 +8,7 @@ class adherent_salle extends Model
 {
     //
 
+    protected $table = "adherent_salle";
     protected $fillable=[
         'adherent_id',
         'salle_id',
