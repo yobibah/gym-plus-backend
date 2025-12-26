@@ -25,6 +25,9 @@ export default function DashboardStandard(){
     const [showPrix, setShowPrix] = useState(false)
     const [montant, setMontant] = useState('')
 
+    const token = getToken()
+
+        console.log('token ajout:', token)
 
 
     function ActiveTab(){
@@ -214,7 +217,7 @@ export default function DashboardStandard(){
 
             {/* Contenu pricnipal , dependra vrai de là ou on se trouve*/}
             {/* Si tableau active */}
-
+        <div className="col-span-4 overflow-y-auto">
             {activeTab === 'dashboard' && (
                 <div className="col-span-4 px-8 py-3 my-5">
                     
@@ -689,6 +692,7 @@ export default function DashboardStandard(){
             {activeTab === 'settings' && (
                 <div className="col-span-4 px-8 py-3 my-5">Parametres</div>
             )}
+        </div>
         </div>
     )
 }
