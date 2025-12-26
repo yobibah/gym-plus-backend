@@ -222,8 +222,8 @@ class UserController extends Controller
             Log::info('abonnemet ' . $ab);
 
             $limit = [
-                'Pro' => 1000,
-                'Standard' => 200,
+                'pro' => 1000,
+                'standard' => 200,
                 'premium' => PHP_INT_MAX
             ];
 

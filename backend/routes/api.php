@@ -34,6 +34,9 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::get('/mes-adherant', [HomeController::class, 'MesAdherants']);
   Route::get('/nbr-adherant', [HomeController::class, 'NbreAdherant']);
    Route::get('/nbr-adherant-actif', [HomeController::class, 'AdherantActif']);
+    Route::get('/bientot-expirer', [HomeController::class, 'BientotExpirer']);
+        Route::get('/expirer', [HomeController::class, 'AdherantExpirer']);
+
 
   Route::post('/info-salle', action: [SalleController::class, 'AjouterSalle']);
   Route::post('/payment', [PaiementController::class, 'simulation']);
