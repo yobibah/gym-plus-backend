@@ -175,4 +175,15 @@ protected function activityByID($id){
     return $this->Activites()->where('id', $id)->first();
 }
 
+public function Aherantsalles()
+{
+    return $this->belongsToMany(
+        Salle::class,
+        'salle_adherant',
+        'adherant_id',
+        'salle_id'
+    )
+    ->withTimestamps();
+}
+
 }

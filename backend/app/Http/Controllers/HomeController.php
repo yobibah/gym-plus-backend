@@ -10,7 +10,7 @@ class HomeController extends Controller
 {
     // dans ce controlleur je vais renvoyer tte les donner que le gerant de la salle voudra voir
     private int $cpt = 0;
-    public array $actif = [];
+
     public function MesAdherants(Request $request)
     {
         $current = $request->user();
@@ -50,7 +50,7 @@ class HomeController extends Controller
 
         $adhr = $user->salle->adherents();
         return response()->json([
-            'nbr_adherant' => $adhr
+            'nbr_adherant' => $adhr->count()
         ]);
     }
 
@@ -62,14 +62,18 @@ class HomeController extends Controller
         }
         try {
             $salle = $user->salle;
-            $actif = $salle->adherentsActif();
+            $adhActif = $salle->adherentsActif();
+           
+
 // ici ce quand il n;y pas daderant actif
-            if(!$actif){
+            if(!$adhActif){
                 return response()->json(['message'=> 'aucun adherant est actif'], 404);
             }
 
             return response()->json([
-                'actif'=>$actif,
+                'actif'=>$adhActif,
+                'nbr'=> $adhActif->count() ?? 0
+             
                 // 'nombre'=>count($actif),
             ],200);
         } catch (\Exception $th) {
@@ -94,9 +98,52 @@ class HomeController extends Controller
             ],401);
         }
 
+        try{
+       $salle = $user->salle;
+            $adhActif = $salle->adherentsExpirer();
+           
+
+// ici ce quand il n;y pas daderant actif
+            if(!$adhActif){
+                return response()->json(['message'=> 'aucun adherant est actif'], 404);
+            }
+
+            return response()->json([
+                'expirer'=>$adhActif,
+                'nbr'=> $adhActif->count() ?? 0
+             
+                // 'nombre'=>count($actif),
+            ],200);
+        }
+        catch (\Exception $th) {
+
+        }
+
     }
-    public function AbonnementExpirer(Request $request)
+    public function BientotExpirer(Request $request)
     {
+
+        $user = $request->user();
+
+        if (!$user->hasRole('Gerant')) {
+            return response()->json([
+                'message'=> 'vous n\'avez pas l\'autorisation'
+                ],401);
+        }
+
+        try {
+            $salle = $user->salle;
+            $bientotExpirer = $salle->bientotExpirer();
+            
+
+            return response()->json([
+                'NBexpirer'=>$bientotExpirer->count() ?? 0,
+                'adhrend'=>$bientotExpirer
+            ]);
+        } catch (\Exception $th) {
+            //throw $th;
+        }
+        
 
     }
 

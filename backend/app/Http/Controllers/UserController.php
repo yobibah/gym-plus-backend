@@ -148,7 +148,7 @@ class UserController extends Controller
             'nom' => 'required|string',
             'prenom' => 'required|string',
             'email' => 'required|email',
-            'telephone' => 'required|min:8',    
+            'tel' => 'required|min:8',    
             'plan'=> 'required|in:mensuel,trimestriel,annuel'
 
 
@@ -169,7 +169,7 @@ class UserController extends Controller
         $data = [
             'name' => $request->nom,
             'email' => $request->email,
-            'telephone' => $request->telephone,
+            'telephone' => $request->tel,
             'prenom' => $request->prenom,
            
         ];

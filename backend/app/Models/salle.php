@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class salle extends Model
@@ -47,30 +48,37 @@ class salle extends Model
     public function adherents()
     {
         return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
-           ->with('abonnements')
+            // ->withPivot(['date_inscription', 'statut'])
             ->withTimestamps();
     }
 
 
 
-public function adherentsActif()
-{
-    return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
-        ->whereHas('abonnements', function ($q) {
-            $q->where('actif', 1);
-        })
-        ->with(['abonnements' => function ($q) {
-            $q->where('actif', 1);
-        }])
-        ->withTimestamps();
-}
+    public function adherentsActif()
+    {
+        return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
+            ->whereHas('abonnements', fn ($q)=>$q->where('actif',1))->get();
+          
+    }
 
 
         public function adherentsExpirer()
     {
         return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
-             ->with(['abonnements',fn($q)=>$q->where('actif',false)])
-            ->withTimestamps();
+            ->whereHas('abonnements', fn ($q)=>$q->where('actif',1))->get();
+          
     }
+
+    // abonnement bientot expirer
+
+  
+
+public function bientotExpirer()
+{
+    return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
+        ->whereHas('abonnements', function ($q) {
+            $q->whereBetween('fin', [Carbon::now(), Carbon::now()->addDays(7)]);
+        });
+}
 
 }
