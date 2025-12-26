@@ -45,9 +45,9 @@ export default function Dashboard(){
 
     return(
         <div>
-            {planChoisit.data.plan === 'Standard' && <DashboardStandard />}
-            {planChoisit.data.plan === 'Pro' && <div>Pro</div>}
-            {planChoisit.data.plan === 'Premium' && <div>Premium</div>}
+            {planChoisit.data.plan === 'standard' && <DashboardStandard />}
+            {planChoisit.data.plan === 'pro' && <div>Pro</div>}
+            {planChoisit.data.plan === 'premium' && <div>Premium</div>}
         </div>
     )
 }
