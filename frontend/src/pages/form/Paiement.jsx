@@ -7,7 +7,7 @@ import useGetUrl from "../../hooks/useGetUrl";
 import { useNavigate } from "react-router-dom";
 import { usePayment } from "../../contexts/PaymentContext";
 import { CheckCircle, Loader2, Lock, WalletCards, Smartphone } from "lucide-react";
-import { Payment } from "../../data/subscribe/paiement";
+import { Payment } from "../../services/subscribe/paiement";
 import { useMutation } from "@tanstack/react-query";
 
 

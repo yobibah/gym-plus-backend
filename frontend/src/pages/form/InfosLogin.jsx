@@ -9,9 +9,9 @@ import { useNavigate } from "react-router-dom";
 import form1 from '../../assets/images/form1.png'
 import { motion } from "framer-motion";
 import { usePayment } from "../../contexts/PaymentContext";
-import { infosPerso } from "../../data/subscribe/infosPerso";
+import { infosPerso } from "../../services/subscribe/infosPerso";
 import { useMutation } from "@tanstack/react-query";
-import { Otp } from "../../data/subscribe/otp";
+import { Otp } from "../../services/subscribe/otp";
 
 
 

@@ -1,16 +1,19 @@
 import { AlertCircle, BadgeCheck, Calendar, CalendarOff, CalendarX, LayoutDashboard, LayoutDashboardIcon, Loader2, Search, Settings, Settings2, SquarePlus, User, UserPlus, UserPlus2, Users, WalletCards } from "lucide-react";
-import React, {useState, useEffect, use} from "react";
+import React, {useState, useEffect} from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/input";
 import Cookies from 'js-cookie'
 import useGetUrl from "../../hooks/useGetUrl";
 import { getToken } from "../../hooks/getToken";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiUrl } from "../../../../env";
-import { FetchNombreAdherant } from "../../data/dashboard/standard/nombreAdh";
-import { FetchNombreActif } from "../../data/dashboard/standard/nombreActif";
-import { fetchPrix } from "../../data/dashboard/standard/mesPrix";
-import { AjouterAdherant } from "../../data/dashboard/standard/ajoutAdherant";
+import { FetchNombreAdherant } from "../../services/dashboard/standard/nombreAdh";
+import { FetchNombreActif } from "../../services/dashboard/standard/nombreActif";
+import { fetchPrix } from "../../services/dashboard/standard/mesPrix";
+import { AjouterAdherant } from "../../services/dashboard/standard/ajoutAdherant";
+import {ExpireBientot} from "../../services/dashboard/standard/expireBientot"
+import { AbonnementExpirer } from "../../services/dashboard/standard/abonnementExpire";
 
 
 export default function DashboardStandard(){
@@ -24,12 +27,11 @@ export default function DashboardStandard(){
     const [plan, setPlan] = useState('')
     const [showPrix, setShowPrix] = useState(false)
     const [montant, setMontant] = useState('')
+    const [modalLogout, setModalLogout] = useState(false)
 
+    const navigate = useNavigate()
     const token = getToken()
-
-        console.log('token ajout:', token)
-
-
+    
     function ActiveTab(){
 
          if(activeTab === 'dashboard'){
@@ -67,21 +69,17 @@ export default function DashboardStandard(){
         queryKey : ['nbr_adherant'],
         queryFn : FetchNombreAdherant
     })
-
-    const nbrAdherants = Number(nbrAdh.data?.nbr_adherant) || 0
-
-
+    const nbrAdherants = Number(nbrAdh.data?.nbr_adherant)
     const loadingNbrAdherant = nbrAdh.isPending
     const errorNbrAdherant = nbrAdh.isError
+    const progressBarAdherant = (nbrAdherants / 200) * 100
 
 
     const nbrActif = useQuery({
         queryKey : ['nbr_actif'],
         queryFn : FetchNombreActif
     })
-
-    const nbrAdherantsActif = Number(nbrActif.data?.nbr_actif) || 0
-
+    const nbrAdherantsActif = Number(nbrActif.data?.nbr_actif) 
     const loadingNbrActif = nbrActif.isPending
     const errorNbrActif = nbrActif.isError
 
@@ -90,10 +88,9 @@ export default function DashboardStandard(){
         queryKey : ['prix'],
         queryFn : fetchPrix
     })
-    // console.log('PRIX =', prix.data)
-    const prix_standard = Number(prix.data?.montant?.montant_1) || 0
-
-
+    const prix_mensuel = Number(prix.data?.montant?.montant_1) || 0
+    const prix_trimestriel = Number(prix.data?.montant?.montant_2) || 0
+    const prix_annuel = Number(prix.data?.montant?.montant_3) || 0
     const loading = prix.isPending
     const error = prix.isError
 
@@ -124,10 +121,64 @@ export default function DashboardStandard(){
         addAdh.mutate({form})
     }
 
+    const expire = useQuery({
+        queryKey : ['expire-bientot'],
+        queryFn : ExpireBientot
+    })
+    const loadingExpire = expire.isPending
+    const errorExpire = expire.isError
+    const totalExpire = Number(expire.data?.NBexpirer)
+
+
+
+    const abonnerExpire = useQuery({
+        queryKey : ['abonner-expirer'],
+        queryFn : AbonnementExpirer
+    })
+    const loadingAbExpirer = abonnerExpire.isPending
+    const errorAbExpirer = abonnerExpire.isError
+    const totalAbExpirer = Number(abonnerExpire.data?.nbr)
+
+    //test du bouton niveau...
+    function handleNiveau(e){
+        e.preventDefault()
+        alert('test fonction')
+    }
+
+    function clearCache(){
+        return (
+            queryClient.removeQueries(['plan']),
+            queryClient.removeQueries(['nbr_adherant']),
+            queryClient.removeQueries(['nbr_actif']),
+            queryClient.removeQueries(['prix'])
+
+        )
+        
+    }
+
+    function logoutModal(e){
+        e.preventDefault()
+        setModalLogout(!modalLogout)
+        
+        
+        
+    }
+
+    function logout(e){
+        e.preventDefault()
+        
+        if(token){
+            Cookies.remove('token')
+            clearCache()
+            navigate('/auth', {replace : true})
+        }
+        
+    }
+
 
 
     return(
-        <div className="grid grid-cols-5 place-content-center bg-gray-100">
+        <div className="grid relative z-10 grid-cols-5 place-content-center bg-gray-100">
             {/* Barre latérale */}
             <div className="relative py-3  bg-white shadow-lg flex flex-col gap-10 h-screen fixed left-0">
                 <div className="flex items-center gap-2  px-5 my-5">
@@ -204,22 +255,30 @@ export default function DashboardStandard(){
 
 
             {/* {'A gerer en fonction de la date de labonnement'} */}
-                <motion.div 
-                    whileHover={{scale: 1.02}}
-                    whileTap={{scale: 0.98}}
-                className="absolute transition-colors duration-200 bottom-5 w-full flex justify-center">
-                    <button className="bg-orange-600 shadow-lg  w-full mx-5 text-white font-bold rounded-lg px-5 py-2"
-                        // onClick={}
-                    >Mettre à niveau</button>
-                </motion.div>
+                <div 
+                    
+                    className="absolute transition-colors duration-200 bottom-5 w-full flex justify-center">
+                    <motion.button 
+                        whileHover={{scale: 1.03}}
+                        whileTap={{scale: 0.95}}
+                        className="bg-orange-600 shadow-lg  w-full mx-5 text-white font-bold rounded-lg px-5 py-2"
+                        onClick={handleNiveau}
+                    >Mettre à niveau</motion.button>
+                    <motion.button 
+                        whileHover={{scale: 1.03}}
+                        whileTap={{scale: 0.95}}
+                        className="bg-red-700 shadow-lg  w-full mx-5 text-white font-bold rounded-lg px-5 py-2"
+                        onClick={logoutModal}
+                    >Se Déconnecter</motion.button>
+                </div>
 
             </div>
 
             {/* Contenu pricnipal , dependra vrai de là ou on se trouve*/}
             {/* Si tableau active */}
-        <div className="col-span-4 overflow-y-auto">
+        
             {activeTab === 'dashboard' && (
-                <div className="col-span-4 px-8 py-3 my-5">
+                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
                     
                     <div className="flex items-center mb-10 justify-between border-b-1 pb-5 border-gray-200">
                         <div className="flex items-center text-lg">
@@ -246,10 +305,10 @@ export default function DashboardStandard(){
                     <div className="grid grid-cols-4 gap-5 mb-10">
                         
                         <motion.div
-                            className={`flex-col relative shadow-lg ${loadingNbrAdherant ? '' : 'border-l-5 border-orange-600'} bg-white rounded-xl items-center px-5 py-6`}
+                            className={`flex-col relative shadow-lg ${loadingNbrAdherant ? '' : 'border-l-5 border-orange-600 shadow-orange-600'} bg-white rounded-xl items-center px-5 py-6`}
                             whileHover={{scale: 1.1}}
                         >
-                            {loadingNbrAdherant && (
+                            {loadingNbrAdherant ? (
                                 <>
                                 <div className="absolute inset-0 animate-pulse backdrop-blur rounded-xl shadow-lg ">
                                     
@@ -261,7 +320,8 @@ export default function DashboardStandard(){
                                     <Loader2 className='transition-alls duration-200  animate-spin text-orange-300 '/>
                                 </div>
                                 </>
-                            )}
+                            ):(
+                                <>
                             <div className="flex items-center justify-between">
                                 
                                 <div>
@@ -273,15 +333,18 @@ export default function DashboardStandard(){
                                 </div>
                                 <div className="border-1 border-orange-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-orange-600"><Users className="h-8 w-8"/></div>
                             </div>
-                            <div className="w-full bg-orange-500 h-2 rounded-xl"></div>
+                            <div className="w-full bg-gray-300 h-2 rounded-xl overflow-hidden">
+                                <div className="bg-orange-600 h-2 rounded-xl transition-all duration-500" style={{width: `${progressBarAdherant}%`}}></div>
+                            </div>
+                            </>)}
                         
                         </motion.div>
 
                         <motion.div 
                         whileHover={{scale: 1.1}}
-                        className={`bg-white flex relative ${loadingNbrActif ? '' : 'border-l-5 border-green-600'} justify-between shadow-lg rounded-xl items-center px-5 py-6`}>
+                        className={`bg-white flex relative ${loadingNbrActif ? '' : 'border-l-5 border-green-600 shadow-green-600'} justify-between shadow-lg rounded-xl items-center px-5 py-6`}>
                             
-                            {loadingNbrActif && (
+                            {loadingNbrActif ? (
                                 <>
                                 <div className="absolute inset-0 animate-pulse backdrop-blur rounded-xl shadow-lg ">
                                     
@@ -293,8 +356,8 @@ export default function DashboardStandard(){
                                     <Loader2 className='transition-alls duration-200 animate-spin text-green-300 '/>
                                 </div>
                                 </>
-                            )}
-                            
+                            ):(
+                            <>
                             <div className="text-xl font-bold text-gray-400 mb-2">Abonnements Actifs <br />
                            
                                 <span className="font-bold text-2xl text-black font-bold">{nbrAdherantsActif}</span>
@@ -302,33 +365,64 @@ export default function DashboardStandard(){
 
                             </div>
                             <div className="border-1 border-green-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-green-600"><BadgeCheck className="h-8 w-8"/></div>
-                            
+                            </>)}
                                 
                             
                         </motion.div>
 
                         <motion.div 
                         whileHover={{scale: 1.1}}
-                        className="bg-white flex border-l-5 border-yellow-600 justify-between shadow-lg rounded-xl items-center px-5 py-6">
-                            <span className="text-xl font-bold text-gray-400 mb-2">Expire Bientôt <br />
+                        className={`bg-white flex relative ${loadingExpire ? '' : 'border-l-5 border-yellow-600 shadow-yellow-600'} justify-between shadow-lg rounded-xl items-center px-5 py-6`}>
 
-                                <span className="font-bold text-2xl text-yellow-600 font-bold">8{/*a preciser avec le vraii*/}</span>
-                            </span>
+                            {loadingExpire ? (
+                                <>
+                                <div className="absolute inset-0 animate-pulse backdrop-blur rounded-xl shadow-lg ">
+                                    
+                                </div>
+                                <div className="absolute inset-0  backdrop-blur rounded-xl ">
+                                    
+                                </div>
+                                <div className="absolute animate-pulse inset-0  flex items-center justify-center backdrop-blur rounded-xl ">
+                                    <Loader2 className='transition-alls duration-200 animate-spin text-yellow-300 '/>
+                                </div>
+                                </>
+                            ):(
+                                <>
+                            <div className="text-xl font-bold text-gray-400 mb-2">Expire Bientôt <br />
+
+                                <span className="font-bold text-2xl text-yellow-600 font-bold">{totalExpire}</span>
+                            </div>
                             <div className="border-1 border-yellow-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-yellow-600"><AlertCircle className="h-8 w-8"/></div>
-                            
+                            </>
+                            )}
                             
                         </motion.div>
 
                         <motion.div 
                         whileHover={{scale: 1.1}}
-                        className="bg-white flex justify-between border-l-5 border-red-600 shadow-lg rounded-xl items-center px-5 py-6">
-                            <span className="text-xl font-bold text-gray-400 mb-2">Abonnements Expirés <br />
+                        className={`bg-white flex relative ${loadingAbExpirer ? '' : 'border-l-5 border-red-600 shadow-red-600'} justify-between shadow-lg rounded-xl items-center px-5 py-6`}>
 
-                                <span className="font-bold text-2xl text-black font-bold">4{/*a preciser avec le vraii*/}</span>
-                            </span>
+                            {loadingAbExpirer ? (
+                                <>
+                                <div className="absolute inset-0 animate-pulse backdrop-blur rounded-xl shadow-lg ">
+                                    
+                                </div>
+                                <div className="absolute inset-0  backdrop-blur rounded-xl ">
+                                    
+                                </div>
+                                <div className="absolute animate-pulse inset-0  flex items-center justify-center backdrop-blur rounded-xl ">
+                                    <Loader2 className='transition-alls duration-200 animate-spin text-yellow-300 '/>
+                                </div>
+                                </>
+                            ):(
+                                <>
+                            <div className="text-xl font-bold text-gray-400 mb-2">Abonnements Expirés <br />
+
+                                <span className="font-bold text-2xl text-black font-bold">{totalAbExpirer}</span>
+                            </div>
                             <div className="border-1 border-red-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-red-600"><CalendarOff className="h-8 w-8"/></div>
                             
-                            
+                            </>)}
                         </motion.div>
                     </div>
 
@@ -519,7 +613,7 @@ export default function DashboardStandard(){
                                     <Input 
                                         type={'text'}
                                         value={nom}
-                                        onChange={(e)=>{setNom(e.target.value)}}
+                                        onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
                                         className={'border focus:outline-none  border-gray-300 text-sm p-2 rounded-lg'}
                                         placeholder={'Nom de l\'adhérant'}
                                         disabled={false}
@@ -535,7 +629,7 @@ export default function DashboardStandard(){
                                     <Input 
                                         type={'text'}
                                         value={prenom}
-                                        onChange={(e)=>{setPrenom(e.target.value)}}
+                                        onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
                                         className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
                                         placeholder={'Prenom de l\'adhérant'}
                                         disabled={false}
@@ -552,7 +646,7 @@ export default function DashboardStandard(){
                                     <Input 
                                         type={'email'}
                                         value={email}
-                                        onChange={(e)=>{setEmail(e.target.value)}}
+                                        onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
                                         className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
                                         placeholder={'Email de l\'adhérant'}
                                         disabled={false}
@@ -568,7 +662,7 @@ export default function DashboardStandard(){
                                     <Input 
                                         type={'tel'}
                                         value={tel}
-                                        onChange={(e)=>{setTel(e.target.value)}}
+                                        onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
                                         className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
                                         placeholder={'Numéro de l\'adhérant'}
                                         disabled={false}
@@ -592,6 +686,7 @@ export default function DashboardStandard(){
                                             const value = e.target.value
                                             setPlan(value)
                                             setShowPrix(!!value)
+                                            addAdh.reset()
                                         }}
                                         className="border-4 border-gray-300 p-2 border-dotted text-sm"
                                         >
@@ -615,13 +710,22 @@ export default function DashboardStandard(){
                                             <label className="font-bold">Prix</label>
                                             <select
                                             value={montant}
-                                            onChange={(e) => setMontant(e.target.value)}
+                                            onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
                                             className="border-4 border-gray-300 p-2 border-dotted text-sm"
                                             >
                                             <option value="">-- Choisir --</option>
-                                            <option value={prix_standard}>
-                                                {prix_standard}
-                                            </option>
+                                                {plan === "mensuel" && (
+                                                    <option value={prix_mensuel}>
+                                                        {prix_mensuel}
+                                                    </option>)}
+                                                {plan === "trimestriel" && (
+                                                    <option value={prix_trimestriel}>
+                                                        {prix_trimestriel}
+                                                    </option>)}
+                                                {plan === "annuel" && (
+                                                    <option value={prix_annuel}>
+                                                        {prix_annuel}
+                                                    </option>)}
                                             </select>
                                         </>
                                         )}
@@ -692,7 +796,28 @@ export default function DashboardStandard(){
             {activeTab === 'settings' && (
                 <div className="col-span-4 px-8 py-3 my-5">Parametres</div>
             )}
-        </div>
+
+
+            {modalLogout && (
+                <motion.div 
+                     initial = {{opacity: 0, y: 10}}
+                    animate = {{opacity: 1, y: 0}}
+                    transition={{duration: 0.5}}
+                    className="bg-red-200 rounded-lg z-20 px-3  flex flex-col justify-center gap-4 text-center absolute bottom-25 left-50 w-40 h-20 ">
+                    <span className="text-sm font-semibold">Êtes-vous sûr ?</span>
+                    <div className="flex items-center justify-between">
+                        <button
+                            onClick={()=>setModalLogout(false)}
+                            className="cursor-pointer bg-orange-100 py-1 px-2 font-bold rounded-lg"
+                        >non</button>
+                        <button
+                            onClick={logout}
+                            className="cursor-pointer bg-red-700 text-white py-1 px-2 font-bold rounded-lg"
+                        >oui</button>
+                    </div>
+                </motion.div>
+            )}
+        
         </div>
     )
 }

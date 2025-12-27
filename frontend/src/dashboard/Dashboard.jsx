@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Loader2, XCircle } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
-import { fetchDataPlan } from "../data/fetchPlan";
+import { fetchDataPlan } from "../services/fetchPlan";
 import DashboardStandard from "./standard/DashboardStandard";
 
 
@@ -13,17 +13,11 @@ export default function Dashboard(){
 
     useAuth()
 
-    const navigate = useNavigate()
-
     const planChoisit = useQuery({
         queryKey : ['plan'],
         queryFn : fetchDataPlan
     })
 
-    function logout() {
-        Cookies.remove('token');
-        navigate('/auth', {replace: true});
-    }
 
     if(planChoisit.isPending){
         return(

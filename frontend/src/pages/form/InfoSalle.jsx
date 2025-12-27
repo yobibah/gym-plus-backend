@@ -6,7 +6,7 @@ import useGetUrl from "../../hooks/useGetUrl";
 import { motion } from "framer-motion";
 import form2 from '../../assets/images/form2.png'
 import { usePayment } from "../../contexts/PaymentContext";
-import { infosSalle } from "../../data/subscribe/infosSalle";
+import { infosSalle } from "../../services/subscribe/infosSalle";
 import { useMutation } from "@tanstack/react-query";
 import { getToken } from "../../hooks/getToken";
 

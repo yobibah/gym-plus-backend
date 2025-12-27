@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, KeyIcon, Loader2, Lock } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { changePassword } from "../../data/auth/postChangePassword";
+import { changePassword } from "../../services/auth/postChangePassword";
 
 
 export default function ChangePassword(){

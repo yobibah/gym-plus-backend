@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import useGetUrl from "../../hooks/useGetUrl";
 import Cookies from "js-cookie";
 import { useMutation } from "@tanstack/react-query";
-import { postLogin } from "../../data/auth/postLogin";
+import { postLogin } from "../../services/auth/postLogin";
 
 
 export default function Auth (){
