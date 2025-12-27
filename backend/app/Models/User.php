@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Models\salle;
 use App\Notifications\CustomResetPassword;
 use App\Services\Activity;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -157,7 +158,7 @@ public function sendPasswordResetNotification($token)
     public function dernierPaiementReussi():HasOne
 {
     return $this->hasOne(paiement::class, 'gerant_id')
-                ->where('status', 'reussi')
+                ->where('status', 'reussi')->where('fin','>=',Carbon::now())
                 ->latestOfMany('fin');
 }
 

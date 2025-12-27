@@ -71,7 +71,7 @@ class HomeController extends Controller
             }
 
             return response()->json([
-                'actif'=>$adhActif,
+                // 'actif'=>$adhActif,
                 'nbr_actif'=> $adhActif->count() ?? 0
              
                 // 'nombre'=>count($actif),
@@ -109,7 +109,7 @@ class HomeController extends Controller
             }
 
             return response()->json([
-                'expirer'=>$adhActif,
+                // 'expirer'=>$adhActif,
                 'nbr'=> $adhActif->count() ?? 0
              
                 // 'nombre'=>count($actif),
@@ -138,7 +138,7 @@ class HomeController extends Controller
 
             return response()->json([
                 'NBexpirer'=>$bientotExpirer->count() ?? 0,
-                'adhrend'=>$bientotExpirer
+                // 'adhrend'=>$bientotExpirer
             ]);
         } catch (\Exception $th) {
             //throw $th;

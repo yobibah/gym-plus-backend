@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\welcomeMail;
 use App\Models\adherent_salle;
 use App\Models\salleprix;
 use Exception;
@@ -10,6 +11,7 @@ use App\Models\paiement;
 use App\Models\abonnement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Log;
@@ -311,6 +313,10 @@ class UserController extends Controller
                 'salle_id'=>$salle->id,
             ]);
 
+            // notifier l'utilisateur 
+
+            Mail::to($request->email)->queue(new welcomeMail($res['user'],$salle));
+
 
             return response()->json([
                 'message' => 'adherant cree avec succes',
@@ -424,8 +430,21 @@ class UserController extends Controller
 
     }
 
-    public function NotifierAherant()
+    public function NotifierAherant(Request $request)
     {
+        $user = $request->user();
+        if(!$user->hasrole('Gerant')){
+            return response()->json([
+                'message'=> 'vos droit sont restreint'
+            ],401);
+        }
+
+        try{
+
+        }
+        catch (\Throwable $th) {
+            
+        }
 
     }
 

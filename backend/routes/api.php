@@ -23,8 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
   //acitive 
   Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
   Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
-// definitions des prix
-    
+  // definitions des prix
+
   Route::post('/ajouter-mes-prix', [UserController::class, 'AddSallePrix']);
   Route::get('/mes-prix', [UserController::class, 'SallePrix'])->middleware('paiement');
   //gestion des gerants
@@ -33,14 +33,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
   Route::get('/mes-adherant', [HomeController::class, 'MesAdherants']);
   Route::get('/nbr-adherant', [HomeController::class, 'NbreAdherant']);
-   Route::get('/nbr-adherant-actif', [HomeController::class, 'AdherantActif']);
-    Route::get('/bientot-expirer', [HomeController::class, 'BientotExpirer']);
-        Route::get('/expirer', [HomeController::class, 'AdherantExpirer']);
+  Route::get('/nbr-adherant-actif', [HomeController::class, 'AdherantActif']);
+  Route::get('/bientot-expirer', [HomeController::class, 'BientotExpirer']);
+  Route::get('/expirer', [HomeController::class, 'AdherantExpirer']);
 
 
   Route::post('/info-salle', action: [SalleController::class, 'AjouterSalle']);
   Route::post('/payment', [PaiementController::class, 'simulation']);
 
+
+  //  creer un middleware pour chaque les actions specifiques a chaque plan
 });
 
 

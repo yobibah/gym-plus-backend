@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class salle extends Model
 {
@@ -35,9 +36,9 @@ class salle extends Model
 //     return $this->belongsTo(Salle::class, 'gerant_id');
 // }
 
-    public function gerant()
+    public function gerant():HasOne
     {
-        return $this->belongsTo(User::class, 'gerant_id');
+        return $this->HasOne(User::class, 'gerant_id');
     }
 
 
@@ -62,13 +63,18 @@ class salle extends Model
     }
 
 
-        public function adherentsExpirer()
-    {
-        return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
-            ->whereHas('abonnements', fn ($q)=>$q->where('actif',1))->get();
-          
-    }
 
+
+
+public function adherentsExpirer()
+{
+    return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
+        ->whereHas('abonnements', function ($q) {
+            $q->where('actif', 0)
+              ->whereDate('fin', '<', Carbon::today());
+        })
+        ->get();
+}
     // abonnement bientot expirer
 
   
@@ -77,8 +83,17 @@ public function bientotExpirer()
 {
     return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
         ->whereHas('abonnements', function ($q) {
-            $q->whereBetween('fin', [Carbon::now(), Carbon::now()->addDays(7)]);
+            $q->whereBetween(
+                'fin',
+                [
+                    Carbon::today(),
+                    Carbon::today()->addDays(7)
+                ]
+            )
+            ->where('actif', 1);
         });
 }
+
+
 
 }

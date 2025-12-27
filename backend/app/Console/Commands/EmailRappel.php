@@ -35,7 +35,7 @@ class EmailRappel extends Command
         $datef = Carbon::now()->addDays(3)->startOfDay();
 
         
-        $users = User::whereHas('Role',fn($q)=>$q->where('name','Adherant'))->whereHas('abonnement', function ($q) use ($datef) {
+        $users = User::whereHas('roles',fn($q)=>$q->where('name','Adherant'))->whereHas('abonnement', function ($q) use ($datef) {
             $q->whereDate('fin', '=', $datef);
         })
             ->with('abonnement')
