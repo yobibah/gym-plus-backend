@@ -19,6 +19,19 @@ use PHPUnit\Framework\Constraint\IsEmpty;
 
 class UserController extends Controller
 {
+    public function mesInfo(Request $request) {
+        $user = $request->user();
+        if (! $user->hasrole('Gerant')) {
+            return response()->json([
+                'message'=> 'pas authentifier.'
+            ],401);
+        }
+
+        return response()->json([
+            'user'=>$user,
+            'salle'=>$user->salle
+        ]);
+    }
     private function AddUsers(array $data, $gerant)
     {
 
@@ -443,7 +456,7 @@ class UserController extends Controller
 
         }
         catch (\Throwable $th) {
-            
+
         }
 
     }

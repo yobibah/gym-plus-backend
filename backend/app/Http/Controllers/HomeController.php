@@ -30,7 +30,7 @@ class HomeController extends Controller
         // Récupérer les adhérents de cette salle
         $adherents = $salle->adherents()
             // ->whereHas('roles', fn($q) => $q->where('name', 'Adherant')) 
-            // ->with(['dernierAbonnement'])
+            ->with(['dernierAbonnement'])
             ->paginate(10);
 
         // 
@@ -40,6 +40,7 @@ class HomeController extends Controller
         return response()->json([
         
             'adherents' => $adherents ?? ' pas de d\'adherant',
+            
 
         ]);
     }

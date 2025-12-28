@@ -19,6 +19,7 @@ Route::post('/accueil-form', [AuthController::class, 'demo']);
 
 Route::middleware('auth:sanctum')->group(function () {
   Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
+  Route::get('/mes-infos',[UserController::class,'mesInfo']);
 
   //acitive 
   Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
