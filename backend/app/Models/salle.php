@@ -86,7 +86,7 @@ public function bientotExpirer()
             $q->whereBetween(
                 'fin',
                 [
-                    Carbon::today(),
+                   
                     Carbon::today()->addDays(7)
                 ]
             )

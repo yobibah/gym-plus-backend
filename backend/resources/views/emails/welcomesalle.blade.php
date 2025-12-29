@@ -71,7 +71,7 @@
         <p>— L’équipe  {{ $nom_salle }}</p>
 
         <div class="footer">
-            Vous recevez ce mail car vous êtes inscrit à GymPlus. Merci de ne pas répondre à ce message.
+            Vous recevez ce mail car vous êtes inscrit à {{ $nom_salle }}. Merci de ne pas répondre à ce message.
         </div>
     </div>
 </body>

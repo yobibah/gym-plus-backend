@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AbonnementController;
 use Illuminate\Http\Request;
 use App\Http\Middleware\paiementMid;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::get('/nbr-adherant-actif', [HomeController::class, 'AdherantActif']);
   Route::get('/bientot-expirer', [HomeController::class, 'BientotExpirer']);
   Route::get('/expirer', [HomeController::class, 'AdherantExpirer']);
+  Route::post('/reabonner-adherant',[AbonnementController::class,'reabonemment']);
 
 
   Route::post('/info-salle', action: [SalleController::class, 'AjouterSalle']);

@@ -148,7 +148,10 @@ public function sendPasswordResetNotification($token)
     // recuperer avec le dernier abonnement peut importe si ces expirer ou a jour
     public function dernierAbonnement()
     {
-        return $this->hasOne(abonnement::class, 'adherant_id')->latestOfMany('fin');
+        return $this->hasOne(abonnement::class, 'adherant_id')
+        ->where('actif',1)
+        ->where('fin','>=',Carbon::today())
+         ->latestOfMany('fin');
     }
 
     public function DernierPaiement(){
@@ -186,5 +189,13 @@ public function Aherantsalles()
     )
     ->withTimestamps();
 }
+
+    public function dernierAbonnementExpirer()
+    {
+        return $this->hasOne(abonnement::class, 'adherant_id')
+        ->where('actif',0)
+        ->where('fin','<',Carbon::today())
+         ->latestOfMany('fin');
+    }
 
 }

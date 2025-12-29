@@ -176,8 +176,12 @@ class ActivitesController extends Controller
 
     }
 
-    public function reporter()
+    public function reporter(Request $request)
     {
+        $user = $request->user();
+        if (!$user->hasRole('Gerant')){
+            return response()->json(['message'=> 'vous n\'etes pas autoriser'], 401);
+        }
 
     }
 
