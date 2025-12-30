@@ -38,9 +38,9 @@ class HomeController extends Controller
         // $adherents->paginate(10);
 
         return response()->json([
-        
+
             'adherents' => $adherents ?? ' pas de d\'adherant',
-            
+
 
         ]);
     }
@@ -59,33 +59,34 @@ class HomeController extends Controller
     {
         $user = $request->user();
         if (!$user->hasRole('Gerant')) {
-            return response()->json(['message'=> 'vous n\'etes pas autoriser'], 401);
+            return response()->json(['message' => 'vous n\'etes pas autoriser'], 401);
         }
         try {
             $salle = $user->salle;
             $adhActif = $salle->adherentsActif();
-           
 
-// ici ce quand il n;y pas daderant actif
-            if(!$adhActif){
-                return response()->json(['message'=> 'aucun adherant est actif'], 404);
+
+            // ici ce quand il n;y pas daderant actif
+            if (!$adhActif) {
+                return response()->json(['message' => 'aucun adherant est actif'], 404);
             }
 
             return response()->json([
                 // 'actif'=>$adhActif,
-                'nbr_actif'=> $adhActif->count() ?? 0
-             
+                'nbr_actif' => $adhActif->count() ?? 0,
+                'actif'=>$adhActif,
+
                 // 'nombre'=>count($actif),
-            ],200);
+            ], 200);
         } catch (\Exception $th) {
             return response()->json([
-                'message'=>$th->getMessage(),
-                'line'=>$th->getLine(),
-                
-            ],500);
+                'message' => $th->getMessage(),
+                'line' => $th->getLine(),
+
+            ], 500);
         }
-       
-        
+
+
     }
 
     public function AdherantExpirer(Request $request)
@@ -95,28 +96,28 @@ class HomeController extends Controller
         $user = $request->user();
         if (!$user->hasRole('Gerant')) {
             return response()->json([
-                'messsage'=>'vous n\'etes pas autorise a utiliser'
-            ],401);
+                'messsage' => 'vous n\'etes pas autorise a utiliser'
+            ], 401);
         }
 
-        try{
-       $salle = $user->salle;
+        try {
+            $salle = $user->salle;
             $adhActif = $salle->adherentsExpirer();
-           
 
-// ici ce quand il n;y pas daderant actif
-            if(!$adhActif){
-                return response()->json(['message'=> 'aucun adherant est actif'], 404);
+
+            // ici ce quand il n;y pas daderant actif
+            if (!$adhActif) {
+                return response()->json(['message' => 'aucun adherant est actif'], 404);
             }
 
             return response()->json([
                 // 'expirer'=>$adhActif,
-                'nbr'=> $adhActif->count() ?? 0
-             
+                'nb' => $adhActif->count() ?? 0,
+                'expirer'=>$adhActif
+
                 // 'nombre'=>count($actif),
-            ],200);
-        }
-        catch (\Exception $th) {
+            ], 200);
+        } catch (\Exception $th) {
 
         }
 
@@ -128,23 +129,23 @@ class HomeController extends Controller
 
         if (!$user->hasRole('Gerant')) {
             return response()->json([
-                'message'=> 'vous n\'avez pas l\'autorisation'
-                ],401);
+                'message' => 'vous n\'avez pas l\'autorisation'
+            ], 401);
         }
 
         try {
             $salle = $user->salle;
             $bientotExpirer = $salle->bientotExpirer();
-            
+
 
             return response()->json([
-                'NBexpirer'=>$bientotExpirer->count() ?? 0,
-                // 'adhrend'=>$bientotExpirer
+                'NBexpirer' => $bientotExpirer->count() ?? 0,
+                'Bientoexpirer'=>$bientotExpirer
             ]);
         } catch (\Exception $th) {
             //throw $th;
         }
-        
+
 
     }
 
