@@ -14,6 +14,7 @@ class ActivitesController extends Controller
     // public function __construct(public Activity $activite){}
     protected function Activity(array $data)
     {
+    
 
 
         $activites = activites::create($data);

@@ -2,34 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\welcomeMail;
-use App\Models\adherent_salle;
-use App\Models\salleprix;
+use Illuminate\Support\Facades\Hash;
+use Log;
 use Exception;
 use App\Models\User;
 use App\Models\paiement;
+use App\Mail\welcomeMail;
+use App\Models\salleprix;
 use App\Models\abonnement;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\adherent_salle;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Log;
 use PHPUnit\Framework\Constraint\IsEmpty;
 
 class UserController extends Controller
 {
-    public function mesInfo(Request $request) {
+    public function mesInfo(Request $request)
+    {
         $user = $request->user();
-        if (! $user->hasrole('Gerant')) {
+        if (!$user->hasrole('Gerant')) {
             return response()->json([
-                'message'=> 'pas authentifier.'
-            ],401);
+                'message' => 'pas authentifier.'
+            ], 401);
         }
 
         return response()->json([
-            'user'=>$user,
-            'salle'=>$user->salle
+            'user' => $user,
+            'salle' => $user->salle
         ]);
     }
     private function AddUsers(array $data, $gerant)
@@ -163,22 +166,22 @@ class UserController extends Controller
             'nom' => 'required|string',
             'prenom' => 'required|string',
             'email' => 'required|email',
-            'tel' => 'required|min:8',    
-            'plan'=> 'required|in:mensuel,trimestriel,annuel'
+            'tel' => 'required|min:8',
+            'plan' => 'required|in:mensuel,trimestriel,annuel'
 
 
         ]);
         $abonementPlan = strtolower($request->plan);
 
-        switch($abonementPlan){
+        switch ($abonementPlan) {
             case 'mensuel':
-                $fin= 1;
+                $fin = 1;
                 break;
             case 'trimestriel':
-                $fin= 3;
+                $fin = 3;
                 break;
             case 'annuel':
-                $fin= 12;
+                $fin = 12;
                 break;
         }
 
@@ -187,29 +190,29 @@ class UserController extends Controller
             'email' => $request->email,
             'telephone' => $request->tel,
             'prenom' => $request->prenom,
-           
+
         ];
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'les champs ne sont pas correctement renseigne'
             ]);
         }
-   $exist = User::where('email', $request->email)
-    ->whereHas('roles', function ($q) {
-        $q->where('name', 'Adherant');
-    })
-    ->whereHas('salles', function ($q) use ($gerant) {
-        $q->where('gerant_id', $gerant->id);
-    })
-    ->exists();
+        $exist = User::where('email', $request->email)
+            ->whereHas('roles', function ($q) {
+                $q->where('name', 'Adherant');
+            })
+            ->whereHas('salles', function ($q) use ($gerant) {
+                $q->where('gerant_id', $gerant->id);
+            })
+            ->exists();
 
-        
-            if ($exist) {
-                return response()->json([
-                    'message'=> 'cet utilisateur existe deja',
-                    'user'=>$exist
-                ],200);
-            }
+
+        if ($exist) {
+            return response()->json([
+                'message' => 'cet utilisateur existe deja',
+                'user' => $exist
+            ], 200);
+        }
 
 
         try {
@@ -277,11 +280,11 @@ class UserController extends Controller
             // ici ajouter l'abonnement des adherants
 
             $salle = $gerant->salle;
-            Log::info( 'salle ' . $salle->id);
+            Log::info('salle ' . $salle->id);
 
             if (!$salle) {
                 return [
-                    'error' => true,  
+                    'error' => true,
                     'code' => 404,
                     'message' => "Vous devez d'abord créer et valider votre salle avant d'ajouter un abonnement."
                 ];
@@ -291,19 +294,16 @@ class UserController extends Controller
 
             $transID = Str::random(4) . '#' . Carbon::today() . '@' . rand(111, 999);
             $mtn = $gerant->salleprix;
-              $staus =0;
-            if ($abonementPlan == 'mensuel'){
-                 $montant = $mtn->montant_1;
-                 $staus =1;
-            }
-
-            elseif ($abonementPlan == 'trimestriel'){
+            $staus = 0;
+            if ($abonementPlan == 'mensuel') {
+                $montant = $mtn->montant_1;
+                $staus = 1;
+            } elseif ($abonementPlan == 'trimestriel') {
                 $montant = $mtn->montant_2;
-                  $staus =1;
-            }
-            else {
+                $staus = 1;
+            } else {
                 $montant = $mtn->montant_3;
-                  $staus =1;
+                $staus = 1;
             }
 
             $abonnement = abonnement::create([
@@ -318,17 +318,17 @@ class UserController extends Controller
                 'salle_id' => $salle->id,
                 'actif' => $staus,
             ]);
-            $ab->limit +=1;
+            $ab->limit += 1;
             $ab->save();
 
             adherent_salle::forceCreate([
-                'adherent_id'=> $res['user']->id,
-                'salle_id'=>$salle->id,
+                'adherent_id' => $res['user']->id,
+                'salle_id' => $salle->id,
             ]);
 
             // notifier l'utilisateur 
 
-            Mail::to($request->email)->queue(new welcomeMail($res['user'],$salle));
+            Mail::to($request->email)->queue(new welcomeMail($res['user'], $salle));
 
 
             return response()->json([
@@ -342,8 +342,8 @@ class UserController extends Controller
             Log::info($th->getMessage(), $th->getTrace());
             return response()->json([
                 'message' => 'erreur liee au serveur',
-                'error'=> $th->getMessage(),
-                'line'=>$th->getLine()
+                'error' => $th->getMessage(),
+                'line' => $th->getLine()
             ], 500);
         }
 
@@ -357,121 +357,292 @@ class UserController extends Controller
     {
         $user = $request->user();
         $plan = $user->dernierPaiementReussi->plan;
-        $abonnement=$user->dernierPaiementReussi;
+        $abonnement = $user->dernierPaiementReussi;
         return response()->json([
             'plan' => $plan,
-        'abonnement'=> $abonnement
-            
+            'abonnement' => $abonnement
+
         ]);
 
     }
 
 
-    public function AddSallePrix(Request $request){
+    public function AddSallePrix(Request $request)
+    {
         $user = $request->user();
         if (!$user->hasrole('Gerant')) {
-            return response()->json(['message'=>'vous n\etes pas autoriser a effectuer cette action'],401);
+            return response()->json(['message' => 'vous n\etes pas autoriser a effectuer cette action'], 401);
         }
         $salle = $user->salle;
-        $existsallprix = salleprix::where('gerant_id',$user->id)->where('salle_id',$salle->id)->first();
+        $existsallprix = salleprix::where('gerant_id', $user->id)->where('salle_id', $salle->id)->first();
         if ($existsallprix) {
-            return response()->json(['message'=> 'vous ne pouvez pas ajouter'],409);
+            return response()->json(['message' => 'vous ne pouvez pas ajouter'], 409);
         }
-        $validator = Validator::make($request->all(),[
-            'montant_1'=>'required|numeric',
-            'montant_2'=>'required|numeric',
-            'montant_3'=>'required|numeric',
+        $validator = Validator::make($request->all(), [
+            'montant_1' => 'required|numeric',
+            'montant_2' => 'required|numeric',
+            'montant_3' => 'required|numeric',
 
         ]);
         if ($validator->fails()) {
             return response()->json([
-                'message'=>' veuillez remplir correctement les donnees'
-            ],400);
+                'message' => ' veuillez remplir correctement les donnees'
+            ], 400);
         }
 
-        try{
-            $sallePrix= salleprix::create([
-                'montant_1'=> $request->montant_1,
-                'montant_2'=> $request->montant_2,
-                'montant_3'=> $request->montant_3,
-                'gerant_id'=>$user->id,
-                'salle_id'=>$salle->id
+        try {
+            $sallePrix = salleprix::create([
+                'montant_1' => $request->montant_1,
+                'montant_2' => $request->montant_2,
+                'montant_3' => $request->montant_3,
+                'gerant_id' => $user->id,
+                'salle_id' => $salle->id
             ]);
 
             return response()->json([
-                'message'=> 'vous venez de definir les prix de votre salle',
-                'data'=> $sallePrix
+                'message' => 'vous venez de definir les prix de votre salle',
+                'data' => $sallePrix
             ]);
-        }
-        catch(Exception $e){
-              if ($validator->fails()) {
-            return response()->json([
-                'message'=>' une erreur est survenue',
-                'erro'=> $e->getMessage(),
-                'line'=> $e->getLine(),
-            ],500);
-        }
+        } catch (Exception $e) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => ' une erreur est survenue',
+                    'erro' => $e->getMessage(),
+                    'line' => $e->getLine(),
+                ], 500);
+            }
         }
 
 
     }
 
-    public  function  SallePrix(Request $request){
+    public function SallePrix(Request $request)
+    {
         $user = $request->user();
 
         try {
-             if (!$user->hasrole('Gerant')) {
-            return response()->json(['message'=>'vous n\etes pas autoriser a effectuer cette action'],401);
-        }
+            if (!$user->hasrole('Gerant')) {
+                return response()->json(['message' => 'vous n\etes pas autoriser a effectuer cette action'], 401);
+            }
 
-        $montant = $user->salleprix;
-        if( !$montant){
-            return response()->json(['message'=> 'vous n\'avez pas configuerer les prix pour votre salle'
-        ],404);
-        }
+            $montant = $user->salleprix;
+            if (!$montant) {
+                return response()->json([
+                    'message' => 'vous n\'avez pas configuerer les prix pour votre salle'
+                ], 404);
+            }
 
-        return response()->json([
-            'montant'=> $montant
-        ],200);
+            return response()->json([
+                'montant' => $montant
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
-                'message'=>'une erreur est survenue',
-                'error'=>$th->getMessage(),
-                'line'=>$th->getLine(),
-            ],500);
+                'message' => 'une erreur est survenue',
+                'error' => $th->getMessage(),
+                'line' => $th->getLine(),
+            ], 500);
         }
 
     }
 
+    public function deletePrix(Request $request){
+               $user = $request->user();
+        if (!$user->hasrole('Gerant')) {
+            return response()->json([
+                'message' => 'non autorise'
+            ], 401);
+        }
+
+        DB::beginTransaction();
+
+        try{
+            $prix = $user->salleprix;
+            if (!$prix) {
+                return response()->json([
+                        'message'=> 'configurer les prix'
+                ],404);
+            }
+
+            $prix->delete();
+  
+            DB::commit();
+
+            return response()->json([
+                'message'=> 'les prix de votre salle ont ete supprimes'
+            ]);
+
+        }
+         catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace()
+            ], 500);
+        }
+
+    }
+
+    public function UpdatePrix(Request $request)
+    {
+        $user = $request->user();
+        if (!$user->hasrole('Gerant')) {
+            return response()->json([
+                'message' => 'non autorise'
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'montant_1' => 'nullable|numeric',
+            'montant_2' => 'nullable|numeric',
+            'montant_3' => 'nullable|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'les champs de ne sont pas correctement remplis'
+            ], 400);
+        }
+        DB::beginTransaction();
+        try {
+            $salleprix = $user->salleprix;
+            if (!$salleprix) {
+                return response()->json([
+                    'message' => 'veuillez configurer le prix des salles'
+                ]);
+            }
+            $salleprix->update([
+                'montant_1' => $request->montant_1 ?? $salleprix->montant_1,
+                'montant_2' => $request->montant_2 ?? $salleprix->montant_2,
+                'montant_3' => $request->montant_3 ?? $salleprix->montant_3,
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'message' => 'modification reussi'
+            ], 201);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace()
+            ], 500);
+        }
+    }
+
+    public function UpdateUser(Request $request)
+    {
+        $user = $request->user();
+        if (!$user->hasrole('Gerant')) {
+            return response()->json([
+                'message' => 'non autorise'
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'nom' => 'nullable|string',
+            'prenom' => 'nullable|string',
+            'telephone' => 'nullable|string',
+            'email' => 'nullable|email'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'les champs de ne sont pas correctement remplis'
+            ], 400);
+        }
+        DB::beginTransaction();
+        try {
+            $user->update([
+                'nom' => $request->nom ?? $user->nom,
+                'prenom' => $request->prenom ?? $user->prenom,
+                'telephone' => $request->telephone ?? $user->telephone,
+                'email' => $request->email ?? $user->email
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'message' => 'modification reussi'
+            ], 201);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace()
+            ], 500);
+
+        }
+    }
+
+    public function UpdateMdp(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->hasrole('Gerant')) {
+            return response()->json([
+                'message' => 'non autorise'
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string',
+
+        ]);
+     
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'les champs de ne sont pas correctement remplis'
+                ], 400);
+            }
+            DB::beginTransaction();
+            try {
+           
+                $user->update([
+                    'password'=> Hash::make($request->password)
+                ]);
+           
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'modification reussi'
+                ], 201);
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTrace()
+                ], 500);
+
+            
+        }
+
+    }
     public function NotifierAherant(Request $request)
     {
         $user = $request->user();
-        if(!$user->hasrole('Gerant')){
+        if (!$user->hasrole('Gerant')) {
             return response()->json([
-                'message'=> 'vos droit sont restreint'
-            ],401);
+                'message' => 'vos droit sont restreint'
+            ], 401);
+        }
+        $validator = Validator::make($request->all(), [
+            'id'=> 'required|numeric'
+        ]);
+        if ($validator->fails()) {
+            return ;
         }
 
-        try{
+        
 
-        }
-        catch (\Throwable $th) {
+        try {
+            $adh = User::find($request->id);
+
+        } catch (Exception $th) {
 
         }
 
     }
 
-    public function SuspendreAdherent()
-    {
 
-    }
-
-
-    // si version premium
-    public function ProgrammerActiviter(Request $request)
-    {
-
-    }
 
 
 }

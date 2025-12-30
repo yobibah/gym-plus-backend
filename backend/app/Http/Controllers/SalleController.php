@@ -111,5 +111,49 @@ class SalleController extends Controller
     }
 }
 
+public function updateSalle(Request $request){
+    $user = $request->user();
+    if(!$user->hasrole('Gerant')){
+        return response()->json([
+            'message'=> 'non autoriser'
+        ]);
+    }
 
+    $valiator = Validator::make($request->all(),[
+        'nom_salle'=>'nullable|string',
+         'pays'=>'nullable|string', 
+         'région'=>'nullable|string'
+    ]);
+
+    if($valiator->fails()){
+        return response()->json([
+            'message'=> 'entrez des donnees valides'
+        ]);
+    }
+    DB::beginTransaction();
+
+    try{
+        $salle = $user->salle;
+
+        $salle->update([
+            'nom_salle'=>$request->nom_salle ?? $salle->nom_salle,
+            'pays_salle'=>$request->pays ?? $salle->pays_salle,
+            'region_salle'=>$request->region ?? $salle->region_salle
+        ]);
+
+        DB::commit();
+        return response()->json([
+            'message'=>'salle modifier avec succes'
+        ],201);
+    }
+    catch (Exception $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'message'=> $e->getMessage(),
+            'trace'=>$e->getTraceAsString()
+        ]);
+
+    }
+}
 }
