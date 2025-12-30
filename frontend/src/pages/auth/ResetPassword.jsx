@@ -7,7 +7,7 @@ import useGetUrl from "../../hooks/useGetUrl";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { KeyIcon, Loader2 } from "lucide-react";
-import { postResetPassword } from "../../services/auth/postResetPassword";
+import { postResetPassword } from "../../api/auth/postResetPassword";
 import { useMutation } from "@tanstack/react-query";
 
 export default function ResetPassword(){

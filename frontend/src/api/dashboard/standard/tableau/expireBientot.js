@@ -1,12 +1,12 @@
 import React from "react";
-import { apiUrl } from "../../../../../env";
-import { getToken } from "../../../hooks/getToken";
+import { apiUrl } from "../../../../../../env";
+import { getToken } from "../../../../hooks/getToken";
 
 
-export async function AbonnementExpirer() {
+export async function ExpireBientot() {
     const token = getToken()
 
-    const response = await fetch(`${apiUrl}expirer`,{
+    const response = await fetch(`${apiUrl}bientot-expirer`,{
         method : "GET",
         headers : {
             "Accept" : "application/json",

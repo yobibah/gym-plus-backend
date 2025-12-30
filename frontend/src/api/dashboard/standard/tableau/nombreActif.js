@@ -1,12 +1,13 @@
 import React from "react";
-import { getToken } from "../../../hooks/getToken";
-import { apiUrl } from "../../../../../env";
+import { getToken } from "../../../../hooks/getToken";
+import { apiUrl } from "../../../../../../env";
 
 
-export async function FetchNombreAdherant(){
+export async function FetchNombreActif(){
 
         const token = getToken()
-        const response = await fetch(`${apiUrl}nbr-adherant`,{
+
+        const response = await fetch(`${apiUrl}nbr-adherant-actif`,{
             method : 'GET',
             headers : {
                 "Accept" : "application/json",
@@ -16,7 +17,7 @@ export async function FetchNombreAdherant(){
 
         const data = await response.json()
         if(!response.json){
-            throw new Error(data.message || 'Erreur de recupération du nombre d\'adherant')
+            throw new Error(data.message || 'Erreur de recup du nombre actif d\'adherant')
         }
 
         return data

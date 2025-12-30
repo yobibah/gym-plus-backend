@@ -1,0 +1,58 @@
+{
+    "user": {
+        "id": 21,
+        "name": "Millgo",
+        "email": "maremillogo10@gmail.com",
+        "email_verified_at": null,
+        "created_at": "2025-12-22T11:20:32.000000Z",
+        "updated_at": "2025-12-29T07:03:39.000000Z",
+        "telephone": "54545454",
+        "username": "Millgo_w4WBbo",
+        "prenom": "hjg",
+        "otp": 962299,
+        "roles": [
+            {
+                "id": 2,
+                "name": "Gerant",
+                "guard_name": "web",
+                "created_at": "2025-12-12T23:54:47.000000Z",
+                "updated_at": "2025-12-12T23:54:47.000000Z",
+                "pivot": {
+                    "model_type": "App\\Models\\User",
+                    "model_id": 21,
+                    "role_id": 2
+                }
+            }
+        ],
+        "salle": {
+            "id": 9,
+            "created_at": "2025-12-22T11:22:05.000000Z",
+            "updated_at": "2025-12-22T11:22:05.000000Z",
+            "nom_salle": "GymMillo",
+            "pays_salle": "Burkina",
+            "region_salle": "Centre",
+            "adresse_salle": "Ouagadougou Centre Burkina",
+            "descriptions_salle": "Pas de description",
+            "logo_salle": null,
+            "numero_salle": "54545454",
+            "email_salle": "maremillogo10@gmail.com",
+            "active": 0,
+            "gerant_id": 21
+        }
+    },
+    "salle": {
+        "id": 9,
+        "created_at": "2025-12-22T11:22:05.000000Z",
+        "updated_at": "2025-12-22T11:22:05.000000Z",
+        "nom_salle": "GymMillo",
+        "pays_salle": "Burkina",
+        "region_salle": "Centre",
+        "adresse_salle": "Ouagadougou Centre Burkina",
+        "descriptions_salle": "Pas de description",
+        "logo_salle": null,
+        "numero_salle": "54545454",
+        "email_salle": "maremillogo10@gmail.com",
+        "active": 0,
+        "gerant_id": 21
+    }
+}

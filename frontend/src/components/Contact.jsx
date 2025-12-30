@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Mail, Pencil, Loader2 } from "lucide-react";
 import Input from "./ui/input";
 import { useMutation } from "@tanstack/react-query";
-import { ContactHome } from "../services/home/contact";
+import { ContactHome } from "../api/home/contact";
 
 export default function Contact(){
     const [email, setEmail] = useState("")

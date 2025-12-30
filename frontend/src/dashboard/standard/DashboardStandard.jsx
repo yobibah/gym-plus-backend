@@ -1,5 +1,5 @@
-import { AlertCircle, BadgeCheck, Calendar, CalendarOff, CalendarX, LayoutDashboard, LayoutDashboardIcon, Loader2, Search, Settings, Settings2, SquarePlus, User, UserPlus, UserPlus2, Users, WalletCards } from "lucide-react";
-import React, {useState, useEffect} from "react";
+import { AlertCircle, ArrowLeft, BadgeCheck, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, WalletCards, X } from "lucide-react";
+import React, {useState, useEffect, useMemo} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/input";
@@ -8,13 +8,20 @@ import useGetUrl from "../../hooks/useGetUrl";
 import { getToken } from "../../hooks/getToken";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiUrl } from "../../../../env";
-import { FetchNombreAdherant } from "../../services/dashboard/standard/nombreAdh";
-import { FetchNombreActif } from "../../services/dashboard/standard/nombreActif";
-import { fetchPrix } from "../../services/dashboard/standard/mesPrix";
-import { AjouterAdherant } from "../../services/dashboard/standard/ajoutAdherant";
-import {ExpireBientot} from "../../services/dashboard/standard/expireBientot"
-import { AbonnementExpirer } from "../../services/dashboard/standard/abonnementExpire";
-
+import { FetchNombreAdherant } from "../../api/dashboard/standard/tableau/nombreAdh";
+import { FetchNombreActif } from "../../api/dashboard/standard/tableau/nombreActif";
+import { fetchPrix } from "../../api/dashboard/standard/tableau/mesPrix";
+import { AjouterAdherant } from "../../api/dashboard/standard/tableau/ajoutAdherant";
+import {ExpireBientot} from "../../api/dashboard/standard/tableau/expireBientot"
+import { AbonnementExpirer } from "../../api/dashboard/standard/tableau/abonnementExpire";
+import { mesAdherants } from "../../api/dashboard/standard/adherants/adh";
+import { Tarifs } from "../../api/dashboard/standard/parametres/tarifs";
+import { MesInfos } from "../../api/dashboard/standard/parametres/mesInfos";
+import { UpdateinfosSalle } from "../../api/dashboard/standard/parametres/updateInfosSalle";
+import { UpdateInfosPerso } from "../../api/dashboard/standard/parametres/UpdateInfosPerso";
+import { ChangePassword } from "../../api/dashboard/standard/parametres/changePassword";
+import { UpdateTarifs } from "../../api/dashboard/standard/parametres/UpdateTarif";
+import { DeleteTarif } from "../../api/dashboard/standard/parametres/DeleteTarif";
 
 export default function DashboardStandard(){
 
@@ -28,6 +35,30 @@ export default function DashboardStandard(){
     const [showPrix, setShowPrix] = useState(false)
     const [montant, setMontant] = useState('')
     const [modalLogout, setModalLogout] = useState(false)
+    const [page, setPage] = useState(1)
+    const [search, setSearch] = useState('')
+    const [showAdd, setShowAdd] = useState(false)
+    const [showButtonSalle, setShowButtonSalle] = useState(false)
+    const [showButtonProfil, setShowButtonProfil] = useState(false)
+    const [showPasswordChange, setShowPasswordChange] = useState(false)
+    const [showFormTarif, setShowFormTarif] = useState(false)
+    const [mensuel, setMensuel] = useState('')
+    const [trimestriel, setTrimestriel] = useState('')
+    const [annuel, setAnnuel] = useState('')
+    const [editMois, setEditMois] = useState(true)
+    const [editTrim, setEditTrim] = useState(true)
+    const [editAn, setEditAn] = useState(true)
+    const [action, setAction] = useState("POST"); 
+    const [nom_salle, setNomSalle] = useState('')
+    const [pays, setPays] = useState('')
+    const [region, setRegion] = useState('')
+    const [nomPerso, setNomPerso] = useState('')
+    const [prenomPerso, setPrenomPerso] = useState('')
+    const [telPerso, setTelPerso] = useState('')
+    const [emailPerso, setEmailPerso] = useState('')
+    const [password, setPassword] = useState('')
+    const [actionProfil, setActionProfil] = useState("");
+
 
     const navigate = useNavigate()
     const token = getToken()
@@ -88,9 +119,9 @@ export default function DashboardStandard(){
         queryKey : ['prix'],
         queryFn : fetchPrix
     })
-    const prix_mensuel = Number(prix.data?.montant?.montant_1) || 0
-    const prix_trimestriel = Number(prix.data?.montant?.montant_2) || 0
-    const prix_annuel = Number(prix.data?.montant?.montant_3) || 0
+    const prix_mensuel = Number(prix.data?.montant?.montant_1) || ''
+    const prix_trimestriel = Number(prix.data?.montant?.montant_2) || ''
+    const prix_annuel = Number(prix.data?.montant?.montant_3) || ''
     const loading = prix.isPending
     const error = prix.isError
 
@@ -105,9 +136,15 @@ export default function DashboardStandard(){
             setPlan('')
             setEmail('')
             setTel('')
+            setMontant('')
+           
 
             queryClient.invalidateQueries(['nbr_adherant'])
             queryClient.invalidateQueries(['nbr_actif'])
+
+             setTimeout(()=>{
+                addAdh.reset()
+            }, 3000)
         }
     })
 
@@ -139,6 +176,196 @@ export default function DashboardStandard(){
     const errorAbExpirer = abonnerExpire.isError
     const totalAbExpirer = Number(abonnerExpire.data?.nbr)
 
+
+    
+    const mesAdh = useQuery({
+        queryKey : ['mes-adherant', page],
+        queryFn : mesAdherants,
+        keepPreviousData: true
+    })
+    const dataAdh = mesAdh.data?.adherents?.data
+    const loadingAdh = mesAdh.isPending
+    const errorAdh = mesAdh.isError
+
+    const recherche = useMemo(()=>{
+        if(!dataAdh || !Array.isArray(dataAdh)) return []
+
+        return dataAdh.filter(item =>{
+            return(
+                (item.name && item.name.toLowerCase().includes(search.toLowerCase())) ||
+                (item.prenom && item.prenom.toLowerCase().includes(search.toLowerCase())) ||
+                (item.username && item.username.toLowerCase().includes(search.toLowerCase())) ||
+                (item.email && item.email.toLowerCase().includes(search.toLowerCase())) ||
+                (item.telephone && item.telephone.includes(search.toLowerCase()))
+            )
+        })
+    }, [search, dataAdh])
+
+
+    const updateTarif = useQueryClient()
+    const tarif = useMutation({
+        mutationFn : Tarifs,
+        onSuccess : ()=>{
+
+            updateTarif.invalidateQueries(['prix'])
+        }
+        
+    })
+    const loadingTarif = tarif.isPending
+    const errorTarif = tarif.isError
+    const successTarif = tarif.isSuccess
+
+    const updateTarifs = useQueryClient()
+    const tarifUpdate = useMutation({
+        mutationFn : UpdateTarifs,
+        onSuccess : ()=>{
+
+            updateTarifs.invalidateQueries(['prix'])
+        }
+        
+    })
+    const loadingTarifUp = tarifUpdate.isPending
+    const errorTarifUp = tarifUpdate.isError
+    const successTarifUp = tarifUpdate.isSuccess
+
+
+    const deleteTarifs = useQueryClient()
+    const tarifDelete = useMutation({
+        mutationFn : DeleteTarif,
+        onSuccess : ()=>{
+
+            deleteTarifs.invalidateQueries(['prix'])
+        }
+        
+    })
+    const loadingTarifDel = tarifDelete.isPending
+    const errorTarifDel = tarifDelete.isError
+    const successTarifDel = tarifDelete.isSuccess
+
+    async function sendTarif(e){
+        e.preventDefault()
+
+        switch (action) {
+            case "POST":
+                tarif.mutate({
+                    montant_1 : mensuel,
+                    montant_2 : trimestriel,
+                    montant_3 : annuel
+                });
+                break;
+
+            case "PUT":
+                tarifUpdate.mutate({
+                    montant_1 : mensuel,
+                    montant_2 : trimestriel,
+                    montant_3 : annuel
+                });
+                break;
+            case "DELETE":
+                tarifDelete.mutate();
+                break;
+            default:
+                break}
+    }
+    
+
+    const infos = useQuery({
+        queryKey : ['mes-infos'],
+        queryFn : MesInfos
+    })
+    const infosSalle = infos?.data?.user?.salle
+    const infosUser = infos?.data?.user
+    const infosLoading = infos.isPending
+    const infoError = infos.isError
+
+
+    const update = useQueryClient()
+    const update_infos = useMutation({
+        mutationFn : UpdateinfosSalle,
+        onSuccess : (()=>{
+            setNomSalle('')
+            setPays('')
+            setRegion('')
+            
+            update.invalidateQueries(['mes-infos'])
+
+            // setTimeout(()=>{
+            //     update_infos.reset()
+            // })
+        })
+    })
+    const updateLoading = update_infos.isPending
+    const updateError = update_infos.isError
+    const successUpdate = update_infos.isSuccess
+
+    async function UpdateInfos(e) {
+        e.preventDefault()
+        update_infos.mutate({nom_salle, pays, region})
+    }
+
+
+
+    const updatePerso = useQueryClient()
+    const update_infos_perso = useMutation({
+        mutationFn : UpdateInfosPerso,
+        onSuccess : (()=>{
+            setNomPerso('')
+            setPrenomPerso('')
+            setEmailPerso('')
+            setTelPerso('')
+            
+            updatePerso.invalidateQueries(['mes-infos'])
+
+            // setTimeout(()=>{
+            //     update_infos_perso.reset()
+            // })
+        })
+    })
+    const persoLoading = update_infos_perso.isPending
+    const persoError = update_infos_perso.isError
+    const persoSuccess = update_infos_perso.isSuccess
+
+
+    const updatePassword = useMutation({
+        mutationFn : ChangePassword,
+        onSuccess : (()=>{
+            setPassword('')
+            
+
+            // setTimeout(()=>{
+            //     updatePassword.reset()
+            // })
+        })
+    })
+    const changePasswordLoading = updatePassword.isPending
+    const passwordError = updatePassword.isError
+    const passwordSuccess = updatePassword.isSuccess
+
+    async function UpdatePerso(e) {
+        e.preventDefault()
+
+        switch(actionProfil){
+            case "PUT_PROFIL" :
+                update_infos_perso.mutate({
+                    nom:nomPerso, 
+                    prenom:prenomPerso, 
+                    telephone:telPerso, 
+                    email:emailPerso
+                });
+                break;
+
+            case "PUT_PASSWORD" :
+                updatePassword.mutate({password});
+                break;
+
+            default :
+                break;
+        }
+        
+    }
+
+
+
     //test du bouton niveau...
     function handleNiveau(e){
         e.preventDefault()
@@ -150,7 +377,11 @@ export default function DashboardStandard(){
             queryClient.removeQueries(['plan']),
             queryClient.removeQueries(['nbr_adherant']),
             queryClient.removeQueries(['nbr_actif']),
-            queryClient.removeQueries(['prix'])
+            queryClient.removeQueries(['prix']),
+            queryClient.removeQueries(['abonner-expirer']),
+            queryClient.removeQueries(['expire-bientot']),
+            queryClient.removeQueries(['mes-adherant']),
+            queryClient.removeQueries(['mes-infos'])
 
         )
         
@@ -175,12 +406,23 @@ export default function DashboardStandard(){
         
     }
 
+    function FormMensuel(e){
+        e.preventDefault()
+        setShowFormTarif(!showFormTarif)
+        //  setActiveTab('settings')
+    }
+
+    function formatDate(dates){
+        const date = new Date(dates)
+        return date.toLocaleDateString('fr-FR')
+    }
+
 
 
     return(
-        <div className="grid relative z-10 grid-cols-5 place-content-center bg-gray-100">
+        <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
             {/* Barre latérale */}
-            <div className="relative py-3  bg-white shadow-lg flex flex-col gap-10 h-screen fixed left-0">
+            <div className="col-span-1 py-3 bg-white shadow-lg flex flex-col gap-10 h-screen overflow-y-auto sticky top-0">
                 <div className="flex items-center gap-2  px-5 my-5">
                     <div className="rounded-full flex items-center justify-center p-5 bg-orange-500 w-15 h-15">
                         {/* <img src="" alt="" /> */}
@@ -208,11 +450,11 @@ export default function DashboardStandard(){
                     
                     whileHover={{ scale: 1.02 }} 
                     whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'adherant' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                    className={`${activeTab === 'adherant' || showAdd  ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                     onClick={()=>{setActiveTab('adherant')}}
                 >
-                     <Users className={`${activeTab === 'adherant' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200 `}/>
-                    <button className={`${activeTab === 'adherant' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                     <Users className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200 `}/>
+                    <button className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
                         
                     >Adhérants</button>
                 </motion.div>
@@ -497,32 +739,6 @@ export default function DashboardStandard(){
                                 </div>
                                 <button className="text-orange-600 font-bold">Contacter</button>
                             </div>
-
-                            <div className="flex items-center justify-between text-sm">
-                                <div className="flex items-center gap-2 mt-3">
-                                    <div className="flex bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2">
-                                        <User className="h-5 w-5" />
-                                    </div>
-                                    <div className="">
-                                        <p className="font-bold">Léa Dubois</p>
-                                        <p className="text-xs text-gray-400 font-bold">Expire le 02/02/2025</p>
-                                    </div>
-                                </div>
-                                <button className="text-orange-600 font-bold">Contacter</button>
-                            </div>
-
-                            <div className="flex items-center justify-between text-sm">
-                                <div className="flex items-center gap-2 mt-3">
-                                    <div className="flex bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2">
-                                        <User className="h-5 w-5" />
-                                    </div>
-                                    <div className="">
-                                        <p className="font-bold">Léa Dubois</p>
-                                        <p className="text-xs text-gray-400 font-bold">Expire le 02/02/2025</p>
-                                    </div>
-                                </div>
-                                <button className="text-orange-600 font-bold">Contacter</button>
-                            </div>
                         </div>
 
                         <div className="bg-white shadow-lg rounded-xl px-5 py-6">
@@ -753,8 +969,8 @@ export default function DashboardStandard(){
                                     <motion.button 
                                     whileHover={{scale: 1.03}}
                                     whileTap={{scale: 0.95}}
-                                    disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim()}
-                                    className={`flex items-center cursor-pointer  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white '} font-bold  py-1 px-5 mx-auto`}
+                                    disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
+                                    className={`flex items-center cursor-pointer  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white '} font-bold  py-1 px-5 mx-auto`}
                                     
                                     >
                                         {loadingAdherant ? (
@@ -782,19 +998,702 @@ export default function DashboardStandard(){
             )}
 
             {activeTab === 'adherant' && (
-                <div className="col-span-4 px-8 py-3 my-5">Adhérant</div>
+                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                    
+                    <div className="font-bold text-3xl">Gestion des Adhérants <br />
+                        <span className="text-gray-400 text-xl">Plan Standard - {nbrAdherants}/200 adhérants</span>
+                    </div>
+
+                    <div className="flex items-center justify-between my-8">
+                        <div className="flex items-center relative w-90">
+                            <div className="absolute top-2">
+                                <Search className="h-5 w-5 text-orange-400 ml-2"/>
+                            </div>
+                            <input type="text" 
+                            value={search}
+                            onChange={(e)=>{setSearch(e.target.value)}}
+                                className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
+                                placeholder="Rechercher des infos par page..."
+                            />
+                        </div>
+
+                        <motion.button 
+                            whileTap={{scale: 0.95}}
+                            onClick={()=>{setShowAdd(true), setActiveTab('')}}
+                            
+                        className="flex font-bold text-white text-sm items-center hover:text-black gap-2 py-2 px-4 rounded-lg bg-orange-600 border border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer transition-colors duration-200">
+                            <Plus className="h-5 w-5 "/>
+                            Ajouter un adhérant
+                        </motion.button>
+                    </div>
+
+                    {/* A revoir avec les vraies donnees */}
+                    <div className="bg-white my-8 rounded-lg ">
+                        <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                            <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                <tr >
+                                    <th className=" p-3 text-left">Nom complet</th>
+                                    <th className=" p-3">Adresse e-mail</th>
+                                    <th className=" p-3">Telephone</th>
+                                    <th className=" p-3">Forfait</th>
+                                    <th className=" p-3">Montant</th>
+                                    <th className=" p-3">Statut</th>
+                                    <th className=" p-3">Fin d'abonnement</th>
+                                    <th className=" p-3">Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody className="">
+                                {loadingAdh ? (
+                                    <tr>
+                                        <td colSpan={8} className="py-6 text-center">
+                                            <Loader2 className="mx-auto animate-spin" />
+                                        </td>
+                                    </tr>
+                                ): recherche.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={8} className="py-6 text-center text-sm text-gray-500">
+                                            {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Pas encore d'adhérents inscrits"}
+                                        </td>
+                                    </tr>
+                                ): recherche.map(item => (
+                                    <tr key={item.id} className="p-2 border-b border-gray-200">
+                                        
+                                        <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                        <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
+                                        {item.username || `${item.name} ${item.prenom}`}
+
+                                        </td>
+                                        <td className=" px-3 py-5">{item.email || '-'}</td>
+                                        <td className=" px-3 py-5">{item.telephone || '-'}</td>
+                                        <td className=" px-3 py-5">{item.dernier_abonnement.plan || '-'}</td>
+                                        <td className=" px-3 py-5">{item.dernier_abonnement.montant} XOF</td>
+                                        <td className=" px-3 "><span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>{item.dernier_abonnement.actif ? 'actif' : 'expiré'}</span></td>
+                                        <td className=" px-3 py-5">{item.dernier_abonnement.fin || '-'}</td>
+                                        <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                            <motion.button 
+                                                whileTap={{scale: 0.95}}
+                                            className="border cursor-pointer border-orange-100 p-1 rounded-sm bg-orange-500">
+                                                <Pencil className="text-white h-4 w-4"/>
+                                            </motion.button>
+                                            <motion.button 
+                                                whileTap={{scale: 0.95}}
+                                            className="border cursor-pointer border-red-100 p-1 rounded-sm bg-red-600">
+                                                <Trash className="h-4 w-4 text-white" />
+                                            </motion.button>
+                                        </td>
+                                    </tr>
+                                ))}
+                              
+                            </tbody>
+
+                            
+                        </table>
+                        <div className="flex  p-4 items-center justify-between">
+                                <div>
+                                    <div className="text-sm text-gray-400">
+                                        Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex text-sm items-center gap-2">
+                                    <motion.button
+                                    disabled={page === 1} 
+                                    onClick={()=>{setPage(p => p - 1)}}
+                                        whileTap={{scale: 0.95}}
+                                        className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                    >Précedent</motion.button>
+
+                                    <motion.button 
+                                    disabled={page === mesAdh.data?.adherents?.last_page} 
+                                    onClick={()=>{setPage(p => p + 1)}}
+                                    whileTap={{scale: 0.95}}
+                                        className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                    > Suivant</motion.button>
+                                </div>
+                            </div>
+
+                    </div>
+                    
+                </div>
             )}
 
             {activeTab === 'abonnement' && (
-                <div className="col-span-4 px-8 py-3 my-5">Abonnement</div>
+                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">Abonnement</div>
             )}
 
             {activeTab === 'paiement' && (
-                <div className="col-span-4 px-8 py-3 my-5">Paiement</div>
+                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">Paiement</div>
             )}
 
             {activeTab === 'settings' && (
-                <div className="col-span-4 px-8 py-3 my-5">Parametres</div>
+                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                    <div className="flex flex-col gap-2 font-bold text-3xl">
+                        <h1>Paramètres Généraux</h1>
+                        <span className="text-gray-400 text-xl">Içi vous pouvez gérer les informations de votre salle et de votre profil, ainsi que la tarification liée à la salle</span>
+                    </div>
+
+                    {infosLoading ? (
+                        <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 animate-pulse">
+                            
+                            <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
+                            
+                            <div className="flex flex-col gap-2 my-3">
+                                <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                <div className="h-10 bg-gray-100 rounded-lg"></div>
+                            </div>
+                            <div className="flex flex-col gap-2 my-3">
+                                <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                <div className="h-10 bg-gray-100 rounded-lg"></div>
+                            </div>
+                            
+                            <div className="flex items-center justify-between gap-5">
+                                <div className="flex flex-col gap-2 my-3 w-full">
+                                    <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                    <div className="h-10 bg-gray-100 rounded-lg"></div>
+                                </div>
+                                
+                                <div className="flex flex-col gap-2 my-3 w-full">
+                                    <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                    <div className="h-10 bg-gray-100 rounded-lg"></div>
+                                </div>
+                            </div>
+                            
+                            <div className="my-3">
+                                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                                <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
+                            </div>
+                        </div>
+                    ):(
+                        <form onSubmit={UpdateInfos} className="bg-white border border-gray-300 rounded-lg p-4 my-5">
+                            <span className="font-semibold text-xl">Informations de la salle</span>
+
+                            <div className="flex flex-col gap-2 my-3">
+                                <label className="text-gray-400 flex gap-1">Nom de la salle 
+                                    <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                </label>
+                                <input type="text"
+                                    value={nom_salle}
+                                    onChange={(e)=>{ setNomSalle(e.target.value),update_infos.reset()}}
+                                    disabled={!showButtonSalle}
+                                    placeholder={!showButtonSalle ? infosSalle.nom_salle : 'Entrez le nouveau nom de votre salle'}
+                                    className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-2 my-3">
+                                <label className="text-gray-400">Adresse</label>
+                                <input type="text"
+                                    disabled
+                                    placeholder={infosSalle.adresse_salle}
+                                    className="border bg-gray-100 border-gray-300 p-1 pl-3 font-semibold rounded-lg focus:outline-none"
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between gap-5">
+                                <div className="flex flex-col gap-2 my-3 w-full">
+                                    <label className="text-gray-400 flex gap-1">Pays 
+                                        <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                    </label>
+                                    <input type="text"
+                                        value={pays}
+                                        onChange={(e)=>{ setPays(e.target.value),update_infos.reset()}}
+                                        disabled={!showButtonSalle}
+                                        placeholder={!showButtonSalle ? infosSalle.pays_salle : 'Entrez le pays où se trouve la salle'}
+                                        className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-2 my-3 w-full">
+                                    <label className="text-gray-400 flex gap-1">Région
+                                        <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                    </label>
+                                    <input type="text"
+                                        value={region}
+                                        onChange={(e)=> {setRegion(e.target.value), update_infos.reset()}}
+                                        disabled={!showButtonSalle}
+                                        placeholder={!showButtonSalle ? infosSalle.region_salle : 'Entrez la région'}
+                                        className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                    />
+                                </div>
+                            </div>
+
+                            {updateError && (
+                                <p className="my-3 text-red-600 text-sm">{update_infos.error.message}</p>
+                            )}
+
+                            {successUpdate && (
+                                <p className="my-3 text-green-600 text-sm">Infos de la salle mis à jour avec succès</p>
+                            )}
+
+                            <p className="my-3 italic text-gray-400 text-sm">Date de création : {formatDate(infosSalle.created_at)} - Mis à jour : {formatDate(infosSalle.updated_at)}</p>
+
+                            <div className="flex items-center gap-2" >
+                                <div className={`${showButtonSalle ? 'hidden' : ''}`}>
+                               
+                                <motion.button
+                                    type="button" 
+                                    whileTap={{scale:0.95}}
+                                    onClick={()=>{setShowButtonSalle(true) }}
+                                    className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
+                                >
+                                    Modifier
+                                </motion.button>
+                                </div>
+                                {showButtonSalle && (
+                                    <>
+                                    <motion.button
+                                        type="button" 
+                                        whileTap={{scale:0.95}}
+                                        onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPays(''), setRegion('')}}
+                                        className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
+                                    >
+                                        Annuler
+                                    </motion.button>
+                                    <motion.button 
+                                        type="submit"
+                                        whileTap={{scale:0.95}}
+                                        disabled={updateLoading || !nom_salle.trim() || !pays.trim() || !region.trim()}
+                                        className={`my-3 ${!nom_salle.trim() || !pays.trim() || !region.trim() ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer '} border-orange-200 border-2 text-white font-semibold py-2 px-4 rounded-lg`}
+                                    >
+                                        {updateLoading ? (
+                                            <Loader2 />
+                                        ):(
+                                            'Enregistrer'
+                                        )}
+                                        
+                                    </motion.button>
+                                    </>
+                                )}
+                            </div>
+                        </form>
+                    )}
+
+                    
+                    {infosLoading ? (
+                        <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 animate-pulse">
+                            
+                            <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
+                            
+                            <div className="flex items-center justify-between gap-5">
+                                <div className="flex flex-col gap-2 my-3 w-full">
+                                    <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                    <div className="h-10 bg-gray-100 rounded-lg"></div>
+                                </div>
+                                
+                                <div className="flex flex-col gap-2 my-3 w-full">
+                                    <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                    <div className="h-10 bg-gray-100 rounded-lg"></div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-2 my-3">
+                                <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                <div className="h-10 bg-gray-100 rounded-lg"></div>
+                            </div>
+                            <div className="flex flex-col gap-2 my-3">
+                                <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                <div className="h-10 bg-gray-100 rounded-lg"></div>
+                            </div>
+                            
+                            
+                            
+                            <div className="my-3">
+                                <div className="h-10 bg-gray-200 rounded w-1/3"></div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                                <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
+                            </div>
+                        </div>
+                    ):(
+                        <form onSubmit={UpdatePerso} className="bg-white border border-gray-300 rounded-lg p-4 my-5">
+                            <span className="font-semibold text-xl">Mon Profil</span>
+
+                            <div className="flex items-center justify-between gap-5">
+                                <div className="flex flex-col gap-2 my-3 w-full">
+                                    <label className="text-gray-400 flex gap-1">Prénom 
+                                        <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                    </label>
+                                    <input type="text"
+                                        value={prenomPerso}
+                                        onChange={(e)=>{ setPrenomPerso(e.target.value),update_infos_perso.reset()}}
+                                        disabled={!showButtonProfil}
+                                        placeholder={!showButtonProfil ? infosUser.prenom : 'Entrez votre prénom'}
+                                        className={`border border-gray-300 p-1 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-2 my-3 w-full">
+                                    <label className="text-gray-400 flex gap-1">Nom
+                                        <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                    </label>
+                                    <input type="text"
+                                        value={nomPerso}
+                                        onChange={(e)=> {setNomPerso(e.target.value), update_infos_perso.reset()}}
+                                        disabled={!showButtonProfil}
+                                        placeholder={!showButtonProfil ? infosUser.name : 'Entrez votre nom'}
+                                        className={`border border-gray-300 p-1 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2 my-3 w-full">
+                                <label className="text-gray-400 flex gap-1">Numéro de téléphone 
+                                    <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                </label>
+                                <input type="tel"
+                                    value={telPerso}
+                                    onChange={(e)=>{ setTelPerso(e.target.value),update_infos_perso.reset()}}
+                                    disabled={!showButtonProfil}
+                                    placeholder={!showButtonProfil ? infosUser.telephone : 'Entrez votre numéro de telephone'}
+                                    className={`border border-gray-300 p-1 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-2 my-3 w-full">
+                                <label className="text-gray-400 flex gap-1">Adresse e-mail 
+                                    <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                </label>
+                                <input type="email"
+                                    value={emailPerso}
+                                    onChange={(e)=>{ setEmailPerso(e.target.value),update_infos_perso.reset()}}
+                                    disabled={!showButtonProfil}
+                                    placeholder={!showButtonProfil ? infosUser.email : 'Entrez votre adresse e-mail'}
+                                    className={`border border-gray-300 p-1 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2" >
+                                <motion.button
+                                whileTap={{scale:0.95}} 
+                                    onClick={()=>{setShowPasswordChange(!showPasswordChange)}}
+                                    disabled={showButtonProfil}
+                                    className={`${showButtonProfil ? 'bg-gray-200 text-gray-400 border-gray-200' : 'bg-tranparent border-gray-300 cursor-pointer'}  border-2 rounded-lg py-2 px-4 my-3`}
+                                >
+                                    {showPasswordChange ? 'Annuler le changement' : 'Changer le mot de passe'}
+                                </motion.button>
+
+                                {showPasswordChange && (
+                                    <div className="flex items-center gap-2 my-3">
+                                        <input type="password" 
+                                            placeholder="nouveau mot de passe"
+                                            value={password}
+                                            onChange={(e)=>{setPassword(e.target.value)}}
+                                            className="border py-2 px-4 rounded-lg focus:outline-none"
+                                        />
+                                        <motion.button
+                                            type="submit"
+                                            disabled={()=>{changePasswordLoading, !password.trim()}}
+                                            onClick={()=>{setActionProfil('PUT_PASSWORD')}}
+                                            whileTap={{scale:0.95}}
+                                            className={`border ${!password.trim() ? 'bg-gray-200 border-gray-300' : 'bg-green-200 border-green-500 cursor-pointer'}  py-1 px-2 rounded-lg `}
+                                        >
+                                            {changePasswordLoading ? (
+                                                <Loader2 className="h-7 w-7 text-green-600"/>
+                                            ):(
+                                                 <CheckCircle2 className={`h-7 w-7 ${!password.trim() ? 'text-gray-400' : 'text-green-600'}`} />
+                                            )}
+                                           
+                                        </motion.button>
+                                    </div>
+                                )}
+                            </div>
+
+                                {persoError && (
+                                    <p className="my-3 text-red-600 text-sm">{update_infos_perso.error.message}</p>
+                                )}
+
+                                {persoSuccess && (
+                                    <p className="my-3 text-green-600 text-sm">Informations personnelles misent à jour avec succès</p>
+                                )}
+
+                                {passwordError && (
+                                    <p className="my-3 text-red-600 text-sm">{updatePassword.error.message}</p>
+                                )}
+
+                                {passwordSuccess && (
+                                    <p className="my-3 text-green-600 text-sm">Mot de passe changé avec succès</p>
+                                )}
+
+                            <div className="flex items-center gap-2" >
+                                <div className={`${showButtonProfil ? 'hidden' : ''}`}>
+                                <motion.button
+                                    type="button" 
+                                    whileTap={{scale:0.95}}
+                                    disabled={showPasswordChange}
+                                    onClick={()=>{setShowButtonProfil(true) }}
+                                    className={`my-3 ${showPasswordChange ? 'bg-gray-200  text-gray-400 border-gray-200' : 'cursor-pointer bg-gray-300 border-gray-200 text-black/80'} border-2 font-semibold py-2 px-4 rounded-lg`}
+                                >
+                                    Modifier
+                                </motion.button>
+                                </div>
+                                {showButtonProfil && (
+                                    <>
+                                    <motion.button
+                                        type="button" 
+                                        whileTap={{scale:0.95}}
+                                        onClick={()=>{setShowButtonProfil(false), setNomPerso(''), setPrenomPerso(''), setTelPerso(''), setEmailPerso('')}}
+                                        className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
+                                    >
+                                        Annuler
+                                    </motion.button>
+                                    <motion.button
+                                        type="submit"
+                                        onClick={()=>{setActionProfil('PUT_PROFIL')}} 
+                                        whileTap={{scale:0.95}}
+                                        disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() || !emailPerso.trim()}
+                                        className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() || !emailPerso.trim() ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer '} border-orange-200 border-2 text-white font-semibold py-2 px-4 rounded-lg`}
+                                    >
+                                        {persoLoading ? (
+                                            <Loader2 />
+                                        ):(
+                                            'Enregistrer'
+                                        )}
+                                        
+                                    </motion.button>
+                                    </>
+                                )}
+                            </div>
+                            
+                        </form>
+                    )}
+
+                    <div className="p-4 ">  
+                    {/* gerer le tarification, à voir apres une route api pour l'edition et la suppressio */}
+                        <form onSubmit={sendTarif} className="">
+
+                            <div className="flex items-center justify-between">
+                                <div className="flex flex-col gap-2 my-3">
+                                    <span className="font-semibold text-xl">Gérer les tarifications</span>
+                                    <span className="  text-gray-400">Personnalisez les tarifs de votre salle par mois, par an et par trimestre</span>
+                                    {successTarif && (
+                                        <span className="  text-green-500">Tarif ajouté avec succès</span>
+                                    )}
+                                    {errorTarif && (
+                                        <span className="  text-red-500">{tarif.error.message}</span>
+                                    )}
+                                    {successTarifUp && (
+                                        <span className="  text-green-500">Tarif modifié avec succès</span>
+                                    )}
+                                    {errorTarifUp && (
+                                        <span className="  text-red-500">{tarifUpdate.error.message}</span>
+                                    )}
+                                    {successTarifDel && (
+                                        <span className="  text-green-500">Tarif supprimé avec succès</span>
+                                    )}
+                                    {errorTarifDel && (
+                                        <span className="  text-red-500">{tarifDelete.error.message}</span>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <div>
+                                        <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
+                                            <motion.button 
+                                                whileTap={{scale:0.95}}
+                                                onClick={FormMensuel}
+                                                className="px-5 py-3 rounded-lg shadow-lg border bg-orange-600 border-orange-600"
+                                            >
+                                                {showFormTarif ? <X className="text-white"/> : <Plus className="text-white"/>}
+                                            </motion.button>
+                                        </div>
+                                        {/* Sinon on affiche ça */}
+                                        <div>
+                                            {(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                                <motion.button
+                                                type="submit"
+                                                disabled={action === 'PUT' ? loadingTarifUp : loadingTarifDel}
+                                                onClick={() =>{editMois && editAn && editTrim ? setAction("DELETE") : setAction("PUT")}} 
+                                                    whileTap={{scale:0.95}}
+                                                    className={`px-5 py-3 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
+                                                >
+                                                    {editMois && editAn && editTrim ? (
+                                                        loadingTarifDel ?  <Loader2 className=" text-white"/> : <Trash className=" text-white"/>
+                                                    ): loadingTarifUp ? <Loader2 className="text-green-600"/> : <Check className="text-green-600"/>
+                                                        
+                                                    } 
+                                                </motion.button> 
+                                            )}
+                                        </div>
+                                    </div>
+                                    {showFormTarif && (
+                                        <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
+                                        <motion.button
+                                            type="submit"
+                                            onClick={() => setAction("POST")} 
+                                            whileTap={{scale:0.95}}
+                                            disabled={loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim()}
+                                            className={`px-5 py-3 rounded-lg shadow-lg border ${loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim() ? 'bg-gray-300 border-gray-400' : 'bg-green-200 border-green-600'}`}
+                                        >
+                                            {loadingTarif ? (
+                                                <Loader2 className="text-green-600"/>
+                                            ):(
+                                                <Check className="text-green-600"/>
+                                            )}
+                                        </motion.button>
+                                        </div>
+                                    )}
+                                </div>
+
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+
+                                {/* Mois */}
+                                <div className="border border-gray-400 p-2 ">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-bold">Mensuel</span>
+                                        <hr className=" w-80 text-gray-400 "/>
+                                        
+                                        <Calendar className="text-gray-400"/> 
+                                    </div>
+
+                                    {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                        <div className="flex gap-2 my-5 items-center justify-between">
+                                            {/* Si ajout réssui... */}
+                                            {(successTarif || prix_mensuel) ? (
+                                                <>
+                                                    <input 
+                                                        type="tel"
+                                                        value={mensuel}
+                                                        onChange={(e)=>{setMensuel(e.target.value), tarif.reset()}} 
+                                                        className={`border w-full ${editMois ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
+                                                        placeholder={editMois ? prix_mensuel : 'Saisissez un nouveau tarif mensuel'}
+                                                        disabled={editMois}
+                                                    /> 
+                                                    <div >
+                                                        <motion.button
+                                                            type="button"
+                                                            onClick={()=>{setEditMois(!editMois), setMensuel('')}} 
+                                                            whileTap={{scale:0.95}}
+                                                            className="border p-1 bg-orange-600 border-orange-600"
+                                                        >
+                                                            {editMois ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                        </motion.button>
+                                                    </div>
+                                                </>
+                                            ):(
+
+                                                <input 
+                                                    type="tel"
+                                                    value={mensuel}
+                                                    onChange={(e)=>{setMensuel(e.target.value)}} 
+                                                    className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
+                                                    placeholder="Saisissez le tarif par mois"
+                                                />
+                                            )}
+
+                                        
+                                            
+                                        </div>
+                                    )}
+                                </div>
+
+                                    {/* Trimestre */}
+                                <div className="border border-gray-400 p-2 ">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-bold">Trimestriel</span>
+                                        <hr className=" w-80 text-gray-400 "/>
+                                        
+                                        <Calendar className="text-gray-400"/> 
+                                    </div>
+
+                                    {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                        <div className="flex gap-2 my-5 items-center justify-between">
+                                            {/* Si ajout réssui... */}
+                                            {(successTarif || prix_trimestriel) ? (
+                                                <>
+                                                    <input 
+                                                        type="tel"
+                                                        value={trimestriel}
+                                                        onChange={(e)=>{setTrimestriel(e.target.value), tarif.reset()}} 
+                                                        className={`border w-full ${editTrim ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
+                                                        placeholder={editTrim ? prix_trimestriel : 'Saisissez un nouveau tarif trimestriel'}
+                                                        disabled={editTrim}
+                                                    /> 
+                                                    <div >
+                                                        <motion.button 
+                                                            type="button"
+                                                            onClick={()=>{setEditTrim(!editTrim), setTrimestriel('')}} 
+                                                            whileTap={{scale:0.95}}
+                                                            className="border p-1 bg-orange-600 border-orange-600"
+                                                        >
+                                                            {editTrim ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                        </motion.button>
+                                                    </div>
+                                                </>
+                                            ):(
+
+                                                <input 
+                                                    type="tel"
+                                                    value={trimestriel}
+                                                    onChange={(e)=>{setTrimestriel(e.target.value)}} 
+                                                    className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
+                                                    placeholder="Saisissez le tarif par mois"
+                                                />
+                                            )}
+
+                                        
+                                            
+                                        </div>
+                                    )}
+                                </div>
+
+                                        {/* Annuel */}
+                                <div className="border border-gray-400 p-2 ">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-bold">Annuel</span>
+                                        <hr className=" w-80 text-gray-400 "/>
+                                        
+                                        <Calendar className="text-gray-400"/> 
+                                    </div>
+
+                                    {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                        <div className="flex gap-2 my-5 items-center justify-between">
+                                            {/* Si ajout réssui... */}
+                                            {(successTarif || prix_annuel) ? (
+                                                <>
+                                                    <input 
+                                                        type="tel"
+                                                        value={annuel}
+                                                        onChange={(e)=>{setAnnuel(e.target.value), tarif.reset()}} 
+                                                        className={`border w-full ${editAn ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
+                                                        placeholder={editAn ? prix_annuel : 'Saisissez un nouveau tarif annuel'}
+                                                        disabled={editAn}
+                                                    /> 
+                                                    <div >
+                                                        <motion.button 
+                                                            type="button"
+                                                            onClick={()=>{setEditAn(!editAn), setAnnuel('')}} 
+                                                            whileTap={{scale:0.95}}
+                                                            className="border p-1 bg-orange-600 border-orange-600"
+                                                        >
+                                                            {editAn ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                        </motion.button>
+                                                    </div>
+                                                </>
+                                            ):(
+
+                                                <input 
+                                                    type="tel"
+                                                    value={annuel}
+                                                    onChange={(e)=>{setAnnuel(e.target.value)}} 
+                                                    className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
+                                                    placeholder="Saisissez le tarif par mois"
+                                                />
+                                            )}
+
+                                        
+                                            
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             )}
 
 
@@ -816,6 +1715,190 @@ export default function DashboardStandard(){
                         >oui</button>
                     </div>
                 </motion.div>
+            )}
+
+            {showAdd && (
+                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                    <button 
+                        onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
+                    className="flex items-center cursor-pointer justify-center gap-2">
+                        <ArrowLeft className="h-5 w-5 text-orange-500" />
+                        <span className="text-orange-500 text-sm">Retour à la liste des étudiants</span>
+                    </button>
+
+                    <div className="my-5 font-bold text-3xl">Ajout d'adherants <br />
+                        <span className="text-gray-400 text-sm">Remplissez le formulaire ci-dessous pour inscrire vos adhérants</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-5 my-10">
+                            <div className=""></div>
+
+                            <form onSubmit={handleAdd} className="col-span-2 rounded-lg  px-8 py-5">
+                                {/* <div className="flex items-center gap-5"> */}
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-xl">Nom <span className="text-red-600">*</span></label>
+                                    <Input 
+                                        type={'text'}
+                                        value={nom}
+                                        onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
+                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'Nom de l\'adhérant'}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
+
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-xl">Prénom <span className="text-red-600">*</span></label>
+                                    <Input 
+                                        type={'text'}
+                                        value={prenom}
+                                        onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
+                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'Prenom de l\'adhérant'}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                {/* </div> */}
+                                </div>
+                                {/* <div className="flex justify-between items-center gap-5"> */}
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-xl">Adresse e-mail <span className="text-red-600">*</span></label>
+                                    <Input 
+                                        type={'email'}
+                                        value={email}
+                                        onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
+                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'Email de l\'adhérant'}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
+
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-xl">Numéro de téléphone <span className="text-red-600">*</span></label>
+                                    <Input 
+                                        type={'tel'}
+                                        value={tel}
+                                        onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
+                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'Numéro de l\'adhérant'}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                {/* </div> */}
+                                </div>
+
+                
+                                {/* <div className="grid grid-cols-2 gap-10"> */}
+                                <div className="flex-col flex gap-2 mb-5 ">
+                                    <label className="font-bold text-xl">Abonnement</label>
+                                
+
+                                    <select
+                                        value={plan}
+                                        onChange={(e) => {
+                                            const value = e.target.value
+                                            setPlan(value)
+                                            setShowPrix(!!value)
+                                            addAdh.reset()
+                                        }}
+                                        className="border-3 border-orange-500 p-2 border-dotted text-md"
+                                        >
+                                        <option value="">-- Choisir --</option>
+                                        <option value="mensuel">Mensuel</option>
+                                        <option value="trimestriel">Trimestriel</option>
+                                        <option value="annuel">Annuel</option>
+                                    </select>
+
+                                </div>
+
+                                <div>
+                                   
+
+                                    {showPrix && (
+                                    <div className="flex-col flex gap-2 ">
+                                        {loading ? (
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        ) : (
+                                        <>
+                                            <label className="font-bold text-xl">Prix</label>
+                                            <select
+                                            value={montant}
+                                            onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
+                                            className="border-3 border-orange-500 p-2 border-dotted text-md"
+                                            >
+                                            <option value="">-- Choisir --</option>
+                                                {plan === "mensuel" && (
+                                                    <option value={prix_mensuel}>
+                                                        {prix_mensuel}
+                                                    </option>)}
+                                                {plan === "trimestriel" && (
+                                                    <option value={prix_trimestriel}>
+                                                        {prix_trimestriel}
+                                                    </option>)}
+                                                {plan === "annuel" && (
+                                                    <option value={prix_annuel}>
+                                                        {prix_annuel}
+                                                    </option>)}
+                                            </select>
+                                        </>
+                                        )}
+                                    </div>
+                                    )}
+
+
+                                </div>
+                                 
+
+                                
+                                {/* </div> */}
+                                <div className="flex items-center my-3">
+                                    {errorAdherant && (
+                                        <span className="text-red-600 text-md">{addAdh.error.message}</span>
+                                    )}
+                                    {successAdherant && (
+                                        <span className="text-green-600 text-md">Enregistrement effectué avec succèss</span>
+                                    )}
+                                </div>
+
+                                <div 
+                                    
+                                className="flex items-center my-5">
+                                    <motion.button 
+                                    whileHover={{scale: 1.03}}
+                                    whileTap={{scale: 0.95}}
+                                    disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
+                                    className={`flex items-center w-full justify-center cursor-pointer  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white '} font-bold  text-xl py-3 px-5 mx-auto`}
+                                    
+                                    >
+                                        {loadingAdherant ? (
+                                            <Loader2 className='h-5 w-5 text-white animate-spin'/>
+                                        ):(
+                                            'Ajouter'
+                                        )}
+                                    </motion.button>
+                                </div>
+                               
+                            </form>
+
+                            <div className=""></div>
+                        </div>
+                </div>
+
+                
             )}
         
         </div>
