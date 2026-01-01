@@ -3,7 +3,7 @@ import React from "react"
 import { apiUrl } from "../../../../../../env"
 import { getToken } from "../../../../hooks/getToken"
 
-export async function UpdateInfosPerso({nom, prenom, telephone, email}){
+export async function UpdateInfosPerso({nom, prenom, telephone}){
             const token = getToken()
 
             const response = await fetch(`${apiUrl}update-infos-perso`,{
@@ -17,7 +17,6 @@ export async function UpdateInfosPerso({nom, prenom, telephone, email}){
                     nom,
                     prenom,
                     telephone,
-                    email
                 })
             })
 

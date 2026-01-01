@@ -55,7 +55,6 @@ export default function DashboardStandard(){
     const [nomPerso, setNomPerso] = useState('')
     const [prenomPerso, setPrenomPerso] = useState('')
     const [telPerso, setTelPerso] = useState('')
-    const [emailPerso, setEmailPerso] = useState('')
     const [password, setPassword] = useState('')
 
 
@@ -316,7 +315,6 @@ export default function DashboardStandard(){
         onSuccess : (()=>{
             setNomPerso('')
             setPrenomPerso('')
-            setEmailPerso('')
             setTelPerso('')
             
             updatePerso.invalidateQueries(['mes-infos'])
@@ -354,7 +352,6 @@ export default function DashboardStandard(){
                 nom:nomPerso, 
                 prenom:prenomPerso, 
                 telephone:telPerso, 
-                email:emailPerso
             })
         }
     }
@@ -1062,10 +1059,27 @@ export default function DashboardStandard(){
                                         </td>
                                         <td className=" px-3 py-5">{item.email || '-'}</td>
                                         <td className=" px-3 py-5">{item.telephone || '-'}</td>
-                                        <td className=" px-3 py-5">{item.dernier_abonnement.plan || '-'}</td>
-                                        <td className=" px-3 py-5">{item.dernier_abonnement.montant} XOF</td>
-                                        <td className=" px-3 "><span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>{item.dernier_abonnement.actif ? 'actif' : 'expiré'}</span></td>
-                                        <td className=" px-3 py-5">{item.dernier_abonnement.fin || '-'}</td>
+                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.plan : '-'}</td>
+                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? `${item.dernier_abonnement.montant} XOF` : '-'}</td>
+                                        {item.dernier_abonnement !== null ? (
+                                            <td className=" px-3 ">
+                                                <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
+                                                    {item.dernier_abonnement.actif ? 'actif' : 'expiré'}
+                                                </span>
+                                            </td>
+                                        ):(
+                                            <td className=" px-3 ">
+                                                <span className="bg-red-200 font-semibold py-1 px-2 rounded-xl">
+                                                expiré
+                                                </span>
+                                            </td>
+                                        )}
+                                        {/* <td className=" px-3 ">
+                                            <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
+                                                {item.dernier_abonnement.actif ? 'actif' : 'expiré'}
+                                            </span>
+                                        </td> */}
+                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
                                         <td className="flex justify-center py-5 items-center gap-2 px-3">
                                             <motion.button 
                                                 whileTap={{scale: 0.95}}
@@ -1350,15 +1364,11 @@ export default function DashboardStandard(){
                             </div>
 
                             <div className="flex flex-col gap-2 my-3 w-full">
-                                <label className="text-gray-400 flex gap-1">Adresse e-mail 
-                                    <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                </label>
+                                <label className="text-gray-400">Adresse e-mail </label>
                                 <input type="email"
-                                    value={emailPerso}
-                                    onChange={(e)=>{ setEmailPerso(e.target.value),update_infos_perso.reset()}}
-                                    disabled={!showButtonProfil}
-                                    placeholder={!showButtonProfil ? infosUser.email : 'Entrez votre adresse e-mail'}
-                                    className={`border border-gray-300 p-1 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                    disabled
+                                    placeholder={infosUser.email}
+                                    className="border bg-gray-100 border-gray-300 p-1 pl-3 font-semibold rounded-lg focus:outline-none"
                                 />
                             </div>
 
@@ -1432,7 +1442,7 @@ export default function DashboardStandard(){
                                     <motion.button
                                         type="button" 
                                         whileTap={{scale:0.95}}
-                                        onClick={()=>{setShowButtonProfil(false), setNomPerso(''), setPrenomPerso(''), setTelPerso(''), setEmailPerso('')}}
+                                        onClick={()=>{setShowButtonProfil(false), setNomPerso(''), setPrenomPerso(''), setTelPerso('')}}
                                         className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
                                     >
                                         Annuler
@@ -1441,8 +1451,8 @@ export default function DashboardStandard(){
                                         type="submit"
                                         // onClick={()=>{setActionProfil('PUT_PROFIL')}} 
                                         whileTap={{scale:0.95}}
-                                        disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() || !emailPerso.trim()}
-                                        className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() || !emailPerso.trim() ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer '} border-orange-200 border-2 text-white font-semibold py-2 px-4 rounded-lg`}
+                                        disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim()}
+                                        className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer '} border-orange-200 border-2 text-white font-semibold py-2 px-4 rounded-lg`}
                                     >
                                         {persoLoading ? (
                                             <Loader2 className="animate-spin"/>
