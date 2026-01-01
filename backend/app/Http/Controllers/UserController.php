@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\facture;
+use App\Services\FactureService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Log;
 use Exception;
 use App\Models\User;
@@ -330,6 +333,10 @@ class UserController extends Controller
 
             Mail::to($request->email)->queue(new welcomeMail($res['user'], $salle));
 
+            // gerer la facture d'abonnement
+
+            $facture = new  FactureService($adherant,$salle,$abonnement);
+            $facture->Generer();
 
             return response()->json([
                 'message' => 'adherant cree avec succes',
@@ -445,8 +452,9 @@ class UserController extends Controller
 
     }
 
-    public function deletePrix(Request $request){
-               $user = $request->user();
+    public function deletePrix(Request $request)
+    {
+        $user = $request->user();
         if (!$user->hasrole('Gerant')) {
             return response()->json([
                 'message' => 'non autorise'
@@ -455,24 +463,23 @@ class UserController extends Controller
 
         DB::beginTransaction();
 
-        try{
+        try {
             $prix = $user->salleprix;
             if (!$prix) {
                 return response()->json([
-                        'message'=> 'configurer les prix'
-                ],404);
+                    'message' => 'configurer les prix'
+                ], 404);
             }
 
             $prix->delete();
-  
+
             DB::commit();
 
             return response()->json([
-                'message'=> 'les prix de votre salle ont ete supprimes'
+                'message' => 'les prix de votre salle ont ete supprimes'
             ]);
 
-        }
-         catch (Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
                 'message' => $e->getMessage(),
@@ -588,31 +595,31 @@ class UserController extends Controller
             'password' => 'required|string',
 
         ]);
-     
-            if ($validator->fails()) {
-                return response()->json([
-                    'message' => 'les champs de ne sont pas correctement remplis'
-                ], 400);
-            }
-            DB::beginTransaction();
-            try {
-           
-                $user->update([
-                    'password'=> Hash::make($request->password)
-                ]);
-           
-                DB::commit();
 
-                return response()->json([
-                    'message' => 'modification reussi'
-                ], 201);
-            } catch (Exception $e) {
-                return response()->json([
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTrace()
-                ], 500);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'les champs de ne sont pas correctement remplis'
+            ], 400);
+        }
+        DB::beginTransaction();
+        try {
 
-            
+            $user->update([
+                'password' => Hash::make($request->password)
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'modification reussi'
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace()
+            ], 500);
+
+
         }
 
     }
@@ -625,16 +632,20 @@ class UserController extends Controller
             ], 401);
         }
         $validator = Validator::make($request->all(), [
-            'id'=> 'required|numeric'
+            'id' => 'required|numeric'
         ]);
         if ($validator->fails()) {
-            return ;
+            return;
         }
 
-        
+
 
         try {
             $adh = User::find($request->id);
+            $salle = $user->salle;
+            if ($salle->adherant_id === $request->id && $adh->hasRole('Adherant')) {
+
+            }
 
         } catch (Exception $th) {
 
@@ -643,6 +654,204 @@ class UserController extends Controller
     }
 
 
+    public function AddLogo(Request $request)
+    {
+        $user = $request->user();
 
+
+        if (!$user->hasrole('Gerant')) {
+            return response()->json([
+                'message' => 'vos droit sont restreint'
+            ], 401);
+        }
+        $validator = Validator::make($request->all(), [
+            'logo' => 'required|image|mimes:jpg,png,jpeg'
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'le format doit etre respcter'
+            ]);
+        }
+
+        try {
+            $rectoName = 'logo_' . uniqid() . '.' . $request->file('fileF')->extension();
+
+            $logopath = $request->file('logo')->storeAs('logo', $rectoName, 'minio');
+
+
+            if (!$logopath) {
+                throw new Exception('Échec de l’upload des documents');
+            }
+            $salle = $user->salle;
+            $salle->logo_salle = Storage::disk('minio')->url($logopath);
+            $salle->save();
+
+            return response()->json([
+                'image' => 'logo ajouter avec succes',
+                'url' => $user->logo
+            ]);
+
+        } catch (Exception $th) {
+            return response()->json([
+                'message' => 'une erreur est survenue'
+            ]);
+        }
+
+    }
+
+
+
+    public function EditLogo(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->hasRole('Gerant')) {
+            return response()->json([
+                'message' => 'vos droits sont restreints'
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'logo' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $salle = $user->salle;
+
+        if (!$salle) {
+            return response()->json([
+                'message' => 'aucune salle associée'
+            ], 404);
+        }
+
+        try {
+
+            if ($salle->logo_salle) {
+                $bucket = config('filesystems.disks.minio.bucket');
+
+                $path = parse_url($salle->logo_salle, PHP_URL_PATH);
+                $path = ltrim($path, "/{$bucket}/");
+
+                if (Storage::disk('minio')->exists($path)) {
+                    Storage::disk('minio')->delete($path);
+                }
+            }
+
+
+            $newPath = $request->file('logo')
+                ->store('logos', 'minio');
+
+
+            $salle->logo_salle = Storage::disk('minio')->url($newPath);
+            $salle->save();
+
+            return response()->json([
+                'message' => 'logo modifié avec succès',
+                'logo' => $salle->logo_salle
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'erreur lors de la modification du logo'
+            ], 500);
+        }
+    }
+
+
+    public function DeleteLogo(Request $request)
+    {
+
+        $user = $request->user();
+
+        DB::beginTransaction();
+        try {
+            $salle = $user->salle;
+            if ($salle->logo_salle) {
+                $bucket = config('filesystems.disks.minio.bucket');
+
+                $path = parse_url($salle->logo_salle, PHP_URL_PATH);
+                $path = ltrim($path, "/{$bucket}/");
+
+                if (Storage::disk('minio')->exists($path)) {
+                    Storage::disk('minio')->delete($path);
+                }
+            }
+
+            $salle->logo_salle = null;
+            $salle->save();
+            DB::commit();
+
+            return response()->json([
+                'message' => 'votre logo a ete supprimer'
+            ], 200);
+
+
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'une erreur est survenue'
+            ], 500);
+        }
+    }
+
+    public function Mesfacutures(Request $request){
+        $user = $request->user();
+        if(!$user->hasrole('')){
+            return response()->json([
+                'message'=> 'non autoriser'
+            ]);
+        }
+        $validator = Validator::make($request->all(),[
+            'id'=>'required|numeric'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message'=> $validator->errors()->first(),
+            ],400);
+        }
+
+        try{
+
+            $salle = $user->salle;
+
+            $adh = User::find($request->id);
+
+            if (!$adh) {
+                return response()->json([
+                    'message' => 'non trouve'
+                ], 404);
+            }
+            $salle = $user->salle;
+            if (!$adh->hasrole('Adherant') || !$salle->adherents()->where('adherant_id', $request->id)) {
+
+                return response()->json([
+                    'message' => 'cet utlisateur n\'existe pas dans votre salle'
+                ], 404);
+            }
+
+            $facuture = facture::where('salle_id', $salle->id)->where('adherant_id',$request->id)->get();
+            if (!$facuture){
+                return response()->json([
+                    'message'=> ' vous n\'avez pas encore de facture'
+                ],404);
+            }
+
+            return response()->json([
+                'factures'=>$facuture
+            ]);
+        }
+        catch(Exception $e){
+            return response()->json([
+                'message'=> $e->getMessage()
+            ]);
+        }
+    }
 
 }

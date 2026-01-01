@@ -198,4 +198,9 @@ public function Aherantsalles()
          ->latestOfMany('fin');
     }
 
+    public function facture(){
+        return $this->hasMany(facture::class,'adherant_id');
+    }
+
+  
 }

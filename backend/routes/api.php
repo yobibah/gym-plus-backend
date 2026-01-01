@@ -31,6 +31,10 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::get('/mes-prix', [UserController::class, 'SallePrix'])->middleware('paiement');
   Route::post('/ajouter-adherant', [UserController::class, 'AjouterAdherant']);
   Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
+
+  Route::post('/ajouter-logo', [UserController::class,'Addlogo']);
+    Route::post('/delete-logo', [UserController::class,'deleteLogo']);
+      Route::post('/update-logo', [UserController::class,'EditLogo']);
   //acitive 
   Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
   Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
@@ -45,11 +49,14 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::get('/nbr-adherant-actif', [HomeController::class, 'AdherantActif']);
   Route::get('/bientot-expirer', [HomeController::class, 'BientotExpirer']);
   Route::get('/expirer', [HomeController::class, 'AdherantExpirer']);
-  Route::post('/reabonner-adherant', [AbonnementController::class, 'reabonemment']);
 
+  // gestion des abonnements
+  Route::post('/reabonner-adherant', [AbonnementController::class, 'reabonemment']);
+  Route::post('/suspendre-abonnement', [AbonnementController::class,'SusprendreAbonnement']);
+  Route::post('reactiver-abonnement', [AbonnementController::class,'reactiverAbonnemnt']);
 
   Route::post('/info-salle', [SalleController::class, 'AjouterSalle']);
-  Route::put(' /update-infos', [SalleController::class, 'updateSalle']);
+  Route::put('/update-infos', [SalleController::class, 'updateSalle']);
   Route::post('/payment', [PaiementController::class, 'simulation']);
 
   /// les depenses et recettes 

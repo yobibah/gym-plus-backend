@@ -138,7 +138,8 @@ public function updateSalle(Request $request){
         $salle->update([
             'nom_salle'=>$request->nom_salle ?? $salle->nom_salle,
             'pays_salle'=>$request->pays ?? $salle->pays_salle,
-            'region_salle'=>$request->region ?? $salle->region_salle
+            'region_salle'=>$request->region ?? $salle->region_salle,
+            'updated_at'=>Carbon::now()
         ]);
 
         DB::commit();

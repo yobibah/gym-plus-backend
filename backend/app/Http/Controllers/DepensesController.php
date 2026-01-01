@@ -194,4 +194,9 @@ class DepensesController extends Controller
     public function  rapportFinancier(Request $request){
 
     }
+
+
+    public function Rappportavancer(){
+        
+    }
 }

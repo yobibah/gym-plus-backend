@@ -24,7 +24,8 @@ class salle extends Model
         "numero_salle",
 
         "email_salle",
-        'gerant_id'
+        'gerant_id',
+        "updated_at"
 
     ];
 
