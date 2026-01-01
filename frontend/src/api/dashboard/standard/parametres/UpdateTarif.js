@@ -6,7 +6,7 @@ import { getToken } from "../../../../hooks/getToken";
 export async function UpdateTarifs({montant_1,montant_2,montant_3}) {
     const token = getToken()
 
-    const response = await fetch(`${apiUrl}update-tarif`,{
+    const response = await fetch(`${apiUrl}update-prix`,{
         method : "PUT",
         headers : {
             "Content-Type" : "application/json",

@@ -57,7 +57,6 @@ export default function DashboardStandard(){
     const [telPerso, setTelPerso] = useState('')
     const [emailPerso, setEmailPerso] = useState('')
     const [password, setPassword] = useState('')
-    const [actionProfil, setActionProfil] = useState("");
 
 
     const navigate = useNavigate()
@@ -219,8 +218,18 @@ export default function DashboardStandard(){
     const tarifUpdate = useMutation({
         mutationFn : UpdateTarifs,
         onSuccess : ()=>{
+            setMensuel('')
+            setAnnuel('')
+            setTrimestriel('')
 
+            setEditAn(true)
+            setEditMois(true)
+            setEditTrim(true)
             updateTarifs.invalidateQueries(['prix'])
+
+            setTimeout(()=>{
+                tarifUpdate.reset()
+            }, 2500)
         }
         
     })
@@ -242,30 +251,26 @@ export default function DashboardStandard(){
     const errorTarifDel = tarifDelete.isError
     const successTarifDel = tarifDelete.isSuccess
 
-    async function sendTarif(e){
+
+
+    function sendTarif(e, action){
         e.preventDefault()
 
-        switch (action) {
-            case "POST":
-                tarif.mutate({
-                    montant_1 : mensuel,
-                    montant_2 : trimestriel,
-                    montant_3 : annuel
-                });
-                break;
-
-            case "PUT":
-                tarifUpdate.mutate({
-                    montant_1 : mensuel,
-                    montant_2 : trimestriel,
-                    montant_3 : annuel
-                });
-                break;
-            case "DELETE":
-                tarifDelete.mutate();
-                break;
-            default:
-                break}
+        if (action  === "PUT") {
+            tarifUpdate.mutate({
+                montant_1 : mensuel,
+                montant_2 : trimestriel,
+                montant_3 : annuel
+            });
+        } else if (action === "DELETE"){
+            tarifDelete.mutate();
+        } else {
+            tarif.mutate({
+                montant_1 : mensuel,
+                montant_2 : trimestriel,
+                montant_3 : annuel
+            });
+        }
     }
     
 
@@ -289,9 +294,9 @@ export default function DashboardStandard(){
             
             update.invalidateQueries(['mes-infos'])
 
-            // setTimeout(()=>{
-            //     update_infos.reset()
-            // })
+            setTimeout(()=>{
+                update_infos.reset()
+            }, 2500)
         })
     })
     const updateLoading = update_infos.isPending
@@ -316,9 +321,9 @@ export default function DashboardStandard(){
             
             updatePerso.invalidateQueries(['mes-infos'])
 
-            // setTimeout(()=>{
-            //     update_infos_perso.reset()
-            // })
+            setTimeout(()=>{
+                update_infos_perso.reset()
+            }, 2500)
         })
     })
     const persoLoading = update_infos_perso.isPending
@@ -329,40 +334,31 @@ export default function DashboardStandard(){
     const updatePassword = useMutation({
         mutationFn : ChangePassword,
         onSuccess : (()=>{
-            setPassword('')
-            
-
-            // setTimeout(()=>{
-            //     updatePassword.reset()
-            // })
+            setTimeout(()=>{
+                updatePassword.reset()
+            }, 2500)
         })
     })
     const changePasswordLoading = updatePassword.isPending
     const passwordError = updatePassword.isError
     const passwordSuccess = updatePassword.isSuccess
 
-    async function UpdatePerso(e) {
+
+    function UpdatePerso(e, action) {
         e.preventDefault()
 
-        switch(actionProfil){
-            case "PUT_PROFIL" :
-                update_infos_perso.mutate({
-                    nom:nomPerso, 
-                    prenom:prenomPerso, 
-                    telephone:telPerso, 
-                    email:emailPerso
-                });
-                break;
-
-            case "PUT_PASSWORD" :
-                updatePassword.mutate({password});
-                break;
-
-            default :
-                break;
+        if(action === 'PASSWORD'){
+            updatePassword.mutate({ password })
+        } else {
+            update_infos_perso.mutate({
+                nom:nomPerso, 
+                prenom:prenomPerso, 
+                telephone:telPerso, 
+                email:emailPerso
+            })
         }
-        
     }
+
 
 
 
@@ -1244,7 +1240,7 @@ export default function DashboardStandard(){
                                 </motion.button>
                                 </div>
                                 {showButtonSalle && (
-                                    <>
+                                    <div className={`${successUpdate ? setShowButtonSalle(false) : 'block'} gap-2 flex items-center`}>
                                     <motion.button
                                         type="button" 
                                         whileTap={{scale:0.95}}
@@ -1266,7 +1262,7 @@ export default function DashboardStandard(){
                                         )}
                                         
                                     </motion.button>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         </form>
@@ -1368,7 +1364,8 @@ export default function DashboardStandard(){
 
                             <div className="flex items-center gap-2" >
                                 <motion.button
-                                whileTap={{scale:0.95}} 
+                                whileTap={{scale:0.95}}
+                                type="button" 
                                     onClick={()=>{setShowPasswordChange(!showPasswordChange)}}
                                     disabled={showButtonProfil}
                                     className={`${showButtonProfil ? 'bg-gray-200 text-gray-400 border-gray-200' : 'bg-tranparent border-gray-300 cursor-pointer'}  border-2 rounded-lg py-2 px-4 my-3`}
@@ -1377,22 +1374,22 @@ export default function DashboardStandard(){
                                 </motion.button>
 
                                 {showPasswordChange && (
-                                    <div className="flex items-center gap-2 my-3">
+                                    <div className={`flex items-center gap-2 my-3 ${passwordSuccess ? setShowPasswordChange(false) : 'block'}`}>
                                         <input type="password" 
                                             placeholder="nouveau mot de passe"
                                             value={password}
-                                            onChange={(e)=>{setPassword(e.target.value)}}
+                                            onChange={(e)=>{setPassword(e.target.value), updatePassword.reset()}}
                                             className="border py-2 px-4 rounded-lg focus:outline-none"
                                         />
                                         <motion.button
                                             type="submit"
-                                            disabled={()=>{changePasswordLoading, !password.trim()}}
-                                            onClick={()=>{setActionProfil('PUT_PASSWORD')}}
+                                            disabled={changePasswordLoading || !password.trim()}
+                                            onClick={(e)=>UpdatePerso(e, 'PASSWORD')}
                                             whileTap={{scale:0.95}}
                                             className={`border ${!password.trim() ? 'bg-gray-200 border-gray-300' : 'bg-green-200 border-green-500 cursor-pointer'}  py-1 px-2 rounded-lg `}
                                         >
                                             {changePasswordLoading ? (
-                                                <Loader2 className="h-7 w-7 text-green-600"/>
+                                                <Loader2 className="h-7 w-7 text-green-600 animate-spin"/>
                                             ):(
                                                  <CheckCircle2 className={`h-7 w-7 ${!password.trim() ? 'text-gray-400' : 'text-green-600'}`} />
                                             )}
@@ -1431,7 +1428,7 @@ export default function DashboardStandard(){
                                 </motion.button>
                                 </div>
                                 {showButtonProfil && (
-                                    <>
+                                    <div className={`${persoSuccess ? setShowButtonProfil(false) : 'block'}`}>
                                     <motion.button
                                         type="button" 
                                         whileTap={{scale:0.95}}
@@ -1442,19 +1439,19 @@ export default function DashboardStandard(){
                                     </motion.button>
                                     <motion.button
                                         type="submit"
-                                        onClick={()=>{setActionProfil('PUT_PROFIL')}} 
+                                        // onClick={()=>{setActionProfil('PUT_PROFIL')}} 
                                         whileTap={{scale:0.95}}
                                         disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() || !emailPerso.trim()}
                                         className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() || !emailPerso.trim() ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer '} border-orange-200 border-2 text-white font-semibold py-2 px-4 rounded-lg`}
                                     >
                                         {persoLoading ? (
-                                            <Loader2 />
+                                            <Loader2 className="animate-spin"/>
                                         ):(
                                             'Enregistrer'
                                         )}
                                         
                                     </motion.button>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                             
@@ -1493,6 +1490,7 @@ export default function DashboardStandard(){
                                     <div>
                                         <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
                                             <motion.button 
+                                            type="button"
                                                 whileTap={{scale:0.95}}
                                                 onClick={FormMensuel}
                                                 className="px-5 py-3 rounded-lg shadow-lg border bg-orange-600 border-orange-600"
@@ -1505,14 +1503,14 @@ export default function DashboardStandard(){
                                             {(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
                                                 <motion.button
                                                 type="submit"
-                                                disabled={action === 'PUT' ? loadingTarifUp : loadingTarifDel}
-                                                onClick={() =>{editMois && editAn && editTrim ? setAction("DELETE") : setAction("PUT")}} 
+                                                disabled={action === "PUT" ? loadingTarifUp : loadingTarifDel}
+                                                onClick={(e) =>{editMois && editAn && editTrim ? sendTarif(e, "DELETE") : sendTarif(e, "PUT")}} 
                                                     whileTap={{scale:0.95}}
                                                     className={`px-5 py-3 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
                                                 >
                                                     {editMois && editAn && editTrim ? (
-                                                        loadingTarifDel ?  <Loader2 className=" text-white"/> : <Trash className=" text-white"/>
-                                                    ): loadingTarifUp ? <Loader2 className="text-green-600"/> : <Check className="text-green-600"/>
+                                                        loadingTarifDel ?  <Loader2 className=" text-white animate-spin"/> : <Trash className=" text-white"/>
+                                                    ): loadingTarifUp ? <Loader2 className="text-green-600 animate-spin"/> : <Check className="text-green-600"/>
                                                         
                                                     } 
                                                 </motion.button> 
@@ -1522,14 +1520,13 @@ export default function DashboardStandard(){
                                     {showFormTarif && (
                                         <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
                                         <motion.button
-                                            type="submit"
-                                            onClick={() => setAction("POST")} 
+                                        type="submit"
                                             whileTap={{scale:0.95}}
                                             disabled={loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim()}
                                             className={`px-5 py-3 rounded-lg shadow-lg border ${loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim() ? 'bg-gray-300 border-gray-400' : 'bg-green-200 border-green-600'}`}
                                         >
                                             {loadingTarif ? (
-                                                <Loader2 className="text-green-600"/>
+                                                <Loader2 className="text-green-600 animate-spin"/>
                                             ):(
                                                 <Check className="text-green-600"/>
                                             )}
@@ -1558,7 +1555,7 @@ export default function DashboardStandard(){
                                                     <input 
                                                         type="tel"
                                                         value={mensuel}
-                                                        onChange={(e)=>{setMensuel(e.target.value), tarif.reset()}} 
+                                                        onChange={(e)=>{setMensuel(e.target.value), tarif.reset(), tarifUpdate.reset()}} 
                                                         className={`border w-full ${editMois ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
                                                         placeholder={editMois ? prix_mensuel : 'Saisissez un nouveau tarif mensuel'}
                                                         disabled={editMois}
@@ -1608,7 +1605,7 @@ export default function DashboardStandard(){
                                                     <input 
                                                         type="tel"
                                                         value={trimestriel}
-                                                        onChange={(e)=>{setTrimestriel(e.target.value), tarif.reset()}} 
+                                                        onChange={(e)=>{setTrimestriel(e.target.value), tarif.reset(), tarifUpdate.reset()}} 
                                                         className={`border w-full ${editTrim ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
                                                         placeholder={editTrim ? prix_trimestriel : 'Saisissez un nouveau tarif trimestriel'}
                                                         disabled={editTrim}
@@ -1658,7 +1655,7 @@ export default function DashboardStandard(){
                                                     <input 
                                                         type="tel"
                                                         value={annuel}
-                                                        onChange={(e)=>{setAnnuel(e.target.value), tarif.reset()}} 
+                                                        onChange={(e)=>{setAnnuel(e.target.value), tarif.reset(), tarifUpdate.reset()}} 
                                                         className={`border w-full ${editAn ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
                                                         placeholder={editAn ? prix_annuel : 'Saisissez un nouveau tarif annuel'}
                                                         disabled={editAn}

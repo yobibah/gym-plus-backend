@@ -7,7 +7,7 @@ export async function UpdateinfosSalle({nom_salle, pays, region}){
 
     const token = getToken();   
     
-    const response = await fetch(`${apiUrl}update-infos-salle`,{
+    const response = await fetch(`${apiUrl}update-infos`,{
         method: "PUT",
         headers: {
             "Content" : "application/json",
