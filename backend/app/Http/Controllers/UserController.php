@@ -561,7 +561,7 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $user->update([
-                'nom' => $request->nom ?? $user->nom,
+                'name' => $request->nom ?? $user->nom,
                 'prenom' => $request->prenom ?? $user->prenom,
                 'telephone' => $request->telephone ?? $user->telephone,
                 'email' => $request->email ?? $user->email

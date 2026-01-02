@@ -66,10 +66,10 @@ class User extends Authenticatable
 
 
 
-public function sendPasswordResetNotification($token)
-{
-    $this->notify(new CustomResetPassword($token));
-}
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token));
+    }
 
 
     public function salle(): HasOne
@@ -94,7 +94,7 @@ public function sendPasswordResetNotification($token)
     }
 
 
-    
+
 
 
 
@@ -119,19 +119,19 @@ public function sendPasswordResetNotification($token)
 
     public function document(): HasMany
     {
-        return $this->hasMany(document::class, 'gerant_id') ;
+        return $this->hasMany(document::class, 'gerant_id');
     }
 
 
     public function historique()
     {
-        return  $this->hasMany(historique::class, 'gerant_id') ;
+        return $this->hasMany(historique::class, 'gerant_id');
 
     }
 
     public function historique_Mdp()
     {
-        return $this->hasMany(HistoriqueMdp::class, 'gerant_id') ;
+        return $this->hasMany(HistoriqueMdp::class, 'gerant_id');
     }
 
     // Espace adherant ici je vais declarer tte les methodes lier a l'adherant
@@ -149,58 +149,71 @@ public function sendPasswordResetNotification($token)
     public function dernierAbonnement()
     {
         return $this->hasOne(abonnement::class, 'adherant_id')
-        ->where('actif',1)
-        ->where('fin','>=',Carbon::today())
-         ->latestOfMany('fin');
+
+            ->latestOfMany('fin');
     }
 
-    public function DernierPaiement(){
-         return $this->hasOne(paiement::class, 'gerant_id')->latestOfMany('fin');
+    public function dernierAbonnementReussi()
+    {
+        return $this->hasOne(abonnement::class, 'adherant_id')
+            ->where('actif', 1)
+            ->where('fin', '>=', Carbon::today())
+            ->latestOfMany('fin');
     }
 
-    public function dernierPaiementReussi():HasOne
-{
-    return $this->hasOne(paiement::class, 'gerant_id')
-                ->where('status', 'reussi')->where('fin','>=',Carbon::now())
-                ->latestOfMany('fin');
-}
 
-public function Activites(){
-    return $this->hasMany(Activites::class,'gerant_id');
-}
+    public function DernierPaiement()
+    {
+        return $this->hasOne(paiement::class, 'gerant_id')->latestOfMany('fin');
+    }
+
+    public function dernierPaiementReussi(): HasOne
+    {
+        return $this->hasOne(paiement::class, 'gerant_id')
+            ->where('status', 'reussi')->where('fin', '>=', Carbon::now())
+            ->latestOfMany('fin');
+    }
+
+    public function Activites()
+    {
+        return $this->hasMany(Activites::class, 'gerant_id');
+    }
 
 
-public function salleprix(): HasOne{
-    return $this->hasOne(salleprix::class,'gerant_id');
-}
-        
+    public function salleprix(): HasOne
+    {
+        return $this->hasOne(salleprix::class, 'gerant_id');
+    }
 
-protected function activityByID($id){
-    return $this->Activites()->where('id', $id)->first();
-}
 
-public function Aherantsalles()
-{
-    return $this->belongsToMany(
-        Salle::class,
-        'salle_adherant',
-        'adherant_id',
-        'salle_id'
-    )
-    ->withTimestamps();
-}
+    protected function activityByID($id)
+    {
+        return $this->Activites()->where('id', $id)->first();
+    }
+
+    public function Aherantsalles()
+    {
+        return $this->belongsToMany(
+            Salle::class,
+            'salle_adherant',
+            'adherant_id',
+            'salle_id'
+        )
+            ->withTimestamps();
+    }
 
     public function dernierAbonnementExpirer()
     {
         return $this->hasOne(abonnement::class, 'adherant_id')
-        ->where('actif',0)
-        ->where('fin','<',Carbon::today())
-         ->latestOfMany('fin');
+            ->where('actif', 0)
+            ->where('fin', '<', Carbon::today())
+            ->latestOfMany('fin');
     }
 
-    public function facture(){
-        return $this->hasMany(facture::class,'adherant_id');
+    public function facture()
+    {
+        return $this->hasMany(facture::class, 'adherant_id');
     }
 
-  
+
 }

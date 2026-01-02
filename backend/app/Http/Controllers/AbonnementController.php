@@ -51,7 +51,7 @@ class AbonnementController extends Controller
                 ], 404);
             }
             // mtn ajouter l'abonnement..
-            $abonnement = $adherant->dernierAbonnement;
+            $abonnement = $adherant->dernierAbonnementReussi;
             Log::info($abonnement);
             if ($abonnement) {
                 return response()->json([
