@@ -336,9 +336,9 @@ class UserController extends Controller
 
             // gerer la facture d'abonnement
 
-            $facture = new  FactureService(new Fpdf());
+            // $facture = new  FactureService(new Fpdf());
 
-            $facture->Generer($salle,$adherant,$abonnement);
+            // $facture->Generer($salle,$adherant,$abonnement);
 
             return response()->json([
                 'message' => 'adherant cree avec succes',
@@ -802,24 +802,25 @@ class UserController extends Controller
         }
     }
 
-    public function Mesfacutures(Request $request){
+    public function Mesfacutures(Request $request)
+    {
         $user = $request->user();
-        if(!$user->hasrole('')){
+        if (!$user->hasrole('')) {
             return response()->json([
-                'message'=> 'non autoriser'
+                'message' => 'non autoriser'
             ]);
         }
-        $validator = Validator::make($request->all(),[
-            'id'=>'required|numeric'
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|numeric'
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'message'=> $validator->errors()->first(),
-            ],400);
+                'message' => $validator->errors()->first(),
+            ], 400);
         }
 
-        try{
+        try {
 
             $salle = $user->salle;
 
@@ -838,41 +839,41 @@ class UserController extends Controller
                 ], 404);
             }
 
-            $facuture = facture::where('salle_id', $salle->id)->where('adherant_id',$request->id)->get();
-            if (!$facuture){
+            $facuture = facture::where('salle_id', $salle->id)->where('adherant_id', $request->id)->get();
+            if (!$facuture) {
                 return response()->json([
-                    'message'=> ' vous n\'avez pas encore de facture'
-                ],404);
+                    'message' => ' vous n\'avez pas encore de facture'
+                ], 404);
             }
 
             return response()->json([
-                'factures'=>$facuture
+                'factures' => $facuture
             ]);
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return response()->json([
-                'message'=> $e->getMessage()
+                'message' => $e->getMessage()
             ]);
         }
     }
 
-    public function DeleteAdherent(Request $request){
+    public function DeleteAdherent(Request $request)
+    {
         $user = $request->user();
 
         $validator = Validator::make($request->all(), [
-            'ide'=> 'required|numeric',
+            'id' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'message'=> $validator->errors()->first(),
-            ],400);
+                'message' => $validator->errors()->first(),
+            ], 400);
         }
 
         DB::beginTransaction();
 
-        try{
-                $adh = User::find($request->id);
+        try {
+            $adh = User::find($request->id);
             if (!$adh) {
                 return response()->json([
                     'message' => 'non trouve'
@@ -889,19 +890,62 @@ class UserController extends Controller
             $adh->delete();
             DB::commit();
             return response()->json([
-                'message'=> 'cet utilisateur a ete supprime'
-            ],200);
-        }
-        catch(Exception $e){
+                'message' => 'cet utilisateur a ete supprime'
+            ], 200);
+        } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
-                'message'=> $e->getMessage(),
-                'trace'=>$e->getTraceAsString()
-            ],500);
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
         }
     }
 
-    public function UpdateAdherent(Request $request){
+    public function UpdateAdherent(Request $request)
+    {
+
+        $user = $request->user();
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors()->first(),
+            ], 400);
+        }
+
+
+        DB::beginTransaction();
+        try {
+            $adh = User::find($request->id);
+            if (!$adh) {
+                return response()->json([
+                    'message' => 'non trouve'
+                ], 404);
+            }
+            $salle = $user->salle;
+            if (!$adh->hasrole('Adherant') || !$salle->adherents()->where('adherant_id', $request->id)) {
+
+                return response()->json([
+                    'message' => 'cet utlisateur n\'existe pas dans votre salle'
+                ], 404);
+            }
+
+            $adh->update([]);
+            DB::commit();
+            return response()->json([
+                'message' => 'les donnees de cet adherents ont ete modifier '
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+        }
 
     }
 }

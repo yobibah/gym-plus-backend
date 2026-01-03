@@ -87,9 +87,11 @@ public function bientotExpirer()
         $q->whereBetween('fin', [
                 now()->startOfDay(),          
                 now()->addDays(7)->endOfDay() 
-            ])
+        ])
+        
+
             ->where('actif', 1);
-    });
+    })->with(['abonnements']);
 
 }
 

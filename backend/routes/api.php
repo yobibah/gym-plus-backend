@@ -36,6 +36,7 @@ Route::middleware(['auth:sanctum', 'isGerant'])->group(function () {
   Route::post('/ajouter-logo', [UserController::class, 'Addlogo']);
   Route::post('/delete-logo', [UserController::class, 'deleteLogo']);
   Route::post('/update-logo', [UserController::class, 'EditLogo']);
+  Route::delete('/delete-adherant', [UserController::class,'DeleteAdherent']);
   //acitive 
   Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
   Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
