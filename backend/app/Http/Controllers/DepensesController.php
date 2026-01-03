@@ -118,22 +118,22 @@ class DepensesController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->hasrole('Gerant')) {
-            return response()->json([
-                'message' => 'non autotoriser'
-            ], 401);
-        }
+        // if (!$user->hasrole('Gerant')) {
+        //     return response()->json([
+        //         'message' => 'non autotoriser'
+        //     ], 401);
+        // }
 
-        // recuperer le dernier paiement du user courant
-        $paiemnt = $user->dernierPaiementReussi;
+        // // recuperer le dernier paiement du user courant
+        // $paiemnt = $user->dernierPaiementReussi;
 
 
-        // verifier si le plan  du user est parmis le tableau
-        if (!in_array(strtolower($paiemnt->plan), $this->plan)) {
-            return response()->json([
-                'message' => ' votre forfais ne vous permet pas d\'avoir acces a cette ressource'
-            ], 403);
-        }
+        // // verifier si le plan  du user est parmis le tableau
+        // if (!in_array(strtolower($paiemnt->plan), $this->plan)) {
+        //     return response()->json([
+        //         'message' => ' votre forfais ne vous permet pas d\'avoir acces a cette ressource'
+        //     ], 403);
+        // }
 
         // je vais genener les recttes de ce mois en totalisant le gain gagner
         DB::beginTransaction();

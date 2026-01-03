@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\facture;
 use App\Services\FactureService;
+use Codedge\Fpdf\Fpdf\Fpdf;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Log;
@@ -335,8 +336,9 @@ class UserController extends Controller
 
             // gerer la facture d'abonnement
 
-            $facture = new  FactureService($adherant,$salle,$abonnement);
-            $facture->Generer();
+            $facture = new  FactureService(new Fpdf());
+
+            $facture->Generer($salle,$adherant,$abonnement);
 
             return response()->json([
                 'message' => 'adherant cree avec succes',
@@ -854,4 +856,52 @@ class UserController extends Controller
         }
     }
 
+    public function DeleteAdherent(Request $request){
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'ide'=> 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message'=> $validator->errors()->first(),
+            ],400);
+        }
+
+        DB::beginTransaction();
+
+        try{
+                $adh = User::find($request->id);
+            if (!$adh) {
+                return response()->json([
+                    'message' => 'non trouve'
+                ], 404);
+            }
+            $salle = $user->salle;
+            if (!$adh->hasrole('Adherant') || !$salle->adherents()->where('adherant_id', $request->id)) {
+
+                return response()->json([
+                    'message' => 'cet utlisateur n\'existe pas dans votre salle'
+                ], 404);
+            }
+
+            $adh->delete();
+            DB::commit();
+            return response()->json([
+                'message'=> 'cet utilisateur a ete supprime'
+            ],200);
+        }
+        catch(Exception $e){
+            DB::rollBack();
+            return response()->json([
+                'message'=> $e->getMessage(),
+                'trace'=>$e->getTraceAsString()
+            ],500);
+        }
+    }
+
+    public function UpdateAdherent(Request $request){
+
+    }
 }

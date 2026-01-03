@@ -135,7 +135,7 @@ class HomeController extends Controller
 
         try {
             $salle = $user->salle;
-            $bientotExpirer = $salle->bientotExpirer();
+            $bientotExpirer = $salle->bientotExpirer;
 
 
             return response()->json([

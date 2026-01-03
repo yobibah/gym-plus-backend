@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('adherant_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('salle_id')->constrained('salles')->cascadeOnDelete();
             $table->string('Numero_facure');
+            
         });
     }
 

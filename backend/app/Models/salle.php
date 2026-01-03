@@ -82,17 +82,15 @@ public function adherentsExpirer()
 
 public function bientotExpirer()
 {
-    return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
-        ->whereHas('abonnements', function ($q) {
-            $q->whereBetween(
-                'fin',
-                [
-                   
-                    Carbon::today()->addDays(7)
-                ]
-            )
+  return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
+    ->whereHas('abonnements', function ($q) {
+        $q->whereBetween('fin', [
+                now()->startOfDay(),          
+                now()->addDays(7)->endOfDay() 
+            ])
             ->where('actif', 1);
-        });
+    });
+
 }
 
 

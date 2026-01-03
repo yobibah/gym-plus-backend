@@ -216,4 +216,20 @@ class User extends Authenticatable
     }
 
 
+    public function isGerant(){
+     return  $this->hasrole("Gerant") ? true : false;
+    }
+
+    public function isPro():bool{
+        $plan = $this->dernierPaiementReussi->plan;
+
+        return $plan === 'pro' ? true : false;
+    }
+
+
+    public function isPremium():bool{
+        $plan = $this->dernierPaiementReussi->plan;
+
+        return $plan === 'premium'? true : false;
+    }
 }
