@@ -676,7 +676,7 @@ class UserController extends Controller
         }
 
         try {
-            $rectoName = 'logo_' . uniqid() . '.' . $request->file('fileF')->extension();
+            $rectoName = 'logo_'.$user->id. uniqid() . '.' . $request->file('logo')->extension();
 
             $logopath = $request->file('logo')->storeAs('logo', $rectoName, 'minio');
 
