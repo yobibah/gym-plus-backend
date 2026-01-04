@@ -1,4 +1,4 @@
-import { AlertCircle, AlertCircleIcon, AlertOctagon, ArrowLeft, BadgeCheck, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, WalletCards, X, XCircle } from "lucide-react";
+import { AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, BadgeCheck, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, WalletCards, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +23,11 @@ import { ChangePassword } from "../../api/dashboard/standard/parametres/changePa
 import { UpdateTarifs } from "../../api/dashboard/standard/parametres/UpdateTarif";
 import { DeleteTarif } from "../../api/dashboard/standard/parametres/DeleteTarif";
 import { addLogo } from "../../api/dashboard/standard/parametres/addLogo";
+import { UpdateLogo } from "../../api/dashboard/standard/parametres/changeLogo";
+import { DeleteLogo } from "../../api/dashboard/standard/parametres/deleteLogo";
+import { addCachet } from "../../api/dashboard/standard/parametres/addCachet";
+import { UpdateCachet } from "../../api/dashboard/standard/parametres/changeCachet";
+import { DeleteCachet } from "../../api/dashboard/standard/parametres/deleteCachet";
 
 export default function DashboardStandard(){
 
@@ -51,7 +56,6 @@ export default function DashboardStandard(){
     const [editAn, setEditAn] = useState(true)
     const [action, setAction] = useState("POST"); 
     const [nom_salle, setNomSalle] = useState('')
-    const [pays, setPays] = useState('')
     const [pays_salle, setPaysSalle] = useState('')
     const [region, setRegion] = useState('')
     const [nomPerso, setNomPerso] = useState('')
@@ -62,6 +66,12 @@ export default function DashboardStandard(){
     const [logo, setLogo] = useState(null)
     const [preview, setPreview] = useState(null)
     const logoInputRef =useRef(null)
+    const [logoModal, setLogoModal] = useState(false)
+    const [signModal, setSignModal] = useState(false)
+    const [sign, setSign] = useState(null)
+    const [previewSign, setPreviewSign] = useState(null)
+    const signInputRef =useRef(null)
+
 
 
     function handleLogo(e){
@@ -74,6 +84,15 @@ export default function DashboardStandard(){
         setPreview(URL.createObjectURL(logoSelection))
     }
 
+    function handleSign(e){
+        const signSelection = e.target.files[0]
+
+        if(!signSelection) return
+
+        setSign(signSelection)
+        signUpload.reset()
+        setPreviewSign(URL.createObjectURL(signSelection))
+    }
 
     const navigate = useNavigate()
     const token = getToken()
@@ -356,7 +375,6 @@ export default function DashboardStandard(){
             pays:pays_salle, 
             region
         })
-        // console.log("nom: ", nom_salle, "pays: ", pays, "region: ", region)
     }
 
 
@@ -408,11 +426,19 @@ export default function DashboardStandard(){
         }
     }
 
+    const logoQuery = useQueryClient()
     const logoUpload = useMutation({
         mutationFn : addLogo,
-        // onSuccess : (()=>{
+        onSuccess : (()=>{
+            setPreview(null)
+            setLogo(null)
 
-        // })
+            logoQuery.invalidateQueries(['mes-infos'])
+
+            setTimeout(()=>{
+                logoUpload.reset()
+            }, 2500)
+        })
         // onError : (()=>{
 
         // })
@@ -421,13 +447,156 @@ export default function DashboardStandard(){
     const logoSuccess = logoUpload.isSuccess
     const logoError = logoUpload.isError
 
-    async function handlePostLogo(e){
+    const logoEditQuery = useQueryClient()
+    const logoEditUpload = useMutation({
+        mutationFn : UpdateLogo,
+        onSuccess : (()=>{
+            setPreview(null)
+            setLogo(null)
+
+            logoEditQuery.invalidateQueries(['mes-infos'])
+
+            setTimeout(()=>{
+                logoEditUpload.reset()
+            }, 2500)
+        })
+        // onError : (()=>{
+
+        // })
+    })
+    const logoEditLoading = logoEditUpload.isPending
+    const logoEditSuccess = logoEditUpload.isSuccess
+    const logoEditError = logoEditUpload.isError
+
+
+    const logoDelQuery = useQueryClient()
+    const logoDelUpload = useMutation({
+        mutationFn : DeleteLogo,
+        onSuccess : (()=>{
+            setLogoModal(false)
+            setPreview(null)
+            setLogo(null)
+
+            logoDelQuery.invalidateQueries(['mes-infos'])
+
+            setTimeout(()=>{
+                logoDelUpload.reset()
+            }, 2500)
+        }),
+        onError : (()=>{
+            setLogoModal(false)
+        })
+    })
+    const logoDelLoading = logoDelUpload.isPending
+    const logoDelSuccess = logoDelUpload.isSuccess
+    const logoDelError = logoDelUpload.isError
+
+
+    async function handlePostLogo(e, action){
         e.preventDefault()
 
         const formData = new FormData()
         formData.append("logo", logo)
 
-        logoUpload.mutate({formData})
+        if(action === 'PUT'){
+            logoEditUpload.mutate({formData})
+        } else if(action === 'DELETE'){
+            logoDelUpload.mutate()
+        } else {
+            logoUpload.mutate({formData})
+        }
+        
+
+    }
+
+
+
+
+
+
+
+
+    const signQuery = useQueryClient()
+    const signUpload = useMutation({
+        mutationFn : addCachet,
+        onSuccess : (()=>{
+            setPreview(null)
+            setLogo(null)
+
+            signQuery.invalidateQueries(['mes-infos'])
+
+            setTimeout(()=>{
+                signUpload.reset()
+            }, 2500)
+        })
+        // onError : (()=>{
+
+        // })
+    })
+    const signLoading = signUpload.isPending
+    const signSuccess = signUpload.isSuccess
+    const signError = signUpload.isError
+
+    const signEditQuery = useQueryClient()
+    const signEditUpload = useMutation({
+        mutationFn : UpdateCachet,
+        onSuccess : (()=>{
+            setPreview(null)
+            setLogo(null)
+
+            signEditQuery.invalidateQueries(['mes-infos'])
+
+            setTimeout(()=>{
+                signEditUpload.reset()
+            }, 2500)
+        })
+        // onError : (()=>{
+
+        // })
+    })
+    const signEditLoading = signEditUpload.isPending
+    const signEditSuccess = signEditUpload.isSuccess
+    const signEditError = signEditUpload.isError
+
+
+    const signDelQuery = useQueryClient()
+    const signDelUpload = useMutation({
+        mutationFn : DeleteCachet,
+        onSuccess : (()=>{
+            setSignModal(false)
+            setPreviewSign(null)
+            setSign(null)
+
+            signDelQuery.invalidateQueries(['mes-infos'])
+
+            setTimeout(()=>{
+                signDelUpload.reset()
+            }, 2500)
+        }),
+        onError : (()=>{
+            setSignModal(false)
+        })
+    })
+    const signDelLoading = signDelUpload.isPending
+    const signDelSuccess = signDelUpload.isSuccess
+    const signDelError = signDelUpload.isError
+
+
+    async function handlePostSign(e, action){
+        e.preventDefault()
+
+        const formData = new FormData()
+        formData.append("cachet", sign)
+
+        if(action === 'PUT'){
+            signEditUpload.mutate({formData})
+        } else if(action === 'DELETE'){
+            signDelUpload.mutate()
+        } else {
+            signUpload.mutate({formData})
+        }
+        
+
     }
 
 
@@ -456,8 +625,6 @@ export default function DashboardStandard(){
     function logoutModal(e){
         e.preventDefault()
         setModalLogout(!modalLogout)
-        
-        
         
     }
 
@@ -1361,33 +1528,39 @@ export default function DashboardStandard(){
                     <div className=" border border-gray-300 rounded-lg p-4 my-5">
                         <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
                         <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
-                        <form className="flex flex-col items-center gap-4">
-                            <motion.div 
-                                whileHover={{scale: 1.08}}
-                                whileTap={{scale : 0.95}}
+                        <form className="flex flex-col relative items-center gap-4">
+                            
+
+                            <motion.div
+                                whileHover={{ scale: 1.08 }}
+                                whileTap={{ scale: 0.95 }}
                                 className="rounded-full w-50 h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
-                                onClick={()=>logoInputRef.current.click()}
+                                onClick={() => logoInputRef.current.click()}
                             >
                                 {preview ? (
                                     <div className="relative w-full h-full">
-                                    <img src={preview} alt="logo"
-                                        className="w-full h-full object-cover"
-                                    />
-                                    {logo && (
-                                    <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                        
+                                        <img src={preview} className="w-full h-full object-cover" />
+                                        <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+                                            
+                                        </div>
                                     </div>
-                                    )}
+                                ) : infosSalle?.logo_salle ? (
+                                        <div className="relative w-full h-full">
+                                            <img src={infosSalle.logo_salle} className="w-full h-full object-cover" />
+                                            <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+                                                
+                                            </div>
+                                        </div>
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                        <div className="flex flex-col items-center">
+                                        <PlusSquare size={50} />
+                                        <span className="font-bold">Ajouter</span>
+                                        </div>
                                     </div>
-                                ):(
-                                    <motion.div 
-                                        // whileHover={{scale: 1.03}}
-                                    className="w-full h-full flex items-center justify-center text-gray-400">
-                                        <Plus size={50}/>
-                                    </motion.div>
                                 )}
-                                
                             </motion.div>
+
                             <input 
                                 type="file" 
                                 accept="image/*"
@@ -1404,22 +1577,41 @@ export default function DashboardStandard(){
                                 <p className="text-sm text-center text-red-500">{logoUpload.error.message}</p>
                             )}
 
+                            {logoEditSuccess && (
+                                <p className="text-sm text-center text-green-500">Logo modifié avec succès</p>
+                            )}
+
+                            {logoEditError && (
+                                <p className="text-sm text-center text-red-500">{logoEditUpload.error.message}</p>
+                            )}
+
+                            {logoDelSuccess && (
+                                <p className="text-sm text-center text-green-500">Logo supprimé avec succès</p>
+                            )}
+
+                            {logoDelError && (
+                                <p className="text-sm text-center text-red-500">{logoDelUpload.error.message}</p>
+                            )}
+
                             {logo && (
                                 <div className="flex items-center gap-2">
 
                                     <button
+                                        type='button'
                                         className="text-sm border py-1 px-2 my-3 text-red-500"
                                         onClick={()=>{setPreview(null);setLogo(null)}}
-                                        disabled={logoLoading}
+                                        disabled={logoLoading || logoEditLoading}
                                     >
-                                        supprimer
+                                        Annuler
                                     </button>
+
                                     <button
-                                        onClick={handlePostLogo}
-                                        disabled={logoLoading}
+                                        type="submit"
+                                        onClick={(e)=>{infosSalle?.logo_salle ? handlePostLogo(e, 'PUT') : handlePostLogo(e, 'POST')}}
+                                        disabled={logoLoading || logoEditLoading }
                                         className="px-4 py-1 bg-blue-500 text-white rounded"
                                     >
-                                        {logoLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
+                                        {logoLoading || logoEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
 
                                     </button>
 
@@ -1427,56 +1619,191 @@ export default function DashboardStandard(){
                                 </div>
                             )}
 
+                            {infosSalle?.logo_salle && (
+                                <div className={`flex items-center gap-2 ${logo ? "hidden" : "block"}`}>
+
+                                    <button
+                                        type="button"
+                                        className="text-sm border py-1 px-2 my-3 text-red-500"
+                                        onClick={()=>{setLogoModal(true)}}
+                                    >
+                                        Suprimmer
+                                        
+                                    </button>
+
+                                </div>
+                            )}
+
+                            {logoModal && (
+                                <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
+                                    <div className="flex items-center gap-2  animate-pulse">
+                                        <AlertTriangle className="h-8 w-8 text-red-500" />
+                                        <p className="font-semibold text-red-500">Cette action est irreversible !</p>
+                                    
+                                    </div>
+                                    <p className="text-white font-semibold">Supprimer définitivement ?</p>
+                                    <div className="flex gap-5 items-center justify-center">
+                                        <motion.button
+                                        type="button"
+                                            whileTap={{scale : 0.95}}
+                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
+                                            onClick={()=>{setLogoModal(false)}}
+                                        >Non</motion.button>
+                                        <motion.button
+                                            type="submit"
+                                            whileTap={{scale : 0.95}}
+                                            onClick={(e)=>{handlePostLogo(e, 'DELETE')}}
+                                            disabled={logoDelLoading}
+                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
+                                        >
+                                            {logoDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
+                                        </motion.button>
+                                    </div>
+                                </div>
+                            )}
+
                         </form>
                     </div>
 
-                    {/* <div className=" border border-gray-300 rounded-lg p-4 my-5">
-                        <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
-                        <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
-                        <form className="flex flex-col items-center gap-4">
-                            <motion.div 
-                                whileHover={{scale: 1.08}}
-                                whileTap={{scale : 0.95}}
-                                className="rounded-full w-60 h-60 overflow-hidden bg-orange-400/20 border cursor-pointer"
-                                onClick={()=>logoInputRef.current.click()}
+                    <div className=" border border-gray-300 rounded-lg p-4 my-5">
+                        <p className="font-semibold text-xl ">Cachet / Signature <span className="text-sm">(optionnel)</span></p>
+                        <p className="text-md mb-5 text-gray-400">Scannez votre signature pour les marquer sur vos factures</p>
+                        <form className="flex flex-col relative items-center gap-4">
+                            
+
+                            <motion.div
+                                whileHover={{ scale: 1.08 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="rounded-lg w-full h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
+                                onClick={() => signInputRef.current.click()}
                             >
-                                {preview ? (
+                                {previewSign ? (
                                     <div className="relative w-full h-full">
-                                    <img src={preview} alt="logo"
-                                        className="w-full h-full object-cover"
-                                    />
-                                    <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                        Changer
+                                        <img src={previewSign} className="w-full h-full object-cover" />
+                                        <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+                                            
+                                        </div>
                                     </div>
+                                ) : infosSalle?.logo_salle ? (
+                                        <div className="relative w-full h-full">
+                                            <img src={infosSalle?.cahet_salle ?? '/default.jpg'} className="w-full h-full object-cover" />
+                                            <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+                                                
+                                            </div>
+                                        </div>
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                        <div className="flex flex-col items-center">
+                                        <PlusSquare size={50} />
+                                        <span className="font-bold">Ajouter</span>
+                                        </div>
                                     </div>
-                                ):(
-                                    <motion.div 
-                                        // whileHover={{scale: 1.03}}
-                                    className="w-full h-full flex items-center justify-center text-gray-400">
-                                        <Plus size={50}/>
-                                    </motion.div>
                                 )}
-                                
                             </motion.div>
+
                             <input 
                                 type="file" 
                                 accept="image/*"
-                                ref={logoInputRef}
+                                ref={signInputRef}
                                 hidden
-                                onChange={handleLogo}
+                                onChange={handleSign}
                             />
 
-                            {preview && (
-
-                                <button
-                                    className="text-sm border py-1 px-2 my-3 text-red-500"
-                                    onClick={()=>{setPreview(null);setLogo(null)}}
-                                >
-                                    supprimer
-                                </button>
+                            {signSuccess && (
+                                <p className="text-sm text-center text-green-500">Signature enregistré avec succès</p>
                             )}
+
+                            {signError && (
+                                <p className="text-sm text-center text-red-500">{signUpload.error.message}</p>
+                            )}
+
+                            {signEditSuccess && (
+                                <p className="text-sm text-center text-green-500">Signature modifié avec succès</p>
+                            )}
+
+                            {signEditError && (
+                                <p className="text-sm text-center text-red-500">{signEditUpload.error.message}</p>
+                            )}
+
+                            {signDelSuccess && (
+                                <p className="text-sm text-center text-green-500">Logo supprimé avec succès</p>
+                            )}
+
+                            {signDelError && (
+                                <p className="text-sm text-center text-red-500">{signDelUpload.error.message}</p>
+                            )}
+
+                            {sign && (
+                                <div className="flex items-center gap-2">
+
+                                    <button
+                                        type='button'
+                                        className="text-sm border py-1 px-2 my-3 text-red-500"
+                                        onClick={()=>{setPreviewSign(null);setSign(null)}}
+                                        disabled={signLoading || signEditLoading}
+                                    >
+                                        Annuler
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        onClick={(e)=>{infosSalle?.cachet_salle ? handlePostSign(e, 'PUT') : handlePostSign(e, 'POST')}}
+                                        disabled={signLoading || signEditLoading }
+                                        className="px-4 py-1 bg-blue-500 text-white rounded"
+                                    >
+                                        {signLoading || signEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
+
+                                    </button>
+
+
+                                </div>
+                            )}
+
+                            {infosSalle?.cachet_salle && (
+                                <div className={`flex items-center gap-2 ${sign ? "hidden" : "block"}`}>
+
+                                    <button
+                                        type="button"
+                                        className="text-sm border py-1 px-2 my-3 text-red-500"
+                                        onClick={()=>{setSignModal(true)}}
+                                    >
+                                        Suprimmer
+                                        
+                                    </button>
+
+                                </div>
+                            )}
+
+                            {signModal && (
+                                <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
+                                    <div className="flex items-center gap-2  animate-pulse">
+                                        <AlertTriangle className="h-8 w-8 text-red-500" />
+                                        <p className="font-semibold text-red-500">Cette action est irreversible !</p>
+                                    
+                                    </div>
+                                    <p className="text-white font-semibold">Supprimer définitivement ?</p>
+                                    <div className="flex gap-5 items-center justify-center">
+                                        <motion.button
+                                        type="button"
+                                            whileTap={{scale : 0.95}}
+                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
+                                            onClick={()=>{setSignModal(false)}}
+                                        >Non</motion.button>
+                                        <motion.button
+                                            type="submit"
+                                            whileTap={{scale : 0.95}}
+                                            onClick={(e)=>{handlePostSign(e, 'DELETE')}}
+                                            disabled={signDelLoading}
+                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
+                                        >
+                                            {signDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
+                                        </motion.button>
+                                    </div>
+                                </div>
+                            )}
+
                         </form>
-                    </div> */}
+                    </div>
                     </div>
 
                     
@@ -2316,6 +2643,8 @@ export default function DashboardStandard(){
                     </div>
                 </div>
             )}
+
+            
         
         </div>
     )
