@@ -10,7 +10,7 @@ export async function UpdateinfosSalle({nom_salle, pays, region}){
     const response = await fetch(`${apiUrl}update-infos`,{
         method: "PUT",
         headers: {
-            "Content" : "application/json",
+            "Content-Type" : "application/json",
             "Accept" : "application/json",
             "Authorization" : `Bearer ${token}`, 
         },

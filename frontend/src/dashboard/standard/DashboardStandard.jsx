@@ -1,5 +1,5 @@
-import { AlertCircle, ArrowLeft, BadgeCheck, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, WalletCards, X } from "lucide-react";
-import React, {useState, useEffect, useMemo} from "react";
+import { AlertCircle, AlertCircleIcon, AlertOctagon, ArrowLeft, BadgeCheck, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, WalletCards, X, XCircle } from "lucide-react";
+import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/input";
@@ -22,6 +22,7 @@ import { UpdateInfosPerso } from "../../api/dashboard/standard/parametres/Update
 import { ChangePassword } from "../../api/dashboard/standard/parametres/changePassword";
 import { UpdateTarifs } from "../../api/dashboard/standard/parametres/UpdateTarif";
 import { DeleteTarif } from "../../api/dashboard/standard/parametres/DeleteTarif";
+import { addLogo } from "../../api/dashboard/standard/parametres/addLogo";
 
 export default function DashboardStandard(){
 
@@ -51,11 +52,27 @@ export default function DashboardStandard(){
     const [action, setAction] = useState("POST"); 
     const [nom_salle, setNomSalle] = useState('')
     const [pays, setPays] = useState('')
+    const [pays_salle, setPaysSalle] = useState('')
     const [region, setRegion] = useState('')
     const [nomPerso, setNomPerso] = useState('')
     const [prenomPerso, setPrenomPerso] = useState('')
     const [telPerso, setTelPerso] = useState('')
     const [password, setPassword] = useState('')
+    const [showModalTrash, setShowModalTrash] = useState(false)
+    const [logo, setLogo] = useState(null)
+    const [preview, setPreview] = useState(null)
+    const logoInputRef =useRef(null)
+
+
+    function handleLogo(e){
+        const logoSelection = e.target.files[0]
+
+        if(!logoSelection) return
+
+        setLogo(logoSelection)
+        logoUpload.reset()
+        setPreview(URL.createObjectURL(logoSelection))
+    }
 
 
     const navigate = useNavigate()
@@ -66,6 +83,7 @@ export default function DashboardStandard(){
          if(activeTab === 'dashboard'){
             setActiveTab('dashboard')
             setView('part-dashboard')
+            setShowAdd(false)
             return
         }
 
@@ -76,16 +94,19 @@ export default function DashboardStandard(){
 
         if(activeTab === 'abonnement'){
             setActiveTab('abonnement')
+            setShowAdd(false)
             return
         }
 
         if(activeTab === 'paiement'){
             setActiveTab('paiement')
+            setShowAdd(false)
             return
         }
 
         if(activeTab === 'settings'){
             setActiveTab('settings')
+            setShowAdd(false)
             return
         }
     }
@@ -142,7 +163,7 @@ export default function DashboardStandard(){
 
              setTimeout(()=>{
                 addAdh.reset()
-            }, 3000)
+            }, 2500)
         }
     })
 
@@ -163,6 +184,7 @@ export default function DashboardStandard(){
     const loadingExpire = expire.isPending
     const errorExpire = expire.isError
     const totalExpire = Number(expire.data?.NBexpirer)
+    const listExpireBiento = expire.data?.Bientoexpirer || []
 
 
 
@@ -170,9 +192,13 @@ export default function DashboardStandard(){
         queryKey : ['abonner-expirer'],
         queryFn : AbonnementExpirer
     })
+    const listExpirer = abonnerExpire.data?.expirer || []
     const loadingAbExpirer = abonnerExpire.isPending
     const errorAbExpirer = abonnerExpire.isError
     const totalAbExpirer = Number(abonnerExpire.data?.nbr)
+
+
+
 
 
     
@@ -206,6 +232,9 @@ export default function DashboardStandard(){
         onSuccess : ()=>{
 
             updateTarif.invalidateQueries(['prix'])
+            setTimeout(()=>{
+                tarif.reset()
+            }, 2500)
         }
         
     })
@@ -241,8 +270,26 @@ export default function DashboardStandard(){
     const tarifDelete = useMutation({
         mutationFn : DeleteTarif,
         onSuccess : ()=>{
+            setShowModalTrash(false)
+            
+            setMensuel('')
+            setTrimestriel('')
+            setAnnuel('')
+
+            setEditMois(false)
+            setEditTrim(false)
+            setEditAn(false)
+
+            setShowFormTarif(false)
+            tarif.reset()
+            tarifUpdate.reset()
+
 
             deleteTarifs.invalidateQueries(['prix'])
+
+            setTimeout(()=>{
+                tarifDelete.reset()
+            }, 2500)
         }
         
     })
@@ -288,7 +335,7 @@ export default function DashboardStandard(){
         mutationFn : UpdateinfosSalle,
         onSuccess : (()=>{
             setNomSalle('')
-            setPays('')
+            setPaysSalle('')
             setRegion('')
             
             update.invalidateQueries(['mes-infos'])
@@ -304,7 +351,12 @@ export default function DashboardStandard(){
 
     async function UpdateInfos(e) {
         e.preventDefault()
-        update_infos.mutate({nom_salle, pays, region})
+        update_infos.mutate({
+            nom_salle,
+            pays:pays_salle, 
+            region
+        })
+        // console.log("nom: ", nom_salle, "pays: ", pays, "region: ", region)
     }
 
 
@@ -356,6 +408,27 @@ export default function DashboardStandard(){
         }
     }
 
+    const logoUpload = useMutation({
+        mutationFn : addLogo,
+        // onSuccess : (()=>{
+
+        // })
+        // onError : (()=>{
+
+        // })
+    })
+    const logoLoading = logoUpload.isPending
+    const logoSuccess = logoUpload.isSuccess
+    const logoError = logoUpload.isError
+
+    async function handlePostLogo(e){
+        e.preventDefault()
+
+        const formData = new FormData()
+        formData.append("logo", logo)
+
+        logoUpload.mutate({formData})
+    }
 
 
 
@@ -518,7 +591,7 @@ export default function DashboardStandard(){
                     <div className="flex items-center mb-10 justify-between border-b-1 pb-5 border-gray-200">
                         <div className="flex items-center text-lg">
                             <div className="font-bold text-3xl">Tableau de Bord - Plan Stantard <br />
-                            <span className="text-xl text-gray-400">Bienvenue, Admin!</span>
+                            <span className="text-[16px] text-gray-400">Bienvenue {infosUser?.name || ''} {infosUser?.prenom || ''} !</span>
                             </div>
                             {/**nom a gerer apres */}
                         </div>
@@ -607,7 +680,7 @@ export default function DashboardStandard(){
 
                         <motion.div 
                         whileHover={{scale: 1.1}}
-                        className={`bg-white flex relative ${loadingExpire ? '' : 'border-l-5 border-yellow-600 shadow-yellow-600'} justify-between shadow-lg rounded-xl items-center px-5 py-6`}>
+                        className={`bg-white flex-col relative ${loadingExpire ? '' : 'border-l-5 border-yellow-600 shadow-yellow-600'} justify-between shadow-lg rounded-xl items-center px-5 py-6`}>
 
                             {loadingExpire ? (
                                 <>
@@ -623,11 +696,21 @@ export default function DashboardStandard(){
                                 </>
                             ):(
                                 <>
-                            <div className="text-xl font-bold text-gray-400 mb-2">Expire Bientôt <br />
-
-                                <span className="font-bold text-2xl text-yellow-600 font-bold">{totalExpire}</span>
-                            </div>
-                            <div className="border-1 border-yellow-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-yellow-600"><AlertCircle className="h-8 w-8"/></div>
+                               
+                                <div className="flex items-center justify-between">
+                                
+                                    <div>
+                                        <span className="text-xl font-bold text-gray-400 mb-2">Expire Bientôt </span>
+                                        <div className="text-sm text-gray-500 mb-2">
+                                            
+                                                <span className="font-bold text-2xl text-yellow-600">{totalExpire} </span>
+                                        </div>
+                                    </div>
+                                    <div className="border-1 border-yellow-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-yellow-600"><AlertCircle className="h-8 w-8"/></div>
+                                </div>
+                                <div className="w-full overflow-hidden">
+                                    <p className="text-[14px] text-gray-400 italic">7 jours avant la fin de l'abonnement</p>
+                                </div>
                             </>
                             )}
                             
@@ -672,7 +755,6 @@ export default function DashboardStandard(){
                             onClick={() =>
                                 setView(view === "access-adherant" ? "part-dashboard" : "access-adherant")
                             }
-                            // onClick={()=>{setAccessAdherant(!accessAdherant), setAccessPaiement(false),setAccessAbonnement(false), setActiveTabDash(!activeTabDash)}}
                             className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-adherant" ? 'bg-orange-500' : 'bg-orange-50'} flex items-center rounded-xl justify-center py-4 gap-2`}>
                                 <UserPlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-adherant" ? 'text-white' : 'text-black'}`}/>
                                 <button 
@@ -687,7 +769,6 @@ export default function DashboardStandard(){
                             onClick={() =>
                                 setView(view === "access-paiement" ? "part-dashboard" : "access-paiement")
                             }
-                            // onClick={()=>{setAccessPaiement(!accessPaiement),setAccessAdherant(false),setAccessAbonnement(false), setActiveTabDash(!activeTabDash)}}
                             className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-paiement" ? 'bg-orange-500' : 'bg-orange-50'} flex items-center rounded-xl justify-center py-4 gap-2`}>
                                 <WalletCards className={`h-5 w-5  transition-colors duration-200 ${view === "access-paiement" ? 'text-white' : 'text-black'}`}/>
                                 <button 
@@ -702,7 +783,6 @@ export default function DashboardStandard(){
                             onClick={() =>
                                 setView(view === "access-abonnement" ? "part-dashboard" : "access-abonnement")
                             }
-                            // onClick={()=>{setAccessAbonnement(!accessAbonnement),setAccessAdherant(false),setAccessPaiement(false), setActiveTabDash(!activeTabDash)}}
                             className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-abonnement" ? 'bg-orange-500' : 'bg-orange-50'} flex items-center rounded-xl justify-center py-4 gap-2`}>
                                 <SquarePlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-abonnement" ? 'text-white' : 'text-black'}`}/>
                                 <button 
@@ -721,92 +801,89 @@ export default function DashboardStandard(){
                         <div className="bg-white shadow-lg rounded-xl px-5 py-6">
                             <span className="text-red-600 font-bold text-xl" >Abonnements Récemment Expirés</span>
                             <div className="flex items-center justify-between text-sm">
-                                <div className="flex items-center gap-2 mt-3">
-                                    <div className="flex bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2">
-                                        <User className="h-5 w-5" />
+                                {loadingAbExpirer ? (
+                                    <>
+                                        <div className=" flex items-center animate-pulse">
+                                            
+                                            <div className="flex bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2"></div>
+                                            
+                                        
+                                            <div className="h-10 w-10">
+                                                <p className="h-5 w-10"></p>
+                                                <p className="h-5 w-10"></p>
+                                            </div>
+                                            
+                                        </div>
+                                        <div className="h-5 w-10"></div>
+                                    </>
+                                ):listExpirer.length === 0 ? (
+                                    <div className="flex text-base w-full pt-10 items-center justify-center">
+                                        <span className="text-gray-400">Aucun abonnement Expiré</span>
                                     </div>
-                                    <div className="">
-                                        <p className="font-bold">Léa Dubois</p>
-                                        <p className="text-xs text-gray-400 font-bold">Expire le 02/02/2025</p>
+                                ):listExpirer.map(item => (
+                                    <div className="p-2 flex items-center justify-between w-full">
+                                        <div key={item.id} className="flex items-center gap-2 mt-3">
+                                            <div className="flex bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2">
+                                                <User className="h-5 w-5" />
+                                            </div>
+                                            <div className="">
+                                                <p className="font-bold">{item.username || `${item.name} ${item.prenom}`}</p>
+                                                <p className="text-xs text-gray-400 font-bold">Expiré le : {formatDate(item.created_at)}</p>
+                                            </div>
+                                        </div>
+                                        <button
+
+                                            className="text-orange-500 font-bold hover:border-b cursor-pointer transition-alls duration-200 hover:border-orange-500">
+                                            Reactiver
+                                        </button>
                                     </div>
-                                </div>
-                                <button className="text-orange-600 font-bold">Contacter</button>
+                                ))}
                             </div>
                         </div>
 
                         <div className="bg-white shadow-lg rounded-xl px-5 py-6">
-                            <span className="text-yellow-600 font-bold text-xl">Renouvellement à venir</span>
-                            <table className=" w-full text-left mt-3" style={{ borderCollapse: "collapse" }}>
-                                <thead >
-                                    <tr >
-                                        <th >Adhérant</th>
-                                        <th>Type</th>
-                                        <th>Expire le</th>
-                                    </tr>
-                                </thead>
+                            <p className="text-yellow-600 font-bold text-xl">Renouvellement à venir <span className="text-sm">(expire bientôt)</span></p>
+                            
 
-                                <tbody>
-                                    <tr className="bg-orange-200">
-                                        <td>Millogo</td>
-                                        <td>Mensuel</td>
-                                        <td>02/02/25</td>
-                                    </tr>
+                                <table  className=" w-full text-left mt-3" style={{ borderCollapse: "collapse" }}>
+                                    <thead className="">
+                                        <tr className="bg-yellow-100">
+                                            <th className="p-2 border-b border-gray-400">Adhérant</th>
+                                            <th className="p-2 border-b border-gray-400">Type</th>
+                                            <th className="p-2 border-b border-gray-400">Expire le</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody >
 
-                                    <tr className="bg-gray-200">
-                                        <td>Millogo</td>
-                                        <td>Mensuel</td>
-                                        <td>02/02/25</td>
-                                    </tr>
+                                        {loadingAbExpirer ? (
+                                            <tr>
+                                                <td colSpan={3} className="py-6 text-center">
+                                                    <Loader2 className="mx-auto animate-spin" />
+                                                </td>
+                                            </tr>
+                                        ): listExpireBiento.length === 0 ? (
+                                             <tr>
+                                                <td colSpan={3} className="py-6 text-gray-400 text-center">
+                                                    Aucun renouvellement à venir
+                                                </td>
+                                            </tr>
+                                        ):listExpireBiento.map(item => (
+                                            <tr key={item.id} className=" ">
+                                                
+                                                <td className="p-2 border-b border-gray-400">{item?.username || 'N/A'}</td>
+                                                {item?.abonnements?.map(a => (
+                                                    <td key={a.id} className="p-2 border-b border-gray-400">{a?.plan || 'N/A'}</td>
+                                                ))}
 
-                                    <tr className="bg-orange-200">
-                                        <td>Millogo</td>
-                                        <td>Mensuel</td>
-                                        <td>02/02/25</td>
-                                    </tr>
-
-                                    <tr className="bg-gray-200">
-                                        <td>Millogo</td>
-                                        <td>Mensuel</td>
-                                        <td>02/02/25</td>
-                                    </tr>
-
-                                    <tr className="bg-orange-200">
-                                        <td>Millogo</td>
-                                        <td>Mensuel</td>
-                                        <td>02/02/25</td>
-                                    </tr>
-
-                                    <tr className="bg-gray-200">
-                                        <td>Millogo</td>
-                                        <td>Mensuel</td>
-                                        <td>02/02/25</td>
-                                    </tr>
-
-                                    <tr className="bg-orange-200">
-                                        <td>Millogo</td>
-                                        <td>Mensuel</td>
-                                        <td>02/02/25</td>
-                                    </tr>
-
-                                    <tr className="bg-gray-200">
-                                        <td>Millogo</td>
-                                        <td>Mensuel</td>
-                                        <td>02/02/25</td>
-                                    </tr>
-
-                                    <tr className="bg-orange-200">
-                                        <td>Millogo</td>
-                                        <td>Mensuel</td>
-                                        <td>02/02/25</td>
-                                    </tr>
-
-                                    <tr className="bg-gray-200">
-                                        <td>Millogo</td>
-                                        <td>Mensuel</td>
-                                        <td>02/02/25</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                                {item?.abonnements?.map(a => (
+                                                    <td key={a.id} className="p-2 border-b border-gray-400">{a?.fin || 'N/A'}</td>
+                                                ))}
+                                                
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                        
                         </div>
                     </div>
                     )}
@@ -994,7 +1071,7 @@ export default function DashboardStandard(){
                 <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
                     
                     <div className="font-bold text-3xl">Gestion des Adhérants <br />
-                        <span className="text-gray-400 text-xl">Plan Standard - {nbrAdherants}/200 adhérants</span>
+                        <span className="text-gray-400 text-[16px]">Plan Standard - {nbrAdherants}/200 adhérants</span>
                     </div>
 
                     <div className="flex items-center justify-between my-8">
@@ -1050,7 +1127,7 @@ export default function DashboardStandard(){
                                         </td>
                                     </tr>
                                 ): recherche.map(item => (
-                                    <tr key={item.id} className="p-2 border-b border-gray-200">
+                                    <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
                                         
                                         <td className="flex items-center  font-bold  gap-2 py-5 px-3">
                                         <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
@@ -1074,11 +1151,6 @@ export default function DashboardStandard(){
                                                 </span>
                                             </td>
                                         )}
-                                        {/* <td className=" px-3 ">
-                                            <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
-                                                {item.dernier_abonnement.actif ? 'actif' : 'expiré'}
-                                            </span>
-                                        </td> */}
                                         <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
                                         <td className="flex justify-center py-5 items-center gap-2 px-3">
                                             <motion.button 
@@ -1140,9 +1212,12 @@ export default function DashboardStandard(){
                 <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
                     <div className="flex flex-col gap-2 font-bold text-3xl">
                         <h1>Paramètres Généraux</h1>
-                        <span className="text-gray-400 text-xl">Içi vous pouvez gérer les informations de votre salle et de votre profil, ainsi que la tarification liée à la salle</span>
+                        <span className="text-gray-400 text-[16px]">Gérer les informations de votre salle, votre profil, ainsi que la tarification</span>
                     </div>
 
+                    <div className="grid grid-cols-4 gap-2">
+                    
+                    <div className="col-span-2">
                     {infosLoading ? (
                         <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 animate-pulse">
                             
@@ -1198,7 +1273,7 @@ export default function DashboardStandard(){
                                 <label className="text-gray-400">Adresse</label>
                                 <input type="text"
                                     disabled
-                                    placeholder={infosSalle.adresse_salle}
+                                    placeholder={`${infosSalle.pays_salle} ${infosSalle.region_salle}`}
                                     className="border bg-gray-100 border-gray-300 p-1 pl-3 font-semibold rounded-lg focus:outline-none"
                                 />
                             </div>
@@ -1209,8 +1284,8 @@ export default function DashboardStandard(){
                                         <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
                                     </label>
                                     <input type="text"
-                                        value={pays}
-                                        onChange={(e)=>{ setPays(e.target.value),update_infos.reset()}}
+                                        value={pays_salle}
+                                        onChange={(e)=>{ setPaysSalle(e.target.value),update_infos.reset()}}
                                         disabled={!showButtonSalle}
                                         placeholder={!showButtonSalle ? infosSalle.pays_salle : 'Entrez le pays où se trouve la salle'}
                                         className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
@@ -1258,7 +1333,7 @@ export default function DashboardStandard(){
                                     <motion.button
                                         type="button" 
                                         whileTap={{scale:0.95}}
-                                        onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPays(''), setRegion('')}}
+                                        onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPaysSalle(''), setRegion('')}}
                                         className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
                                     >
                                         Annuler
@@ -1266,11 +1341,11 @@ export default function DashboardStandard(){
                                     <motion.button 
                                         type="submit"
                                         whileTap={{scale:0.95}}
-                                        disabled={updateLoading || !nom_salle.trim() || !pays.trim() || !region.trim()}
-                                        className={`my-3 ${!nom_salle.trim() || !pays.trim() || !region.trim() ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer '} border-orange-200 border-2 text-white font-semibold py-2 px-4 rounded-lg`}
+                                        disabled={updateLoading || !nom_salle.trim() || !pays_salle.trim() || !region.trim()}
+                                        className={`my-3 ${!nom_salle.trim() || !pays_salle.trim() || !region.trim() ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer '} border-orange-200 border-2 text-white font-semibold py-2 px-4 rounded-lg`}
                                     >
                                         {updateLoading ? (
-                                            <Loader2 />
+                                            <Loader2 className="animate-spin"/>
                                         ):(
                                             'Enregistrer'
                                         )}
@@ -1281,6 +1356,128 @@ export default function DashboardStandard(){
                             </div>
                         </form>
                     )}
+                    </div>
+
+                    <div className=" border border-gray-300 rounded-lg p-4 my-5">
+                        <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
+                        <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
+                        <form className="flex flex-col items-center gap-4">
+                            <motion.div 
+                                whileHover={{scale: 1.08}}
+                                whileTap={{scale : 0.95}}
+                                className="rounded-full w-50 h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
+                                onClick={()=>logoInputRef.current.click()}
+                            >
+                                {preview ? (
+                                    <div className="relative w-full h-full">
+                                    <img src={preview} alt="logo"
+                                        className="w-full h-full object-cover"
+                                    />
+                                    {logo && (
+                                    <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+                                        
+                                    </div>
+                                    )}
+                                    </div>
+                                ):(
+                                    <motion.div 
+                                        // whileHover={{scale: 1.03}}
+                                    className="w-full h-full flex items-center justify-center text-gray-400">
+                                        <Plus size={50}/>
+                                    </motion.div>
+                                )}
+                                
+                            </motion.div>
+                            <input 
+                                type="file" 
+                                accept="image/*"
+                                ref={logoInputRef}
+                                hidden
+                                onChange={handleLogo}
+                            />
+
+                            {logoSuccess && (
+                                <p className="text-sm text-center text-green-500">Logo enregistré avec succès</p>
+                            )}
+
+                            {logoError && (
+                                <p className="text-sm text-center text-red-500">{logoUpload.error.message}</p>
+                            )}
+
+                            {logo && (
+                                <div className="flex items-center gap-2">
+
+                                    <button
+                                        className="text-sm border py-1 px-2 my-3 text-red-500"
+                                        onClick={()=>{setPreview(null);setLogo(null)}}
+                                        disabled={logoLoading}
+                                    >
+                                        supprimer
+                                    </button>
+                                    <button
+                                        onClick={handlePostLogo}
+                                        disabled={logoLoading}
+                                        className="px-4 py-1 bg-blue-500 text-white rounded"
+                                    >
+                                        {logoLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
+
+                                    </button>
+
+
+                                </div>
+                            )}
+
+                        </form>
+                    </div>
+
+                    {/* <div className=" border border-gray-300 rounded-lg p-4 my-5">
+                        <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
+                        <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
+                        <form className="flex flex-col items-center gap-4">
+                            <motion.div 
+                                whileHover={{scale: 1.08}}
+                                whileTap={{scale : 0.95}}
+                                className="rounded-full w-60 h-60 overflow-hidden bg-orange-400/20 border cursor-pointer"
+                                onClick={()=>logoInputRef.current.click()}
+                            >
+                                {preview ? (
+                                    <div className="relative w-full h-full">
+                                    <img src={preview} alt="logo"
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+                                        Changer
+                                    </div>
+                                    </div>
+                                ):(
+                                    <motion.div 
+                                        // whileHover={{scale: 1.03}}
+                                    className="w-full h-full flex items-center justify-center text-gray-400">
+                                        <Plus size={50}/>
+                                    </motion.div>
+                                )}
+                                
+                            </motion.div>
+                            <input 
+                                type="file" 
+                                accept="image/*"
+                                ref={logoInputRef}
+                                hidden
+                                onChange={handleLogo}
+                            />
+
+                            {preview && (
+
+                                <button
+                                    className="text-sm border py-1 px-2 my-3 text-red-500"
+                                    onClick={()=>{setPreview(null);setLogo(null)}}
+                                >
+                                    supprimer
+                                </button>
+                            )}
+                        </form>
+                    </div> */}
+                    </div>
 
                     
                     {infosLoading ? (
@@ -1512,14 +1709,16 @@ export default function DashboardStandard(){
                                         <div>
                                             {(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
                                                 <motion.button
-                                                type="submit"
+                                                // type="submit"
+                                                type={`${action === "PUT" ? "submit" : "button"}`}
                                                 disabled={action === "PUT" ? loadingTarifUp : loadingTarifDel}
-                                                onClick={(e) =>{editMois && editAn && editTrim ? sendTarif(e, "DELETE") : sendTarif(e, "PUT")}} 
+                                                // onClick={(e) =>{editMois && editAn && editTrim ? sendTarif(e, "DELETE") : sendTarif(e, "PUT")}} 
+                                                onClick={(e) =>{editMois && editAn && editTrim ? setShowModalTrash(true) : sendTarif(e, "PUT")}} 
                                                     whileTap={{scale:0.95}}
                                                     className={`px-5 py-3 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
                                                 >
                                                     {editMois && editAn && editTrim ? (
-                                                        loadingTarifDel ?  <Loader2 className=" text-white animate-spin"/> : <Trash className=" text-white"/>
+                                                     <Trash className=" text-white"/>
                                                     ): loadingTarifUp ? <Loader2 className="text-green-600 animate-spin"/> : <Check className="text-green-600"/>
                                                         
                                                     } 
@@ -1730,18 +1929,18 @@ export default function DashboardStandard(){
                         onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
                     className="flex items-center cursor-pointer justify-center gap-2">
                         <ArrowLeft className="h-5 w-5 text-orange-500" />
-                        <span className="text-orange-500 text-sm">Retour à la liste des étudiants</span>
+                        <span className="text-orange-500 text-sm">Retour à la liste des adhérants</span>
                     </button>
 
-                    <div className="my-5 font-bold text-3xl">Ajout d'adherants <br />
-                        <span className="text-gray-400 text-sm">Remplissez le formulaire ci-dessous pour inscrire vos adhérants</span>
+                    <div className="my-5 font-bold text-3xl">Ajout d'adherant <br />
+                        <span className="text-gray-400 text-sm">Remplissez le formulaire ci-dessous pour enregistrer vos adhérants</span>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-5 my-10">
-                            <div className=""></div>
+                    <div className="my-10">
+                            {/* <div className=""></div> */}
 
-                            <form onSubmit={handleAdd} className="col-span-2 rounded-lg  px-8 py-5">
-                                {/* <div className="flex items-center gap-5"> */}
+                            {/* <form onSubmit={handleAdd} className="col-span-2 rounded-lg  px-8 py-5">
+                                
                                 <div className="flex-col flex gap-2 mb-5">
                                     <label className="font-bold text-xl">Nom <span className="text-red-600">*</span></label>
                                     <Input 
@@ -1772,9 +1971,7 @@ export default function DashboardStandard(){
                                         ref={null}
                                         checked={null}
                                     />
-                                {/* </div> */}
                                 </div>
-                                {/* <div className="flex justify-between items-center gap-5"> */}
                                 <div className="flex-col flex gap-2 mb-5">
                                     <label className="font-bold text-xl">Adresse e-mail <span className="text-red-600">*</span></label>
                                     <Input 
@@ -1805,11 +2002,9 @@ export default function DashboardStandard(){
                                         ref={null}
                                         checked={null}
                                     />
-                                {/* </div> */}
                                 </div>
 
-                
-                                {/* <div className="grid grid-cols-2 gap-10"> */}
+            
                                 <div className="flex-col flex gap-2 mb-5 ">
                                     <label className="font-bold text-xl">Abonnement</label>
                                 
@@ -1871,7 +2066,6 @@ export default function DashboardStandard(){
                                  
 
                                 
-                                {/* </div> */}
                                 <div className="flex items-center my-3">
                                     {errorAdherant && (
                                         <span className="text-red-600 text-md">{addAdh.error.message}</span>
@@ -1899,13 +2093,228 @@ export default function DashboardStandard(){
                                     </motion.button>
                                 </div>
                                
+                            </form> */}
+
+                            <form onSubmit={handleAdd} className="grid grid-cols-4 gap-5 rounded-lg  px-8 py-5">
+                                
+                                <div className="col-span-4 w-full flex gap-10 justify-between">
+                                    {/* info perso */}
+                                    <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
+                                        <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                                            <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                            Informations personnelles de l'adhérant
+                                        </div>
+                                        <div className="flex-col flex gap-2 mb-5">
+                                            <label className="font-bold text-lg">Nom <span className="text-red-600">*</span></label>
+                                            <Input 
+                                                type={'text'}
+                                                value={nom}
+                                                onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
+                                                className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                                placeholder={'Nom de l\'adhérant'}
+                                                disabled={false}
+                                                hidden={false}
+                                                pattern={null}
+                                                ref={null}
+                                                checked={null}
+                                            />
+                                        </div>
+
+                                        <div className="flex-col flex gap-2 mb-5">
+                                            <label className="font-bold text-lg">Prénom <span className="text-red-600">*</span></label>
+                                            <Input 
+                                                type={'text'}
+                                                value={prenom}
+                                                onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
+                                                className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                                placeholder={'Prenom de l\'adhérant'}
+                                                disabled={false}
+                                                hidden={false}
+                                                pattern={null}
+                                                ref={null}
+                                                checked={null}
+                                            />
+                                        </div>
+                                        <div className="flex-col flex gap-2 mb-5">
+                                            <label className="font-bold text-lg">Adresse e-mail <span className="text-red-600">*</span></label>
+                                            <Input 
+                                                type={'email'}
+                                                value={email}
+                                                onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
+                                                className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                                placeholder={'Email de l\'adhérant'}
+                                                disabled={false}
+                                                hidden={false}
+                                                pattern={null}
+                                                ref={null}
+                                                checked={null}
+                                            />
+                                        </div>
+
+                                        <div className="flex-col flex gap-2 mb-5">
+                                            <label className="font-bold text-lg">Numéro de téléphone <span className="text-red-600">*</span></label>
+                                            <Input 
+                                                type={'tel'}
+                                                value={tel}
+                                                onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
+                                                className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                                placeholder={'Numéro de l\'adhérant'}
+                                                disabled={false}
+                                                hidden={false}
+                                                pattern={null}
+                                                ref={null}
+                                                checked={null}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Aboonement */}
+                                    <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
+                                        <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                                            <Plus className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                            Type d'abonnement
+                                        </div>
+
+                                        <div className="flex-col flex gap-2 mb-5 ">
+                                            <label className="font-bold text-lg">Abonnement <span className="text-red-600">*</span></label>
+                                        
+
+                                            <select
+                                                value={plan}
+                                                onChange={(e) => {
+                                                    const value = e.target.value
+                                                    setPlan(value)
+                                                    setShowPrix(!!value)
+                                                    addAdh.reset()
+                                                }}
+                                                className="border-3 border-orange-500 p-2 border-dotted text-md"
+                                                >
+                                                <option value="">-- Choisir --</option>
+                                                <option value="mensuel">Mensuel</option>
+                                                <option value="trimestriel">Trimestriel</option>
+                                                <option value="annuel">Annuel</option>
+                                            </select>
+
+                                        </div>
+
+                                        <div>
+                                        
+
+                                            {showPrix && (
+                                            <div className="flex-col flex gap-2 ">
+                                                {loading ? (
+                                                <Loader2 className="h-5 w-5 animate-spin" />
+                                                ) : (
+                                                <>
+                                                    <label className="font-bold text-lg">Prix <span className="text-red-600">*</span></label>
+                                                    <select
+                                                    value={montant}
+                                                    onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
+                                                    className="border-3 border-orange-500 p-2 border-dotted text-md"
+                                                    >
+                                                    <option value="">-- Choisir --</option>
+                                                        {plan === "mensuel" && (
+                                                            <option value={prix_mensuel}>
+                                                                {prix_mensuel}
+                                                            </option>)}
+                                                        {plan === "trimestriel" && (
+                                                            <option value={prix_trimestriel}>
+                                                                {prix_trimestriel}
+                                                            </option>)}
+                                                        {plan === "annuel" && (
+                                                            <option value={prix_annuel}>
+                                                                {prix_annuel}
+                                                            </option>)}
+                                                    </select>
+                                                </>
+                                                )}
+                                            </div>
+                                            )}
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                                 
+
+                                
+                                <div className="flex items-center my-3  col-span-4 w-full px-8">
+                                    {errorAdherant && (
+                                        <span className="text-red-600 text-lg  flex item-center gap-2"><XCircle className="h-5 w-5 text-red-600"/>{addAdh.error.message}</span>
+                                    )}
+                                    {successAdherant && (
+                                        <span className="text-green-600 text-lg flex item-center gap-2"><CheckCircle className="h-5 w-5 text-green-600"/>Enregistrement effectué avec succèss</span>
+                                    )}
+                                </div>
+
+                               
+                               <div className="flex justify-end items-center gap-2 w-full col-span-4">
+                                    <motion.button 
+                                        onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
+                                        whileTap={{scale: 0.95}}
+                                        className='flex items-center justify-center cursor-pointer text-black/80 border rounded-lg bg-gray-300  border-gray-300 font-bold  text-xl py-3 px-5'
+                                    
+                                    >
+                                        Annuler
+                                    </motion.button>
+
+                                    <motion.button 
+                                        whileTap={{scale: 0.95}}
+                                        disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
+                                        className={`flex items-center justify-center  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-orange-200 text-gray-500 border-orange-200' : 'bg-orange-600 text-white cursor-pointer '} font-bold  text-xl py-3 px-5`}
+                                    
+                                    >
+                                        {loadingAdherant ? (
+                                            <Loader2 className='h-5 w-5 text-white animate-spin'/>
+                                        ):(
+                                            'Enregistrer'
+                                        )}
+                                    </motion.button>
+                                </div>
+                                
+                               
                             </form>
 
-                            <div className=""></div>
+                            {/* <div className=""></div> */}
                         </div>
                 </div>
 
                 
+            )}
+
+            {showModalTrash && (
+                <div className="absolute inset-0 bg-black/80 backdrop-blur flex items-center justify-center">
+                    <div className="bg-white shadow-[0px_0px_30px_rgba(255,0,0,0.5)] rounded-sm p-3 ">
+                        <div className="font-bold text-red-600 flex items-center gap-2 text-2xl uppercase">
+                            <AlertOctagon className="text-red-600 h-10 w-10" />
+                            Attention !
+                        </div>
+
+                        <div className="my-5">
+                            <p className="text-[16px] text-black/80">Vous êtes sur le point de supprimer la 
+                                configuration de <br />tous vos tarifs (mensuel,
+                                trimestriel, annuel).
+                            </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 justify-end py-3 ">
+                            <motion.button
+                                type="button"
+                                whileTap={{scale: 0.95}}
+                                className="px-2 py-1 transition-colors duration-200 border border-gray-400/50 bg-gray-400/50 font-semibold"
+                                onClick={()=>{setShowModalTrash(false)}}
+                            >Annuler
+                            </motion.button>
+                            <motion.button
+                                onClick={(e)=>{sendTarif(e, "DELETE")}}
+                                whileTap={{scale: 0.95}}
+                                className="px-2 py-1 transition-colors duration-200 border text-white bg-red-600 border-red-600 font-semibold"
+                            >
+                                {loadingTarifDel ?  <Loader2 className=" text-white animate-spin"/> : 'Confirmer'}
+                            </motion.button>
+                        </div>
+                    </div>
+                </div>
             )}
         
         </div>
