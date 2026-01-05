@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\facture;
 use App\Services\FactureService;
 use Codedge\Fpdf\Fpdf\Fpdf;
+use Egulias\EmailValidator\Validation\EmailValidation;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Log;
@@ -701,6 +702,7 @@ class UserController extends Controller
 
     }
 
+    
 
 
     public function EditLogo(Request $request)
@@ -907,6 +909,10 @@ class UserController extends Controller
         $user = $request->user();
         $validator = Validator::make($request->all(), [
             'id' => 'required',
+            'nom'=>'required|string',
+            'prenom'=>'required|string',
+            'telephone'=> 'required|string',
+            'email'=>'required|email'
 
         ]);
 
@@ -915,6 +921,7 @@ class UserController extends Controller
                 'message' => $validator->errors()->first(),
             ], 400);
         }
+        
 
 
         DB::beginTransaction();
@@ -933,7 +940,12 @@ class UserController extends Controller
                 ], 404);
             }
 
-            $adh->update([]);
+            $adh->update([
+                'name'=>$request->nom ?? $adh->name,
+                'prenom'=> $request->prenom ?? $adh->prenom,
+                'email'=> $request->email ?? $adh->email,
+                'telephone'=>$request->telephone ?? $adh->telephone
+            ]);
             DB::commit();
             return response()->json([
                 'message' => 'les donnees de cet adherents ont ete modifier '
@@ -945,6 +957,52 @@ class UserController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
+        }
+
+    }
+
+
+    public function CachetSigner(Request $request)
+    {
+        $user = $request->user();
+
+
+        // if (!$user->hasrole('Gerant')) {
+        //     return response()->json([
+        //         'message' => 'vos droit sont restreint'
+        //     ], 401);
+        // }
+        $validator = Validator::make($request->all(), [
+            'cachet' => 'required|image|mimes:jpg,png,jpeg'
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'le format doit etre respcter'
+            ]);
+        }
+
+        try {
+            $rectoName = 'cachet_'.$user->id. uniqid() . '.' . $request->file('cachet')->extension();
+
+            $cachetpath = $request->file('cachet')->storeAs('logo', $rectoName, 'minio');
+
+
+            if (!$cachetpath) {
+                throw new Exception('Échec de l’upload des documents');
+            }
+            $salle = $user->salle;
+            $salle->cachet_signer = Storage::disk('minio')->url($cachetpath);
+            $salle->save();
+
+            return response()->json([
+                'image' => 'cachet ajouter avec succes',
+                'url' => $user->logo
+            ]);
+
+        } catch (Exception $th) {
+            return response()->json([
+                'message' => 'une erreur est survenue'
+            ]);
         }
 
     }

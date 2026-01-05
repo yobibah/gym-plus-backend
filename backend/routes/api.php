@@ -31,12 +31,14 @@ Route::middleware(['auth:sanctum', 'isGerant'])->group(function () {
   Route::post('/ajouter-mes-prix', [UserController::class, 'AddSallePrix']);
   Route::get('/mes-prix', [UserController::class, 'SallePrix'])->middleware('paiement');
   Route::post('/ajouter-adherant', [UserController::class, 'AjouterAdherant']);
+  Route::post('/update-adherant', [UserController::class,'UpdateAdherent']);
   Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
 
   Route::post('/ajouter-logo', [UserController::class, 'Addlogo']);
   Route::post('/delete-logo', [UserController::class, 'deleteLogo']);
   Route::post('/update-logo', [UserController::class, 'EditLogo']);
-  Route::delete('/delete-adherant', [UserController::class,'DeleteAdherent']);
+  Route::post('/ajouter-cachet', [UserController::class, 'CachetSigner']);
+  Route::delete('/delete-adherant', [UserController::class, 'DeleteAdherent']);
   //acitive 
   Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
   Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
@@ -54,8 +56,6 @@ Route::middleware(['auth:sanctum', 'isGerant'])->group(function () {
 
   // gestion des abonnements
   Route::post('/reabonner-adherant', [AbonnementController::class, 'reabonemment']);
-  Route::post('/suspendre-abonnement', [AbonnementController::class, 'SusprendreAbonnement']);
-  Route::post('reactiver-abonnement', [AbonnementController::class, 'reactiverAbonnemnt']);
 
   Route::post('/info-salle', [SalleController::class, 'AjouterSalle']);
   Route::put('/update-infos', [SalleController::class, 'updateSalle']);
@@ -65,6 +65,8 @@ Route::middleware(['auth:sanctum', 'isGerant'])->group(function () {
   Route::get('/recette', [DepensesController::class, 'Recette']);
   Route::get('/mes-depenses', [DepensesController::class, 'MesDepenses']);
   Route::middleware(['pro', 'premium'])->group(function () {
+    Route::post('/suspendre-abonnement', [AbonnementController::class, 'SusprendreAbonnement']);
+    Route::post('reactiver-abonnement', [AbonnementController::class, 'reactiverAbonnemnt']);
 
     Route::post('/ajouter-depense', [DepensesController::class, 'ajouterDepense']);
 
