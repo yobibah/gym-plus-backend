@@ -1,14 +1,14 @@
 {
     "user": {
         "id": 21,
-        "name": "Millgo",
-        "email": "maremillogo10@gmail.com",
+        "name": "Maré",
+        "email": "moi@gmail.com",
         "email_verified_at": null,
         "created_at": "2025-12-22T11:20:32.000000Z",
-        "updated_at": "2025-12-29T07:03:39.000000Z",
-        "telephone": "54545454",
+        "updated_at": "2026-01-04T23:25:03.000000Z",
+        "telephone": "+226 52 53 21 42",
         "username": "Millgo_w4WBbo",
-        "prenom": "hjg",
+        "prenom": "MLLOGO",
         "otp": 962299,
         "roles": [
             {
@@ -27,32 +27,34 @@
         "salle": {
             "id": 9,
             "created_at": "2025-12-22T11:22:05.000000Z",
-            "updated_at": "2025-12-22T11:22:05.000000Z",
-            "nom_salle": "GymMillo",
-            "pays_salle": "Burkina",
-            "region_salle": "Centre",
+            "updated_at": "2026-01-04T19:16:58.000000Z",
+            "nom_salle": "GymMare",
+            "pays_salle": "Tchad",
+            "region_salle": "Bobo",
             "adresse_salle": "Ouagadougou Centre Burkina",
             "descriptions_salle": "Pas de description",
-            "logo_salle": null,
+            "logo_salle": "http://127.0.0.1:9000/documents/logos/Z6qounPDEzUPGiXK3IszEqTo18u5htTzceArihd2.png",
             "numero_salle": "54545454",
             "email_salle": "maremillogo10@gmail.com",
             "active": 0,
-            "gerant_id": 21
+            "gerant_id": 21,
+            "cachet_signer": null
         }
     },
     "salle": {
         "id": 9,
         "created_at": "2025-12-22T11:22:05.000000Z",
-        "updated_at": "2025-12-22T11:22:05.000000Z",
-        "nom_salle": "GymMillo",
-        "pays_salle": "Burkina",
-        "region_salle": "Centre",
+        "updated_at": "2026-01-04T19:16:58.000000Z",
+        "nom_salle": "GymMare",
+        "pays_salle": "Tchad",
+        "region_salle": "Bobo",
         "adresse_salle": "Ouagadougou Centre Burkina",
         "descriptions_salle": "Pas de description",
-        "logo_salle": null,
+        "logo_salle": "http://127.0.0.1:9000/documents/logos/Z6qounPDEzUPGiXK3IszEqTo18u5htTzceArihd2.png",
         "numero_salle": "54545454",
         "email_salle": "maremillogo10@gmail.com",
         "active": 0,
-        "gerant_id": 21
+        "gerant_id": 21,
+        "cachet_signer": null
     }
 }

@@ -28,6 +28,8 @@ import { DeleteLogo } from "../../api/dashboard/standard/parametres/deleteLogo";
 import { addCachet } from "../../api/dashboard/standard/parametres/addCachet";
 import { UpdateCachet } from "../../api/dashboard/standard/parametres/changeCachet";
 import { DeleteCachet } from "../../api/dashboard/standard/parametres/deleteCachet";
+import { DeleteAdh } from "../../api/dashboard/standard/adherants/deleteAdh";
+import checkvideo from '../../assets/videos/check2.gif'
 
 export default function DashboardStandard(){
 
@@ -71,6 +73,8 @@ export default function DashboardStandard(){
     const [sign, setSign] = useState(null)
     const [previewSign, setPreviewSign] = useState(null)
     const signInputRef =useRef(null)
+    const [modalSupAdherant, setModalSupAdherant] = useState(false)
+    const [adhToDelete, setAdhToDelete] = useState(null)
 
 
 
@@ -520,8 +524,8 @@ export default function DashboardStandard(){
     const signUpload = useMutation({
         mutationFn : addCachet,
         onSuccess : (()=>{
-            setPreview(null)
-            setLogo(null)
+            setPreviewSign(null)
+            setSign(null)
 
             signQuery.invalidateQueries(['mes-infos'])
 
@@ -541,8 +545,8 @@ export default function DashboardStandard(){
     const signEditUpload = useMutation({
         mutationFn : UpdateCachet,
         onSuccess : (()=>{
-            setPreview(null)
-            setLogo(null)
+            setPreviewSign(null)
+            setSign(null)
 
             signEditQuery.invalidateQueries(['mes-infos'])
 
@@ -600,6 +604,41 @@ export default function DashboardStandard(){
     }
 
 
+    const supAdhQuery = useQueryClient()
+    const supAdh = useMutation({
+        mutationFn : DeleteAdh,
+        onSuccess : (()=>{
+            setModalSupAdherant(false)
+            // setModalSuccessSupAdh(true)
+            setTimeout(()=>{
+                supAdh.reset()
+
+            }, 5000)
+
+            supAdhQuery.invalidateQueries(['mes-adherant'])
+        }),
+
+        onError : (()=>{
+            setModalSupAdherant(false)
+            // setModalErrorSupAdh(true)
+            setTimeout(()=>{
+                supAdh.reset()
+
+            }, 3000)
+        })
+    })
+
+    const loadingSupAdh = supAdh.isPending
+    const errorSupAdh = supAdh.isError
+    const successSupAdh = supAdh.isSuccess
+
+    async function handleDeleteAdh(e, id){
+        e.preventDefault()
+        if (!id) return
+        supAdh.mutate({id})
+    }
+
+
 
     //test du bouton niveau...
     function handleNiveau(e){
@@ -621,6 +660,9 @@ export default function DashboardStandard(){
         )
         
     }
+
+
+
 
     function logoutModal(e){
         e.preventDefault()
@@ -657,12 +699,12 @@ export default function DashboardStandard(){
             {/* Barre latérale */}
             <div className="col-span-1 py-3 bg-white shadow-lg flex flex-col gap-10 h-screen overflow-y-auto sticky top-0">
                 <div className="flex items-center gap-2  px-5 my-5">
-                    <div className="rounded-full flex items-center justify-center p-5 bg-orange-500 w-15 h-15">
-                        {/* <img src="" alt="" /> */}
-                        G
+                    <div className="rounded-full flex items-center justify-center border border-orange-500 bg-orange-500 w-15 h-15">
+                        <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                        
                     </div>
-                    <div className="flex gap-2 items-center ">
-                        <div className="font-semibold text-xl">GymPlus <br /><span className="text-orange-500 text-sm">Plan Standard</span></div>  {/**title a recuperer */}
+                    <div className="">
+                        <div className="font-semibold text-xl">{infosSalle?.nom_salle} <br /><span className="text-orange-500 text-sm">Plan Standard</span></div> 
                         
                     </div>
                 </div>
@@ -757,7 +799,7 @@ export default function DashboardStandard(){
                     
                     <div className="flex items-center mb-10 justify-between border-b-1 pb-5 border-gray-200">
                         <div className="flex items-center text-lg">
-                            <div className="font-bold text-3xl">Tableau de Bord - Plan Stantard <br />
+                            <div className="font-bold text-3xl">Tableau de Bord <br />
                             <span className="text-[16px] text-gray-400">Bienvenue {infosUser?.name || ''} {infosUser?.prenom || ''} !</span>
                             </div>
                             {/**nom a gerer apres */}
@@ -773,7 +815,9 @@ export default function DashboardStandard(){
                                 </div>
                             </div>
 
-                            <div className="rounded-full h-10 w-10 p-5 flex items-center justify-center  bg-orange-500">G</div>
+                            <div className="rounded-full h-10 w-10 border border-orange-500 flex items-center justify-center ">
+                                <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                            </div>
                         </div>
                     </div>
 
@@ -1325,9 +1369,12 @@ export default function DashboardStandard(){
                                             className="border cursor-pointer border-orange-100 p-1 rounded-sm bg-orange-500">
                                                 <Pencil className="text-white h-4 w-4"/>
                                             </motion.button>
-                                            <motion.button 
+                                            <motion.button
+                                                type="button"
+                                                onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item.id)}} 
                                                 whileTap={{scale: 0.95}}
-                                            className="border cursor-pointer border-red-100 p-1 rounded-sm bg-red-600">
+                                                className="border cursor-pointer border-red-100 p-1 rounded-sm bg-red-600"
+                                            >
                                                 <Trash className="h-4 w-4 text-white" />
                                             </motion.button>
                                         </td>
@@ -1555,7 +1602,7 @@ export default function DashboardStandard(){
                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                         <div className="flex flex-col items-center">
                                         <PlusSquare size={50} />
-                                        <span className="font-bold">Ajouter</span>
+                                        <span className="font-bold">Ajouter votre logo</span>
                                         </div>
                                     </div>
                                 )}
@@ -1684,9 +1731,9 @@ export default function DashboardStandard(){
                                             
                                         </div>
                                     </div>
-                                ) : infosSalle?.logo_salle ? (
+                                ) : infosSalle?.cachet_signer ? (
                                         <div className="relative w-full h-full">
-                                            <img src={infosSalle?.cahet_salle ?? '/default.jpg'} className="w-full h-full object-cover" />
+                                            <img src={infosSalle.cachet_signer} className="w-full h-full object-cover" />
                                             <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
                                                 
                                             </div>
@@ -1695,7 +1742,7 @@ export default function DashboardStandard(){
                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                         <div className="flex flex-col items-center">
                                         <PlusSquare size={50} />
-                                        <span className="font-bold">Ajouter</span>
+                                        <span className="font-bold">Ajoutervotre signature/cachet</span>
                                         </div>
                                     </div>
                                 )}
@@ -1747,7 +1794,7 @@ export default function DashboardStandard(){
 
                                     <button
                                         type="submit"
-                                        onClick={(e)=>{infosSalle?.cachet_salle ? handlePostSign(e, 'PUT') : handlePostSign(e, 'POST')}}
+                                        onClick={(e)=>{infosSalle?.cachet_signer ? handlePostSign(e, 'PUT') : handlePostSign(e, 'POST')}}
                                         disabled={signLoading || signEditLoading }
                                         className="px-4 py-1 bg-blue-500 text-white rounded"
                                     >
@@ -1759,7 +1806,7 @@ export default function DashboardStandard(){
                                 </div>
                             )}
 
-                            {infosSalle?.cachet_salle && (
+                            {infosSalle?.cachet_signer && (
                                 <div className={`flex items-center gap-2 ${sign ? "hidden" : "block"}`}>
 
                                     <button
@@ -2643,6 +2690,55 @@ export default function DashboardStandard(){
                     </div>
                 </div>
             )}
+
+            {modalSupAdherant && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
+                    <div className="bg-white py-3 px-4">
+                        <div className="text-red-500 mb-5 font-bold text-2xl flex items-center gap-2">
+                            <AlertTriangle size={40} />
+                            Confirmer la suppression !
+                        </div>
+                        <div className="flex items-center justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={()=>{setModalSupAdherant(false)}}
+                                className="border py-1 px-3 text-sm font-semibold"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                type="submit"
+                                onClick={(e)=>{handleDeleteAdh(e, adhToDelete)}}
+                                disabled={loadingSupAdh}
+                                className="border py-1 px-3 text-sm bg-red-500 text-white font-semibold hover:bg-transparent hover:text-black transition-colors duration-200"
+                            >
+                                {loadingSupAdh ? <Loader2 className="animate-spin h-5 w-5 text-red"/> : 'Supprimer'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {successSupAdh && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                    <div className="w-150 h-300">
+                    <img src={checkvideo} alt="gif" 
+                        className="w-full h-auto object-cover"
+                    />
+                    </div>
+                </div>
+            )}
+
+            {errorSupAdh && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                    <div className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
+                        <XCircle className="text-red-500 h-10 w-10" />
+                        <p className="text-xl">{supAdh.error.message}</p>
+                    </div>
+                </div>
+            )}
+
+            
 
             
         
