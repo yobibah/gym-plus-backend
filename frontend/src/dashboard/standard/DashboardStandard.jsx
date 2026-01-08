@@ -249,7 +249,7 @@ export default function DashboardStandard(){
         if (!dataAdh || !Array.isArray(dataAdh)) return []
 
         let result = dataAdh
-        
+
         if (search.trim()) {
             const s = search.toLowerCase()
             result = result.filter(item =>
@@ -1623,7 +1623,7 @@ export default function DashboardStandard(){
                                             
                                             <td className="flex justify-center py-5 items-center gap-2 px-3">
                                                 
-                                                {((formatDate(item.dernier_abonnement?.fin) === d || formatDate(item.dernier_abonnement?.fin) > d) && (!item.dernier_abonnement?.actif)) ? (
+                                                {((formatDate(item.dernier_abonnement?.fin) === d || formatDate(item.dernier_abonnement?.fin) < d) && (!item.dernier_abonnement?.actif)) ? (
                                                     <motion.button
                                                         type="button"
                                                         onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
