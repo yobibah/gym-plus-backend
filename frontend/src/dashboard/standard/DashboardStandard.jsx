@@ -82,6 +82,7 @@ export default function DashboardStandard(){
     const [adhToUp, setAdhToUp] = useState(null)
     const [reabonner, setReabonner] = useState(null)
     const [reabonnerModal, setReabonnerModal] = useState(false)
+    const [abonnementTab, setAbonnementTab] = useState('tous')
     
 
 
@@ -126,6 +127,7 @@ export default function DashboardStandard(){
         if(activeTab === 'abonnement'){
             setActiveTab('abonnement')
             setShowAdd(false)
+            setAbonnementTab('tous')
             return
         }
 
@@ -242,21 +244,40 @@ export default function DashboardStandard(){
     const loadingAdh = mesAdh.isPending
     const errorAdh = mesAdh.isError
 
-    const recherche = useMemo(()=>{
-        if(!dataAdh || !Array.isArray(dataAdh)) return []
 
-        return dataAdh.filter(item =>{
+    const adherentsFiltres = useMemo(() => {
+        if (!dataAdh || !Array.isArray(dataAdh)) return []
 
-            // console.log('date', formatDate(item.dernier_abonnement.fin));
-            return(
-                (item.name && item.name.toLowerCase().includes(search.toLowerCase())) ||
-                (item.prenom && item.prenom.toLowerCase().includes(search.toLowerCase())) ||
-                (item.username && item.username.toLowerCase().includes(search.toLowerCase())) ||
-                (item.email && item.email.toLowerCase().includes(search.toLowerCase())) ||
-                (item.telephone && item.telephone.includes(search.toLowerCase()))
+        let result = dataAdh
+        
+        if (search.trim()) {
+            const s = search.toLowerCase()
+            result = result.filter(item =>
+                item.name?.toLowerCase().includes(s) ||
+                item.prenom?.toLowerCase().includes(s) ||
+                item.username?.toLowerCase().includes(s) ||
+                item.email?.toLowerCase().includes(s) ||
+                item.telephone?.includes(s)
             )
-        })
-    }, [search, dataAdh])
+        }
+
+        if (abonnementTab === 'actifs') {
+            result = result.filter(item => item.dernier_abonnement?.actif)
+        }
+
+        if (abonnementTab === 'expirés') {
+            result = result.filter(item => !item.dernier_abonnement?.actif)
+        }
+
+        return result
+    }, [dataAdh, search, abonnementTab])
+
+
+
+    
+
+
+        // const filtrerExpirer = dataAdh.filter(item =>(!item.dernier_abonnement?.actif))
 
 
     const updateTarif = useQueryClient()
@@ -1423,13 +1444,13 @@ export default function DashboardStandard(){
                                             <Loader2 className="mx-auto animate-spin" />
                                         </td>
                                     </tr>
-                                ): recherche.length === 0 ? (
+                                ): adherentsFiltres.length === 0 ? (
                                     <tr>
                                         <td colSpan={8} className="py-6 text-center text-sm text-gray-500">
                                             {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Pas encore d'adhérents inscrits"}
                                         </td>
                                     </tr>
-                                ): recherche.map(item => (
+                                ): adherentsFiltres.map(item => (
                                     <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
                                         
                                         <td className="flex items-center  font-bold  gap-2 py-5 px-3">
@@ -1532,24 +1553,26 @@ export default function DashboardStandard(){
                         <div className="flex items-center gap-2">
                         <motion.button 
                             whileTap={{scale: 0.95}}
-                            
-                        className="font-bold text-orange-600 text-sm  gap-2 py-2 px-4 rounded-lg bg-orange-100 border border-orange-500  cursor-pointer transition-colors duration-200">
+                            onClick={()=>{setAbonnementTab('tous')}}
+                            className={`${abonnementTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
                             
                             Tous
                         </motion.button>
 
                         <motion.button 
                             whileTap={{scale: 0.95}}
+                            onClick={()=>{setAbonnementTab('actifs')}}
                             
-                        className="font-bold text-black text-sm  gap-2 py-2 px-4 rounded-lg bg-gray-200 border border-gray-400   cursor-pointer transition-colors duration-200">
+                            className={`${abonnementTab === 'actifs' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
                             
                             Actifs
                         </motion.button>
 
                         <motion.button 
                             whileTap={{scale: 0.95}}
+                            onClick={()=>{setAbonnementTab('expirés')}}
                             
-                        className="font-bold text-white text-sm hover:text-black gap-2 py-2 px-4 rounded-lg bg-orange-600 border border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer transition-colors duration-200">
+                            className={`${abonnementTab === 'expirés' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
                             
                             Expirés
                         </motion.button>
@@ -1569,59 +1592,59 @@ export default function DashboardStandard(){
                                 </tr>
                             </thead>
 
-                            <tbody className="">
-                                {loadingAdh ? (
-                                    <tr>
-                                        <td colSpan={5} className="py-6 text-center">
-                                            <Loader2 className="mx-auto animate-spin" />
-                                        </td>
-                                    </tr>
-                                ): recherche.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={5} className="py-6 text-center text-sm text-gray-500">
-                                            {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
-                                        </td>
-                                    </tr>
-                                ): recherche.map(item => (
-                                    <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
-                                        
-                                        <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                        <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                        {`${item.name} ${item.prenom}` || item.username }
+                                <tbody className="">
+                                    {loadingAdh ? (
+                                        <tr>
+                                            <td colSpan={5} className="py-6 text-center">
+                                                <Loader2 className="mx-auto animate-spin" />
+                                            </td>
+                                        </tr>
+                                    ): adherentsFiltres.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className="py-6 text-center text-sm text-gray-500">
+                                                {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
+                                            </td>
+                                        </tr>
+                                    ): adherentsFiltres.map(item => (
+                                        <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                            
+                                            <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                            <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
+                                            {`${item.name} ${item.prenom}` || item.username }
 
-                                        </td>
-                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
-                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
-                                        <td className=" px-3 ">
-                                            <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
-                                                {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
-                                            </span>
-                                        </td>
-                                        
-                                        <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                            </td>
+                                            <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
+                                            <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
+                                            <td className=" px-3 ">
+                                                <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
+                                                    {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
+                                                </span>
+                                            </td>
                                             
-                                            {((formatDate(item.dernier_abonnement?.fin) === d || formatDate(item.dernier_abonnement?.fin) > d) && (!item.dernier_abonnement?.actif)) ? (
-                                                <motion.button
-                                                    type="button"
-                                                    onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
-                                                    whileTap={{scale: 0.95}}
-                                                    className="border hover:bg-transparent hover:text-black transition-colors duration-200 border-blue-500 py-1 px-3 rounded-lg  text-white font-bold bg-blue-500">
-                                                    Reabonner
-                                                </motion.button>
-                                            ):(
-                                                <motion.button
-                                                    type="button"
-                                                    disabled
-                                                    className="border  border-gray-100 py-1 px-3 rounded-lg  text-gray-400 font-bold bg-gray-300">
-                                                    Reabonner
-                                                </motion.button>
-                                            )}
-                                            
-                                        </td>
-                                    </tr>
-                                ))}
-                               
-                            </tbody>
+                                            <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                                
+                                                {((formatDate(item.dernier_abonnement?.fin) === d || formatDate(item.dernier_abonnement?.fin) > d) && (!item.dernier_abonnement?.actif)) ? (
+                                                    <motion.button
+                                                        type="button"
+                                                        onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
+                                                        whileTap={{scale: 0.95}}
+                                                        className="border hover:bg-transparent hover:text-black transition-colors duration-200 border-blue-500 py-1 px-3 rounded-lg  text-white font-bold bg-blue-500">
+                                                        Reabonner
+                                                    </motion.button>
+                                                ):(
+                                                    <motion.button
+                                                        type="button"
+                                                        disabled
+                                                        className="border  border-gray-100 py-1 px-3 rounded-lg  text-gray-400 font-bold bg-gray-300">
+                                                        Reabonner
+                                                    </motion.button>
+                                                )}
+                                                
+                                            </td>
+                                        </tr>
+                                    ))}
+                                
+                                </tbody>
                             
 
                             
