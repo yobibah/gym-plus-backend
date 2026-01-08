@@ -30,6 +30,9 @@ import { UpdateCachet } from "../../api/dashboard/standard/parametres/changeCach
 import { DeleteCachet } from "../../api/dashboard/standard/parametres/deleteCachet";
 import { DeleteAdh } from "../../api/dashboard/standard/adherants/deleteAdh";
 import checkvideo from '../../assets/videos/check2.gif'
+import { UpdateAdh } from "../../api/dashboard/standard/adherants/updateAdh";
+// import { Suspendre } from "../../api/dashboard/standard/abonnements/suspendre";
+import { Reabonner } from "../../api/dashboard/standard/abonnements/reabonner";
 
 export default function DashboardStandard(){
 
@@ -74,7 +77,12 @@ export default function DashboardStandard(){
     const [previewSign, setPreviewSign] = useState(null)
     const signInputRef =useRef(null)
     const [modalSupAdherant, setModalSupAdherant] = useState(false)
+    const [modalUpAdherant, setModalUpAdherant] = useState(false)
     const [adhToDelete, setAdhToDelete] = useState(null)
+    const [adhToUp, setAdhToUp] = useState(null)
+    const [reabonner, setReabonner] = useState(null)
+    const [reabonnerModal, setReabonnerModal] = useState(false)
+    
 
 
 
@@ -238,6 +246,8 @@ export default function DashboardStandard(){
         if(!dataAdh || !Array.isArray(dataAdh)) return []
 
         return dataAdh.filter(item =>{
+
+            // console.log('date', formatDate(item.dernier_abonnement.fin));
             return(
                 (item.name && item.name.toLowerCase().includes(search.toLowerCase())) ||
                 (item.prenom && item.prenom.toLowerCase().includes(search.toLowerCase())) ||
@@ -639,6 +649,83 @@ export default function DashboardStandard(){
     }
 
 
+    const adhUpQuery = useQueryClient()
+    const updateAdh = useMutation({
+        mutationFn: UpdateAdh,
+
+        onSuccess: (()=>{
+            setModalUpAdherant(false)
+
+            setTimeout(()=>{
+                updateAdh.reset()
+
+            }, 5000)
+
+            adhUpQuery.invalidateQueries(['mes-adherant'])
+            
+        }),
+        onError: (()=>{
+            setTimeout(()=>{
+                adhToUp.reset()
+
+            }, 3000)
+        })
+    })
+    const loadingUpdateAdh = updateAdh.isPending
+    const errorUpdateAdh = updateAdh.isError
+    const successUpdateAdh = updateAdh.isSuccess
+
+
+    async function updateAdhUp(e, id){
+        e.preventDefault()
+        if(!id) return
+        updateAdh.mutate({
+            id:adhToUp?.id, 
+            nom:adhToUp?.name, 
+            prenom:adhToUp?.prenom,
+            email:adhToUp?.email, 
+            telephone:adhToUp?.telephone
+        })
+    }
+
+
+
+    const reabQuery = useQueryClient()
+    const reabAdh = useMutation({
+        mutationFn: Reabonner,
+        onSuccess : (()=>{
+            setReabonnerModal(false)
+
+            setTimeout(()=>{
+                reabAdh.reset()
+            }, 5000)
+
+            reabQuery.invalidateQueries(['nbr_actif'])
+            reabQuery.invalidateQueries(['abonner-expirer'])
+        }),
+
+        onError : (()=>{
+
+            setTimeout(()=>{
+                reabAdh.reset()
+            }, 3000)
+        })
+    })
+    const reabLoading = reabAdh.isPending
+    const reabSuccess = reabAdh.isSuccess
+    const reabError = reabAdh.isError
+
+    async function handleReabonner(e, id){
+        e.preventDefault()
+        if(!id) return
+        reabAdh.mutate({
+            id : reabonner?.id,
+            email : reabonner?.email,
+            plan : reabonner?.plan
+        })
+    }
+
+
 
     //test du bouton niveau...
     function handleNiveau(e){
@@ -691,6 +778,11 @@ export default function DashboardStandard(){
         const date = new Date(dates)
         return date.toLocaleDateString('fr-FR')
     }
+
+    const date = new Date
+    // const d = date.toISOString()
+
+    const d = date.toLocaleDateString('fr-FR')
 
 
 
@@ -815,7 +907,7 @@ export default function DashboardStandard(){
                                 </div>
                             </div>
 
-                            <div className="rounded-full h-10 w-10 border border-orange-500 flex items-center justify-center ">
+                            <div className="rounded-full h-10 w-10 border bg-orange-500 border-orange-500 flex items-center justify-center ">
                                 <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                             </div>
                         </div>
@@ -1038,7 +1130,7 @@ export default function DashboardStandard(){
                                                 <User className="h-5 w-5" />
                                             </div>
                                             <div className="">
-                                                <p className="font-bold">{item.username || `${item.name} ${item.prenom}`}</p>
+                                                <p className="font-bold">{`${item.name} ${item.prenom}` || item.username}</p>
                                                 <p className="text-xs text-gray-400 font-bold">Expiré le : {formatDate(item.created_at)}</p>
                                             </div>
                                         </div>
@@ -1081,7 +1173,7 @@ export default function DashboardStandard(){
                                         ):listExpireBiento.map(item => (
                                             <tr key={item.id} className=" ">
                                                 
-                                                <td className="p-2 border-b border-gray-400">{item?.username || 'N/A'}</td>
+                                                <td className="p-2 border-b border-gray-400">{`${item.name} ${item.prenom}` || item?.username || 'N/A'}</td>
                                                 {item?.abonnements?.map(a => (
                                                     <td key={a.id} className="p-2 border-b border-gray-400">{a?.plan || 'N/A'}</td>
                                                 ))}
@@ -1342,7 +1434,7 @@ export default function DashboardStandard(){
                                         
                                         <td className="flex items-center  font-bold  gap-2 py-5 px-3">
                                         <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                        {item.username || `${item.name} ${item.prenom}`}
+                                        {`${item.name} ${item.prenom}` || item.username }
 
                                         </td>
                                         <td className=" px-3 py-5">{item.email || '-'}</td>
@@ -1364,7 +1456,9 @@ export default function DashboardStandard(){
                                         )}
                                         <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
                                         <td className="flex justify-center py-5 items-center gap-2 px-3">
-                                            <motion.button 
+                                            <motion.button
+                                            type="button"
+                                            onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}} 
                                                 whileTap={{scale: 0.95}}
                                             className="border cursor-pointer border-orange-100 p-1 rounded-sm bg-orange-500">
                                                 <Pencil className="text-white h-4 w-4"/>
@@ -1415,7 +1509,149 @@ export default function DashboardStandard(){
             )}
 
             {activeTab === 'abonnement' && (
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">Abonnement</div>
+                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                    
+                    <div className="font-bold text-3xl flex items-center mb-3">Gestion Abonnements : 
+                        <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalExpire} expiré{totalExpire > 1 ? 's' : ''}</span>
+                    </div>
+                    <span className="text-gray-400 font-bold text-[16px]">Consultez et gérez vos abonnements</span>
+
+                    <div className="flex items-center justify-between my-8">
+                        <div className="flex items-center relative w-90">
+                            <div className="absolute top-2">
+                                <Search className="h-5 w-5 text-orange-400 ml-2"/>
+                            </div>
+                            <input type="text" 
+                            value={search}
+                            onChange={(e)=>{setSearch(e.target.value)}}
+                                className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
+                                placeholder="Rechercher des infos par page..."
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                        <motion.button 
+                            whileTap={{scale: 0.95}}
+                            
+                        className="font-bold text-orange-600 text-sm  gap-2 py-2 px-4 rounded-lg bg-orange-100 border border-orange-500  cursor-pointer transition-colors duration-200">
+                            
+                            Tous
+                        </motion.button>
+
+                        <motion.button 
+                            whileTap={{scale: 0.95}}
+                            
+                        className="font-bold text-black text-sm  gap-2 py-2 px-4 rounded-lg bg-gray-200 border border-gray-400   cursor-pointer transition-colors duration-200">
+                            
+                            Actifs
+                        </motion.button>
+
+                        <motion.button 
+                            whileTap={{scale: 0.95}}
+                            
+                        className="font-bold text-white text-sm hover:text-black gap-2 py-2 px-4 rounded-lg bg-orange-600 border border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer transition-colors duration-200">
+                            
+                            Expirés
+                        </motion.button>
+                        </div>
+                    </div>
+
+                    {/* A revoir avec les vraies donnees */}
+                    <div className="bg-white my-8 rounded-lg ">
+                        <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                            <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                <tr >
+                                    <th className=" p-3 text-left">Nom de l'adhérant</th>
+                                    <th className=" p-3">Date de début</th>
+                                    <th className=" p-3">Date de fin</th>
+                                    <th className=" p-3">Statut</th>
+                                    <th className=" p-3">Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody className="">
+                                {loadingAdh ? (
+                                    <tr>
+                                        <td colSpan={5} className="py-6 text-center">
+                                            <Loader2 className="mx-auto animate-spin" />
+                                        </td>
+                                    </tr>
+                                ): recherche.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="py-6 text-center text-sm text-gray-500">
+                                            {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
+                                        </td>
+                                    </tr>
+                                ): recherche.map(item => (
+                                    <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                        
+                                        <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                        <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
+                                        {`${item.name} ${item.prenom}` || item.username }
+
+                                        </td>
+                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
+                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
+                                        <td className=" px-3 ">
+                                            <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
+                                                {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
+                                            </span>
+                                        </td>
+                                        
+                                        <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                            
+                                            {((formatDate(item.dernier_abonnement?.fin) === d || formatDate(item.dernier_abonnement?.fin) > d) && (!item.dernier_abonnement?.actif)) ? (
+                                                <motion.button
+                                                    type="button"
+                                                    onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
+                                                    whileTap={{scale: 0.95}}
+                                                    className="border hover:bg-transparent hover:text-black transition-colors duration-200 border-blue-500 py-1 px-3 rounded-lg  text-white font-bold bg-blue-500">
+                                                    Reabonner
+                                                </motion.button>
+                                            ):(
+                                                <motion.button
+                                                    type="button"
+                                                    disabled
+                                                    className="border  border-gray-100 py-1 px-3 rounded-lg  text-gray-400 font-bold bg-gray-300">
+                                                    Reabonner
+                                                </motion.button>
+                                            )}
+                                            
+                                        </td>
+                                    </tr>
+                                ))}
+                               
+                            </tbody>
+                            
+
+                            
+                        </table>
+                        <div className="flex  p-4 items-center justify-between">
+                                <div>
+                                    <div className="text-sm text-gray-400">
+                                        Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex text-sm items-center gap-2">
+                                    <motion.button
+                                    disabled={page === 1} 
+                                    onClick={()=>{setPage(p => p - 1)}}
+                                        whileTap={{scale: 0.95}}
+                                        className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                    >Précedent</motion.button>
+
+                                    <motion.button 
+                                    disabled={page === mesAdh.data?.adherents?.last_page} 
+                                    onClick={()=>{setPage(p => p + 1)}}
+                                    whileTap={{scale: 0.95}}
+                                        className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                    > Suivant</motion.button>
+                                </div>
+                            </div>
+
+                    </div>
+                </div>
             )}
 
             {activeTab === 'paiement' && (
@@ -2311,163 +2547,6 @@ export default function DashboardStandard(){
                     </div>
 
                     <div className="my-10">
-                            {/* <div className=""></div> */}
-
-                            {/* <form onSubmit={handleAdd} className="col-span-2 rounded-lg  px-8 py-5">
-                                
-                                <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-xl">Nom <span className="text-red-600">*</span></label>
-                                    <Input 
-                                        type={'text'}
-                                        value={nom}
-                                        onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
-                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={'Nom de l\'adhérant'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
-                                    />
-                                </div>
-
-                                <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-xl">Prénom <span className="text-red-600">*</span></label>
-                                    <Input 
-                                        type={'text'}
-                                        value={prenom}
-                                        onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
-                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={'Prenom de l\'adhérant'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
-                                    />
-                                </div>
-                                <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-xl">Adresse e-mail <span className="text-red-600">*</span></label>
-                                    <Input 
-                                        type={'email'}
-                                        value={email}
-                                        onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
-                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={'Email de l\'adhérant'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
-                                    />
-                                </div>
-
-                                <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-xl">Numéro de téléphone <span className="text-red-600">*</span></label>
-                                    <Input 
-                                        type={'tel'}
-                                        value={tel}
-                                        onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
-                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={'Numéro de l\'adhérant'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
-                                    />
-                                </div>
-
-            
-                                <div className="flex-col flex gap-2 mb-5 ">
-                                    <label className="font-bold text-xl">Abonnement</label>
-                                
-
-                                    <select
-                                        value={plan}
-                                        onChange={(e) => {
-                                            const value = e.target.value
-                                            setPlan(value)
-                                            setShowPrix(!!value)
-                                            addAdh.reset()
-                                        }}
-                                        className="border-3 border-orange-500 p-2 border-dotted text-md"
-                                        >
-                                        <option value="">-- Choisir --</option>
-                                        <option value="mensuel">Mensuel</option>
-                                        <option value="trimestriel">Trimestriel</option>
-                                        <option value="annuel">Annuel</option>
-                                    </select>
-
-                                </div>
-
-                                <div>
-                                   
-
-                                    {showPrix && (
-                                    <div className="flex-col flex gap-2 ">
-                                        {loading ? (
-                                        <Loader2 className="h-5 w-5 animate-spin" />
-                                        ) : (
-                                        <>
-                                            <label className="font-bold text-xl">Prix</label>
-                                            <select
-                                            value={montant}
-                                            onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
-                                            className="border-3 border-orange-500 p-2 border-dotted text-md"
-                                            >
-                                            <option value="">-- Choisir --</option>
-                                                {plan === "mensuel" && (
-                                                    <option value={prix_mensuel}>
-                                                        {prix_mensuel}
-                                                    </option>)}
-                                                {plan === "trimestriel" && (
-                                                    <option value={prix_trimestriel}>
-                                                        {prix_trimestriel}
-                                                    </option>)}
-                                                {plan === "annuel" && (
-                                                    <option value={prix_annuel}>
-                                                        {prix_annuel}
-                                                    </option>)}
-                                            </select>
-                                        </>
-                                        )}
-                                    </div>
-                                    )}
-
-
-                                </div>
-                                 
-
-                                
-                                <div className="flex items-center my-3">
-                                    {errorAdherant && (
-                                        <span className="text-red-600 text-md">{addAdh.error.message}</span>
-                                    )}
-                                    {successAdherant && (
-                                        <span className="text-green-600 text-md">Enregistrement effectué avec succèss</span>
-                                    )}
-                                </div>
-
-                                <div 
-                                    
-                                className="flex items-center my-5">
-                                    <motion.button 
-                                    whileHover={{scale: 1.03}}
-                                    whileTap={{scale: 0.95}}
-                                    disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
-                                    className={`flex items-center w-full justify-center cursor-pointer  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white '} font-bold  text-xl py-3 px-5 mx-auto`}
-                                    
-                                    >
-                                        {loadingAdherant ? (
-                                            <Loader2 className='h-5 w-5 text-white animate-spin'/>
-                                        ):(
-                                            'Ajouter'
-                                        )}
-                                    </motion.button>
-                                </div>
-                               
-                            </form> */}
 
                             <form onSubmit={handleAdd} className="grid grid-cols-4 gap-5 rounded-lg  px-8 py-5">
                                 
@@ -2649,7 +2728,6 @@ export default function DashboardStandard(){
                                
                             </form>
 
-                            {/* <div className=""></div> */}
                         </div>
                 </div>
 
@@ -2719,7 +2797,233 @@ export default function DashboardStandard(){
                 </div>
             )}
 
-            {successSupAdh && (
+            {modalUpAdherant && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                    {/* <p>{adhToUp.name}</p> */}
+                    <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
+                        <div className="mb-10">
+                            <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                                <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                Informations personnelles de l'adhérant
+                            </div>
+                            <div className="flex-col flex gap-2 mb-5">
+                                <label className="font-bold text-lg">Nom </label>
+                                <Input 
+                                    type={'text'}
+                                    value={adhToUp?.name}
+                                    onChange={(e)=>{setAdhToUp({ ...adhToUp, name: e.target.value }), updateAdh.reset()}}
+                                    className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                    placeholder={null}
+                                    disabled={false}
+                                    hidden={false}
+                                    pattern={null}
+                                    ref={null}
+                                    checked={null}
+                                />
+                            </div>
+
+                            <div className="flex-col flex gap-2 mb-5">
+                                <label className="font-bold text-lg">Prénom </label>
+                                <Input 
+                                    type={'text'}
+                                    value={adhToUp?.prenom}
+                                    onChange={(e)=>{setAdhToUp({ ...adhToUp, prenom: e.target.value }), updateAdh.reset()}}
+                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                    placeholder={null}
+                                    disabled={false}
+                                    hidden={false}
+                                    pattern={null}
+                                    ref={null}
+                                    checked={null}
+                                />
+                            </div>
+                            <div className="flex-col flex gap-2 mb-5">
+                                <label className="font-bold text-lg">Adresse e-mail </label>
+                                <Input 
+                                    type={'email'}
+                                    value={adhToUp?.email}
+                                    onChange={(e)=>{setAdhToUp({ ...adhToUp, email: e.target.value }), updateAdh.reset()}}
+                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                    placeholder={null}
+                                    disabled={false}
+                                    hidden={false}
+                                    pattern={null}
+                                    ref={null}
+                                    checked={null}
+                                />
+                            </div>
+
+                            <div className="flex-col flex gap-2 mb-5">
+                                <label className="font-bold text-lg">Numéro de téléphone </label>
+                                <Input 
+                                    type={'tel'}
+                                    value={adhToUp?.telephone}
+                                    onChange={(e)=>{setAdhToUp({ ...adhToUp, telephone: e.target.value }), updateAdh.reset()}}
+                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                    placeholder={null}
+                                    disabled={false}
+                                    hidden={false}
+                                    pattern={null}
+                                    ref={null}
+                                    checked={null}
+                                />
+                            </div>
+
+                            {errorUpdateAdh && (
+                                <p className="text-red-500 text-sm">{updateAdh.error.message}</p>
+                            )}
+                        </div>
+                        
+                        <div className=" flex justify-end items-center gap-2">
+                            <button
+                            type="button"
+                                onClick={()=>{setModalUpAdherant(false)}}
+                                className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                            type="submit"
+                            onClick={(e)=>{updateAdhUp(e, adhToUp)}}
+                            disabled={loadingUpdateAdh}
+                                className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200"
+                            >
+                                {loadingUpdateAdh ?(
+                                    <Loader2 className="animate-spin"/>
+                                ):(
+                                    'Modifier'
+                                )}
+                                
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {reabonnerModal && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                    {/* <p>{adhToUp.name}</p> */}
+                    <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
+                        <div className="mb-10">
+                            <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                                <WalletCards className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                Renouvellement de l'abonnement
+                            </div>
+                            <div className="flex-col flex gap-2 mb-5">
+                                <label className="font-bold text-lg">Adresse e-mail </label>
+                                <Input 
+                                    type={'email'}
+                                    value={reabonner?.email}
+                                    onChange={(e)=>{setReabonner({ ...reabonner, email: e.target.value }), reabAdh.reset()}}
+                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                    placeholder={null}
+                                    disabled={false}
+                                    hidden={false}
+                                    pattern={null}
+                                    ref={null}
+                                    checked={null}
+                                />
+                            </div>
+
+                            {/* <div className="grid grid-cols-2 gap-10"> */}
+                                <div className="flex-col flex gap-2 ">
+                                    <label className="font-bold">Abonnement</label>
+                                
+
+                                    <select
+                                        value={reabonner?.plan}
+                                        onChange={(e)=>{setReabonner({ ...reabonner, plan: e.target.value }), reabAdh.reset()}}
+                                        // onChange={(e) => {
+                                        //     const value = e.target.value
+                                        //     setPlan(value)
+                                        //     setShowPrix(!!value)
+                                        //     addAdh.reset()
+                                        // }}
+                                        className="border-4 border-gray-300 p-2 border-dotted text-sm"
+                                        >
+                                        <option value="">-- Choisir --</option>
+                                        <option value="mensuel">Mensuel</option>
+                                        <option value="trimestriel">Trimestriel</option>
+                                        <option value="annuel">Annuel</option>
+                                    </select>
+{/* 
+                                </div> */}
+
+                                {/* <div>
+                                   
+
+                                    {showPrix && (
+                                    <div className="flex-col flex gap-2">
+                                        {loading ? (
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        ) : (
+                                        <>
+                                            <label className="font-bold">Prix</label>
+                                            <select
+                                            value={montant}
+                                            onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
+                                            className="border-4 border-gray-300 p-2 border-dotted text-sm"
+                                            >
+                                            <option value="">-- Choisir --</option>
+                                                {plan === "mensuel" && (
+                                                    <option value={prix_mensuel}>
+                                                        {prix_mensuel}
+                                                    </option>)}
+                                                {plan === "trimestriel" && (
+                                                    <option value={prix_trimestriel}>
+                                                        {prix_trimestriel}
+                                                    </option>)}
+                                                {plan === "annuel" && (
+                                                    <option value={prix_annuel}>
+                                                        {prix_annuel}
+                                                    </option>)}
+                                            </select>
+                                        </>
+                                        )}
+                                    </div>
+                                    )}
+
+
+                                </div> */}
+                                 
+
+                                
+                                </div>
+
+                            
+
+                            {reabError && (
+                                <p className="text-red-500 text-sm">{reabAdh.error.message}</p>
+                            )}
+                        </div>
+                        
+                        <div className=" flex justify-end items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={()=>{setReabonnerModal(false)}}
+                                className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                type="submit"
+                                onClick={(e)=>{handleReabonner(e, reabonner)}}
+                                disabled={reabLoading}
+                                className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200"
+                            >
+                                {reabLoading ?(
+                                    <Loader2 className="animate-spin"/>
+                                ):(
+                                    'Confirmer'
+                                )}
+                                
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {(successSupAdh || successUpdateAdh || reabSuccess) && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
                     <div className="w-150 h-300">
                     <img src={checkvideo} alt="gif" 
@@ -2737,6 +3041,7 @@ export default function DashboardStandard(){
                     </div>
                 </div>
             )}
+
 
             
 
