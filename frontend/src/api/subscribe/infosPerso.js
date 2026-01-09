@@ -1,6 +1,6 @@
 
 import React from "react"
-import { apiUrl } from "../../../../env"
+import { apiUrl } from "../../../env"
 
 export async function infosPerso({nom, prenom, telephone, email}){
         

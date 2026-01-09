@@ -1,5 +1,5 @@
 import React from "react";
-import { apiUrl } from "../../../../../../env";
+import { apiUrl } from "../../../../../env";
 import { getToken } from "../../../../hooks/getToken";
 
 export async function UpdateinfosSalle({nom_salle, pays, region}){

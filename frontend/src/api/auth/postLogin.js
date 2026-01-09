@@ -1,7 +1,7 @@
 import React from "react";
 import useGetUrl from "../../hooks/useGetUrl";
 import Cookies from 'js-cookie'
-import { apiUrl } from "../../../../env";
+import { apiUrl } from "../../../env";
 
 
 export async function postLogin({username, password}) {

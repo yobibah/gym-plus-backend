@@ -1,9 +1,10 @@
 import React from "react";
 import Cookies from 'js-cookie'
 // import useGetUrl from "../hooks/useGetUrl";
-import { apiUrl } from "../../../env";
+// import { apiUrl } from "../../../env";
 // import { token } from "../hooks/getToken";
 import { getToken } from "../hooks/getToken";
+import { apiUrl } from "../../env";
 
 export async function fetchDataPlan() {
 

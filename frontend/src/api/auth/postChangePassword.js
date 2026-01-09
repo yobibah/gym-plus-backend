@@ -1,5 +1,5 @@
 import React from "react";
-import { apiUrl } from "../../../../env";
+import { apiUrl } from "../../../env";
 
 export  async function changePassword({token, email, password, password_confirmation}) {
 

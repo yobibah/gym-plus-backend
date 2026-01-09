@@ -1,4 +1,4 @@
-import { AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, BadgeCheck, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, WalletCards, X, XCircle } from "lucide-react";
+import { AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, BadgeCheck, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, Wallet, WalletCards, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +7,7 @@ import Cookies from 'js-cookie'
 import useGetUrl from "../../hooks/useGetUrl";
 import { getToken } from "../../hooks/getToken";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiUrl } from "../../../../env";
+import { apiUrl } from "../../../env";
 import { FetchNombreAdherant } from "../../api/dashboard/standard/tableau/nombreAdh";
 import { FetchNombreActif } from "../../api/dashboard/standard/tableau/nombreActif";
 import { fetchPrix } from "../../api/dashboard/standard/tableau/mesPrix";
@@ -31,7 +31,7 @@ import { DeleteCachet } from "../../api/dashboard/standard/parametres/deleteCach
 import { DeleteAdh } from "../../api/dashboard/standard/adherants/deleteAdh";
 import checkvideo from '../../assets/videos/check2.gif'
 import { UpdateAdh } from "../../api/dashboard/standard/adherants/updateAdh";
-// import { Suspendre } from "../../api/dashboard/standard/abonnements/suspendre";
+import logoGym from '../../assets/images/coverhero.png'
 import { Reabonner } from "../../api/dashboard/standard/abonnements/reabonner";
 
 export default function DashboardStandard(){
@@ -240,7 +240,7 @@ export default function DashboardStandard(){
         queryFn : mesAdherants,
         keepPreviousData: true
     })
-    const dataAdh = mesAdh.data?.adherents?.data
+    const dataAdh = mesAdh.data?.adherents?.data || []
     const loadingAdh = mesAdh.isPending
     const errorAdh = mesAdh.isError
 
@@ -273,11 +273,29 @@ export default function DashboardStandard(){
     }, [dataAdh, search, abonnementTab])
 
 
+    const totalMensuel = useMemo(() => {
+        if (!dataAdh || !Array.isArray(dataAdh)) return []
 
-    
+        const mensuelAdh = dataAdh.filter(item => (item.dernier_abonnement?.plan === 'mensuel'))
+        
+        return mensuelAdh.reduce((acc, val) => acc + Number(val.dernier_abonnement.montant), 0);
+    }, [dataAdh])
 
+    const totalTrimestre = useMemo(() => {
+        if (!dataAdh || !Array.isArray(dataAdh)) return []
 
-        // const filtrerExpirer = dataAdh.filter(item =>(!item.dernier_abonnement?.actif))
+        const trimestreAdh = dataAdh.filter(item => (item.dernier_abonnement?.plan === 'trimestriel'))
+        
+        return trimestreAdh.reduce((acc, val) => acc + Number(val.dernier_abonnement.montant), 0);
+    }, [dataAdh])
+
+    const totalAnnuel = useMemo(() => {
+        if (!dataAdh || !Array.isArray(dataAdh)) return []
+
+        const annuelAdh = dataAdh.filter(item => (item.dernier_abonnement?.plan === 'annuel'))
+        
+        return annuelAdh.reduce((acc, val) => acc + Number(val.dernier_abonnement.montant), 0);
+    }, [dataAdh])
 
 
     const updateTarif = useQueryClient()
@@ -809,16 +827,21 @@ export default function DashboardStandard(){
 
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
-            {/* Barre latérale */}
+            
             <div className="col-span-1 py-3 bg-white shadow-lg flex flex-col gap-10 h-screen overflow-y-auto sticky top-0">
                 <div className="flex items-center gap-2  px-5 my-5">
                     <div className="rounded-full flex items-center justify-center border border-orange-500 bg-orange-500 w-15 h-15">
-                        <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                        {infosSalle?.logo_salle ? (
+                            <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                        ):(
+                            <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                        )}
+                        
                         
                     </div>
-                    <div className="">
-                        <div className="font-semibold text-xl">{infosSalle?.nom_salle} <br /><span className="text-orange-500 text-sm">Plan Standard</span></div> 
-                        
+                    <div className="flex flex-col">
+                        <div className="font-semibold text-2xl">{infosSalle?.nom_salle || 'GymPus'}</div> 
+                        <div className="text-orange-500 text-sm">Plan Standard</div>
                     </div>
                 </div>
 
@@ -859,18 +882,6 @@ export default function DashboardStandard(){
                     >Abonnements</button>
                 </motion.div>
 
-               <motion.div 
-                    whileHover={{ scale: 1.02 }} 
-                    whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'paiement' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
-                    onClick={()=>{setActiveTab('paiement')}}
-                >
-                     <WalletCards className={`${activeTab === 'paiement' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'paiement' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
-                    >Paiements</button>
-                </motion.div>
-
                 <motion.div
                     whileHover={{ scale: 1.02 }} 
                     whileTap={{scale: 0.95}} 
@@ -885,51 +896,52 @@ export default function DashboardStandard(){
 
 
             {/* {'A gerer en fonction de la date de labonnement'} */}
-                <div 
-                    
-                    className="absolute transition-colors duration-200 bottom-5 w-full flex justify-center">
+                <div className="absolute mx-5 py-3 px-5 transition-colors duration-200 bottom-5 mx-auto w-full flex flex-col gap-2">
                     <motion.button 
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
-                        className="bg-orange-600 shadow-lg  w-full mx-5 text-white font-bold rounded-lg px-5 py-2"
+                        className="bg-orange-600 shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3"
                         onClick={handleNiveau}
                     >Mettre à niveau</motion.button>
                     <motion.button 
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
-                        className="bg-red-700 shadow-lg  w-full mx-5 text-white font-bold rounded-lg px-5 py-2"
+                        className="bg-red-700 shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3"
                         onClick={logoutModal}
                     >Se Déconnecter</motion.button>
                 </div>
 
             </div>
 
-            {/* Contenu pricnipal , dependra vrai de là ou on se trouve*/}
-            {/* Si tableau active */}
         
             {activeTab === 'dashboard' && (
                 <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
                     
                     <div className="flex items-center mb-10 justify-between border-b-1 pb-5 border-gray-200">
-                        <div className="flex items-center text-lg">
-                            <div className="font-bold text-3xl">Tableau de Bord <br />
-                            <span className="text-[16px] text-gray-400">Bienvenue {infosUser?.name || ''} {infosUser?.prenom || ''} !</span>
-                            </div>
-                            {/**nom a gerer apres */}
+                        <div className="flex flex-col gap-2 text-lg">
+                            <h1 className="font-bold text-3xl">Tableau de Bord</h1>
+                            <p className="text-[18px] text-gray-400">Bienvenue {infosUser?.name || ''} {infosUser?.prenom || ''} !</p>
+                            
                         </div>
 
                         <div className="flex items-center justify-center gap-5">
                             <div className="relative w-full">
-                                <input type="text" placeholder="Rechercher un élément..." 
-                                    className="block w-full mx-2 p-2 pl-10 rounded-lg text-sm focus:outline-none bg-white"
+                                <input type="text" value={search} 
+                                    onChange={(e)=>{setSearch(e.target.value)}}
+                                placeholder="Rechercher adherant..." 
+                                    className="block w-full mx-2 p-2 pl-10 border border-orange-500 rounded-lg text-sm focus:outline-none bg-white"
                                 />
                                 <div className="absolute top-2 left-4">
-                                    <Search className="h-5 w-5 text-gray-400"/>
+                                    <Search className="h-5 w-5 text-orange-500"/>
                                 </div>
                             </div>
 
-                            <div className="rounded-full h-10 w-10 border bg-orange-500 border-orange-500 flex items-center justify-center ">
-                                <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                            <div className="rounded-full h-10 w-13 border bg-orange-500 border-orange-500 flex items-center justify-center ">
+                                {infosSalle?.logo_salle ? (
+                                    <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                                ):(
+                                    <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -954,21 +966,19 @@ export default function DashboardStandard(){
                                 </>
                             ):(
                                 <>
-                            <div className="flex items-center justify-between">
-                                
-                                <div>
-                                    <span className="text-xl font-bold text-gray-400 mb-2">Adhérants</span>
-                                    <div className="text-sm text-gray-500 mb-2">
+                                    <div className="flex items-center justify-between">
                                         
-                                             <span className="font-bold text-2xl text-black font-bold">{nbrAdherants} </span>/200
+                                        <div className="flex w-full flex-col gap-2">
+                                            <p className="text-xl font-bold text-gray-400">Adhérants</p>
+                                            <p className="font-bold text-3xl text-black font-bold">{nbrAdherants}<span className="text-xl font-normal text-gray-400">/200</span></p>
+                                            <div className="w-full bg-gray-300 h-2 rounded-xl overflow-hidden">
+                                                <div className="bg-orange-600 h-2 rounded-xl transition-all duration-500" style={{width: `${progressBarAdherant}%`}}></div>
+                                            </div>
+                                        </div>
+                                        <div className="border-1 border-orange-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-orange-600"><Users className="h-8 w-8"/></div>
                                     </div>
-                                </div>
-                                <div className="border-1 border-orange-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-orange-600"><Users className="h-8 w-8"/></div>
-                            </div>
-                            <div className="w-full bg-gray-300 h-2 rounded-xl overflow-hidden">
-                                <div className="bg-orange-600 h-2 rounded-xl transition-all duration-500" style={{width: `${progressBarAdherant}%`}}></div>
-                            </div>
-                            </>)}
+                                </>
+                            )}
                         
                         </motion.div>
 
@@ -989,22 +999,24 @@ export default function DashboardStandard(){
                                 </div>
                                 </>
                             ):(
-                            <>
-                            <div className="text-xl font-bold text-gray-400 mb-2">Abonnements Actifs <br />
-                           
-                                <span className="font-bold text-2xl text-black font-bold">{nbrAdherantsActif}</span>
-                            
+                                <>
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-xl font-bold text-gray-400">Abonnements Actifs</p>
+                                
+                                        <p className="font-bold text-3xl text-black font-bold">{nbrAdherantsActif}</p>
+                                    
 
-                            </div>
-                            <div className="border-1 border-green-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-green-600"><BadgeCheck className="h-8 w-8"/></div>
-                            </>)}
+                                    </div>
+                                    <div className="border-1 border-green-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-green-600"><BadgeCheck className="h-8 w-8"/></div>
+                                </>
+                            )}
                                 
                             
                         </motion.div>
 
                         <motion.div 
-                        whileHover={{scale: 1.1}}
-                        className={`bg-white flex-col relative ${loadingExpire ? '' : 'border-l-5 border-yellow-600 shadow-yellow-600'} justify-between shadow-lg rounded-xl items-center px-5 py-6`}>
+                            whileHover={{scale: 1.1}}
+                            className={`bg-white flex-col relative ${loadingExpire ? '' : 'border-l-5 border-yellow-600 shadow-yellow-600'} justify-between shadow-lg rounded-xl items-center px-5 py-6`}>
 
                             {loadingExpire ? (
                                 <>
@@ -1021,21 +1033,18 @@ export default function DashboardStandard(){
                             ):(
                                 <>
                                
-                                <div className="flex items-center justify-between">
-                                
-                                    <div>
-                                        <span className="text-xl font-bold text-gray-400 mb-2">Expire Bientôt </span>
-                                        <div className="text-sm text-gray-500 mb-2">
-                                            
-                                                <span className="font-bold text-2xl text-yellow-600">{totalExpire} </span>
+                                    <div className="flex items-center justify-between">
+                                    
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-xl font-bold text-gray-400">Expire Bientôt </p>
+                                            <p className="font-bold text-3xl text-yellow-600">{totalExpire} </p>
+                                            <div className="w-full overflow-hidden">
+                                                <p className="text-[14px] text-gray-400 italic">7 jours avant la fin de l'abonnement</p>
+                                            </div>
                                         </div>
+                                        <div className="border-1 border-yellow-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-yellow-600"><AlertCircle className="h-8 w-8"/></div>
                                     </div>
-                                    <div className="border-1 border-yellow-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-yellow-600"><AlertCircle className="h-8 w-8"/></div>
-                                </div>
-                                <div className="w-full overflow-hidden">
-                                    <p className="text-[14px] text-gray-400 italic">7 jours avant la fin de l'abonnement</p>
-                                </div>
-                            </>
+                                </>
                             )}
                             
                         </motion.div>
@@ -1058,19 +1067,78 @@ export default function DashboardStandard(){
                                 </>
                             ):(
                                 <>
-                            <div className="text-xl font-bold text-gray-400 mb-2">Abonnements Expirés <br />
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-xl font-bold text-gray-400">Abonnements Expirés</p>
 
-                                <span className="font-bold text-2xl text-black font-bold">{totalAbExpirer}</span>
-                            </div>
-                            <div className="border-1 border-red-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-red-600"><CalendarOff className="h-8 w-8"/></div>
+                                        <p className="font-bold text-3xl text-black font-bold">{totalAbExpirer}</p>
+                                    </div>
+                                    <div className="border-1 border-red-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-red-600"><CalendarOff className="h-8 w-8"/></div>
                             
-                            </>)}
+                                </>
+                            )}
                         </motion.div>
                     </div>
 
-                    <div className="bg-white mb-10 shadow-lg rounded-xl px-5 py-6">
-                            <p className="font-bold text-xl mb-5">Accès Rapide</p>
-                        <div className="grid grid-cols-3 gap-5 ">
+                    <div className="grid grid-cols-3 gap-5 mb-8">
+                    <motion.div className="bg-white shadow py-3 px-5">
+                        
+                        <div className="flex items-center justify-between">
+                        
+                            <div className="flex flex-col gap-2">
+                                <div className="text-xl font-bold text-gray-400">Total Mensuel </div>
+                                <div className="font-bold text-2xl">
+                                    {`${totalMensuel} XOF` || 'N/A'}
+                                </div>
+                                 <div className="w-full overflow-hidden">
+                                    <p className="text-[14px] text-gray-400 italic">Revenus basés sur vos enregistrements mensuels</p>
+                                </div>
+                            </div>
+                            <motion.div className="border-1 border-gray-600 p-2 h-15 w-15 font-bold text-3xl flex items-center justify-center rounded-lg bg-gray-100">M</motion.div>
+                        </div>
+                       
+                    </motion.div>
+
+                    <motion.div className="bg-white shadow py-3 px-5">
+                        
+                        <div className="flex items-center justify-between">
+                        
+                            <div className="flex flex-col gap-2">
+                                <div className="text-xl font-bold text-gray-400">Total Trimestriel </div>
+                                <div className="font-bold text-2xl">
+                                    {`${totalTrimestre} XOF` || 'N/A'}
+                                </div>
+                                 <div className="w-full overflow-hidden">
+                                    <p className="text-[14px] text-gray-400 italic">Revenus basés sur vos enregistrements trimestriels</p>
+                                </div>
+                            </div>
+                            <motion.div className="border-1 border-gray-600 p-2 h-15 w-15 font-bold text-3xl flex items-center justify-center rounded-lg bg-gray-100">T</motion.div>
+                        </div>
+                       
+                    </motion.div>
+
+                    <motion.div className="bg-white shadow py-3 px-5">
+                        
+                        <div className="flex items-center justify-between">
+                        
+                            <div className="flex flex-col gap-2">
+                                <div className="text-xl font-bold text-gray-400">Total Annuel </div>
+                                <div className="font-bold text-2xl">
+                                    {`${totalAnnuel} XOF` || 'N/A'}
+                                </div>
+                                 <div className="w-full overflow-hidden">
+                                    <p className="text-[14px] text-gray-400 italic">Revenus basés sur vos enregistrements annuel</p>
+                                </div>
+                            </div>
+                            <motion.div className="border-1 border-gray-600 p-2 h-15 w-15 font-bold text-3xl flex items-center justify-center rounded-lg bg-gray-100">A</motion.div>
+                        </div>
+                       
+                    </motion.div>
+
+                    </div>
+
+                    <div className="bg-white mb-10 sticky top-0 overflow-hidden shadow-lg rounded-xl px-5 py-6">
+                        <p className="font-bold text-xl mb-5">Accès Rapide</p>
+                        <div className="grid grid-cols-2 gap-5 ">
                     
 
                             <motion.div 
@@ -1079,26 +1147,12 @@ export default function DashboardStandard(){
                             onClick={() =>
                                 setView(view === "access-adherant" ? "part-dashboard" : "access-adherant")
                             }
-                            className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-adherant" ? 'bg-orange-500' : 'bg-orange-50'} flex items-center rounded-xl justify-center py-4 gap-2`}>
+                            className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-adherant" ? 'bg-orange-500' : 'bg-orange-100'} flex items-center rounded-xl justify-center py-4 gap-2`}>
                                 <UserPlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-adherant" ? 'text-white' : 'text-black'}`}/>
                                 <button 
                                     
                                     className={`${view === "access-adherant"? 'text-white' : 'text-black'} transition-colors duration-200 font-bold text-sm`}
                                 >Nouvel Adhérant</button>
-                            </motion.div>
-
-                            <motion.div
-                            whileHover={{scale: 1.02}}
-                            whileTap={{scale: 0.98}}
-                            onClick={() =>
-                                setView(view === "access-paiement" ? "part-dashboard" : "access-paiement")
-                            }
-                            className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-paiement" ? 'bg-orange-500' : 'bg-orange-50'} flex items-center rounded-xl justify-center py-4 gap-2`}>
-                                <WalletCards className={`h-5 w-5  transition-colors duration-200 ${view === "access-paiement" ? 'text-white' : 'text-black'}`}/>
-                                <button 
-                                    
-                                    className={`${view === "access-paiement" ? 'text-white' : 'text-black'} transition-colors duration-200 font-bold text-sm`}
-                                >Enregistrer un paiement</button>
                             </motion.div>
 
                             <motion.div 
@@ -1107,7 +1161,7 @@ export default function DashboardStandard(){
                             onClick={() =>
                                 setView(view === "access-abonnement" ? "part-dashboard" : "access-abonnement")
                             }
-                            className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-abonnement" ? 'bg-orange-500' : 'bg-orange-50'} flex items-center rounded-xl justify-center py-4 gap-2`}>
+                            className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-abonnement" ? 'bg-orange-500' : 'bg-orange-100'} flex items-center rounded-xl justify-center py-4 gap-2`}>
                                 <SquarePlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-abonnement" ? 'text-white' : 'text-black'}`}/>
                                 <button 
                                     
@@ -1152,14 +1206,11 @@ export default function DashboardStandard(){
                                             </div>
                                             <div className="">
                                                 <p className="font-bold">{`${item.name} ${item.prenom}` || item.username}</p>
-                                                <p className="text-xs text-gray-400 font-bold">Expiré le : {formatDate(item.created_at)}</p>
                                             </div>
                                         </div>
-                                        <button
-
-                                            className="text-orange-500 font-bold hover:border-b cursor-pointer transition-alls duration-200 hover:border-orange-500">
-                                            Reactiver
-                                        </button>
+                                       <div>
+                                            <p className="text-xs text-gray-400 font-bold">Expiré le : {formatDate(item.created_at)}</p>
+                                       </div>
                                     </div>
                                 ))}
                             </div>
@@ -1171,7 +1222,7 @@ export default function DashboardStandard(){
 
                                 <table  className=" w-full text-left mt-3" style={{ borderCollapse: "collapse" }}>
                                     <thead className="">
-                                        <tr className="bg-yellow-100">
+                                        <tr className="bg-yellow-600">
                                             <th className="p-2 border-b border-gray-400">Adhérant</th>
                                             <th className="p-2 border-b border-gray-400">Type</th>
                                             <th className="p-2 border-b border-gray-400">Expire le</th>
@@ -1213,172 +1264,161 @@ export default function DashboardStandard(){
                     )}
 
                     {view === "access-adherant" && (
-                        <div className="grid grid-cols-4 gap-5">
-                            <div className=""></div>
 
-                            <form onSubmit={handleAdd} className="col-span-2 rounded-lg bg-white shadow-lg px-8 py-5">
-                                <div className="flex items-center gap-5">
-                                <div className="flex-col flex gap-2 mb-3">
-                                    <label className="font-bold">Nom <span className="text-red-600">*</span></label>
-                                    <Input 
-                                        type={'text'}
-                                        value={nom}
-                                        onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
-                                        className={'border focus:outline-none  border-gray-300 text-sm p-2 rounded-lg'}
-                                        placeholder={'Nom de l\'adhérant'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
-                                    />
-                                </div>
+                        <form onSubmit={handleAdd} className="">
+                            <div className="grid grid-cols-4 gap-10 ">
+                                <div className="col-span-2 border px-8 py-5 bg-white border-orange-500 rounded-lg shadow-lg ">
+                                    <div className="flex items-center gap-5">
+                                        <div className="flex-col flex gap-2 mb-3">
+                                            <label className="font-bold">Nom <span className="text-red-600">*</span></label>
+                                            <Input 
+                                                type={'text'}
+                                                value={nom}
+                                                onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
+                                                className={'border focus:outline-none  border-gray-300 text-sm p-2 rounded-lg'}
+                                                placeholder={'Nom de l\'adhérant'}
+                                                disabled={false}
+                                                hidden={false}
+                                                pattern={null}
+                                                ref={null}
+                                                checked={null}
+                                            />
+                                        </div>
 
-                                <div className="flex-col flex gap-2 mb-3">
-                                    <label className="font-bold">Prénom <span className="text-red-600">*</span></label>
-                                    <Input 
-                                        type={'text'}
-                                        value={prenom}
-                                        onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
-                                        className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
-                                        placeholder={'Prenom de l\'adhérant'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
-                                    />
-                                </div>
-                                </div>
-                                {/* <div className="flex justify-between items-center gap-5"> */}
-                                <div className="flex-col flex gap-2 mb-3">
-                                    <label className="font-bold">Adresse e-mail <span className="text-red-600">*</span></label>
-                                    <Input 
-                                        type={'email'}
-                                        value={email}
-                                        onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
-                                        className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
-                                        placeholder={'Email de l\'adhérant'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
-                                    />
-                                </div>
+                                        <div className="flex-col flex gap-2 mb-3">
+                                            <label className="font-bold">Prénom <span className="text-red-600">*</span></label>
+                                            <Input 
+                                                type={'text'}
+                                                value={prenom}
+                                                onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
+                                                className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
+                                                placeholder={'Prenom de l\'adhérant'}
+                                                disabled={false}
+                                                hidden={false}
+                                                pattern={null}
+                                                ref={null}
+                                                checked={null}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex-col flex gap-2 mb-3">
+                                        <label className="font-bold">Adresse e-mail <span className="text-red-600">*</span></label>
+                                        <Input 
+                                            type={'email'}
+                                            value={email}
+                                            onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
+                                            className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
+                                            placeholder={'Email de l\'adhérant'}
+                                            disabled={false}
+                                            hidden={false}
+                                            pattern={null}
+                                            ref={null}
+                                            checked={null}
+                                        />
+                                    </div>
 
-                                <div className="flex-col flex gap-2 mb-3">
-                                    <label className="font-bold">Numéro de téléphone <span className="text-red-600">*</span></label>
-                                    <Input 
-                                        type={'tel'}
-                                        value={tel}
-                                        onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
-                                        className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
-                                        placeholder={'Numéro de l\'adhérant'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
-                                    />
-                                {/* </div> */}
+                                    <div className="flex-col flex gap-2 mb-3">
+                                        <label className="font-bold">Numéro de téléphone <span className="text-red-600">*</span></label>
+                                        <Input 
+                                            type={'tel'}
+                                            value={tel}
+                                            onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
+                                            className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
+                                            placeholder={'Numéro de l\'adhérant'}
+                                            disabled={false}
+                                            hidden={false}
+                                            pattern={null}
+                                            ref={null}
+                                            checked={null}
+                                        />
+                                    </div>
                                 </div>
 
                 
-                                <div className="grid grid-cols-2 gap-10">
-                                <div className="flex-col flex gap-2 ">
-                                    <label className="font-bold">Abonnement</label>
-                                
+                                <div className="col-span-2 border border-orange-500 px-8 py-5 bg-white rounded-lg shadow-lg ">
+                                    <div className="flex-col flex gap-2 ">
+                                        <label className="font-bold">Abonnement</label>
+                                    
 
-                                    <select
-                                        value={plan}
-                                        onChange={(e) => {
-                                            const value = e.target.value
-                                            setPlan(value)
-                                            setShowPrix(!!value)
-                                            addAdh.reset()
-                                        }}
-                                        className="border-4 border-gray-300 p-2 border-dotted text-sm"
-                                        >
-                                        <option value="">-- Choisir --</option>
-                                        <option value="mensuel">Mensuel</option>
-                                        <option value="trimestriel">Trimestriel</option>
-                                        <option value="annuel">Annuel</option>
-                                    </select>
-
-                                </div>
-
-                                <div>
-                                   
-
-                                    {showPrix && (
-                                    <div className="flex-col flex gap-2">
-                                        {loading ? (
-                                        <Loader2 className="h-5 w-5 animate-spin" />
-                                        ) : (
-                                        <>
-                                            <label className="font-bold">Prix</label>
-                                            <select
-                                            value={montant}
-                                            onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
+                                        <select
+                                            value={plan}
+                                            onChange={(e) => {
+                                                const value = e.target.value
+                                                setPlan(value)
+                                                setShowPrix(!!value)
+                                                addAdh.reset()
+                                            }}
                                             className="border-4 border-gray-300 p-2 border-dotted text-sm"
                                             >
                                             <option value="">-- Choisir --</option>
-                                                {plan === "mensuel" && (
-                                                    <option value={prix_mensuel}>
-                                                        {prix_mensuel}
-                                                    </option>)}
-                                                {plan === "trimestriel" && (
-                                                    <option value={prix_trimestriel}>
-                                                        {prix_trimestriel}
-                                                    </option>)}
-                                                {plan === "annuel" && (
-                                                    <option value={prix_annuel}>
-                                                        {prix_annuel}
-                                                    </option>)}
-                                            </select>
-                                        </>
+                                            <option value="mensuel">Mensuel</option>
+                                            <option value="trimestriel">Trimestriel</option>
+                                            <option value="annuel">Annuel</option>
+                                        </select>
+
+                                    </div>
+
+                                    <div>
+                                        {showPrix && (
+                                            <div className="flex-col flex gap-2">
+                                                {loading ? (
+                                                <Loader2 className="h-5 w-5 animate-spin" />
+                                                ) : (
+                                                <>
+                                                    <label className="font-bold mt-5">Prix</label>
+                                                    <select
+                                                    value={montant}
+                                                    onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
+                                                    className="border-4 border-gray-300 p-2 border-dotted text-sm"
+                                                    >
+                                                    <option value="">-- Choisir --</option>
+                                                        {plan === "mensuel" && (
+                                                            <option value={prix_mensuel}>
+                                                                {prix_mensuel}
+                                                            </option>)}
+                                                        {plan === "trimestriel" && (
+                                                            <option value={prix_trimestriel}>
+                                                                {prix_trimestriel}
+                                                            </option>)}
+                                                        {plan === "annuel" && (
+                                                            <option value={prix_annuel}>
+                                                                {prix_annuel}
+                                                            </option>)}
+                                                    </select>
+                                                </>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
-                                    )}
-
-
-                                </div>
-                                 
-
                                 
                                 </div>
-                                <div className="flex items-center my-3">
-                                    {errorAdherant && (
-                                        <span className="text-red-600 text-sm">{addAdh.error.message}</span>
-                                    )}
-                                    {successAdherant && (
-                                        <span className="text-green-600 text-sm">Enregistrement effectué avec succèss</span>
-                                    )}
-                                </div>
+                            </div>
+                            <div className="flex items-center my-3">
+                                {errorAdherant && (
+                                    <span className="text-red-600 text-sm">{addAdh.error.message}</span>
+                                )}
+                                {successAdherant && (
+                                    <span className="text-green-600 text-sm">Enregistrement effectué avec succèss</span>
+                                )}
+                            </div>
 
-                                <div 
-                                    
-                                className="flex items-center my-3">
-                                    <motion.button 
-                                    whileHover={{scale: 1.03}}
-                                    whileTap={{scale: 0.95}}
-                                    disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
-                                    className={`flex items-center cursor-pointer  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white '} font-bold  py-1 px-5 mx-auto`}
-                                    
-                                    >
-                                        {loadingAdherant ? (
-                                            <Loader2 className='h-5 w-5 text-white animate-spin'/>
-                                        ):(
-                                            'Ajouter'
-                                        )}
-                                    </motion.button>
-                                </div>
-                               
-                            </form>
+                            <div className="flex items-center mt-8">
+                                <motion.button 
+                                whileTap={{scale: 0.95}}
+                                disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
+                                className={`flex items-center  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white hover:bg-transparent hover:text-black '} font-bold  py-1 px-5 mx-auto`}
+                                
+                                >
+                                    {loadingAdherant ? (
+                                        <Loader2 className='h-5 w-5 animate-spin'/>
+                                    ):(
+                                        'Ajouter'
+                                    )}
+                                </motion.button>
+                            </div>
+                            
+                        </form>
 
-                            <div className=""></div>
-                        </div>
                     )}
 
                     {view === "access-paiement" && (
@@ -1386,7 +1426,79 @@ export default function DashboardStandard(){
                     )}
 
                     {view === "access-abonnement" && (
-                        <div className="grid grid-cols-2 gap-5">Acces abonnement</div>
+                            <div className="bg-white w-full my-8 rounded-lg ">
+                                <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                                    <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                        <tr >
+                                            <th className=" p-3 text-left">Nom de l'adhérant</th>
+                                            <th className=" p-3">Date de début</th>
+                                            <th className=" p-3">Date de fin</th>
+                                            <th className=" p-3">Statut</th>
+                                        </tr>
+                                    </thead>
+
+                                        <tbody className="">
+                                            {loadingAdh ? (
+                                                <tr>
+                                                    <td colSpan={5} className="py-6 text-center">
+                                                        <Loader2 className="mx-auto animate-spin" />
+                                                    </td>
+                                                </tr>
+                                            ): adherentsFiltres.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={5} className="py-6 text-center text-sm text-gray-500">
+                                                        {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
+                                                    </td>
+                                                </tr>
+                                            ): adherentsFiltres.map(item => (
+                                                <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                                    
+                                                    <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                    <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
+                                                    {`${item.name} ${item.prenom}` || item.username }
+
+                                                    </td>
+                                                    <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
+                                                    <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
+                                                    <td className=" px-3 ">
+                                                        <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
+                                                            {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
+                                                        </span>
+                                                    </td>
+                                                    
+                                                </tr>
+                                            ))}
+                                        
+                                        </tbody>
+                                    
+
+                                    
+                                </table>
+                                <div className="flex  p-4 items-center justify-between">
+                                        <div>
+                                            <div className="text-sm text-gray-400">
+                                                Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex text-sm items-center gap-2">
+                                            <motion.button
+                                            disabled={page === 1} 
+                                            onClick={()=>{setPage(p => p - 1)}}
+                                                whileTap={{scale: 0.95}}
+                                                className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                            >Précedent</motion.button>
+
+                                            <motion.button 
+                                            disabled={page === mesAdh.data?.adherents?.last_page} 
+                                            onClick={()=>{setPage(p => p + 1)}}
+                                            whileTap={{scale: 0.95}}
+                                                className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                            > Suivant</motion.button>
+                                        </div>
+                                    </div>
+
+                            </div>
                     )}
                 </div>
             )}
@@ -1394,8 +1506,9 @@ export default function DashboardStandard(){
             {activeTab === 'adherant' && (
                 <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
                     
-                    <div className="font-bold text-3xl">Gestion des Adhérants <br />
-                        <span className="text-gray-400 text-[16px]">Plan Standard - {nbrAdherants}/200 adhérants</span>
+                    <div className="flex flex-col gap-2" >
+                        <h1 className="font-bold text-3xl">Gestion des Adhérants</h1>
+                        <p className="text-gray-400 text-[18px]">Plan Standard - {nbrAdherants}/200 adhérants</p>
                     </div>
 
                     <div className="flex items-center justify-between my-8">
@@ -1407,7 +1520,7 @@ export default function DashboardStandard(){
                             value={search}
                             onChange={(e)=>{setSearch(e.target.value)}}
                                 className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
-                                placeholder="Rechercher des infos par page..."
+                                placeholder="Rechercher un adherant..."
                             />
                         </div>
 
@@ -1532,10 +1645,13 @@ export default function DashboardStandard(){
             {activeTab === 'abonnement' && (
                 <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
                     
-                    <div className="font-bold text-3xl flex items-center mb-3">Gestion Abonnements : 
-                        <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalExpire} expiré{totalExpire > 1 ? 's' : ''}</span>
+                    <div className="flex flex-col gap-2">
+                        <h1 className="font-bold text-3xl flex items-center">
+                            Gestion Abonnements : 
+                            <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalExpire} expiré{totalExpire > 1 ? 's' : ''}</span>
+                        </h1>
+                        <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
                     </div>
-                    <span className="text-gray-400 font-bold text-[16px]">Consultez et gérez vos abonnements</span>
 
                     <div className="flex items-center justify-between my-8">
                         <div className="flex items-center relative w-90">
@@ -1677,439 +1793,435 @@ export default function DashboardStandard(){
                 </div>
             )}
 
-            {activeTab === 'paiement' && (
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">Paiement</div>
-            )}
-
             {activeTab === 'settings' && (
                 <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-                    <div className="flex flex-col gap-2 font-bold text-3xl">
-                        <h1>Paramètres Généraux</h1>
-                        <span className="text-gray-400 text-[16px]">Gérer les informations de votre salle, votre profil, ainsi que la tarification</span>
+                    <div className="flex flex-col gap-2 ">
+                        <h1 className="font-bold text-3xl">Paramètres Généraux</h1>
+                        <p className="text-gray-400 text-[18px]">Gérer les informations de votre salle, votre profil, ainsi que la tarification</p>
                     </div>
 
                     <div className="grid grid-cols-4 gap-2">
                     
-                    <div className="col-span-2">
-                    {infosLoading ? (
-                        <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 animate-pulse">
-                            
-                            <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
-                            
-                            <div className="flex flex-col gap-2 my-3">
-                                <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                <div className="h-10 bg-gray-100 rounded-lg"></div>
-                            </div>
-                            <div className="flex flex-col gap-2 my-3">
-                                <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                <div className="h-10 bg-gray-100 rounded-lg"></div>
-                            </div>
-                            
-                            <div className="flex items-center justify-between gap-5">
-                                <div className="flex flex-col gap-2 my-3 w-full">
-                                    <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                    <div className="h-10 bg-gray-100 rounded-lg"></div>
+                        <div className="col-span-2">
+                            {infosLoading ? (
+                                <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 animate-pulse">
+                                    
+                                    <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
+                                    
+                                    <div className="flex flex-col gap-2 my-3">
+                                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                        <div className="h-10 bg-gray-100 rounded-lg"></div>
+                                    </div>
+                                    <div className="flex flex-col gap-2 my-3">
+                                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                        <div className="h-10 bg-gray-100 rounded-lg"></div>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between gap-5">
+                                        <div className="flex flex-col gap-2 my-3 w-full">
+                                            <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                            <div className="h-10 bg-gray-100 rounded-lg"></div>
+                                        </div>
+                                        
+                                        <div className="flex flex-col gap-2 my-3 w-full">
+                                            <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                            <div className="h-10 bg-gray-100 rounded-lg"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="my-3">
+                                        <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
+                                    </div>
                                 </div>
-                                
-                                <div className="flex flex-col gap-2 my-3 w-full">
-                                    <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                    <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                </div>
-                            </div>
-                            
-                            <div className="my-3">
-                                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                            </div>
-                            
-                            <div className="flex items-center gap-2">
-                                <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
-                            </div>
-                        </div>
-                    ):(
-                        <form onSubmit={UpdateInfos} className="bg-white border border-gray-300 rounded-lg p-4 my-5">
-                            <span className="font-semibold text-xl">Informations de la salle</span>
+                            ):(
+                                <form onSubmit={UpdateInfos} className="bg-white border border-gray-300 rounded-lg p-4 my-5">
+                                    <span className="font-semibold text-xl">Informations de la salle</span>
 
-                            <div className="flex flex-col gap-2 my-3">
-                                <label className="text-gray-400 flex gap-1">Nom de la salle 
-                                    <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                </label>
-                                <input type="text"
-                                    value={nom_salle}
-                                    onChange={(e)=>{ setNomSalle(e.target.value),update_infos.reset()}}
-                                    disabled={!showButtonSalle}
-                                    placeholder={!showButtonSalle ? infosSalle.nom_salle : 'Entrez le nouveau nom de votre salle'}
-                                    className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                />
-                            </div>
+                                    <div className="flex flex-col gap-2 my-3">
+                                        <label className="text-gray-400 flex gap-1">Nom de la salle 
+                                            <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                        </label>
+                                        <input type="text"
+                                            value={nom_salle}
+                                            onChange={(e)=>{ setNomSalle(e.target.value),update_infos.reset()}}
+                                            disabled={!showButtonSalle}
+                                            placeholder={!showButtonSalle ? infosSalle.nom_salle : 'Entrez le nouveau nom de votre salle'}
+                                            className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                        />
+                                    </div>
 
-                            <div className="flex flex-col gap-2 my-3">
-                                <label className="text-gray-400">Adresse</label>
-                                <input type="text"
-                                    disabled
-                                    placeholder={`${infosSalle.pays_salle} ${infosSalle.region_salle}`}
-                                    className="border bg-gray-100 border-gray-300 p-1 pl-3 font-semibold rounded-lg focus:outline-none"
-                                />
-                            </div>
+                                    <div className="flex flex-col gap-2 my-3">
+                                        <label className="text-gray-400">Adresse</label>
+                                        <input type="text"
+                                            disabled
+                                            placeholder={`${infosSalle.pays_salle} ${infosSalle.region_salle}`}
+                                            className="border bg-gray-100 border-gray-300 p-1 pl-3 font-semibold rounded-lg focus:outline-none"
+                                        />
+                                    </div>
 
-                            <div className="flex items-center justify-between gap-5">
-                                <div className="flex flex-col gap-2 my-3 w-full">
-                                    <label className="text-gray-400 flex gap-1">Pays 
-                                        <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                    </label>
-                                    <input type="text"
-                                        value={pays_salle}
-                                        onChange={(e)=>{ setPaysSalle(e.target.value),update_infos.reset()}}
-                                        disabled={!showButtonSalle}
-                                        placeholder={!showButtonSalle ? infosSalle.pays_salle : 'Entrez le pays où se trouve la salle'}
-                                        className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                    />
-                                </div>
+                                    <div className="flex items-center justify-between gap-5">
+                                        <div className="flex flex-col gap-2 my-3 w-full">
+                                            <label className="text-gray-400 flex gap-1">Pays 
+                                                <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                            </label>
+                                            <input type="text"
+                                                value={pays_salle}
+                                                onChange={(e)=>{ setPaysSalle(e.target.value),update_infos.reset()}}
+                                                disabled={!showButtonSalle}
+                                                placeholder={!showButtonSalle ? infosSalle.pays_salle : 'Entrez le pays où se trouve la salle'}
+                                                className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                            />
+                                        </div>
 
-                                <div className="flex flex-col gap-2 my-3 w-full">
-                                    <label className="text-gray-400 flex gap-1">Région
-                                        <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                    </label>
-                                    <input type="text"
-                                        value={region}
-                                        onChange={(e)=> {setRegion(e.target.value), update_infos.reset()}}
-                                        disabled={!showButtonSalle}
-                                        placeholder={!showButtonSalle ? infosSalle.region_salle : 'Entrez la région'}
-                                        className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                    />
-                                </div>
-                            </div>
+                                        <div className="flex flex-col gap-2 my-3 w-full">
+                                            <label className="text-gray-400 flex gap-1">Région
+                                                <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                            </label>
+                                            <input type="text"
+                                                value={region}
+                                                onChange={(e)=> {setRegion(e.target.value), update_infos.reset()}}
+                                                disabled={!showButtonSalle}
+                                                placeholder={!showButtonSalle ? infosSalle.region_salle : 'Entrez la région'}
+                                                className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                            />
+                                        </div>
+                                    </div>
 
-                            {updateError && (
-                                <p className="my-3 text-red-600 text-sm">{update_infos.error.message}</p>
-                            )}
+                                    {updateError && (
+                                        <p className="my-3 text-red-600 text-sm">{update_infos.error.message}</p>
+                                    )}
 
-                            {successUpdate && (
-                                <p className="my-3 text-green-600 text-sm">Infos de la salle mis à jour avec succès</p>
-                            )}
+                                    {successUpdate && (
+                                        <p className="my-3 text-green-600 text-sm">Infos de la salle mis à jour avec succès</p>
+                                    )}
 
-                            <p className="my-3 italic text-gray-400 text-sm">Date de création : {formatDate(infosSalle.created_at)} - Mis à jour : {formatDate(infosSalle.updated_at)}</p>
+                                    <p className="my-3 italic text-gray-400 text-sm">Date de création : {formatDate(infosSalle.created_at)} - Mis à jour : {formatDate(infosSalle.updated_at)}</p>
 
-                            <div className="flex items-center gap-2" >
-                                <div className={`${showButtonSalle ? 'hidden' : ''}`}>
-                               
-                                <motion.button
-                                    type="button" 
-                                    whileTap={{scale:0.95}}
-                                    onClick={()=>{setShowButtonSalle(true) }}
-                                    className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
-                                >
-                                    Modifier
-                                </motion.button>
-                                </div>
-                                {showButtonSalle && (
-                                    <div className={`${successUpdate ? setShowButtonSalle(false) : 'block'} gap-2 flex items-center`}>
-                                    <motion.button
-                                        type="button" 
-                                        whileTap={{scale:0.95}}
-                                        onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPaysSalle(''), setRegion('')}}
-                                        className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
-                                    >
-                                        Annuler
-                                    </motion.button>
-                                    <motion.button 
-                                        type="submit"
-                                        whileTap={{scale:0.95}}
-                                        disabled={updateLoading || !nom_salle.trim() || !pays_salle.trim() || !region.trim()}
-                                        className={`my-3 ${!nom_salle.trim() || !pays_salle.trim() || !region.trim() ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer '} border-orange-200 border-2 text-white font-semibold py-2 px-4 rounded-lg`}
-                                    >
-                                        {updateLoading ? (
-                                            <Loader2 className="animate-spin"/>
-                                        ):(
-                                            'Enregistrer'
+                                    <div className="flex items-center gap-2" >
+                                        <div className={`${showButtonSalle ? 'hidden' : ''}`}>
+                                    
+                                        <motion.button
+                                            type="button" 
+                                            whileTap={{scale:0.95}}
+                                            onClick={()=>{setShowButtonSalle(true) }}
+                                            className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
+                                        >
+                                            Modifier
+                                        </motion.button>
+                                        </div>
+                                        {showButtonSalle && (
+                                            <div className={`${successUpdate ? setShowButtonSalle(false) : 'block'} gap-2 flex items-center`}>
+                                            <motion.button
+                                                type="button" 
+                                                whileTap={{scale:0.95}}
+                                                onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPaysSalle(''), setRegion('')}}
+                                                className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
+                                            >
+                                                Annuler
+                                            </motion.button>
+                                            <motion.button 
+                                                type="submit"
+                                                whileTap={{scale:0.95}}
+                                                disabled={updateLoading || !nom_salle.trim() || !pays_salle.trim() || !region.trim()}
+                                                className={`my-3 ${!nom_salle.trim() || !pays_salle.trim() || !region.trim() ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer '} border-orange-200 border-2 text-white font-semibold py-2 px-4 rounded-lg`}
+                                            >
+                                                {updateLoading ? (
+                                                    <Loader2 className="animate-spin"/>
+                                                ):(
+                                                    'Enregistrer'
+                                                )}
+                                                
+                                            </motion.button>
+                                            </div>
                                         )}
-                                        
-                                    </motion.button>
                                     </div>
-                                )}
-                            </div>
-                        </form>
-                    )}
-                    </div>
+                                </form>
+                            )}
+                        </div>
 
-                    <div className=" border border-gray-300 rounded-lg p-4 my-5">
-                        <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
-                        <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
-                        <form className="flex flex-col relative items-center gap-4">
-                            
+                        <div className=" border border-gray-300 rounded-lg p-4 my-5">
+                            <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
+                            <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
+                            <form className="flex flex-col relative items-center gap-4">
+                                
 
-                            <motion.div
-                                whileHover={{ scale: 1.08 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="rounded-full w-50 h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
-                                onClick={() => logoInputRef.current.click()}
-                            >
-                                {preview ? (
-                                    <div className="relative w-full h-full">
-                                        <img src={preview} className="w-full h-full object-cover" />
-                                        <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                            
-                                        </div>
-                                    </div>
-                                ) : infosSalle?.logo_salle ? (
+                                <motion.div
+                                    whileHover={{ scale: 1.08 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="rounded-full w-50 h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
+                                    onClick={() => logoInputRef.current.click()}
+                                >
+                                    {preview ? (
                                         <div className="relative w-full h-full">
-                                            <img src={infosSalle.logo_salle} className="w-full h-full object-cover" />
+                                            <img src={preview} className="w-full h-full object-cover" />
                                             <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
                                                 
                                             </div>
                                         </div>
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                        <div className="flex flex-col items-center">
-                                        <PlusSquare size={50} />
-                                        <span className="font-bold">Ajouter votre logo</span>
+                                    ) : infosSalle?.logo_salle ? (
+                                            <div className="relative w-full h-full">
+                                                <img src={infosSalle.logo_salle} className="w-full h-full object-cover" />
+                                                <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+                                                    
+                                                </div>
+                                            </div>
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                            <div className="flex flex-col items-center">
+                                            <PlusSquare size={50} />
+                                            <span className="font-bold">Ajouter votre logo</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </motion.div>
+
+                                <input 
+                                    type="file" 
+                                    accept="image/*"
+                                    ref={logoInputRef}
+                                    hidden
+                                    onChange={handleLogo}
+                                />
+
+                                {logoSuccess && (
+                                    <p className="text-sm text-center text-green-500">Logo enregistré avec succès</p>
+                                )}
+
+                                {logoError && (
+                                    <p className="text-sm text-center text-red-500">{logoUpload.error.message}</p>
+                                )}
+
+                                {logoEditSuccess && (
+                                    <p className="text-sm text-center text-green-500">Logo modifié avec succès</p>
+                                )}
+
+                                {logoEditError && (
+                                    <p className="text-sm text-center text-red-500">{logoEditUpload.error.message}</p>
+                                )}
+
+                                {logoDelSuccess && (
+                                    <p className="text-sm text-center text-green-500">Logo supprimé avec succès</p>
+                                )}
+
+                                {logoDelError && (
+                                    <p className="text-sm text-center text-red-500">{logoDelUpload.error.message}</p>
+                                )}
+
+                                {logo && (
+                                    <div className="flex items-center gap-2">
+
+                                        <button
+                                            type='button'
+                                            className="text-sm border py-1 px-2 my-3 text-red-500"
+                                            onClick={()=>{setPreview(null);setLogo(null)}}
+                                            disabled={logoLoading || logoEditLoading}
+                                        >
+                                            Annuler
+                                        </button>
+
+                                        <button
+                                            type="submit"
+                                            onClick={(e)=>{infosSalle?.logo_salle ? handlePostLogo(e, 'PUT') : handlePostLogo(e, 'POST')}}
+                                            disabled={logoLoading || logoEditLoading }
+                                            className="px-4 py-1 bg-blue-500 text-white rounded"
+                                        >
+                                            {logoLoading || logoEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
+
+                                        </button>
+
+
+                                    </div>
+                                )}
+
+                                {infosSalle?.logo_salle && (
+                                    <div className={`flex items-center gap-2 ${logo ? "hidden" : "block"}`}>
+
+                                        <button
+                                            type="button"
+                                            className="text-sm border py-1 px-2 my-3 text-red-500"
+                                            onClick={()=>{setLogoModal(true)}}
+                                        >
+                                            Suprimmer
+                                            
+                                        </button>
+
+                                    </div>
+                                )}
+
+                                {logoModal && (
+                                    <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
+                                        <div className="flex items-center gap-2  animate-pulse">
+                                            <AlertTriangle className="h-8 w-8 text-red-500" />
+                                            <p className="font-semibold text-red-500">Cette action est irreversible !</p>
+                                        
+                                        </div>
+                                        <p className="text-white font-semibold">Supprimer définitivement ?</p>
+                                        <div className="flex gap-5 items-center justify-center">
+                                            <motion.button
+                                            type="button"
+                                                whileTap={{scale : 0.95}}
+                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
+                                                onClick={()=>{setLogoModal(false)}}
+                                            >Non</motion.button>
+                                            <motion.button
+                                                type="submit"
+                                                whileTap={{scale : 0.95}}
+                                                onClick={(e)=>{handlePostLogo(e, 'DELETE')}}
+                                                disabled={logoDelLoading}
+                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
+                                            >
+                                                {logoDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
+                                            </motion.button>
                                         </div>
                                     </div>
                                 )}
-                            </motion.div>
 
-                            <input 
-                                type="file" 
-                                accept="image/*"
-                                ref={logoInputRef}
-                                hidden
-                                onChange={handleLogo}
-                            />
+                            </form>
+                        </div>
 
-                            {logoSuccess && (
-                                <p className="text-sm text-center text-green-500">Logo enregistré avec succès</p>
-                            )}
+                        <div className=" border border-gray-300 rounded-lg p-4 my-5">
+                            <p className="font-semibold text-xl ">Cachet / Signature <span className="text-sm">(optionnel)</span></p>
+                            <p className="text-md mb-5 text-gray-400">Scannez votre signature pour les marquer sur vos factures</p>
+                            <form className="flex flex-col relative items-center gap-4">
+                                
 
-                            {logoError && (
-                                <p className="text-sm text-center text-red-500">{logoUpload.error.message}</p>
-                            )}
-
-                            {logoEditSuccess && (
-                                <p className="text-sm text-center text-green-500">Logo modifié avec succès</p>
-                            )}
-
-                            {logoEditError && (
-                                <p className="text-sm text-center text-red-500">{logoEditUpload.error.message}</p>
-                            )}
-
-                            {logoDelSuccess && (
-                                <p className="text-sm text-center text-green-500">Logo supprimé avec succès</p>
-                            )}
-
-                            {logoDelError && (
-                                <p className="text-sm text-center text-red-500">{logoDelUpload.error.message}</p>
-                            )}
-
-                            {logo && (
-                                <div className="flex items-center gap-2">
-
-                                    <button
-                                        type='button'
-                                        className="text-sm border py-1 px-2 my-3 text-red-500"
-                                        onClick={()=>{setPreview(null);setLogo(null)}}
-                                        disabled={logoLoading || logoEditLoading}
-                                    >
-                                        Annuler
-                                    </button>
-
-                                    <button
-                                        type="submit"
-                                        onClick={(e)=>{infosSalle?.logo_salle ? handlePostLogo(e, 'PUT') : handlePostLogo(e, 'POST')}}
-                                        disabled={logoLoading || logoEditLoading }
-                                        className="px-4 py-1 bg-blue-500 text-white rounded"
-                                    >
-                                        {logoLoading || logoEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
-
-                                    </button>
-
-
-                                </div>
-                            )}
-
-                            {infosSalle?.logo_salle && (
-                                <div className={`flex items-center gap-2 ${logo ? "hidden" : "block"}`}>
-
-                                    <button
-                                        type="button"
-                                        className="text-sm border py-1 px-2 my-3 text-red-500"
-                                        onClick={()=>{setLogoModal(true)}}
-                                    >
-                                        Suprimmer
-                                        
-                                    </button>
-
-                                </div>
-                            )}
-
-                            {logoModal && (
-                                <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
-                                    <div className="flex items-center gap-2  animate-pulse">
-                                        <AlertTriangle className="h-8 w-8 text-red-500" />
-                                        <p className="font-semibold text-red-500">Cette action est irreversible !</p>
-                                    
-                                    </div>
-                                    <p className="text-white font-semibold">Supprimer définitivement ?</p>
-                                    <div className="flex gap-5 items-center justify-center">
-                                        <motion.button
-                                        type="button"
-                                            whileTap={{scale : 0.95}}
-                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
-                                            onClick={()=>{setLogoModal(false)}}
-                                        >Non</motion.button>
-                                        <motion.button
-                                            type="submit"
-                                            whileTap={{scale : 0.95}}
-                                            onClick={(e)=>{handlePostLogo(e, 'DELETE')}}
-                                            disabled={logoDelLoading}
-                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
-                                        >
-                                            {logoDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
-                                        </motion.button>
-                                    </div>
-                                </div>
-                            )}
-
-                        </form>
-                    </div>
-
-                    <div className=" border border-gray-300 rounded-lg p-4 my-5">
-                        <p className="font-semibold text-xl ">Cachet / Signature <span className="text-sm">(optionnel)</span></p>
-                        <p className="text-md mb-5 text-gray-400">Scannez votre signature pour les marquer sur vos factures</p>
-                        <form className="flex flex-col relative items-center gap-4">
-                            
-
-                            <motion.div
-                                whileHover={{ scale: 1.08 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="rounded-lg w-full h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
-                                onClick={() => signInputRef.current.click()}
-                            >
-                                {previewSign ? (
-                                    <div className="relative w-full h-full">
-                                        <img src={previewSign} className="w-full h-full object-cover" />
-                                        <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                            
-                                        </div>
-                                    </div>
-                                ) : infosSalle?.cachet_signer ? (
+                                <motion.div
+                                    whileHover={{ scale: 1.08 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="rounded-lg w-full h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
+                                    onClick={() => signInputRef.current.click()}
+                                >
+                                    {previewSign ? (
                                         <div className="relative w-full h-full">
-                                            <img src={infosSalle.cachet_signer} className="w-full h-full object-cover" />
+                                            <img src={previewSign} className="w-full h-full object-cover" />
                                             <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
                                                 
                                             </div>
                                         </div>
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                        <div className="flex flex-col items-center">
-                                        <PlusSquare size={50} />
-                                        <span className="font-bold">Ajoutervotre signature/cachet</span>
+                                    ) : infosSalle?.cachet_signer ? (
+                                            <div className="relative w-full h-full">
+                                                <img src={infosSalle.cachet_signer} className="w-full h-full object-cover" />
+                                                <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+                                                    
+                                                </div>
+                                            </div>
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                            <div className="flex flex-col items-center">
+                                            <PlusSquare size={50} />
+                                            <span className="font-bold">Ajoutervotre signature/cachet</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </motion.div>
+
+                                <input 
+                                    type="file" 
+                                    accept="image/*"
+                                    ref={signInputRef}
+                                    hidden
+                                    onChange={handleSign}
+                                />
+
+                                {signSuccess && (
+                                    <p className="text-sm text-center text-green-500">Signature enregistré avec succès</p>
+                                )}
+
+                                {signError && (
+                                    <p className="text-sm text-center text-red-500">{signUpload.error.message}</p>
+                                )}
+
+                                {signEditSuccess && (
+                                    <p className="text-sm text-center text-green-500">Signature modifié avec succès</p>
+                                )}
+
+                                {signEditError && (
+                                    <p className="text-sm text-center text-red-500">{signEditUpload.error.message}</p>
+                                )}
+
+                                {signDelSuccess && (
+                                    <p className="text-sm text-center text-green-500">Logo supprimé avec succès</p>
+                                )}
+
+                                {signDelError && (
+                                    <p className="text-sm text-center text-red-500">{signDelUpload.error.message}</p>
+                                )}
+
+                                {sign && (
+                                    <div className="flex items-center gap-2">
+
+                                        <button
+                                            type='button'
+                                            className="text-sm border py-1 px-2 my-3 text-red-500"
+                                            onClick={()=>{setPreviewSign(null);setSign(null)}}
+                                            disabled={signLoading || signEditLoading}
+                                        >
+                                            Annuler
+                                        </button>
+
+                                        <button
+                                            type="submit"
+                                            onClick={(e)=>{infosSalle?.cachet_signer ? handlePostSign(e, 'PUT') : handlePostSign(e, 'POST')}}
+                                            disabled={signLoading || signEditLoading }
+                                            className="px-4 py-1 bg-blue-500 text-white rounded"
+                                        >
+                                            {signLoading || signEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
+
+                                        </button>
+
+
+                                    </div>
+                                )}
+
+                                {infosSalle?.cachet_signer && (
+                                    <div className={`flex items-center gap-2 ${sign ? "hidden" : "block"}`}>
+
+                                        <button
+                                            type="button"
+                                            className="text-sm border py-1 px-2 my-3 text-red-500"
+                                            onClick={()=>{setSignModal(true)}}
+                                        >
+                                            Suprimmer
+                                            
+                                        </button>
+
+                                    </div>
+                                )}
+
+                                {signModal && (
+                                    <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
+                                        <div className="flex items-center gap-2  animate-pulse">
+                                            <AlertTriangle className="h-8 w-8 text-red-500" />
+                                            <p className="font-semibold text-red-500">Cette action est irreversible !</p>
+                                        
+                                        </div>
+                                        <p className="text-white font-semibold">Supprimer définitivement ?</p>
+                                        <div className="flex gap-5 items-center justify-center">
+                                            <motion.button
+                                            type="button"
+                                                whileTap={{scale : 0.95}}
+                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
+                                                onClick={()=>{setSignModal(false)}}
+                                            >Non</motion.button>
+                                            <motion.button
+                                                type="submit"
+                                                whileTap={{scale : 0.95}}
+                                                onClick={(e)=>{handlePostSign(e, 'DELETE')}}
+                                                disabled={signDelLoading}
+                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
+                                            >
+                                                {signDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
+                                            </motion.button>
                                         </div>
                                     </div>
                                 )}
-                            </motion.div>
 
-                            <input 
-                                type="file" 
-                                accept="image/*"
-                                ref={signInputRef}
-                                hidden
-                                onChange={handleSign}
-                            />
-
-                            {signSuccess && (
-                                <p className="text-sm text-center text-green-500">Signature enregistré avec succès</p>
-                            )}
-
-                            {signError && (
-                                <p className="text-sm text-center text-red-500">{signUpload.error.message}</p>
-                            )}
-
-                            {signEditSuccess && (
-                                <p className="text-sm text-center text-green-500">Signature modifié avec succès</p>
-                            )}
-
-                            {signEditError && (
-                                <p className="text-sm text-center text-red-500">{signEditUpload.error.message}</p>
-                            )}
-
-                            {signDelSuccess && (
-                                <p className="text-sm text-center text-green-500">Logo supprimé avec succès</p>
-                            )}
-
-                            {signDelError && (
-                                <p className="text-sm text-center text-red-500">{signDelUpload.error.message}</p>
-                            )}
-
-                            {sign && (
-                                <div className="flex items-center gap-2">
-
-                                    <button
-                                        type='button'
-                                        className="text-sm border py-1 px-2 my-3 text-red-500"
-                                        onClick={()=>{setPreviewSign(null);setSign(null)}}
-                                        disabled={signLoading || signEditLoading}
-                                    >
-                                        Annuler
-                                    </button>
-
-                                    <button
-                                        type="submit"
-                                        onClick={(e)=>{infosSalle?.cachet_signer ? handlePostSign(e, 'PUT') : handlePostSign(e, 'POST')}}
-                                        disabled={signLoading || signEditLoading }
-                                        className="px-4 py-1 bg-blue-500 text-white rounded"
-                                    >
-                                        {signLoading || signEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
-
-                                    </button>
-
-
-                                </div>
-                            )}
-
-                            {infosSalle?.cachet_signer && (
-                                <div className={`flex items-center gap-2 ${sign ? "hidden" : "block"}`}>
-
-                                    <button
-                                        type="button"
-                                        className="text-sm border py-1 px-2 my-3 text-red-500"
-                                        onClick={()=>{setSignModal(true)}}
-                                    >
-                                        Suprimmer
-                                        
-                                    </button>
-
-                                </div>
-                            )}
-
-                            {signModal && (
-                                <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
-                                    <div className="flex items-center gap-2  animate-pulse">
-                                        <AlertTriangle className="h-8 w-8 text-red-500" />
-                                        <p className="font-semibold text-red-500">Cette action est irreversible !</p>
-                                    
-                                    </div>
-                                    <p className="text-white font-semibold">Supprimer définitivement ?</p>
-                                    <div className="flex gap-5 items-center justify-center">
-                                        <motion.button
-                                        type="button"
-                                            whileTap={{scale : 0.95}}
-                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
-                                            onClick={()=>{setSignModal(false)}}
-                                        >Non</motion.button>
-                                        <motion.button
-                                            type="submit"
-                                            whileTap={{scale : 0.95}}
-                                            onClick={(e)=>{handlePostSign(e, 'DELETE')}}
-                                            disabled={signDelLoading}
-                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
-                                        >
-                                            {signDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
-                                        </motion.button>
-                                    </div>
-                                </div>
-                            )}
-
-                        </form>
-                    </div>
+                            </form>
+                        </div>
                     </div>
 
                     
@@ -2541,17 +2653,19 @@ export default function DashboardStandard(){
                      initial = {{opacity: 0, y: 10}}
                     animate = {{opacity: 1, y: 0}}
                     transition={{duration: 0.5}}
-                    className="bg-red-200 rounded-lg z-20 px-3  flex flex-col justify-center gap-4 text-center absolute bottom-25 left-50 w-40 h-20 ">
-                    <span className="text-sm font-semibold">Êtes-vous sûr ?</span>
+                    className="bg-white shadow-lg border border-red-600 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute bottom-22 left-5 w-84 h-30 ">
+                    <span className="text-xl font-semibold">Êtes-vous sûr ?</span>
                     <div className="flex items-center justify-between">
-                        <button
+                        <motion.button
+                            whileTap={{scale:0.95}}
                             onClick={()=>setModalLogout(false)}
-                            className="cursor-pointer bg-orange-100 py-1 px-2 font-bold rounded-lg"
-                        >non</button>
-                        <button
+                            className=" shadow-lg transition-colors duration-200 hover:bg-transparent border border-gray-200 bg-gray-200 py-2 px-4 font-bold rounded-lg"
+                        >non</motion.button>
+                        <motion.button
+                            whileTap={{scale:0.95}}
                             onClick={logout}
-                            className="cursor-pointer bg-red-700 text-white py-1 px-2 font-bold rounded-lg"
-                        >oui</button>
+                            className="shadow-lg hover:bg-transparent hover:text-black border border-red-600 transition-colors duration-200 bg-red-700 text-white py-2 px-4 font-bold rounded-lg"
+                        >oui</motion.button>
                     </div>
                 </motion.div>
             )}

@@ -4,7 +4,7 @@ import ContactImage from "../../components/ui/image";
 import { Eye, EyeOff, Lock, User, KeyIcon, Loader2 } from "lucide-react";
 import Input from "../../components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
-import authimage from '../../assets/images/authimage.png'
+import authimage from '../../assets/images/Login.png'
 import Button from "../../components/ui/button";
 import { motion } from "framer-motion";
 import useGetUrl from "../../hooks/useGetUrl";
