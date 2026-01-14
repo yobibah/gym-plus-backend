@@ -18,6 +18,7 @@ use Log;
 class AbonnementController extends Controller
 {
     protected $plan = ["pro", "premium"];
+   
     public function reabonemment(Request $request)
     {
         $current = $request->user();
@@ -275,6 +276,8 @@ class AbonnementController extends Controller
             ], 500);
         }
     }
+
+
 
 
 }

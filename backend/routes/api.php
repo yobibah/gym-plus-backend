@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AbonnementController;
+use App\Http\Controllers\CoachController;
 use App\Http\Controllers\DepensesController;
 use Aws\Middleware;
 use Illuminate\Http\Request;
@@ -20,59 +21,63 @@ Route::post('/forgot-password', [AuthController::class, 'sendLink']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 Route::post('/accueil-form', [AuthController::class, 'demo']);
 
-Route::middleware(['auth:sanctum', 'isGerant'])->group(function () {
-  Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
+Route::middleware(['auth:sanctum'])->group(function () {
+  Route::middleware('isGerant')->group(function () {
+    Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
 
-  Route::get('/mes-infos', [UserController::class, 'mesInfo']);
-  Route::put('/update-password', [UserController::class, 'UpdateMdp']);
-  Route::put('/update-prix', [UserController::class, 'UpdatePrix']);
-  Route::put('/update-infos-perso', [UserController::class, 'UpdateUser']);
-  Route::delete('/delete-info', [UserController::class, 'deleteprix']);
-  Route::post('/ajouter-mes-prix', [UserController::class, 'AddSallePrix']);
-  Route::get('/mes-prix', [UserController::class, 'SallePrix'])->middleware('paiement');
-  Route::post('/ajouter-adherant', [UserController::class, 'AjouterAdherant']);
-  Route::post('/update-adherant', [UserController::class,'UpdateAdherent']);
-  Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
-
-  Route::post('/ajouter-logo', [UserController::class, 'Addlogo']);
-  Route::post('/delete-logo', [UserController::class, 'deleteLogo']);
-  Route::post('/update-logo', [UserController::class, 'EditLogo']);
-  Route::post('/ajouter-cachet', [UserController::class, 'CachetSigner']);
-  Route::delete('/delete-adherant', [UserController::class, 'DeleteAdherent']);
-  //acitive 
-  Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
-  Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
-  // definitions des prix
-
-
-  //gestion des gerants
+    Route::get('/mes-infos', [UserController::class, 'mesInfo']);
+    Route::put('/update-password', [UserController::class, 'UpdateMdp']);
+    Route::put('/update-prix', [UserController::class, 'UpdatePrix']);
+    Route::put('/update-infos-perso', [UserController::class, 'UpdateUser']);
+    Route::delete('/delete-info', [UserController::class, 'deleteprix']);
+    Route::post('/ajouter-mes-prix', [UserController::class, 'AddSallePrix']);
+    Route::get('/mes-prix', [UserController::class, 'SallePrix'])->middleware('paiement');
+    Route::post('/ajouter-adherant', [UserController::class, 'AjouterAdherant']);
+    Route::post('/update-adherant', [UserController::class, 'UpdateAdherent']);
+    Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
+    Route::post('/mis-niveau', [UserController::class, 'Mettre_a_Niveau']);
+    Route::post('/ajouter-logo', [UserController::class, 'Addlogo']);
+    Route::post('/delete-logo', [UserController::class, 'deleteLogo']);
+    Route::post('/update-logo', [UserController::class, 'EditLogo']);
+    Route::post('/ajouter-cachet', [UserController::class, 'CachetSigner']);
+    Route::delete('/delete-adherant', [UserController::class, 'DeleteAdherent']);
+    //acitive 
+    Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
+    Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
+    // definitions des prix
 
 
-  Route::get('/mes-adherant', [HomeController::class, 'MesAdherants']);
-  Route::get('/nbr-adherant', [HomeController::class, 'NbreAdherant']);
-  Route::get('/nbr-adherant-actif', [HomeController::class, 'AdherantActif']);
-  Route::get('/bientot-expirer', [HomeController::class, 'BientotExpirer']);
-  Route::get('/expirer', [HomeController::class, 'AdherantExpirer']);
+    //gestion des gerants
 
-  // gestion des abonnements
-  Route::post('/reabonner-adherant', [AbonnementController::class, 'reabonemment']);
 
-  Route::post('/info-salle', [SalleController::class, 'AjouterSalle']);
-  Route::put('/update-infos', [SalleController::class, 'updateSalle']);
-  Route::post('/payment', [PaiementController::class, 'simulation']);
+    Route::get('/mes-adherant', [HomeController::class, 'MesAdherants']);
+    Route::get('/nbr-adherant', [HomeController::class, 'NbreAdherant']);
+    Route::get('/nbr-adherant-actif', [HomeController::class, 'AdherantActif']);
+    Route::get('/bientot-expirer', [HomeController::class, 'BientotExpirer']);
+    Route::get('/expirer', [HomeController::class, 'AdherantExpirer']);
 
-  /// les depenses et recettes 
-  Route::get('/recette', [DepensesController::class, 'Recette']);
-  Route::get('/mes-depenses', [DepensesController::class, 'MesDepenses']);
-  Route::middleware(['pro', 'premium'])->group(function () {
-    Route::post('/suspendre-abonnement', [AbonnementController::class, 'SusprendreAbonnement']);
-    Route::post('reactiver-abonnement', [AbonnementController::class, 'reactiverAbonnemnt']);
+    // gestion des abonnements
+    Route::post('/reabonner-adherant', [AbonnementController::class, 'reabonemment']);
 
-    Route::post('/ajouter-depense', [DepensesController::class, 'ajouterDepense']);
+    Route::post('/info-salle', [SalleController::class, 'AjouterSalle']);
+    Route::put('/update-infos', [SalleController::class, 'updateSalle']);
+    Route::post('/payment', [PaiementController::class, 'simulation']);
 
+    /// les depenses et recettes 
+    Route::get('/recette', [DepensesController::class, 'Recette']);
+    Route::get('/mes-depenses', [DepensesController::class, 'MesDepenses']);
+    Route::get('/mes-coach', [CoachController::class, 'mesCoach']);
+    Route::middleware(['premium'])->group(function () {
+      Route::post('/suspendre-abonnement', [AbonnementController::class, 'SusprendreAbonnement']);
+      Route::post('reactiver-abonnement', [AbonnementController::class, 'reactiverAbonnemnt']);
+
+      Route::post('/ajouter-depense', [DepensesController::class, 'ajouterDepense']);
+      Route::post('/ajouter-coach', [CoachController::class, 'AjouterCoach']);
+
+    });
+
+    //  creer un middleware pour chaque les actions specifiques a chaque plan
   });
-
-  //  creer un middleware pour chaque les actions specifiques a chaque plan
 });
 
 

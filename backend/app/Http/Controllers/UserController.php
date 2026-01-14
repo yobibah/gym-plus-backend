@@ -3,15 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\facture;
-use App\Services\FactureService;
-use Codedge\Fpdf\Fpdf\Fpdf;
-use Egulias\EmailValidator\Validation\EmailValidation;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Log;
 use Exception;
 use App\Models\User;
-use App\Models\paiement;
 use App\Mail\welcomeMail;
 use App\Models\salleprix;
 use App\Models\abonnement;
@@ -26,6 +22,12 @@ use PHPUnit\Framework\Constraint\IsEmpty;
 
 class UserController extends Controller
 {
+    protected $limit = [
+        'pro' => 1000,
+        'standard' => 200,
+        'premium' => PHP_INT_MAX
+    ];
+    protected static $majniveau = 90;
     public function mesInfo(Request $request)
     {
         $user = $request->user();
@@ -244,13 +246,9 @@ class UserController extends Controller
             Log::info(' poue les adherant ' . $adherantCount);
             Log::info('abonnemet ' . $ab);
 
-            $limit = [
-                'pro' => 1000,
-                'standard' => 200,
-                'premium' => PHP_INT_MAX
-            ];
 
-            if ($adherantCount >= $limit[$plan]) {
+
+            if ($adherantCount >= $this->limit[$plan]) {
                 return response()->json([
                     'message' => 'vous avez atteint la limite autorise. Veuillez passer au plan supererieur'
                 ]);
@@ -677,7 +675,7 @@ class UserController extends Controller
         }
 
         try {
-            $rectoName = 'logo_'.$user->id. uniqid() . '.' . $request->file('logo')->extension();
+            $rectoName = 'logo_' . $user->id . uniqid() . '.' . $request->file('logo')->extension();
 
             $logopath = $request->file('logo')->storeAs('logo', $rectoName, 'minio');
 
@@ -702,7 +700,7 @@ class UserController extends Controller
 
     }
 
-    
+
 
 
     public function EditLogo(Request $request)
@@ -909,10 +907,10 @@ class UserController extends Controller
         $user = $request->user();
         $validator = Validator::make($request->all(), [
             'id' => 'required',
-            'nom'=>'required|string',
-            'prenom'=>'required|string',
-            'telephone'=> 'required|string',
-            'email'=>'required|email'
+            'nom' => 'required|string',
+            'prenom' => 'required|string',
+            'telephone' => 'required|string',
+            'email' => 'required|email'
 
         ]);
 
@@ -921,7 +919,7 @@ class UserController extends Controller
                 'message' => $validator->errors()->first(),
             ], 400);
         }
-        
+
 
 
         DB::beginTransaction();
@@ -941,10 +939,10 @@ class UserController extends Controller
             }
 
             $adh->update([
-                'name'=>$request->nom ?? $adh->name,
-                'prenom'=> $request->prenom ?? $adh->prenom,
-                'email'=> $request->email ?? $adh->email,
-                'telephone'=>$request->telephone ?? $adh->telephone
+                'name' => $request->nom ?? $adh->name,
+                'prenom' => $request->prenom ?? $adh->prenom,
+                'email' => $request->email ?? $adh->email,
+                'telephone' => $request->telephone ?? $adh->telephone
             ]);
             DB::commit();
             return response()->json([
@@ -982,7 +980,7 @@ class UserController extends Controller
         }
 
         try {
-            $rectoName = 'cachet_'.$user->id. uniqid() . '.' . $request->file('cachet')->extension();
+            $rectoName = 'cachet_' . $user->id . uniqid() . '.' . $request->file('cachet')->extension();
 
             $cachetpath = $request->file('cachet')->storeAs('logo', $rectoName, 'minio');
 
@@ -1006,4 +1004,96 @@ class UserController extends Controller
         }
 
     }
+
+    // c'est une methode de test apres on va ajouter les moyens de paienents
+    public function Mettre_a_Niveau(Request $request)
+{
+    $user = $request->user();
+
+    DB::beginTransaction();
+
+    try {
+        $paiemnt = $user->dernierPaiementReussi;
+
+        if (!$paiemnt) {
+            return response()->json([
+                'message' => 'aucun paiement trouvé'
+            ], 404);
+        }
+
+        $lim     = $paiemnt->limit;
+        $forfait = strtolower($paiemnt->plan);
+
+        // seuils par forfait
+        $tab = [
+            'standard' => [190, 200],
+            'pro'      => [900, 1000],
+        ];
+
+  
+        if ($forfait === 'premium') {
+            return response()->json([
+                'message' => 'deja a niveau'
+            ], 400);
+        }
+
+  
+        if (!isset($tab[$forfait])) {
+            return response()->json([
+                'message' => 'forfait invalide'
+            ], 400);
+        }
+
+        
+        $nouvelleLimite = $lim;
+
+        if (!in_array($nouvelleLimite, $tab[$forfait])) {
+            return response()->json([
+                'message' => 'vous avez encore une limite suffisante',
+                'niv'     => self::$majniveau,
+                'limit'   => $lim
+            ], 409);
+        }
+
+        if (in_array($forfait, $this->limit)) {
+            return response()->json([
+                'message' => 'vous avez besoin de vous reabonner'
+            ], 403);
+        }
+
+        switch (strtolower($forfait)) {
+            case 'pro':
+                $paiemnt->limit = intdiv( $lim ,10);
+                break;
+
+            case 'standard':
+                $paiemnt->limit = intdiv($lim , 20);
+                break;
+        }
+
+        $paiemnt->save();
+
+
+        $montant = $paiemnt->montant / 0.25;
+
+        DB::commit();
+
+        return response()->json([
+            'message'  => 'votre abonnement a ete mis a jour',
+            'message2' => 'vous pouvez prendre de nouveaux adherents',
+            'montant'  => $montant
+        ], 200);
+
+    } catch (Exception $e) {
+
+        DB::rollBack();
+
+        return response()->json([
+            'message' => 'une erreur est survenue',
+            'msg'     => $e->getMessage()
+        ], 500);
+    }
+}
+
+    
 }
