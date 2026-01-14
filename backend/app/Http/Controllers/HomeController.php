@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\HistoriqueResource;
+use App\Models\abonnement;
 use App\Models\historique;
+use App\Models\reabonnemen_trace;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,6 +16,9 @@ class HomeController extends Controller
     // dans ce controlleur je vais renvoyer tte les donner que le gerant de la salle voudra voir
     private int $cpt = 0;
     private float $mensuel =0;
+    private float  $trimestriel =0;
+    private float $annuel=0;
+
 
     public function MesAdherants(Request $request)
     {
@@ -40,16 +45,51 @@ class HomeController extends Controller
         // 
         // $abonmment = $adherents->Abonnement();
         // // $adherents->paginate(10);
-        // foreach ($adherents as $adh ){
-        //     if ($adh['data']->dernier_abonnement->plan === 'mensuel') {
-        //         $this->mensuel +=  $adh->abonnement->montant;
-        //     }
 
-        // }
+$abonnement =abonnement::where('salle_id',$current->salle->id)->get();
+$abonnementpas = reabonnemen_trace::where('salle_id',$current->salle->id)->get();
+
+foreach ($abonnement as $adh) {
+    $plan = $adh->plan;
+    if (!$abonnement) continue;
+
+    switch ($plan) {
+        case 'mensuel':
+            $this->mensuel += $adh->montant;
+            break;
+        case 'annuel':
+            $this->annuel += $adh->montant;
+            break;
+        case 'trimestriel':
+            $this->trimestriel += $adh->montant;
+            break;
+    }
+}
+
+
+foreach ($abonnementpas as $adh) {
+    $plan = $adh->plan;
+    if (!$abonnementpas) continue;
+
+    switch ($plan) {
+        case 'mensuel':
+            $this->mensuel += $adh->montant;
+            break;
+        case 'annuel':
+            $this->annuel += $adh->montant;
+            break;
+        case 'trimestriel':
+            $this->trimestriel += $adh->montant;
+            break;
+    }
+}
+
         return response()->json([
 
             'adherents' => $adherents ?? ' pas de d\'adherant',
-            'montant'=>$this->mensuel
+            'mensuel'=>$this->mensuel,
+            'trimestriel'=>$this->trimestriel,
+            'annuel'=>$this->annuel
 
 
         ]);

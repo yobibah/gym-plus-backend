@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Str;
 
 class User extends Authenticatable
 {
@@ -157,7 +158,7 @@ class User extends Authenticatable
     {
         return $this->hasOne(abonnement::class, 'adherant_id')
             ->where('actif', 1)
-            ->where('fin', '>=', Carbon::today())
+            ->whereDate('fin', '>=', Carbon::today())
             ->latestOfMany('fin');
     }
 
@@ -170,7 +171,7 @@ class User extends Authenticatable
     public function dernierPaiementReussi(): HasOne
     {
         return $this->hasOne(paiement::class, 'gerant_id')
-            ->where('status', 'reussi')->where('fin', '>=', Carbon::now())
+            ->whereDate('fin', '>=', Carbon::today())
             ->latestOfMany('fin');
     }
 
@@ -216,20 +217,37 @@ class User extends Authenticatable
     }
 
 
-    public function isGerant(){
-     return  $this->hasrole("Gerant") ? true : false;
+    public function isGerant()
+    {
+        return $this->hasrole("Gerant") ? true : false;
     }
 
-    public function isPro():bool{
+    public function isPro(): bool
+    {
         $plan = $this->dernierPaiementReussi->plan;
 
         return $plan === 'pro' ? true : false;
     }
 
 
-    public function isPremium():bool{
+    public function isPremium(): bool
+    {
         $plan = $this->dernierPaiementReussi->plan;
 
-        return $plan === 'premium'? true : false;
+        return $plan === 'premium' ? true : false;
     }
+
+    public function getNameAttribute($value)
+    {
+        return strtoupper($value);
+    }
+
+    public function getPrenomAttribute($value)
+    {
+        return strtolower($value);
+    }
+
+    // public function getEmailAttribute($value){
+    //     return Str::mask($value, '*',5,6);
+    // }
 }

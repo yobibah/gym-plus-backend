@@ -15,7 +15,7 @@ class MoneyfusionService {
         ])->post(config('moneyfusion.api_url'), [
             'totalPrice'    => $data['amount'],
             'article'       => $data['article'],
-            'personal_Info' => $data['personal_info'],
+            'personal_Info' => $data['personsal_info'],
             'numeroSend'    => $data['phone'],
             'nomclient'     => $data['name'],
             'return_url'    => config('moneyfusion.return_url'),
@@ -26,7 +26,9 @@ class MoneyfusionService {
         public function checkStatus(string $token)
     {
         return Http::get(
-            config('services.moneyfusion.check_url') . '/' . $token
+            config('moneyfusion.check_url') . '/' . $token
         )->json();
     }
+
+
 }

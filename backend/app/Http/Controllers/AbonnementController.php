@@ -87,7 +87,8 @@ class AbonnementController extends Controller
                 'adherant_id' => $abonnement_passer->adherant_id,
                 'salle_id' => $abonnement_passer->salle_id,
                 'abonnement_id' => $abonnement_passer->id,
-                'debut' => $abonnement_passer->debut
+                'debut' => $abonnement_passer->debut,
+                'montant'=>$abonnement_passer->montant
 
             ]);
             // $abonnement_passer->delete();

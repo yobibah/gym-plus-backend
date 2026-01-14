@@ -15,9 +15,11 @@ class HistoriqueResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return[
-            'date'=>$this->date_connexion,
-           'depuis' => Carbon::parse($this->date_connexion)->diffForHumans(),
+        return [
+            'date' => $this->date_connexion,
+            'depuis' => Carbon::parse($this->date_connexion)->diffForHumans(),
+            //    'appareil'=>$this->device,
+            //    'browser'=>$this->browser
         ];
     }
 }

@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sessions', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('reabonnemen_trace', function (Blueprint $table) {
+            $table->float('montant',2)->nullable();
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sessions');
+        Schema::table('reabonnemen_trace', function (Blueprint $table) {
+            //
+        });
     }
 };

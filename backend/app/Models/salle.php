@@ -54,6 +54,14 @@ class salle extends Model
             ->withTimestamps();
     }
 
+        public function coach()
+    {
+        return $this->belongsToMany(coach::class, 'coach_salle', 'salle_id', 'coach_id')
+            // ->withPivot(['date_inscription', 'statut'])
+            ->withTimestamps();
+    }
+
+
 
 
     public function adherentsActif()
@@ -64,6 +72,14 @@ class salle extends Model
     }
 
 
+
+    // public function Mensuel()
+    // {
+    //     return $this->belongsToMany(User::class, 'adherent_salle', 'salle_id', 'adherent_id')
+    //         ->whereHas('abonnements', fn ($q)=>$q->where('plan','mensuel'))
+    //         ->with()->get();
+          
+    // }
 
 
 
