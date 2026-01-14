@@ -1,9 +1,8 @@
 import React, {useState, useEffect} from "react";
 import { useSearchParams } from "react-router-dom";
 import form3 from '../../assets/images/form3.png'
-import Cookies from 'js-cookie'
+import { motion } from "framer-motion";
 import { getToken } from "../../hooks/getToken";
-import useGetUrl from "../../hooks/useGetUrl";
 import { useNavigate } from "react-router-dom";
 import { usePayment } from "../../contexts/PaymentContext";
 import { CheckCircle, Loader2, Lock, WalletCards, Smartphone } from "lucide-react";
@@ -21,7 +20,6 @@ export default function Paiement(){
     const choix_forfait = JSON.parse(localStorage.getItem('choix_forfait')) 
 
     const navigate = useNavigate()
-    const {apiUrl} = useGetUrl()
 
     useEffect(()=>{
 
@@ -77,7 +75,7 @@ export default function Paiement(){
     return(
         <>
         <div className="absolute inset-y-0 z-20 flex bg-cover bg-center">
-            <img src={form3} alt=""
+            <img src={form3} alt="image-de-validation-paiement"
                 className=" "
             />
         </div>
@@ -162,7 +160,8 @@ export default function Paiement(){
                             </div>
                         )}
 
-                        <button 
+                        <motion.button 
+                            whileHover={{scale:0.95}}
                             className="bg-orange-600 hover:bg-orange-700 mb-5 w-full justify-center flex items-center text-white font-bold rounded-lg gap-2 mx-auto p-3 transition-colors"
                             onClick={handlePayment}
                             disabled={loading}
@@ -177,7 +176,7 @@ export default function Paiement(){
                                     Payer maintenant
                                 </>
                             )}
-                        </button>
+                        </motion.button>
 
                         <span className="flex mb-4 items-center text-sm gap-1 justify-center text-gray-600">
                             <CheckCircle className="h-4 w-4"/>

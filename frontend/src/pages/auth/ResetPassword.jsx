@@ -2,11 +2,9 @@ import React, {useState} from "react";
 import coverhero from '../../assets/images/coverhero.png'
 import ContactImage from "../../components/ui/image"
 import Input from "../../components/ui/input";
-import authimage from '../../assets/images/authimage.png'
-import useGetUrl from "../../hooks/useGetUrl";
+import authimage from '../../assets/images/Reset-password-pana.png'
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { KeyIcon, Loader2 } from "lucide-react";
+import { KeyIcon, Loader2, MailIcon } from "lucide-react";
 import { postResetPassword } from "../../api/auth/postResetPassword";
 import { useMutation } from "@tanstack/react-query";
 
@@ -46,48 +44,50 @@ export default function ResetPassword(){
                     <ContactImage source={authimage} label={'illustration'} style={" w-150 h-150"} />
                 </div>
 
-                <form onSubmit={handleReset} className="shadow-black/50 rounded-tr-lg rounded-br-lg shadow-lg bg-black/50 backdrop-blur flex w-150 flex-col justify-center gap-8 md:px-10 h-150">
-                    <p className="text-white text-center text-4xl font-semibold"><span className="text-7xl italic font-bold text-orange-500">G</span>ym<span className="text-7xl italic font-bold text-orange-500">P</span>lus
+                <form onSubmit={handleReset} className="shadow-black/50 rounded-tr-lg rounded-br-lg shadow-lg bg-black/50 backdrop-blur flex w-150 flex-col justify-center gap-10 md:px-10 h-150">
+                    <p className="text-white text-center text-4xl font-semibold"><span className="text-7xl font-bold text-orange-500">G</span>ym<span className="text-7xl font-bold text-orange-500">P</span>lus
                     <span className="text-base italic ml-2">Le logiciel tout en un</span>
-                    </p>  
+                    </p> 
 
                     {error && (<span className="text-base font-bold text-center text-red-500 italic ml-2">{resetPass.error.message}</span>  
                     )}
-                    {success && (<span className="text-base font-bold text-center text-green-500 italic ml-2">Un lien de reinitialisation a été envoyé sur votre adresse mail</span>  
+                    {success && (<span className="text-base font-bold text-center text-green-500 italic ml-2">Un lien de reinitialisation a été envoyé sur votre adresse e-mail</span>  
                     )} 
-                    <div className=" px-10">
-                    <p className="text-2xl font-semibold text-white mb-2">Identifiant</p>
-                    <div className="relative flex items-center">
-                        <div className="border-r-2 border-orange-500 absolute inset-y-0">
-                            <KeyIcon className="w-10 h-10 p-2 bg-orange-500 text-white rounded-tl-lg rounded-bl-lg"/>
+                    <div className=" px-10 flex flex-col gap-5">
+                        <div>
+                            <p className="text-2xl font-semibold text-white">Adresse e-mail</p>
+                            <p className="text-sm text-red-500 font-semibold italic">NB: votre adresse e-mail servit lors de la création de compte</p>
                         </div>
-                        <Input 
-                            className={"text-white bg-transparent border-2 border-orange-500  focus:outline-none focus:ring-1 focus:ring-orange-500 rounded-lg w-full block pl-12 text-xl h-10  "}
-                            type={"email"}
-                            value={email}
-                            placeholder={"entrez votre adresse e-mail"}
-                            onChange={(e)=>{setEmail(e.target.value)
-                                resetPass.reset()
-                            }}
-                        />
-                    </div>
+                        <div className="relative flex items-center">
+                            <div className="border-r-2 flex items-center justify-center border-orange-500 absolute inset-y-0">
+                                <MailIcon className="w-10 h-10 w-full h-full p-2 bg-orange-500 text-white rounded-tl-lg rounded-bl-lg"/>
+                            </div>
+                            <Input 
+                                className={"text-white bg-transparent border-2 border-orange-500  focus:outline-none  rounded-lg w-full block pl-15 text-[18px] py-2  "}
+                                type={"email"}
+                                value={email}
+                                placeholder={"Saisissez..."}
+                                onChange={(e)=>{setEmail(e.target.value)
+                                    resetPass.reset()
+                                }}
+                            />
+                        </div>
                     </div>
 
 
-                <motion.button
-                    whileHover={{scale: 1.05}}
-                    whileTap={{scale: 0.95}}
-                    disabled={loading || !email.trim()}
-                    className={`flex items-center gap-2 font-semibold transition-colors duration-200 ${!email.trim() ? 'bg-gray-400 border-gray-400' : 'bg-orange-500 hover:bg-transparent border-orange-500'} border-2 text-xl mx-auto text-white p-2 px-4 rounded-lg cursor-pointer my-5`}
-                >
-                    {loading ? (
-                        <>
-                            <Loader2 className="h-5 w-5 animate-spin text-white"/>
-                            <div>Réinitialisation</div>
-                        </>
-                    ): (
-                        "Réinitialiser"
-                    )}
+                    <motion.button
+                        whileTap={{scale: 0.95}}
+                        disabled={loading || !email.trim()}
+                        className={`flex items-center gap-2 font-semibold transition-colors duration-200 ${!email.trim() ? 'bg-orange-300 border-orange-300 text-black/60' : 'bg-orange-500 hover:bg-transparent border-orange-500 text-white'} border text-xl mx-auto  p-2 px-4 rounded-lg my-5`}
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 className="h-5 w-5 animate-spin text-white"/>
+                                <div>En cours d'envoie...</div>
+                            </>
+                        ): (
+                            "Envoyez le lien"
+                        )}
                     </motion.button>
 
                 </form>

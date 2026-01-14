@@ -2,7 +2,6 @@ import React, {useState, useEffect, useRef} from "react";
 import Input from "../../components/ui/input";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle, Download, Loader2, XCircle } from "lucide-react";
-import useGetUrl from "../../hooks/useGetUrl";
 import { motion } from "framer-motion";
 import form2 from '../../assets/images/form2.png'
 import { usePayment } from "../../contexts/PaymentContext";
@@ -297,7 +296,6 @@ export default function InfoSalle(){
 
                     <div className="bg-orange-50  flex justify-end px-8 py-5">
                         <motion.button
-                            whileHover={{scale: 1.05}}
                             whileTap={{scale: 0.95}}
                             disabled={loading || !nomSalle.trim() || !numFiscale.trim() ||
                                 !numRegistre.trim() || !fileFiscale || !fileRegistre || !ville.trim()
@@ -306,7 +304,7 @@ export default function InfoSalle(){
                             className={`${
                                 !nomSalle.trim() || !numFiscale.trim() ||
                                 !numRegistre.trim() || !fileFiscale || !fileRegistre || !ville.trim()
-                                 || !pays.trim() || !region.trim() ? 'bg-gray-300 border-1 border-gray-300' : 'hover:bg-white hover:text-black bg-orange-600 border-1 border-orange-600'} 
+                                 || !pays.trim() || !region.trim() ? 'bg-orange-200 border border-orange-200' : 'hover:bg-white hover:text-black bg-orange-600 border-1 border-orange-600'} 
                                 text-xs font-bold text-white flex gap-1 items-center py-2 px-4 rounded-lg
                                 `}
                         >

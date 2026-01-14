@@ -2,7 +2,6 @@ import React, {useState, useEffect} from "react";
 import Input from "../../components/ui/input";
 import { useSearchParams, Link } from "react-router-dom";
 import { ArrowRight, CheckCircle, XCircle, Loader2, LoaderIcon, Beaker } from "lucide-react";
-import useGetUrl from "../../hooks/useGetUrl";
 import Cookies from 'js-cookie'
 import { getToken } from "../../hooks/getToken";
 import { useNavigate } from "react-router-dom";
@@ -299,7 +298,6 @@ export default function InfosLogin(){
                     <div className="bg-orange-50  flex justify-end px-8 py-5">
                         {otpStep ? (
                             <motion.button
-                                whileHover={{scale: 1.05}}
                                 whileTap={{scale: 0.95}}
                                 disabled={loadingCode || !otp.trim() || otp.length < 6 }
                                 className={`${
@@ -322,13 +320,12 @@ export default function InfosLogin(){
                         ):(
                             
                             <motion.button
-                                whileHover={{scale: 1.05}}
                                 whileTap={{scale: 0.95}}
                                 disabled={loadingInfos || !email.trim() || !nom.trim() ||
                                     !prenom.trim() || !tel.trim()
                                 }
                                 className={`${
-                                    !email.trim() || !nom.trim() || !prenom.trim() || !tel.trim() ? 'bg-gray-300 border-1 border-gray-300' : 'hover:bg-white hover:text-black bg-orange-600 border-1 border-orange-600'} 
+                                    !email.trim() || !nom.trim() || !prenom.trim() || !tel.trim() ? 'bg-orange-200 border border-orange-200' : 'hover:bg-white hover:text-black bg-orange-600 border-1 border-orange-600'} 
                                     text-xs font-bold text-white flex gap-1 items-center py-2 px-4 rounded-lg
                                     `}
                             >

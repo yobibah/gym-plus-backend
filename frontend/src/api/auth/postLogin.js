@@ -1,6 +1,4 @@
 import React from "react";
-import useGetUrl from "../../hooks/useGetUrl";
-import Cookies from 'js-cookie'
 import { apiUrl } from "../../../env";
 
 

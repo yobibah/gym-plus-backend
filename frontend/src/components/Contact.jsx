@@ -112,14 +112,13 @@ export default function Contact(){
                                 </div>
 
                                 <motion.div
-                                    whileHover={{scale: 1.05}}
                                     whileTap={{scale: 0.95}}
                                     className="flex items-center justify-center mt-4"
                                 >
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="w-full max-w-xs bg-orange-600 text-white font-bold py-3 px-6 rounded-xl cursor-pointer hover:bg-white hover:text-orange-600 hover:border-2 border-orange-600 transition-all duration-200 flex items-center justify-center gap-2"
+                                        className={`w-full max-w-xs ${!email.trim() || !message.trim() ? 'bg-orange-200 border-orange-200' : 'bg-orange-600 border-orange-600 hover:bg-white hover:text-orange-600'}  text-white font-bold py-3 px-6 rounded-xl   border  transition-all duration-200 flex items-center justify-center gap-2`}
                                     >
                                         {loading ? (
                                             <>

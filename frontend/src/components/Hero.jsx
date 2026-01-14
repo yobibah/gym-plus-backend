@@ -1,9 +1,6 @@
 import React from "react";
-import Button from "./ui/button";
-import { useNavigate } from "react-router-dom";
 import { Link } from "react-scroll";
 import { ArrowUpRight, Users, Receipt, LayoutDashboard, Medal, Settings, Dumbbell, ArrowDownRight } from "lucide-react";
-import heroimg from '../assets/images/heroimg.png'
 import stats from '../assets/images/stats.png'
 import coverhero from '../assets/images/coverhero.png'
 import {motion} from 'framer-motion'
@@ -11,7 +8,6 @@ import {motion} from 'framer-motion'
 
 export default function Hero(){
 
-    const navigate = useNavigate();
     return(
         <>
         <div className=" inset-0 -z-10 overflow-hidden ">
@@ -40,45 +36,42 @@ export default function Hero(){
                             </p>
                         </div>
                         <div className="flex items-center justify-center gap-3 mt-10 ">
-                            <motion.div
+                            <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                >
-                            <Button onClick={null}
-                                className="flex items-center text-sm md:text-2xl lg:text-lg  md:p-4 2xl:p-4 xl:p-4 lg:p-2 px-1 py-2 bg-orange-600 hover:bg-transparent border-2 border-orange-500 hover:text-black rounded-lg text-white font-bold transition-colors duration-200 cursor-pointer"
-                                title={
-                                    <Link 
+                            >
+
+                                
+                                <Link 
                                     to="suscribe" 
                                     smooth={true} 
                                     duration={600}
-                                    className="cursor-pointer"
-                                    >
+                                    className="flex items-center text-sm md:text-2xl lg:text-lg  md:p-4 2xl:p-4 xl:p-4 lg:p-2 px-1 py-2 bg-orange-600 hover:bg-transparent border-2 border-orange-500 hover:text-black rounded-lg text-white font-bold transition-colors duration-200 cursor-pointer"
+                                >
+                                    <ArrowUpRight className="ml-2 h-5 w-5" />
                                     Choisir un forfait
-                                    </Link>
-                                }
-                                icon={<ArrowUpRight className="ml-2 h-5 w-5" />}
+                                    
+                                </Link>
                                 
-                            />
-                            </motion.div>
-                            <motion.div
+                           
+                            </motion.button>
+                            <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                >
-                            <Button onClick={null}
-                                className="flex items-center text-sm lg:text-lg md:text-2xl md:p-4 2xl:p-4 xl:p-4 lg:p-2 px-1 py-2 border-2 border-orange-500 text-black hover:text-white hover:bg-orange-600 rounded-lg font-bold transition-colors cursor-pointer duration-200"
-                                title={
+                            >
                                     <Link 
-                                    to="contact" 
-                                    smooth={true} 
-                                    duration={600}
-                                    className="cursor-pointer"
+                                        to="contact" 
+                                        smooth={true} 
+                                        duration={600}
+                                        
+                                        className="flex items-center text-sm lg:text-lg md:text-2xl md:p-4 2xl:p-4 xl:p-4 lg:p-2 px-1 py-2 border-2 border-orange-500 text-black hover:text-white hover:bg-orange-600 rounded-lg font-bold transition-colors cursor-pointer duration-200"
                                     >
-                                    Demander une démo
+                                        <ArrowDownRight className="ml-2 h-5 w-5" />
+                                        Demander une démo
                                     </Link>
-                                }
-                                icon={<ArrowDownRight className="ml-2 h-5 w-5" />}
-                            />
-                            </motion.div>
+                                
+                            
+                            </motion.button>
                         </div>
                     </div>
                 </motion.div>
@@ -91,7 +84,7 @@ export default function Hero(){
                         transition={{ duration: 0.8, delay: 0.2 }}
                     >
                     <div className="2xl:w-4xl xl:w-2xl md:w-xl lg:w-lg w-[250px] h-full ">
-                        <img src={stats} alt=""
+                        <img src={stats} alt="statistiques"
                             className="w-full h-full object-contain"
                         />
                     </div>

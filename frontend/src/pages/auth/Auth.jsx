@@ -5,9 +5,7 @@ import { Eye, EyeOff, Lock, User, KeyIcon, Loader2 } from "lucide-react";
 import Input from "../../components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import authimage from '../../assets/images/Login.png'
-import Button from "../../components/ui/button";
 import { motion } from "framer-motion";
-import useGetUrl from "../../hooks/useGetUrl";
 import Cookies from "js-cookie";
 import { useMutation } from "@tanstack/react-query";
 import { postLogin } from "../../api/auth/postLogin";
@@ -62,8 +60,8 @@ export default function Auth (){
                     <ContactImage source={authimage} label={'illustration'} style={" w-150 h-150"} />
                 </div>
 
-                <form onSubmit={handleConnect} className="shadow-black/50 rounded-tr-lg rounded-br-lg shadow-lg bg-black/50 backdrop-blur flex w-150 flex-col justify-center gap-8 h-150">
-                    <p className="text-white text-center text-4xl font-semibold"><span className="text-7xl italic font-bold text-orange-500">G</span>ym<span className="text-7xl italic font-bold text-orange-500">P</span>lus
+                <form onSubmit={handleConnect} className="shadow-black/50 rounded-tr-lg rounded-br-lg shadow-lg bg-black/50 backdrop-blur flex w-150 flex-col justify-center gap-5 h-150">
+                    <p className="text-white text-center text-4xl font-semibold"><span className="text-7xl font-bold text-orange-500">G</span>ym<span className="text-7xl font-bold text-orange-500">P</span>lus
                     <span className="text-base italic ml-2">Le logiciel tout en un</span>
                     </p>  
 
@@ -71,71 +69,75 @@ export default function Auth (){
                     )}
                     {success && (<span className="text-base font-bold text-green-500 flex items-center justify-center italic ml-2 ">Connexions réussie, redirection... <Loader2 className="h-5 w-5 animate-spin text-green-500"/></span>  
                     )} 
-                    <div className=" px-10">
-                    <p className="text-2xl font-semibold text-white mb-2">Identifiant</p>
-                    <div className="relative flex items-center">
-                        <div className="border-r-2 border-orange-500 absolute inset-y-0">
-                            <KeyIcon className="w-10 h-10 p-2 bg-orange-500 text-white rounded-tl-lg rounded-bl-lg"/>
+                    <div className="flex flex-col gap-5 px-10">
+                        <div>
+                            <p className="text-2xl font-semibold text-white mb-2">Identifiant</p>
+                            <div className="relative flex items-center">
+                                <div className="border-r-2 flex items-center justify-center border-orange-500 absolute inset-y-0">
+                                    <KeyIcon className="w-10 h-10 w-full h-full p-2 bg-orange-500 text-white rounded-tl-lg rounded-bl-lg"/>
+                                </div>
+                                <Input 
+                                    className={"text-white bg-transparent border-2 border-orange-500  focus:outline-none  rounded-lg w-full block pl-15 text-[18px] py-2  "}
+                                    type={"text"}
+                                    value={identifiant}
+                                    placeholder={"Identifiant GymPlus"}
+                                    onChange={(e)=>{setIdentifiant(e.target.value)
+                                        login.reset();
+                                    }}
+                                />
+                            </div>
                         </div>
-                        <Input 
-                            className={"text-white bg-transparent border-2 border-orange-500  focus:outline-none focus:ring-1 focus:ring-orange-500 rounded-lg w-full block pl-12 text-xl h-10  "}
-                            type={"text"}
-                            value={identifiant}
-                            placeholder={"entrez votre identifiant"}
-                            onChange={(e)=>{setIdentifiant(e.target.value)
-                                login.reset();
-                            }}
-                        />
-                    </div>
-                    </div>
 
-                    <div className="px-10">
-                    <p className="text-2xl text-white font-semibold mb-2">Mot de passe</p>
-                    <div className="flex relative items-center">
-                        <div className="border-r-2 border-orange-500 absolute inset-y-0">
-                            <Lock className="w-10 h-10 p-2 bg-orange-500 text-white rounded-tl-lg rounded-bl-lg"/>
+                        <div className="">
+                            <p className="text-2xl text-white font-semibold mb-2">Mot de passe</p>
+                            <div className="flex relative items-center">
+                                <div className="border-r-2 flex items-center justify-center border-orange-500 absolute inset-y-0">
+                                    <Lock className="w-10 h-10 w-full h-full p-2 bg-orange-500 text-white rounded-tl-lg rounded-bl-lg"/>
+                                </div>
+                                <Input 
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    placeholder={"Entrez votre mot de passe"}
+                                    onChange={(e)=>{setPassword(e.target.value)
+                                        login.reset();
+                                    }}
+                                    className={"text-white focus:outline-none bg-transparent border-2 border-orange-500 rounded-lg w-full block pl-15 pr-9  text-[18px] py-2  "}
+                                />
+                                <div className="absolute right-0 mr-2 " onClick={(e)=>{setShowPassword(!showPassword)}}>
+                                    {showPassword ? <Eye className="text-orange-500 "/> : <EyeOff className="text-orange-500 "/>}
+                                    
+                                </div>
+                            </div>
                         </div>
-                        <Input 
-                            type={showPassword ? "text" : "password"}
-                            value={password}
-                            placeholder={"entrez votre mot de passe"}
-                            onChange={(e)=>{setPassword(e.target.value)
-                                login.reset();
-                               }}
-                            className={"text-white focus:outline-none focus:ring-1 focus:ring-orange-500 bg-transparent border-2 border-orange-500 rounded-lg w-full block pl-12 pr-9  text-xl h-10  "}
-                        />
-                        <div className="absolute right-0 mr-2 " onClick={(e)=>{setShowPassword(!showPassword)}}>
-                            {showPassword ? <Eye className="text-orange-500 "/> : <EyeOff className="text-orange-500 "/>}
-                            
+
+                        <div className="flex justify-end items-center">
+                            <Link to='/reset-password' className=" font-bold hover:text-orange-300 text-white transition-colors duration-200 underline  text-sm">Mot de passe oublié ?</Link>
+                        </div>
+
+                        <motion.button
+                            whileTap={{scale: 0.95}}
+                            disabled={loading || !identifiant.trim() || !password.trim()}
+                            className={`flex justify-center mx-auto items-center gap-2 font-semibold transition-colors duration-200  border text-xl 
+                                ${!identifiant.trim() || !password.trim() ? 'bg-orange-300 border-orange-300 text-black/60' : 'bg-orange-500 hover:bg-transparent border-orange-500 text-white '} p-2 px-4 rounded-lg my-5`}
+                        >
+                            {loading ? (
+                                <>
+                                    <Loader2 className="h-5 w-5 animate-spin text-white"/>
+                                    Connexion
+                                </>
+                            ):(
+                                "Se connecter"
+                            )}
+                        </motion.button>
+                        <hr className="text-orange-300"/>
+
+                        <div className="flex flex-col items-center justify-center text-sm text-white gap-1 ">
+                            <p>Pas de compte chez GymPus ?</p>
+                            <Link to="/" className="underline font-bold transition-colors duration-200  hover:text-orange-300 ">Choisissez un forfait et gérez vos salles dès maintenant</Link>
                         </div>
                     </div>
-                    </div>
 
-                    <div className="flex px-10 justify-end items-center">
-                    <Link to='/reset-password' className=" hover:text-orange-300 text-white transition-colors duration-200 underline  text-sm">Mot de passe oublié ?</Link>
-                    </div> 
-
-                <motion.button
-                    whileHover={{scale: 1.05}}
-                    whileTap={{scale: 0.95}}
-                    disabled={loading || !identifiant.trim() || !password.trim()}
-                    className={`flex items-center gap-2 font-semibold transition-colors duration-200  border-2 text-xl mx-auto 
-                        ${!identifiant.trim() || !password.trim() ? 'bg-gray-400 border-gray-400' : 'bg-orange-500 hover:bg-transparent border-orange-500'} text-white p-2 px-4 rounded-lg cursor-pointer my-5`}
-                >
-                    {loading ? (
-                        <>
-                            <Loader2 className="h-5 w-5 animate-spin text-white"/>
-                            <div>Connexion</div>
-                        </>
-                    ):(
-                        "Se connecter"
-                    )}
-                    </motion.button>
-
-                    <div className="flex items-center justify-center text-sm text-white gap-2 p-2 px-4">
-                        <p>Pas de compte ?</p>
-                        <Link to="/" className="underline  transition-colors duration-200  hover:text-orange-300 ">choisir un forfait</Link>
-                    </div>
+                    
 
                 </form>
 

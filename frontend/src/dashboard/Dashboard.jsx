@@ -1,11 +1,7 @@
-import React, { useEffect, useState } from "react";
-import Cookies from 'js-cookie'
-import useGetUrl from "../hooks/useGetUrl";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import { Loader2, XCircle } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
-// import { fetchDataPlan } from "../services/fetchPlan";
 import {fetchDataPlan} from '../api/fetchPlan'
 import DashboardStandard from "./standard/DashboardStandard";
 

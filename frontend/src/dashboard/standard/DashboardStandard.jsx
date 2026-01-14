@@ -4,10 +4,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/input";
 import Cookies from 'js-cookie'
-import useGetUrl from "../../hooks/useGetUrl";
 import { getToken } from "../../hooks/getToken";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiUrl } from "../../../env";
 import { FetchNombreAdherant } from "../../api/dashboard/standard/tableau/nombreAdh";
 import { FetchNombreActif } from "../../api/dashboard/standard/tableau/nombreActif";
 import { fetchPrix } from "../../api/dashboard/standard/tableau/mesPrix";
@@ -25,9 +23,6 @@ import { DeleteTarif } from "../../api/dashboard/standard/parametres/DeleteTarif
 import { addLogo } from "../../api/dashboard/standard/parametres/addLogo";
 import { UpdateLogo } from "../../api/dashboard/standard/parametres/changeLogo";
 import { DeleteLogo } from "../../api/dashboard/standard/parametres/deleteLogo";
-import { addCachet } from "../../api/dashboard/standard/parametres/addCachet";
-import { UpdateCachet } from "../../api/dashboard/standard/parametres/changeCachet";
-import { DeleteCachet } from "../../api/dashboard/standard/parametres/deleteCachet";
 import { DeleteAdh } from "../../api/dashboard/standard/adherants/deleteAdh";
 import checkvideo from '../../assets/videos/check2.gif'
 import { UpdateAdh } from "../../api/dashboard/standard/adherants/updateAdh";
@@ -72,10 +67,6 @@ export default function DashboardStandard(){
     const [preview, setPreview] = useState(null)
     const logoInputRef =useRef(null)
     const [logoModal, setLogoModal] = useState(false)
-    const [signModal, setSignModal] = useState(false)
-    const [sign, setSign] = useState(null)
-    const [previewSign, setPreviewSign] = useState(null)
-    const signInputRef =useRef(null)
     const [modalSupAdherant, setModalSupAdherant] = useState(false)
     const [modalUpAdherant, setModalUpAdherant] = useState(false)
     const [adhToDelete, setAdhToDelete] = useState(null)
@@ -97,15 +88,15 @@ export default function DashboardStandard(){
         setPreview(URL.createObjectURL(logoSelection))
     }
 
-    function handleSign(e){
-        const signSelection = e.target.files[0]
+    // function handleSign(e){
+    //     const signSelection = e.target.files[0]
 
-        if(!signSelection) return
+    //     if(!signSelection) return
 
-        setSign(signSelection)
-        signUpload.reset()
-        setPreviewSign(URL.createObjectURL(signSelection))
-    }
+    //     setSign(signSelection)
+    //     signUpload.reset()
+    //     setPreviewSign(URL.createObjectURL(signSelection))
+    // }
 
     const navigate = useNavigate()
     const token = getToken()
@@ -128,12 +119,6 @@ export default function DashboardStandard(){
             setActiveTab('abonnement')
             setShowAdd(false)
             setAbonnementTab('tous')
-            return
-        }
-
-        if(activeTab === 'paiement'){
-            setActiveTab('paiement')
-            setShowAdd(false)
             return
         }
 
@@ -562,95 +547,88 @@ export default function DashboardStandard(){
 
     }
 
+    // const signQuery = useQueryClient()
+    // const signUpload = useMutation({
+    //     mutationFn : addCachet,
+    //     onSuccess : (()=>{
+    //         setPreviewSign(null)
+    //         setSign(null)
+
+    //         signQuery.invalidateQueries(['mes-infos'])
+
+    //         setTimeout(()=>{
+    //             signUpload.reset()
+    //         }, 2500)
+    //     })
+    //     // onError : (()=>{
+
+    //     // })
+    // })
+    // const signLoading = signUpload.isPending
+    // const signSuccess = signUpload.isSuccess
+    // const signError = signUpload.isError
+
+    // const signEditQuery = useQueryClient()
+    // const signEditUpload = useMutation({
+    //     mutationFn : UpdateCachet,
+    //     onSuccess : (()=>{
+    //         setPreviewSign(null)
+    //         setSign(null)
+
+    //         signEditQuery.invalidateQueries(['mes-infos'])
+
+    //         setTimeout(()=>{
+    //             signEditUpload.reset()
+    //         }, 2500)
+    //     })
+    //     // onError : (()=>{
+
+    //     // })
+    // })
+    // const signEditLoading = signEditUpload.isPending
+    // const signEditSuccess = signEditUpload.isSuccess
+    // const signEditError = signEditUpload.isError
 
 
+    // const signDelQuery = useQueryClient()
+    // const signDelUpload = useMutation({
+    //     mutationFn : DeleteCachet,
+    //     onSuccess : (()=>{
+    //         setSignModal(false)
+    //         setPreviewSign(null)
+    //         setSign(null)
+
+    //         signDelQuery.invalidateQueries(['mes-infos'])
+
+    //         setTimeout(()=>{
+    //             signDelUpload.reset()
+    //         }, 2500)
+    //     }),
+    //     onError : (()=>{
+    //         setSignModal(false)
+    //     })
+    // })
+    // const signDelLoading = signDelUpload.isPending
+    // const signDelSuccess = signDelUpload.isSuccess
+    // const signDelError = signDelUpload.isError
 
 
+    // async function handlePostSign(e, action){
+    //     e.preventDefault()
 
+    //     const formData = new FormData()
+    //     formData.append("cachet", sign)
 
-
-    const signQuery = useQueryClient()
-    const signUpload = useMutation({
-        mutationFn : addCachet,
-        onSuccess : (()=>{
-            setPreviewSign(null)
-            setSign(null)
-
-            signQuery.invalidateQueries(['mes-infos'])
-
-            setTimeout(()=>{
-                signUpload.reset()
-            }, 2500)
-        })
-        // onError : (()=>{
-
-        // })
-    })
-    const signLoading = signUpload.isPending
-    const signSuccess = signUpload.isSuccess
-    const signError = signUpload.isError
-
-    const signEditQuery = useQueryClient()
-    const signEditUpload = useMutation({
-        mutationFn : UpdateCachet,
-        onSuccess : (()=>{
-            setPreviewSign(null)
-            setSign(null)
-
-            signEditQuery.invalidateQueries(['mes-infos'])
-
-            setTimeout(()=>{
-                signEditUpload.reset()
-            }, 2500)
-        })
-        // onError : (()=>{
-
-        // })
-    })
-    const signEditLoading = signEditUpload.isPending
-    const signEditSuccess = signEditUpload.isSuccess
-    const signEditError = signEditUpload.isError
-
-
-    const signDelQuery = useQueryClient()
-    const signDelUpload = useMutation({
-        mutationFn : DeleteCachet,
-        onSuccess : (()=>{
-            setSignModal(false)
-            setPreviewSign(null)
-            setSign(null)
-
-            signDelQuery.invalidateQueries(['mes-infos'])
-
-            setTimeout(()=>{
-                signDelUpload.reset()
-            }, 2500)
-        }),
-        onError : (()=>{
-            setSignModal(false)
-        })
-    })
-    const signDelLoading = signDelUpload.isPending
-    const signDelSuccess = signDelUpload.isSuccess
-    const signDelError = signDelUpload.isError
-
-
-    async function handlePostSign(e, action){
-        e.preventDefault()
-
-        const formData = new FormData()
-        formData.append("cachet", sign)
-
-        if(action === 'PUT'){
-            signEditUpload.mutate({formData})
-        } else if(action === 'DELETE'){
-            signDelUpload.mutate()
-        } else {
-            signUpload.mutate({formData})
-        }
+    //     if(action === 'PUT'){
+    //         signEditUpload.mutate({formData})
+    //     } else if(action === 'DELETE'){
+    //         signDelUpload.mutate()
+    //     } else {
+    //         signUpload.mutate({formData})
+    //     }
         
 
-    }
+    // }
 
 
     const supAdhQuery = useQueryClient()
@@ -1421,10 +1399,6 @@ export default function DashboardStandard(){
 
                     )}
 
-                    {view === "access-paiement" && (
-                        <div className="grid grid-cols-2 gap-5">Acces Paiement</div>
-                    )}
-
                     {view === "access-abonnement" && (
                             <div className="bg-white w-full my-8 rounded-lg ">
                                 <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
@@ -1908,7 +1882,7 @@ export default function DashboardStandard(){
                                             type="button" 
                                             whileTap={{scale:0.95}}
                                             onClick={()=>{setShowButtonSalle(true) }}
-                                            className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
+                                            className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
                                         >
                                             Modifier
                                         </motion.button>
@@ -1919,7 +1893,7 @@ export default function DashboardStandard(){
                                                 type="button" 
                                                 whileTap={{scale:0.95}}
                                                 onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPaysSalle(''), setRegion('')}}
-                                                className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
+                                                className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
                                             >
                                                 Annuler
                                             </motion.button>
@@ -1927,7 +1901,7 @@ export default function DashboardStandard(){
                                                 type="submit"
                                                 whileTap={{scale:0.95}}
                                                 disabled={updateLoading || !nom_salle.trim() || !pays_salle.trim() || !region.trim()}
-                                                className={`my-3 ${!nom_salle.trim() || !pays_salle.trim() || !region.trim() ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer '} border-orange-200 border-2 text-white font-semibold py-2 px-4 rounded-lg`}
+                                                className={`my-3 ${!nom_salle.trim() || !pays_salle.trim() || !region.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
                                             >
                                                 {updateLoading ? (
                                                     <Loader2 className="animate-spin"/>
@@ -1943,7 +1917,7 @@ export default function DashboardStandard(){
                             )}
                         </div>
 
-                        <div className=" border border-gray-300 rounded-lg p-4 my-5">
+                        <div className="col-span-2 border border-gray-300 rounded-lg p-4 my-5">
                             <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
                             <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
                             <form className="flex flex-col relative items-center gap-4">
@@ -2083,7 +2057,7 @@ export default function DashboardStandard(){
                             </form>
                         </div>
 
-                        <div className=" border border-gray-300 rounded-lg p-4 my-5">
+                        {/* <div className=" border border-gray-300 rounded-lg p-4 my-5">
                             <p className="font-semibold text-xl ">Cachet / Signature <span className="text-sm">(optionnel)</span></p>
                             <p className="text-md mb-5 text-gray-400">Scannez votre signature pour les marquer sur vos factures</p>
                             <form className="flex flex-col relative items-center gap-4">
@@ -2221,7 +2195,7 @@ export default function DashboardStandard(){
                                 )}
 
                             </form>
-                        </div>
+                        </div> */}
                     </div>
 
                     
@@ -2369,40 +2343,40 @@ export default function DashboardStandard(){
 
                             <div className="flex items-center gap-2" >
                                 <div className={`${showButtonProfil ? 'hidden' : ''}`}>
-                                <motion.button
-                                    type="button" 
-                                    whileTap={{scale:0.95}}
-                                    disabled={showPasswordChange}
-                                    onClick={()=>{setShowButtonProfil(true) }}
-                                    className={`my-3 ${showPasswordChange ? 'bg-gray-200  text-gray-400 border-gray-200' : 'cursor-pointer bg-gray-300 border-gray-200 text-black/80'} border-2 font-semibold py-2 px-4 rounded-lg`}
-                                >
-                                    Modifier
-                                </motion.button>
-                                </div>
-                                {showButtonProfil && (
-                                    <div className={`${persoSuccess ? setShowButtonProfil(false) : 'block'}`}>
                                     <motion.button
                                         type="button" 
                                         whileTap={{scale:0.95}}
-                                        onClick={()=>{setShowButtonProfil(false), setNomPerso(''), setPrenomPerso(''), setTelPerso('')}}
-                                        className="my-3 cursor-pointer bg-gray-300 border-gray-200 text-black/80 border-2 font-semibold py-2 px-4 rounded-lg"
+                                        disabled={showPasswordChange}
+                                        onClick={()=>{setShowButtonProfil(true) }}
+                                        className={`my-3 ${showPasswordChange ? 'bg-gray-200  text-gray-400 border-gray-200' : 'cursor-pointer bg-gray-300 border-gray-200 text-black/80'} border font-semibold py-2 px-4 rounded-lg`}
                                     >
-                                        Annuler
+                                        Modifier
                                     </motion.button>
-                                    <motion.button
-                                        type="submit"
-                                        // onClick={()=>{setActionProfil('PUT_PROFIL')}} 
-                                        whileTap={{scale:0.95}}
-                                        disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim()}
-                                        className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer '} border-orange-200 border-2 text-white font-semibold py-2 px-4 rounded-lg`}
-                                    >
-                                        {persoLoading ? (
-                                            <Loader2 className="animate-spin"/>
-                                        ):(
-                                            'Enregistrer'
-                                        )}
-                                        
-                                    </motion.button>
+                                </div>
+                                {showButtonProfil && (
+                                    <div className={`${persoSuccess ? setShowButtonProfil(false) : 'block flex items-center gap-2'}`}>
+                                        <motion.button
+                                            type="button" 
+                                            whileTap={{scale:0.95}}
+                                            onClick={()=>{setShowButtonProfil(false), setNomPerso(''), setPrenomPerso(''), setTelPerso('')}}
+                                            className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
+                                        >
+                                            Annuler
+                                        </motion.button>
+                                        <motion.button
+                                            type="submit"
+                                            // onClick={()=>{setActionProfil('PUT_PROFIL')}} 
+                                            whileTap={{scale:0.95}}
+                                            disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim()}
+                                            className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
+                                        >
+                                            {persoLoading ? (
+                                                <Loader2 className="h-5 w-5 animate-spin"/>
+                                            ):(
+                                                'Enregistrer'
+                                            )}
+                                            
+                                        </motion.button>
                                     </div>
                                 )}
                             </div>
@@ -3178,12 +3152,6 @@ export default function DashboardStandard(){
                     </div>
                 </div>
             )}
-
-
-            
-
-            
-        
         </div>
     )
 }

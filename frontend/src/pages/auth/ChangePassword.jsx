@@ -2,8 +2,7 @@ import React, {useEffect, useState} from "react";
 import coverhero from '../../assets/images/coverhero.png'
 import ContactImage from "../../components/ui/image"
 import Input from "../../components/ui/input";
-import authimage from '../../assets/images/authimage.png'
-import useGetUrl from "../../hooks/useGetUrl";
+import authimage from '../../assets/images/Reset-password-pana.png'
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, KeyIcon, Loader2, Lock } from "lucide-react";
@@ -60,8 +59,8 @@ export default function ChangePassword(){
                     <ContactImage source={authimage} label={'illustration'} style={" w-150 h-150"} />
                 </div>
 
-                <form onSubmit={handleReset} className="shadow-black/50 rounded-tr-lg rounded-br-lg shadow-lg bg-black/50 backdrop-blur flex w-150 flex-col justify-center gap-8 md:px-10 h-150">
-                    <p className="text-white text-center text-4xl font-semibold"><span className="text-7xl italic font-bold text-orange-500">G</span>ym<span className="text-7xl italic font-bold text-orange-500">P</span>lus
+                <form onSubmit={handleReset} className="shadow-black/50 rounded-tr-lg rounded-br-lg shadow-lg bg-black/50 backdrop-blur flex w-150 flex-col justify-center gap-10 md:px-10 h-150">
+                    <p className="text-white text-center text-4xl font-semibold"><span className="text-7xl font-bold text-orange-500">G</span>ym<span className="text-7xl font-bold text-orange-500">P</span>lus
                     <span className="text-base italic ml-2">Le logiciel tout en un</span>
                     </p>  
 
@@ -69,55 +68,51 @@ export default function ChangePassword(){
                     )}
                     {success && (<span className="text-base font-bold text-green-500 flex items-center justify-center italic ml-2">Changement réussie, redirection... <Loader2 className="h-5 w-5 animate-spin text-green-500"/></span>  
                     )} 
-                    <div className="px-10">
-                    <p className="text-2xl text-white font-semibold mb-2">Mot de passe</p>
-                    <div className="flex relative items-center">
-                        <div className="border-r-2 border-orange-500 absolute inset-y-0">
-                            <Lock className="w-10 h-10 p-2 bg-orange-500 text-white rounded-tl-lg rounded-bl-lg"/>
+                    <div className="px-10 flex flex-col gap-5">
+                        <p className="text-2xl text-white font-semibold">Mot de passe</p>
+                        <div className="flex relative items-center">
+                            <div className="border-r-2 flex items-center justify-center border-orange-500 absolute inset-y-0">
+                                <Lock className="w-10 h-10 w-full h-full p-2 bg-orange-500 text-white rounded-tl-lg rounded-bl-lg"/>
+                            </div>
+                            <Input 
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                placeholder={"Nouveau mot de passe"}
+                                onChange={(e)=>{setPassword(e.target.value)
+                                    change.reset()}}
+                                className={"text-white focus:outline-none bg-transparent border-2 border-orange-500 rounded-lg w-full block pl-15 pr-9 text-[18px] py-2  "}
+                            />
                         </div>
-                        <Input 
-                            type={showPassword ? "text" : "password"}
-                            value={password}
-                            placeholder={"nouveau mot de passe"}
-                            onChange={(e)=>{setPassword(e.target.value)
-                                change.reset()}}
-                            className={"text-white focus:outline-none focus:ring-1 focus:ring-orange-500 bg-transparent border-2 border-orange-500 rounded-lg w-full block pl-12 pr-9  text-xl h-10  "}
-                        />
-                    </div>
-                    </div>
 
-
-                    <div className="px-10">
-                    <div className="flex relative items-center">
-                        <div className="border-r-2 border-orange-500 absolute inset-y-0">
-                            <Lock className="w-10 h-10 p-2 bg-orange-500 text-white rounded-tl-lg rounded-bl-lg"/>
+                         <div className="flex relative items-center">
+                            <div className="border-r-2 flex items-center justify-center border-orange-500 absolute inset-y-0">
+                                <Lock className="w-10 h-10 w-full h-full p-2 bg-orange-500 text-white rounded-tl-lg rounded-bl-lg"/>
+                            </div>
+                            <Input 
+                                type={showPassword ? "text" : "password"}
+                                value={confirmPassword}
+                                placeholder={"Confirmer mot de passe"}
+                                onChange={(e)=>{setConfirmPassword(e.target.value)
+                                    change.reset()}}
+                                className={"text-white focus:outline-none bg-transparent border-2 border-orange-500 rounded-lg w-full block pl-15 pr-9 text-[18px] py-2  "}
+                            />
+                            <div className="absolute right-0 mr-2 " onClick={(e)=>{setShowPassword(!showPassword)}}>
+                                {showPassword ? <Eye className="text-orange-500 "/> : <EyeOff className="text-orange-500 "/>}
+                                
+                            </div>
                         </div>
-                        <Input 
-                            type={showPassword ? "text" : "password"}
-                            value={confirmPassword}
-                            placeholder={"confirmer mot de passe"}
-                            onChange={(e)=>{setConfirmPassword(e.target.value)
-                                change.reset()}}
-                            className={"text-white focus:outline-none focus:ring-1 focus:ring-orange-500 bg-transparent border-2 border-orange-500 rounded-lg w-full block pl-12 pr-9  text-xl h-10  "}
-                        />
-                        <div className="absolute right-0 mr-2 " onClick={(e)=>{setShowPassword(!showPassword)}}>
-                            {showPassword ? <Eye className="text-orange-500 "/> : <EyeOff className="text-orange-500 "/>}
-                            
-                        </div>
-                    </div>
                     </div>
 
 
                 <motion.button
-                    whileHover={{scale: 1.05}}
                     whileTap={{scale: 0.95}}
                     disabled={loading || !password.trim() || !confirmPassword.trim() || password !== confirmPassword || password.length < 8}
-                    className={`flex items-center gap-2 font-semibold transition-colors duration-200 ${!password.trim() || !confirmPassword.trim() || password !== confirmPassword ? 'border-gray-400 bg-gray-400' : 'hover:bg-transparent border-orange-500 bg-orange-500'} border-2 text-xl mx-auto  text-white p-2 px-4 rounded-lg cursor-pointer my-5`}
+                    className={`flex items-center gap-2 font-semibold transition-colors duration-200 ${!password.trim() || !confirmPassword.trim() || password !== confirmPassword ? 'bg-orange-300 border-orange-300 text-black/60' : 'hover:bg-transparent border-orange-500 bg-orange-500 text-white'} border text-xl mx-auto   p-2 px-4 rounded-lg  my-5`}
                 >
                     {loading ? (
                         <>
                             <Loader2 className="h-5 w-5 animate-spin text-white"/>
-                            <div>Réinitialisation</div>
+                            <div>En cours...</div>
                         </>
                     ):(
                         "Réinitialiser"
