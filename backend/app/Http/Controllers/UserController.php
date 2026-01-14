@@ -59,11 +59,11 @@ class UserController extends Controller
         }
 
         $adherant = User::create([
-            'name' => $data['nom'],
-            'email' => $data['email'],
+            'name' => strtolower($data['nom']),
+            'email' => strtolower($data['email']),
             'telephone' => $data['tel'],
-            'prenom' => $data['prenom'],
-            'username' => $data['nom'] . ' ' . $data['prenom'],
+            'prenom' => strtolower($data['prenom']),
+            'username' => strtolower($data['nom'] . ' ' . $data['prenom']),
             'password' => 'adherant'
         ]);
         $adherant->assignRole('Adherant');
@@ -193,10 +193,10 @@ class UserController extends Controller
         }
 
         $data = [
-            'name' => $request->nom,
-            'email' => $request->email,
-            'telephone' => $request->tel,
-            'prenom' => $request->prenom,
+            'name' => strtolower($request->nom),
+            'email' => strtolower($request->email),
+            'telephone' => strtolower($request->tel),
+            'prenom' => strtolower($request->prenom),
 
         ];
         if ($validator->fails()) {
@@ -243,7 +243,7 @@ class UserController extends Controller
             }
 
 
-            Log::info(' poue les adherant ' . $adherantCount);
+            Log::info(' pour les adherant ' . $adherantCount);
             Log::info('abonnemet ' . $ab);
 
 
@@ -1003,6 +1003,107 @@ class UserController extends Controller
             ]);
         }
 
+    }
+
+
+    public function Deletecachet(Request $request)
+    {
+
+        $user = $request->user();
+
+        DB::beginTransaction();
+        try {
+            $salle = $user->salle;
+            if ($salle->cachet_signer) {
+                $bucket = config('filesystems.disks.minio.bucket');
+
+                $path = parse_url($salle->cachet_signer, PHP_URL_PATH);
+                $path = ltrim($path, "/{$bucket}/");
+
+                if (Storage::disk('minio')->exists($path)) {
+                    Storage::disk('minio')->delete($path);
+                }
+            }
+
+            $salle->cachet_signer = null;
+            $salle->save();
+            DB::commit();
+
+            return response()->json([
+                'message' => 'votre logo a ete supprimer'
+            ], 200);
+
+
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'une erreur est survenue'
+            ], 500);
+        }
+    }
+
+    
+
+     public function EditCachet(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->hasRole('Gerant')) {
+            return response()->json([
+                'message' => 'vos droits sont restreints'
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'cachet' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $salle = $user->salle;
+
+        if (!$salle) {
+            return response()->json([
+                'message' => 'aucune salle associée'
+            ], 404);
+        }
+
+        try {
+
+            if ($salle->cachet_signer) {
+                $bucket = config('filesystems.disks.minio.bucket');
+
+                $path = parse_url($salle->cachet_signer, PHP_URL_PATH);
+                $path = ltrim($path, "/{$bucket}/");
+
+                if (Storage::disk('minio')->exists($path)) {
+                    Storage::disk('minio')->delete($path);
+                }
+            }
+
+
+            $newPath = $request->file('cachet')
+                ->store('logos', 'minio');
+
+
+            $salle->cachet_signer = Storage::disk('minio')->url($newPath);
+            $salle->save();
+
+            return response()->json([
+                'message' => 'logo modifié avec succès',
+                'logo' => $salle->cachet_signer
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'erreur lors de la modification du logo'
+            ], 500);
+        }
     }
 
     // c'est une methode de test apres on va ajouter les moyens de paienents

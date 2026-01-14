@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\HistoriqueResource;
+use App\Models\historique;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
 {
     // dans ce controlleur je vais renvoyer tte les donner que le gerant de la salle voudra voir
     private int $cpt = 0;
+    private float $mensuel =0;
 
     public function MesAdherants(Request $request)
     {
@@ -35,11 +39,17 @@ class HomeController extends Controller
 
         // 
         // $abonmment = $adherents->Abonnement();
-        // $adherents->paginate(10);
+        // // $adherents->paginate(10);
+        // foreach ($adherents as $adh ){
+        //     if ($adh['data']->dernier_abonnement->plan === 'mensuel') {
+        //         $this->mensuel +=  $adh->abonnement->montant;
+        //     }
 
+        // }
         return response()->json([
 
             'adherents' => $adherents ?? ' pas de d\'adherant',
+            'montant'=>$this->mensuel
 
 
         ]);
@@ -149,5 +159,16 @@ class HomeController extends Controller
 
     }
 
+    public function ConnexionHistorique(Request $request){
+        $user = $request->user();
+
+        $historique = Cache::remember('historique',100,function() use($user){
+            return historique::where('gerant_id',$user->id)->get();
+        });
+
+        return response()->json([
+            'historiques'=>HistoriqueResource::collection($historique)
+        ]);
+    }
     /// les autres seront biens reflechis et pensee pour le bien du code 
 }

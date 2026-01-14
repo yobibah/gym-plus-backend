@@ -40,7 +40,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/delete-logo', [UserController::class, 'deleteLogo']);
     Route::post('/update-logo', [UserController::class, 'EditLogo']);
     Route::post('/ajouter-cachet', [UserController::class, 'CachetSigner']);
+     Route::post('/delete-cachet', [UserController::class, 'deleteCachet']);
     Route::delete('/delete-adherant', [UserController::class, 'DeleteAdherent']);
+      Route::post('/update-cachet', [UserController::class, 'EditCachet']);
+    
     //acitive 
     Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
     Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
@@ -75,6 +78,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
       Route::post('/ajouter-coach', [CoachController::class, 'AjouterCoach']);
 
     });
+
+    Route::get('/mon-historique',[HomeController::class,'ConnexionHistorique']);
 
     //  creer un middleware pour chaque les actions specifiques a chaque plan
   });
