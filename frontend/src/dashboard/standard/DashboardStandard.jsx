@@ -1653,7 +1653,7 @@ export default function DashboardStandard(){
                     <div className="flex flex-col gap-2">
                         <h1 className="font-bold text-3xl flex items-center">
                             Gestion Abonnements : 
-                            <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalExpire} expiré{totalExpire > 1 ? 's' : ''}</span>
+                            <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalAbExpirer} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
                         </h1>
                         <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
                     </div>
