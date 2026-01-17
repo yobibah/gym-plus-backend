@@ -210,7 +210,7 @@ export default function DashboardStandard(){
 
 
     const abonnerExpire = useQuery({
-        queryKey : ['expirer'],
+        queryKey : ['abonner-expirer'],
         queryFn : AbonnementExpirer
     })
     const listExpirer = abonnerExpire.data?.expirer || []
