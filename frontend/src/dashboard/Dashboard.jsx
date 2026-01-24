@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import {fetchDataPlan} from '../api/fetchPlan'
 import DashboardStandard from "./standard/DashboardStandard";
 import DashboardPro from "./pro/DashboardPro";
+import logo from '../assets/images/coverhero.png'
 
 
 export default function Dashboard(){
@@ -18,10 +19,15 @@ export default function Dashboard(){
 
     const plan = planChoisit?.data?.plan
 
-
     if(planChoisit.isPending){
         return(
-           <Loader2 className="animate-spin flex items-center justify-center text-blue-500 h-10 w-10" />
+            <div className="flex flex-col gap-2 items-center justify-center h-screen">
+                <img src={logo} alt="logo gymPlus" className="w-100 h-100 animate-bounce" />
+                <div className="flex items-center gap-2">
+                <p className="text-orange-500 font-bold text-2xl">Chargement de votre tableau de bord...</p>
+                    <Loader2 className="animate-spin text-orange-500 h-10 w-10" />
+                </div>
+           </div>
         )
     }
 

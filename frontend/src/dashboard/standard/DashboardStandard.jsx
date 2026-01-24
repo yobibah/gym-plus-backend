@@ -91,15 +91,7 @@ export default function DashboardStandard(){
         setPreview(URL.createObjectURL(logoSelection))
     }
 
-    // function handleSign(e){
-    //     const signSelection = e.target.files[0]
-
-    //     if(!signSelection) return
-
-    //     setSign(signSelection)
-    //     signUpload.reset()
-    //     setPreviewSign(URL.createObjectURL(signSelection))
-    // }
+    
 
     const navigate = useNavigate()
     const token = getToken()
@@ -528,88 +520,6 @@ export default function DashboardStandard(){
 
     }
 
-    // const signQuery = useQueryClient()
-    // const signUpload = useMutation({
-    //     mutationFn : addCachet,
-    //     onSuccess : (()=>{
-    //         setPreviewSign(null)
-    //         setSign(null)
-
-    //         signQuery.invalidateQueries(['mes-infos'])
-
-    //         setTimeout(()=>{
-    //             signUpload.reset()
-    //         }, 2500)
-    //     })
-    //     // onError : (()=>{
-
-    //     // })
-    // })
-    // const signLoading = signUpload.isPending
-    // const signSuccess = signUpload.isSuccess
-    // const signError = signUpload.isError
-
-    // const signEditQuery = useQueryClient()
-    // const signEditUpload = useMutation({
-    //     mutationFn : UpdateCachet,
-    //     onSuccess : (()=>{
-    //         setPreviewSign(null)
-    //         setSign(null)
-
-    //         signEditQuery.invalidateQueries(['mes-infos'])
-
-    //         setTimeout(()=>{
-    //             signEditUpload.reset()
-    //         }, 2500)
-    //     })
-    //     // onError : (()=>{
-
-    //     // })
-    // })
-    // const signEditLoading = signEditUpload.isPending
-    // const signEditSuccess = signEditUpload.isSuccess
-    // const signEditError = signEditUpload.isError
-
-
-    // const signDelQuery = useQueryClient()
-    // const signDelUpload = useMutation({
-    //     mutationFn : DeleteCachet,
-    //     onSuccess : (()=>{
-    //         setSignModal(false)
-    //         setPreviewSign(null)
-    //         setSign(null)
-
-    //         signDelQuery.invalidateQueries(['mes-infos'])
-
-    //         setTimeout(()=>{
-    //             signDelUpload.reset()
-    //         }, 2500)
-    //     }),
-    //     onError : (()=>{
-    //         setSignModal(false)
-    //     })
-    // })
-    // const signDelLoading = signDelUpload.isPending
-    // const signDelSuccess = signDelUpload.isSuccess
-    // const signDelError = signDelUpload.isError
-
-
-    // async function handlePostSign(e, action){
-    //     e.preventDefault()
-
-    //     const formData = new FormData()
-    //     formData.append("cachet", sign)
-
-    //     if(action === 'PUT'){
-    //         signEditUpload.mutate({formData})
-    //     } else if(action === 'DELETE'){
-    //         signDelUpload.mutate()
-    //     } else {
-    //         signUpload.mutate({formData})
-    //     }
-        
-
-    // }
 
 
     const supAdhQuery = useQueryClient()
@@ -729,6 +639,7 @@ export default function DashboardStandard(){
     })
     const planActuel = planChoisit?.data?.plan
 
+
     const misNiveauQuery = useQueryClient()
     const misNiveau = useMutation({
         mutationFn : MisNiveau,
@@ -820,10 +731,19 @@ export default function DashboardStandard(){
     // const timeHistory = history.data?.historiques[totalHistory-1]?.depuis || 'N/A'
 
     const date = new Date
-    // const d = date.toISOString()
-
+    console.log('date', date)
     const d = date.toLocaleDateString('fr-FR')
+    const fin = formatDate(planChoisit?.data?.abonnement?.fin)
 
+    const getDaysDifference = (date1, date2) => {
+        const diffTime = date2.getTime() - date1.getTime();
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    };
+
+    const today = new Date();
+    const fin7 = planChoisit?.data?.abonnement?.fin;
+    const endDate = new Date(fin7);
+    const daysRemaining = getDaysDifference(today, endDate);
 
 
     return(
@@ -902,8 +822,8 @@ export default function DashboardStandard(){
                     <motion.button 
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
-                        disabled={misNiveauLoading}
-                        className="bg-orange-600 shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3"
+                        disabled={misNiveauLoading || daysRemaining <= 0}
+                        className={`${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-600'}  shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
                         onClick={handleNiveau}
                     >
                         {misNiveauLoading ? (
@@ -928,7 +848,33 @@ export default function DashboardStandard(){
                     
                     <div className="flex items-center mb-10 justify-between border-b-1 pb-5 border-gray-200">
                         <div className="flex flex-col gap-2 text-lg">
-                            <h1 className="font-bold text-3xl">Tableau de Bord</h1>
+                            <div className="flex items-center gap-5">
+                                <h1 className="font-bold text-3xl">Tableau de Bord</h1>
+                                {daysRemaining <= 0 && (
+                                    <div className="flex items-center gap-1 bg-red-100 px-4 rounded-full py-1">
+                                        <AlertTriangle className="text-red-500" />
+                                        <p className="text-red-500 font-bold">
+                                        {daysRemaining === 0 
+                                            ? "Votre abonnement expire aujourd'hui !" 
+                                            : "Votre abonnement est expiré !"
+                                        }
+                                        </p>
+                                    </div>
+                                    )}
+
+                                {0 < daysRemaining && daysRemaining <= 7 &&(
+                                    <div className="flex items-center gap-1 bg-red-100 px-4 animate-pulse rounded-full py-1">
+                                        <AlertTriangle className="text-red-500" />
+                                        <p className="text-red-500 font-bold">
+                                        {daysRemaining === 1 
+                                            ? "Votre abonnement expire demain !" 
+                                            : `Votre abonnement expirera dans ${daysRemaining} jours !`
+                                        }
+                                        </p>
+                                    </div>
+                                )}
+                                
+                            </div>
                             <p className="text-[18px] text-gray-400">Bienvenue {infosUser?.name || ''} {infosUser?.prenom || ''} !</p>
                             
                         </div>
@@ -1150,33 +1096,32 @@ export default function DashboardStandard(){
                         <div className="grid grid-cols-2 gap-5 ">
                     
 
-                            <motion.div 
+                            <motion.button 
                             whileHover={{scale: 1.02}}
                             whileTap={{scale: 0.98}}
+                            type="button"
+                            disabled={daysRemaining <= 0}
                             onClick={() =>
                                 setView(view === "access-adherant" ? "part-dashboard" : "access-adherant")
                             }
-                            className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-adherant" ? 'bg-orange-500' : 'bg-orange-100'} flex items-center rounded-xl justify-center py-4 gap-2`}>
+                            className={`transition-colors duration-200 hover:bg-orange-500 font-bold text-sm ${view === "access-adherant" ? 'bg-orange-500 text-white' : 'bg-orange-100 text-black'} flex items-center rounded-xl justify-center py-4 gap-2`}>
                                 <UserPlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-adherant" ? 'text-white' : 'text-black'}`}/>
-                                <button 
-                                    
-                                    className={`${view === "access-adherant"? 'text-white' : 'text-black'} transition-colors duration-200 font-bold text-sm`}
-                                >Nouvel Adhérant</button>
-                            </motion.div>
+                                
+                                Nouvel Adhérant
+                            </motion.button>
 
-                            <motion.div 
+                            <motion.button 
                             whileHover={{scale: 1.02}}
                             whileTap={{scale: 0.98}}
+                            type="button"
+                            disabled={daysRemaining <= 0}
                             onClick={() =>
                                 setView(view === "access-abonnement" ? "part-dashboard" : "access-abonnement")
                             }
-                            className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-abonnement" ? 'bg-orange-500' : 'bg-orange-100'} flex items-center rounded-xl justify-center py-4 gap-2`}>
+                            className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-abonnement" ? 'bg-orange-500 text-white' : 'bg-orange-100 text-black'} font-bold text-sm flex items-center rounded-xl justify-center py-4 gap-2`}>
                                 <SquarePlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-abonnement" ? 'text-white' : 'text-black'}`}/>
-                                <button 
-                                    
-                                    className={`${view === "access-abonnement" ? 'text-white' : 'text-black'} transition-colors duration-200 font-bold text-sm`}
-                                >Voir tous les abonnements</button>
-                            </motion.div>
+                                Voir tous les abonnements
+                            </motion.button>
 
                             
                         </div>
@@ -1532,8 +1477,9 @@ export default function DashboardStandard(){
                         <motion.button 
                             whileTap={{scale: 0.95}}
                             onClick={()=>{setShowAdd(true), setActiveTab('')}}
-                            
-                        className="flex font-bold text-white text-sm items-center hover:text-black gap-2 py-2 px-4 rounded-lg bg-orange-600 border border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer transition-colors duration-200">
+                            // disabled={daysRemaining <= 0}
+                            disabled={daysRemaining <= 0}
+                        className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
                             <Plus className="h-5 w-5 "/>
                             Ajouter un adhérant
                         </motion.button>
@@ -1597,16 +1543,18 @@ export default function DashboardStandard(){
                                         <td className="flex justify-center py-5 items-center gap-2 px-3">
                                             <motion.button
                                             type="button"
+                                            disabled={daysRemaining <= 0}
                                             onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}} 
                                                 whileTap={{scale: 0.95}}
-                                            className="border cursor-pointer border-orange-100 p-1 rounded-sm bg-orange-500">
+                                            className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
                                                 <Pencil className="text-white h-4 w-4"/>
                                             </motion.button>
                                             <motion.button
                                                 type="button"
+                                                disabled={daysRemaining <= 0}
                                                 onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item.id)}} 
                                                 whileTap={{scale: 0.95}}
-                                                className="border cursor-pointer border-red-100 p-1 rounded-sm bg-red-600"
+                                                className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
                                             >
                                                 <Trash className="h-4 w-4 text-white" />
                                             </motion.button>
@@ -1749,7 +1697,8 @@ export default function DashboardStandard(){
                                                         type="button"
                                                         onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className="border hover:bg-transparent hover:text-black transition-colors duration-200 border-blue-500 py-1 px-3 rounded-lg  text-white font-bold bg-blue-500">
+                                                        disabled={daysRemaining <= 0}
+                                                        className={`border ${daysRemaining <= 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
                                                         Reabonner
                                                     </motion.button>
                                                 ):(
