@@ -3,6 +3,7 @@
 use App\Http\Controllers\AbonnementController;
 use App\Http\Controllers\CoachController;
 use App\Http\Controllers\DepensesController;
+use App\Http\Controllers\YengaPayController;
 use Aws\Middleware;
 use Illuminate\Http\Request;
 use App\Http\Middleware\paiementMid;
@@ -39,11 +40,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/ajouter-logo', [UserController::class, 'Addlogo']);
     Route::post('/delete-logo', [UserController::class, 'deleteLogo']);
     Route::post('/update-logo', [UserController::class, 'EditLogo']);
-    Route::post('/ajouter-cachet', [UserController::class, 'CachetSigner']);
-     Route::post('/delete-cachet', [UserController::class, 'deleteCachet']);
+
     Route::delete('/delete-adherant', [UserController::class, 'DeleteAdherent']);
-      Route::post('/update-cachet', [UserController::class, 'EditCachet']);
-    
+
+
     //acitive 
     Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
     Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
@@ -59,27 +59,33 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/bientot-expirer', [HomeController::class, 'BientotExpirer']);
     Route::get('/expirer', [HomeController::class, 'AdherantExpirer']);
 
+
     // gestion des abonnements
     Route::post('/reabonner-adherant', [AbonnementController::class, 'reabonemment']);
 
     Route::post('/info-salle', [SalleController::class, 'AjouterSalle']);
     Route::put('/update-infos', [SalleController::class, 'updateSalle']);
-    Route::post('/payment', [PaiementController::class, 'simulation']);
+    // Route::post('/payment', [PaiementController::class, 'simulation']);
+    Route::post('/payment', [YengaPayController::class, 'payer']);
+
 
     /// les depenses et recettes 
     Route::get('/recette', [DepensesController::class, 'Recette']);
     Route::get('/mes-depenses', [DepensesController::class, 'MesDepenses']);
     Route::get('/mes-coach', [CoachController::class, 'mesCoach']);
-    Route::middleware(['premium'])->group(function () {
+    Route::post('/update-coach', [CoachController::class, 'UpdateCoach']);
+    Route::middleware(['proprem'])->group(function () {
       Route::post('/suspendre-abonnement', [AbonnementController::class, 'SusprendreAbonnement']);
       Route::post('reactiver-abonnement', [AbonnementController::class, 'reactiverAbonnemnt']);
-
+      Route::post('/ajouter-cachet', [UserController::class, 'CachetSigner']);
+      Route::post('/delete-cachet', [UserController::class, 'deleteCachet']);
+      Route::post('/update-cachet', [UserController::class, 'EditCachet']);
       Route::post('/ajouter-depense', [DepensesController::class, 'ajouterDepense']);
       Route::post('/ajouter-coach', [CoachController::class, 'AjouterCoach']);
 
     });
 
-    Route::get('/mon-historique',[HomeController::class,'ConnexionHistorique']);
+    Route::get('/mon-historique', [HomeController::class, 'ConnexionHistorique']);
 
     //  creer un middleware pour chaque les actions specifiques a chaque plan
   });

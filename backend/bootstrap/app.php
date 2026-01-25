@@ -1,9 +1,11 @@
 <?php
 
+use App\Console\Commands\Expirer;
 use App\Http\Middleware\estGerant;
 use App\Http\Middleware\paiementMid;
 use App\Http\Middleware\premium;
 use App\Http\Middleware\pro;
+use App\Http\Middleware\proprem;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -22,8 +24,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'isGerant' => estGerant::class,
             'pro' => pro::class,
             'premium' => premium::class,
+            'proprem'=>proprem::class
         ]);
     })
+    ->withCommands([
+        Expirer::class
+    ])
     ->withExceptions(function (Exceptions $exceptions): void {
 
     })->create();
