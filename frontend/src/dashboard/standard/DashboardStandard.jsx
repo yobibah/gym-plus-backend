@@ -761,8 +761,8 @@ export default function DashboardStandard(){
                         
                     </div>
                     <div className="flex flex-col">
-                        <div className="font-semibold text-2xl">{infosSalle?.nom_salle || 'GymPus'}</div> 
-                        <div className="text-orange-500 text-sm">Plan standard</div>
+                        <div className="font-semibold text-2xl">{infosSalle?.nom_salle || 'GymPlus'}</div> 
+                        <div className="text-orange-500 text-sm">Plan {planActuel}</div>
                     </div>
                 </div>
 
@@ -1458,7 +1458,7 @@ export default function DashboardStandard(){
                     
                     <div className="flex flex-col gap-2" >
                         <h1 className="font-bold text-3xl">Gestion des Adhérants</h1>
-                        <p className="text-gray-400 text-[18px]">Plan Standard - {nbrAdherants}/200 adhérants</p>
+                        <p className="text-gray-400 text-[18px]">Plan {planActuel} - {nbrAdherants}/200 adhérants</p>
                     </div>
 
                     <div className="flex items-center justify-between my-8">
