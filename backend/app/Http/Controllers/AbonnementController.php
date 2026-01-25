@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\ReabonnementMail;
-use App\Models\reabonnemen_trace;
+use Log;
 use App\Models\User;
 use App\Models\abonnement;
-use Illuminate\Database\Events\TransactionBeginning;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Mail\ReabonnementMail;
 use Illuminate\Support\Carbon;
+use App\Models\reabonnemen_trace;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
-use Log;
+use Illuminate\Database\Events\TransactionBeginning;
 
 class AbonnementController extends Controller
 {
@@ -43,7 +44,10 @@ class AbonnementController extends Controller
         }
         DB::beginTransaction();
 
+        collect(['abonemment','abonnementpas','adherentExpirer','bientotExpirer'])->each(fn($key)=>Cache::forget($key));
+
         try {
+
             $adherant = User::where('email', $request->email)->whereHas('roles', fn($q) => $q->where('name', 'Adherant'))->first();
             if (!$adherant) {
                 return response()->json([
@@ -141,6 +145,7 @@ class AbonnementController extends Controller
             ], 403);
 
         }
+        collect(['abonemment','abonnementpas'])->each(fn($key)=>Cache::forget($key));
 
         $validator = Validator::make($request->all(), [
             'id' => 'required|numeric'
@@ -228,7 +233,7 @@ class AbonnementController extends Controller
         }
 
         DB::beginTransaction();
-
+        collect(['abonemment','abonnementpas'])->each(fn($key)=>Cache::forget($key));
         try {
             $adh = User::find($request->id);
             if (!$adh) {
@@ -243,6 +248,7 @@ class AbonnementController extends Controller
                     'message' => 'cet utlisateur n\'existe pas dans votre salle'
                 ], 404);
             }
+            // verifier si l'abonnement a ete suspendu ou pas
 
             $abonnement = abonnement::VerifierSuspendu($request->id, $salle->id);
             if (!$abonnement) {
@@ -251,13 +257,15 @@ class AbonnementController extends Controller
                 ], 404);
             }
 
-            $dateReprise = Carbon::now();
+            // calculer les nouvelles date en cas de reprises
+            $dateReprise = $abonnement->fin;
 
-            $joursRestants = Carbon::parse($abonnement->fin)
-                ->diffInDays(Carbon::parse($abonnement->date_suspension));
+            $joursRestants = Carbon::parse($abonnement->date_suspension)
+                ->diffInDays(Carbon::parse($abonnement->fin));
 
+            Log::info('jours restant '.$joursRestants);
             $abonnement->date_suspension = null;
-            $abonnement->fin = $dateReprise->copy()->addDays($joursRestants);
+   $abonnement->fin = Carbon::now()->addDays($joursRestants);
             $abonnement->actif = 1;
             $abonnement->save();
 
