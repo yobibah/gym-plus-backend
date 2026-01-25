@@ -1,20 +1,22 @@
 <?php
 
-use App\Http\Controllers\AbonnementController;
-use App\Http\Controllers\CoachController;
-use App\Http\Controllers\DepensesController;
-use App\Http\Controllers\YengaPayController;
 use Aws\Middleware;
+use App\Exports\UserExport;
 use Illuminate\Http\Request;
 use App\Http\Middleware\paiementMid;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CoachController;
 use App\Http\Controllers\SalleController;
 use App\Http\Controllers\GerantController;
+use App\Http\Controllers\DepensesController;
 use App\Http\Controllers\PaiementController;
+use App\Http\Controllers\YengaPayController;
 use App\Http\Controllers\ActivitesController;
+use App\Http\Controllers\AbonnementController;
 
 Route::post('/login', [AuthController::class, 'Login']);
 Route::post('/infos-perso', [AuthController::class, 'Register']);
@@ -75,6 +77,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/mes-coach', [CoachController::class, 'mesCoach']);
     Route::post('/update-coach', [CoachController::class, 'UpdateCoach']);
     Route::middleware(['proprem'])->group(function () {
+
+   
+
       Route::post('/suspendre-abonnement', [AbonnementController::class, 'SusprendreAbonnement']);
       Route::post('reactiver-abonnement', [AbonnementController::class, 'reactiverAbonnemnt']);
       Route::post('/ajouter-cachet', [UserController::class, 'CachetSigner']);
@@ -90,8 +95,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //  creer un middleware pour chaque les actions specifiques a chaque plan
   });
 });
+   Route::get('/export/users/{gerantId}', function ($gerantId) {
 
-
+        return Excel::download(new UserExport($gerantId), 'users_gerant_' . $gerantId . '.xlsx');
+      });
 
 
 
