@@ -1,4 +1,4 @@
-import { AlarmClockIcon, AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, BadgeCheck, Bell, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, Clock, Euro, LayoutDashboard, LayoutDashboardIcon, Loader2, LogOut, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserCog, UserPlus, UserPlus2, Users, Wallet, WalletCards, Weight, X, XCircle } from "lucide-react";
+import { AlarmClockIcon, AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, BadgeCheck, Bell, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, Circle, CircleAlert, Clock, Download, Euro, ExpandIcon, Eye, LayoutDashboard, LayoutDashboardIcon, Loader2, LogOut, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserCog, UserPlus, UserPlus2, Users, Wallet, WalletCards, Weight, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -97,6 +97,8 @@ export default function DashboardPro(){
     const [suspendreModal, setSuspendreModal] = useState(false)
     const [react, setReact] = useState(null)
     const [reactiverModal, setReactiverModal] = useState(false)
+
+    const [detailAdherant, setDetailAdherant] = useState(false)
     
     function handleNotif(){
         setNotifModal(!notifModal)
@@ -752,6 +754,8 @@ export default function DashboardPro(){
             }, 5000)
 
             reabQuery.invalidateQueries(['nbr_actif'])
+            suspQuery.invalidateQueries(['mes-adherant'])
+            suspQuery.invalidateQueries(['expire-bientot'])
             reabQuery.invalidateQueries(['abonner-expirer'])
         }),
 
@@ -790,6 +794,8 @@ export default function DashboardPro(){
             }, 5000)
 
             suspQuery.invalidateQueries(['nbr_actif'])
+            suspQuery.invalidateQueries(['mes-adherant'])
+            suspQuery.invalidateQueries(['expire-bientot'])
             suspQuery.invalidateQueries(['abonner-expirer'])
         }),
 
@@ -824,6 +830,8 @@ export default function DashboardPro(){
             }, 5000)
 
             reactQuery.invalidateQueries(['nbr_actif'])
+            suspQuery.invalidateQueries(['mes-adherant'])
+            suspQuery.invalidateQueries(['expire-bientot'])
             reactQuery.invalidateQueries(['abonner-expirer'])
         }),
 
@@ -1226,7 +1234,7 @@ export default function DashboardPro(){
                                     <p className="text-gray-400 font-bold text-[18px]">Adhérants</p>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-3xl">{nbrAdherants} / 1000</p>
+                                    <p className="font-bold text-3xl">{nbrAdherants || 0} / 1000</p>
                                 </div>
                             </motion.div>
                             <motion.div 
@@ -1236,7 +1244,7 @@ export default function DashboardPro(){
                                     <p className="text-gray-400 font-bold text-[18px]">Adhérants Actifs</p>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-3xl text-green-500">{nbrAdherantsActif}</p>
+                                    <p className="font-bold text-3xl text-green-500">{nbrAdherantsActif || 0}</p>
                                 </div>
                             </motion.div>
                             <motion.div 
@@ -1312,16 +1320,21 @@ export default function DashboardPro(){
                                     <h3 className="font-bold">Alertes Intelligentes</h3>
                                     <div className="">
                                         <div className="flex gap-2 items-center">
-                                            <div className="flex items-center rounded-full justify-center p-1 bg-yellow-50">
+                                            <div className="flex items-center rounded-full justify-center p-1 bg-yellow-100">
                                                 <Calendar className="h-5 w-5 text-yellow-500"/>
                                             </div>
                                             <p className="text-sm font-semibold">15 abonnements expirent cette semaine</p>
                                         </div>
                                         <div className="flex gap-2 items-center">
-                                            <div className="flex items-center rounded-full justify-center p-1 bg-red-50">
-                                                <WalletCards className="h-5 w-5 text-red-500"/>
+                                            <div className="flex items-center rounded-full justify-center p-1 bg-red-100">
+                                                <CalendarOff className="h-5 w-5 text-red-500"/>
                                             </div>
-                                            <p className="text-sm font-semibold">{totalAbExpirer} abonnements expirés</p>
+                                            {/* <p className="text-sm font-semibold">{totalAbExpirer > 0 ? {totalAbExpirer} : 'Aucun'} abonnement{totalAbExpirer > 0 ? 's' : ''} expiré{totalAbExpirer > 0 ? 's':''}</p> */}
+                                            {totalAbExpirer >= 1 ? (
+                                                <p className="text-sm font-semibold">{totalAbExpirer} abonnements expirés</p>
+                                            ):(
+                                                <p className="text-sm font-semibold">Aucun abonnement expiré</p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -1440,15 +1453,25 @@ export default function DashboardPro(){
                             />
                         </div>
 
-                        <motion.button 
-                            whileTap={{scale: 0.95}}
-                            onClick={()=>{setShowAdd(true), setActiveTab('')}}
-                            // disabled={daysRemaining <= 0}
-                            disabled={daysRemaining <= 0}
-                        className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
-                            <Plus className="h-5 w-5 "/>
-                            Ajouter un adhérant
-                        </motion.button>
+                        <div className="flex items-center gap-2">
+                            <motion.button 
+                                whileTap={{scale: 0.95}}
+                                disabled={daysRemaining <= 0}
+                            className={`flex font-bold  text-sm items-center ${daysRemaining <= 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400 cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
+                                <Download className="h-5 w-5 "/>
+                                Export CSV
+                            </motion.button>
+
+                            <motion.button 
+                                whileTap={{scale: 0.95}}
+                                onClick={()=>{setShowAdd(true), setActiveTab('')}}
+                                // disabled={daysRemaining <= 0}
+                                disabled={daysRemaining <= 0}
+                            className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
+                                <Plus className="h-5 w-5 "/>
+                                Ajouter un adhérant
+                            </motion.button>
+                        </div>
                     </div>
 
                     {/* A revoir avec les vraies donnees */}
@@ -1462,7 +1485,7 @@ export default function DashboardPro(){
                                     <th className=" p-3">Forfait</th>
                                     <th className=" p-3">Montant</th>
                                     <th className=" p-3">Statut</th>
-                                    <th className=" p-3">Fin d'abonnement</th>
+                                    {/* <th className=" p-3">Fin d'abonnement</th> */}
                                     <th className=" p-3">Actions</th>
                                 </tr>
                             </thead>
@@ -1505,14 +1528,21 @@ export default function DashboardPro(){
                                                 </span>
                                             </td>
                                         )}
-                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
+                                        {/* <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td> */}
                                         <td className="flex justify-center py-5 items-center gap-2 px-3">
                                             <motion.button
-                                            type="button"
-                                            disabled={daysRemaining <= 0}
-                                            onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}} 
+                                                type="button"
+                                                onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}} 
+                                                    whileTap={{scale: 0.95}}
+                                                className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm `}>
+                                                <Eye className="text-gray-600 h-4 w-4"/>
+                                            </motion.button>
+                                            <motion.button
+                                                type="button"
+                                                disabled={daysRemaining <= 0}
+                                                onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}} 
                                                 whileTap={{scale: 0.95}}
-                                            className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
+                                                className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
                                                 <Pencil className="text-white h-4 w-4"/>
                                             </motion.button>
                                             <motion.button
@@ -1658,31 +1688,40 @@ export default function DashboardPro(){
                                             
                                             <td className="flex justify-center py-5 items-center gap-2 px-3">
                                                 
-                                                {((formatDate(item.dernier_abonnement?.fin) <= d ) && (!item.dernier_abonnement?.actif)) ? (
-                                                    <motion.button
-                                                        type="button"
-                                                        onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
-                                                        whileTap={{scale: 0.95}}
-                                                        disabled={daysRemaining <= 0}
-                                                        className={`border ${daysRemaining <= 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
-                                                        Reabonner
-                                                    </motion.button>
-                                                ): suspSuccess ? (
-                                                    <motion.button
-                                                        type="button"
-                                                        disabled={daysRemaining <= 0}
-                                                        onClick={()=>{setReactiverModal(true), setReact(item)}}
-                                                        className={`border  border-red-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-red-500`}>
-                                                        Réactiver
-                                                    </motion.button>
-                                                ):(
-                                                    <motion.button
-                                                        type="button"
-                                                        disabled={daysRemaining <= 0}
-                                                        onClick={()=>{setSuspendreModal(true), setSuspen(item)}}
-                                                        className={` border  border-red-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-red-500`}>
-                                                        Suspendre
-                                                    </motion.button>
+                                                {!item.dernier_abonnement?.actif ? (
+                                                    <div className="flex items-center gap-2">
+                                                    {item.dernier_abonnement?.date_suspension === null ?(
+                                                        <motion.button
+                                                            type="button"
+                                                            onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
+                                                            whileTap={{scale: 0.95}}
+                                                            disabled={daysRemaining <= 0}
+                                                            className={`border ${daysRemaining <= 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
+                                                            Reabonner
+                                                        </motion.button>
+                                                    ):(
+                                                        <motion.button
+                                                            type="button"
+                                                            disabled={daysRemaining <= 0}
+                                                            onClick={()=>{setReactiverModal(true), setReact(item)}}
+                                                            className={`border  border-green-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-green-500`}>
+                                                            Réactiver
+                                                        </motion.button>
+                                                    )}
+                                                    </div>
+                                                ): (
+
+                                                    
+                                                        <motion.button
+                                                            type="button"
+                                                            disabled={daysRemaining <= 0}
+                                                            onClick={()=>{setSuspendreModal(true), setSuspen(item)}}
+                                                            className={` border  border-red-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-red-500`}>
+                                                            Suspendre
+                                                        </motion.button>
+
+                                                        
+                                                    
                                                 )}
                                                 
                                             </td>
@@ -2644,9 +2683,13 @@ export default function DashboardPro(){
 
             {modalLogout && (
                 <div className="absolute inset-0 bg-black/80 backdrop-blur flex items-center justify-center">
-                    <div className="bg-white shadow-[0px_0px_30px_rgba(255,0,0,0.5)] rounded-sm p-3 ">
-                        <div className="font-bold text-red-600 flex items-center gap-2 text-2xl uppercase">
-                            <AlertOctagon className="text-red-600 h-10 w-10" />
+                    <motion.div 
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    className="bg-white shadow-[0px_0px_30px_rgba(255,0,0,0.5)] rounded-sm p-3 ">
+                        <div className="font-bold text-red-600 flex items-center gap-2 text-xl uppercase">
+                            <AlertOctagon className="text-red-600 h-8 w-8" />
                             Êtes-vous sûr ?
                         </div>
 
@@ -2672,7 +2715,7 @@ export default function DashboardPro(){
                                 Oui
                             </motion.button>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             )}
 
@@ -2914,10 +2957,14 @@ export default function DashboardPro(){
 
             {modalSupAdherant && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
-                    <div className="bg-white py-3 px-4">
+                    <motion.div 
+                    initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    className="bg-white py-3 px-4">
                         <div className=" text-red-500 mb-5 font-bold text-xl flex items-center gap-2">
                             <AlertTriangle size={40} />
-                            <p>Voulez-vous vraiment supprimer <br />l'adhérant <span className="text-black">{adhToDelete.username}</span> ?</p>
+                            <p>Voulez-vous vraiment supprimer <br />l'adhérant <span className="text-black">{adhToDelete.name} {adhToDelete.prenom}</span> ?</p>
                         </div>
                         <div className="flex items-center justify-end gap-3">
                             <button
@@ -2936,16 +2983,20 @@ export default function DashboardPro(){
                                 {loadingSupAdh ? <Loader2 className="animate-spin h-5 w-5 text-red"/> : 'Supprimer'}
                             </button>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             )}
 
             {suspendreModal &&(
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
-                    <div className="bg-white py-3 px-4">
+                    <motion.div 
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    className="bg-white py-3 px-4">
                         <div className="text-red-500 mb-5 font-bold text-xl flex items-center gap-2">
                             <AlertTriangle size={40} />
-                            <p>Voulez-vous vraiment suspendre <br />l'adherant <span className="text-black">{suspen?.username}</span> ?</p>
+                            <p>Voulez-vous vraiment suspendre <br />l'adherant <span className="text-black">{suspen?.name} {suspen?.prenom}</span> ?</p>
                         </div>
                         <div className="flex items-center justify-end gap-3">
                             <button
@@ -2964,13 +3015,17 @@ export default function DashboardPro(){
                                 {suspLoading ? <Loader2 className="animate-spin h-5 w-5 text-red"/> : 'Oui'}
                             </button>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             )}
 
             {reactiverModal &&(
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
-                    <div className="bg-white py-3 px-4">
+                    <motion.div
+                    initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    className="bg-white py-3 px-4">
                         <div className="text-green-500 mb-5 font-bold text-xl flex items-center gap-2">
                             
                             <p>Annuler la suspension de <br />l'adherant <span className="text-black">{react?.username}</span> ?</p>
@@ -2992,189 +3047,201 @@ export default function DashboardPro(){
                                 {reactLoading ? <Loader2 className="animate-spin h-5 w-5 text-red"/> : 'Oui'}
                             </button>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             )}
 
             {modalUpAdherant && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
                     {/* <p>{adhToUp.name}</p> */}
-                    <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
-                        <div className="mb-10">
-                            <div className="flex items-center gap-2 text-xl font-bold mb-5">
-                                <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
-                                Informations personnelles de l'adhérant
-                            </div>
-                            <div className="flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-lg">Nom </label>
-                                <Input 
-                                    type={'text'}
-                                    value={adhToUp?.name}
-                                    onChange={(e)=>{setAdhToUp({ ...adhToUp, name: e.target.value }), updateAdh.reset()}}
-                                    className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={null}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
-                                />
-                            </div>
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    >
+                        <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
+                            <div className="mb-10">
+                                <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                                    <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                    Informations personnelles de l'adhérant
+                                </div>
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Nom </label>
+                                    <Input 
+                                        type={'text'}
+                                        value={adhToUp?.name}
+                                        onChange={(e)=>{setAdhToUp({ ...adhToUp, name: e.target.value }), updateAdh.reset()}}
+                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={null}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
 
-                            <div className="flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-lg">Prénom </label>
-                                <Input 
-                                    type={'text'}
-                                    value={adhToUp?.prenom}
-                                    onChange={(e)=>{setAdhToUp({ ...adhToUp, prenom: e.target.value }), updateAdh.reset()}}
-                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={null}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
-                                />
-                            </div>
-                            <div className="flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-lg">Adresse e-mail </label>
-                                <Input 
-                                    type={'email'}
-                                    value={adhToUp?.email}
-                                    onChange={(e)=>{setAdhToUp({ ...adhToUp, email: e.target.value }), updateAdh.reset()}}
-                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={null}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
-                                />
-                            </div>
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Prénom </label>
+                                    <Input 
+                                        type={'text'}
+                                        value={adhToUp?.prenom}
+                                        onChange={(e)=>{setAdhToUp({ ...adhToUp, prenom: e.target.value }), updateAdh.reset()}}
+                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={null}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Adresse e-mail </label>
+                                    <Input 
+                                        type={'email'}
+                                        value={adhToUp?.email}
+                                        onChange={(e)=>{setAdhToUp({ ...adhToUp, email: e.target.value }), updateAdh.reset()}}
+                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={null}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
 
-                            <div className="flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-lg">Numéro de téléphone </label>
-                                <Input 
-                                    type={'tel'}
-                                    value={adhToUp?.telephone}
-                                    onChange={(e)=>{setAdhToUp({ ...adhToUp, telephone: e.target.value }), updateAdh.reset()}}
-                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={null}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
-                                />
-                            </div>
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Numéro de téléphone </label>
+                                    <Input 
+                                        type={'tel'}
+                                        value={adhToUp?.telephone}
+                                        onChange={(e)=>{setAdhToUp({ ...adhToUp, telephone: e.target.value }), updateAdh.reset()}}
+                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={null}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
 
-                            {errorUpdateAdh && (
-                                <p className="text-red-500 text-sm">{updateAdh.error.message}</p>
-                            )}
-                        </div>
-                        
-                        <div className=" flex justify-end items-center gap-2">
-                            <button
-                            type="button"
-                                onClick={()=>{setModalUpAdherant(false)}}
-                                className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
-                            >
-                                Annuler
-                            </button>
-                            <button
-                            type="submit"
-                            onClick={(e)=>{updateAdhUp(e, adhToUp)}}
-                            disabled={loadingUpdateAdh}
-                                className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200"
-                            >
-                                {loadingUpdateAdh ?(
-                                    <Loader2 className="animate-spin"/>
-                                ):(
-                                    'Modifier'
+                                {errorUpdateAdh && (
+                                    <p className="text-red-500 text-sm">{updateAdh.error.message}</p>
                                 )}
-                                
-                            </button>
-                        </div>
-                    </form>
+                            </div>
+                            
+                            <div className=" flex justify-end items-center gap-2">
+                                <button
+                                type="button"
+                                    onClick={()=>{setModalUpAdherant(false)}}
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                type="submit"
+                                onClick={(e)=>{updateAdhUp(e, adhToUp)}}
+                                disabled={loadingUpdateAdh}
+                                    className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200"
+                                >
+                                    {loadingUpdateAdh ?(
+                                        <Loader2 className="animate-spin"/>
+                                    ):(
+                                        'Modifier'
+                                    )}
+                                    
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
                 </div>
             )}
 
             {reabonnerModal && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
                     {/* <p>{adhToUp.name}</p> */}
-                    <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
-                        <div className="mb-10">
-                            <div className="flex items-center gap-2 text-xl font-bold mb-5">
-                                <WalletCards className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
-                                Renouvellement de l'abonnement
-                            </div>
-                            <div className="flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-lg">Adresse e-mail </label>
-                                <Input 
-                                    type={'email'}
-                                    value={reabonner?.email}
-                                    onChange={(e)=>{setReabonner({ ...reabonner, email: e.target.value }), reabAdh.reset()}}
-                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={null}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
-                                />
-                            </div>
-
-                            {/* <div className="grid grid-cols-2 gap-10"> */}
-                                <div className="flex-col flex gap-2 ">
-                                    <label className="font-bold">Abonnement</label>
-                                
-
-                                    <select
-                                        value={reabonner?.plan}
-                                        onChange={(e)=>{setReabonner({ ...reabonner, plan: e.target.value }), reabAdh.reset()}}
-                                        
-                                        className="border-4 border-gray-300 p-2 border-dotted text-sm"
-                                        >
-                                        <option value="">-- Choisir --</option>
-                                        <option value="mensuel">Mensuel</option>
-                                        <option value="trimestriel">Trimestriel</option>
-                                        <option value="annuel">Annuel</option>
-                                    </select>
-                                 
-
-                                
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    >
+                        <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
+                            <div className="mb-10">
+                                <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                                    <WalletCards className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                    Renouvellement de l'abonnement
+                                </div>
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Adresse e-mail </label>
+                                    <Input 
+                                        type={'email'}
+                                        value={reabonner?.email}
+                                        onChange={(e)=>{setReabonner({ ...reabonner, email: e.target.value }), reabAdh.reset()}}
+                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={null}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
                                 </div>
 
-                            
+                                {/* <div className="grid grid-cols-2 gap-10"> */}
+                                    <div className="flex-col flex gap-2 ">
+                                        <label className="font-bold">Abonnement</label>
+                                    
 
-                            {reabError && (
-                                <p className="text-red-500 text-sm">{reabAdh.error.message}</p>
-                            )}
-                        </div>
-                        
-                        <div className=" flex justify-end items-center gap-2">
-                            <button
-                                type="button"
-                                onClick={()=>{setReabonnerModal(false)}}
-                                className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                type="submit"
-                                onClick={(e)=>{handleReabonner(e, reabonner)}}
-                                disabled={reabLoading}
-                                className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200"
-                            >
-                                {reabLoading ?(
-                                    <Loader2 className="animate-spin"/>
-                                ):(
-                                    'Confirmer'
-                                )}
+                                        <select
+                                            value={reabonner?.plan}
+                                            onChange={(e)=>{setReabonner({ ...reabonner, plan: e.target.value }), reabAdh.reset()}}
+                                            
+                                            className="border-4 border-gray-300 p-2 border-dotted text-sm"
+                                            >
+                                            <option value="">-- Choisir --</option>
+                                            <option value="mensuel">Mensuel</option>
+                                            <option value="trimestriel">Trimestriel</option>
+                                            <option value="annuel">Annuel</option>
+                                        </select>
+                                    
+
+                                    
+                                    </div>
+
                                 
-                            </button>
-                        </div>
-                    </form>
+
+                                {reabError && (
+                                    <p className="text-red-500 text-sm">{reabAdh.error.message}</p>
+                                )}
+                            </div>
+                            
+                            <div className=" flex justify-end items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={()=>{setReabonnerModal(false)}}
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    type="submit"
+                                    onClick={(e)=>{handleReabonner(e, reabonner)}}
+                                    disabled={reabLoading}
+                                    className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200"
+                                >
+                                    {reabLoading ?(
+                                        <Loader2 className="animate-spin"/>
+                                    ):(
+                                        'Confirmer'
+                                    )}
+                                    
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
                 </div>
             )}
 
@@ -3190,28 +3257,130 @@ export default function DashboardPro(){
 
             {errorSupAdh && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <div className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
+                    <motion.div 
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
                         <XCircle className="text-red-500 h-10 w-10" />
                         <p className="text-xl">{supAdh.error.message}</p>
-                    </div>
+                    </motion.div>
                 </div>
             )}
 
             {suspError && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <div className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
+                    <motion.div 
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
                         <XCircle className="text-red-500 h-10 w-10" />
                         <p className="text-xl">{suspAdh.error.message}</p>
-                    </div>
+                    </motion.div>
                 </div>
             )}
 
             {reactError && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <div className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
+                    <motion.div 
+                    initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
                         <XCircle className="text-red-500 h-10 w-10" />
                         <p className="text-xl">{reactAdh.error.message}</p>
-                    </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {detailAdherant && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur items-center h-screen justify-center flex ">
+                    <motion.div 
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                        className=" relative flex flex-col gap-5 p-8 w-100  bg-white">
+                        <h1 className="text-xl font-bold">Détails de l'adhérant</h1>
+                        <div className="flex flex-col gap-1">
+                            <h2 className="text-gray-400">Informations personnelles</h2>
+                            <div className="flex items-center gap-1 text-sm">
+                                <p className="font-semibold">Nom :</p>    
+                                <p>{adhToUp?.name}</p>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm">
+                                <p className="font-semibold">Prénom :</p>   
+                                <p>{adhToUp?.prenom}</p>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm">
+                                <p className="font-semibold">Adresse e-mail :</p>   
+                                <p>{adhToUp?.email}</p>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm">
+                                <p className="font-semibold">Numéro de téléphone :</p>  
+                                <p>{adhToUp?.telephone}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                            <h2 className="text-gray-400">Informations sur l'abonnement</h2>
+                            <div className="flex items-center gap-1 text-sm">
+                                <p className="font-semibold">Forfait choisie :</p> 
+                                <p>{adhToUp?.dernier_abonnement?.plan}</p>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm">
+                                <p className="font-semibold">Montant payé :</p> 
+                                <p>{adhToUp?.dernier_abonnement?.montant}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                            <h2 className="text-gray-400">Informations sur le délai de l'abonnement</h2>
+                            <div className="flex items-center gap-1 text-sm">
+                                <p className="font-semibold">Abonné le</p> 
+                                <p>{formatDate(adhToUp?.dernier_abonnement?.debut)}</p>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm">
+                                <p className="font-semibold">Prend fin le</p> 
+                                <p>{formatDate(adhToUp?.dernier_abonnement?.fin)}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                            <h2 className="text-gray-400">Informations d'inscription</h2>
+                            <div className="flex items-center gap-1 text-sm">
+                                <p className="font-semibold">Créé le</p> 
+                                <p>{formatDate(adhToUp?.created_at)}</p>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm">
+                                <p className="font-semibold">Mis à jour</p> 
+                                <p>{formatDate(adhToUp?.updated_at)}</p>
+                            </div>
+                        </div>
+
+                        {adhToUp?.dernier_abonnement?.actif ? (
+                            <div className="flex items-center bg-green-200 border border-green-200 p-1 rounded-lg justify-center gap-1">
+                                <Circle className="text-green-500 bg-green-500 animate-pulse rounded-full"/>
+                                <p className="font-semibold text-green-500">Abonnement en cours</p>
+                            </div>
+                        ):(
+                            <div className="flex items-center bg-red-200 border border-red-200 p-1 rounded-lg justify-center gap-1">
+                                <Circle className="text-red-500 bg-red-500 animate-pulse rounded-full"/>
+                                <p className="text-red-500 font-semibold">Abonnement expiré</p>
+                            </div>
+                        )}
+                    
+
+                        <div className="flex absolute top-0 right-0  items-center justify-center">
+                            <motion.button
+                            whileTap={{scale:0.95}}
+                                type="button"
+                                onClick={()=>{setDetailAdherant(false)}}
+                            >
+                                <X className="text-gray-400 hover:text-gray-500 transition-colors duration-200 h-8 w-8"/>
+                            </motion.button>
+                        </div>
+                    </motion.div>
                 </div>
             )}
         </div>
