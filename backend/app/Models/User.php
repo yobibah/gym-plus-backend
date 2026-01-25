@@ -8,6 +8,7 @@ use App\Notifications\CustomResetPassword;
 use App\Services\Activity;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
@@ -163,7 +164,7 @@ class User extends Authenticatable
     }
 
 
-    public function DernierPaiement()
+    public function DernierPaiement():HasOne
     {
         return $this->hasOne(paiement::class, 'gerant_id')->latestOfMany('fin');
     }
@@ -219,8 +220,10 @@ class User extends Authenticatable
 
     public function isGerant()
     {
-        return $this->hasrole("Gerant") ? true : false;
-    }
+       
+               return $this->hasrole("Gerant") ? true : false;
+        }
+     
 
     public function isPro(): bool
     {

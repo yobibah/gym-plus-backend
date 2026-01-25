@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\facture;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Log;
 use Exception;
 use App\Models\User;
+use App\Models\facture;
 use App\Mail\welcomeMail;
 use App\Models\salleprix;
 use App\Models\abonnement;
@@ -15,16 +14,19 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\adherent_salle;
 use Illuminate\Support\Carbon;
+use App\Services\FactureService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use PHPUnit\Framework\Constraint\IsEmpty;
 
 class UserController extends Controller
 {
     protected $limit = [
-        'pro' => 1000,
-        'standard' => 200,
+        'pro' => 100,
+        'standard' => 50,
         'premium' => PHP_INT_MAX
     ];
     protected static $majniveau = 90;
@@ -213,12 +215,19 @@ class UserController extends Controller
             })
             ->exists();
 
+        if (User::where('email', $request->email)->exists()) {
+            return response()->json([
+                'message' => 'cet utilisateur existe deja',
+                'user' => $exist
+            ], status: 409);
+        }
+
 
         if ($exist) {
             return response()->json([
                 'message' => 'cet utilisateur existe deja',
                 'user' => $exist
-            ], 200);
+            ], 409);
         }
 
 
@@ -255,13 +264,14 @@ class UserController extends Controller
 
             }
 
-            // ici ajouter  des adherants
+            //vider  le cache
+
+            collect(['adherentActif', 'adherentExpirer', 'bientotExpirer', 'abonnementpas', 'abonemment'])->each(fn($key) => Cache::forget($key));
+            // ici ajouter  des adherants 
 
             $res = $this->AddUsers($request->all(), $gerant);
 
-
-
-
+            ;
             if ($res['error']) {
                 return response()->json([
                     'message' => $res['message']
@@ -333,11 +343,14 @@ class UserController extends Controller
 
             Mail::to($request->email)->queue(new welcomeMail($res['user'], $salle));
 
-            // gerer la facture d'abonnement
 
-            // $facture = new  FactureService(new Fpdf());
+            // gerer la facture d'abonnement si le gerant est premium ou pro
 
-            // $facture->Generer($salle,$adherant,$abonnement);
+            if ($gerant->isPro || $gerant->isPremium) {
+                $facture = new FactureService();
+                $facture->Generer($gerant->salle, $adherant, $abonnement);
+            }
+
 
             return response()->json([
                 'message' => 'adherant cree avec succes',
@@ -364,8 +377,8 @@ class UserController extends Controller
     public function PlanChoisit(Request $request)
     {
         $user = $request->user();
-        $plan = $user->dernierPaiementReussi->plan;
-        $abonnement = $user->dernierPaiementReussi;
+        $plan = $user->dernierPaiement->plan;
+        $abonnement = $user->dernierPaiement;
         return response()->json([
             'plan' => $plan,
             'abonnement' => $abonnement
@@ -1043,9 +1056,9 @@ class UserController extends Controller
         }
     }
 
-    
 
-     public function EditCachet(Request $request)
+
+    public function EditCachet(Request $request)
     {
         $user = $request->user();
 
@@ -1108,93 +1121,93 @@ class UserController extends Controller
 
     // c'est une methode de test apres on va ajouter les moyens de paienents
     public function Mettre_a_Niveau(Request $request)
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    DB::beginTransaction();
+        DB::beginTransaction();
 
-    try {
-        $paiemnt = $user->dernierPaiementReussi;
+        try {
+            $paiemnt = $user->dernierPaiementReussi;
 
-        if (!$paiemnt) {
+            if (!$paiemnt) {
+                return response()->json([
+                    'message' => 'aucun paiement trouvé'
+                ], 404);
+            }
+
+            $lim = $paiemnt->limit;
+            $forfait = strtolower($paiemnt->plan);
+
+            // seuils par forfait
+            $tab = [
+                'standard' => [190, 200],
+                'pro' => [900, 1000],
+            ];
+
+
+            if ($forfait === 'premium') {
+                return response()->json([
+                    'message' => 'deja a niveau'
+                ], 400);
+            }
+
+
+            if (!isset($tab[$forfait])) {
+                return response()->json([
+                    'message' => 'forfait invalide'
+                ], 400);
+            }
+
+
+            $nouvelleLimite = $lim;
+
+            if (!in_array($nouvelleLimite, $tab[$forfait])) {
+                return response()->json([
+                    'message' => 'vous avez encore une limite suffisante',
+                    'niv' => self::$majniveau,
+                    'limit' => $lim
+                ], 409);
+            }
+
+            if (in_array($forfait, $this->limit)) {
+                return response()->json([
+                    'message' => 'vous avez besoin de vous reabonner'
+                ], 403);
+            }
+
+            switch (strtolower($forfait)) {
+                case 'pro':
+                    $paiemnt->limit = intdiv($lim, 10);
+                    break;
+
+                case 'standard':
+                    $paiemnt->limit = intdiv($lim, 20);
+                    break;
+            }
+
+            $paiemnt->save();
+
+
+            $montant = $paiemnt->montant / 0.25;
+
+            DB::commit();
+
             return response()->json([
-                'message' => 'aucun paiement trouvé'
-            ], 404);
-        }
+                'message' => 'votre abonnement a ete mis a jour',
+                'message2' => 'vous pouvez prendre de nouveaux adherents',
+                'montant' => $montant
+            ], 200);
 
-        $lim     = $paiemnt->limit;
-        $forfait = strtolower($paiemnt->plan);
+        } catch (Exception $e) {
 
-        // seuils par forfait
-        $tab = [
-            'standard' => [190, 200],
-            'pro'      => [900, 1000],
-        ];
+            DB::rollBack();
 
-  
-        if ($forfait === 'premium') {
             return response()->json([
-                'message' => 'deja a niveau'
-            ], 400);
+                'message' => 'une erreur est survenue',
+                'msg' => $e->getMessage()
+            ], 500);
         }
-
-  
-        if (!isset($tab[$forfait])) {
-            return response()->json([
-                'message' => 'forfait invalide'
-            ], 400);
-        }
-
-        
-        $nouvelleLimite = $lim;
-
-        if (!in_array($nouvelleLimite, $tab[$forfait])) {
-            return response()->json([
-                'message' => 'vous avez encore une limite suffisante',
-                'niv'     => self::$majniveau,
-                'limit'   => $lim
-            ], 409);
-        }
-
-        if (in_array($forfait, $this->limit)) {
-            return response()->json([
-                'message' => 'vous avez besoin de vous reabonner'
-            ], 403);
-        }
-
-        switch (strtolower($forfait)) {
-            case 'pro':
-                $paiemnt->limit = intdiv( $lim ,10);
-                break;
-
-            case 'standard':
-                $paiemnt->limit = intdiv($lim , 20);
-                break;
-        }
-
-        $paiemnt->save();
-
-
-        $montant = $paiemnt->montant / 0.25;
-
-        DB::commit();
-
-        return response()->json([
-            'message'  => 'votre abonnement a ete mis a jour',
-            'message2' => 'vous pouvez prendre de nouveaux adherents',
-            'montant'  => $montant
-        ], 200);
-
-    } catch (Exception $e) {
-
-        DB::rollBack();
-
-        return response()->json([
-            'message' => 'une erreur est survenue',
-            'msg'     => $e->getMessage()
-        ], 500);
     }
-}
 
-    
+
 }
