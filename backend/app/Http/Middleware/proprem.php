@@ -16,7 +16,7 @@ class proprem
     public function handle(Request $request, Closure $next): Response
     {
           $user = $request->user();
-        if (!$user->isPremium() || !$user->isPro()){
+        if (!$user->isPremium() && !$user->isPro()){
                 return response()->json([
                     'message'=> 'non autoriser'
                 ],403);
