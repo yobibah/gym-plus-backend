@@ -24,8 +24,11 @@ class coach extends Model
             'coach_id',
             'salle_id'
         )
+        ->withPivot(['gerant_id'])
             ->withTimestamps();
     }
+
+
 
 
     // public function getSkillsAttribute($value){

@@ -78,7 +78,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/update-coach', [CoachController::class, 'UpdateCoach']);
     Route::middleware(['proprem'])->group(function () {
 
-   
+      Route::get('/export/users/{gerantId}', function ($gerantId) {
+
+        return Excel::download(new UserExport($gerantId), 'users_gerant_' . $gerantId . '.xlsx');
+      });
 
       Route::post('/suspendre-abonnement', [AbonnementController::class, 'SusprendreAbonnement']);
       Route::post('reactiver-abonnement', [AbonnementController::class, 'reactiverAbonnemnt']);
@@ -95,10 +98,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //  creer un middleware pour chaque les actions specifiques a chaque plan
   });
 });
-   Route::get('/export/users/{gerantId}', function ($gerantId) {
 
-        return Excel::download(new UserExport($gerantId), 'users_gerant_' . $gerantId . '.xlsx');
-      });
 
 
 

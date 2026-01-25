@@ -2,17 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CoachRessource;
 use App\Models\coach;
 use App\Models\coach_salle;
 use Exception;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use League\Uri\Encoder;
 
 class CoachController extends Controller
 {
+
+    // gerer , affecter ,les coach a un cours 
+    // modifier,supprimer, un coach
+
     public function AjouterCoach(Request $request)
     {
 
@@ -55,6 +63,7 @@ class CoachController extends Controller
                 'salle_id' => $user->salle->id,
 
             ]);
+            Cache::forget('coach_' . $user->id);
 
             DB::commit();
             return response()->json([
@@ -73,9 +82,17 @@ class CoachController extends Controller
     public function mesCoach(Request $request)
     {
         $user = $request->user();
-        $coach = $user->salle->coach;
+        $coach = Cache::remember('coach_' . $user->id, now()->addMinutes(5), function () use ($user) {
+            return $user->salle->coach;
+        });
+
+ 
+
         return response()->json([
-            'coach' => $coach,
+            'coach' => CoachRessource::collection( $coach),
+   
+
+
 
         ]);
 
@@ -105,7 +122,7 @@ class CoachController extends Controller
             }
 
             $coach->delete();
-
+            Cache::forget('coach_' . $user->id);
             DB::commit();
 
             return response()->json([
@@ -117,14 +134,96 @@ class CoachController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => 'une erreu est survenue',
-                'trace'=>$e->getMessage(). ' ' .$e->getTraceAsString()
+                'trace' => $e->getMessage() . ' ' . $e->getTraceAsString()
             ], 500);
 
         }
     }
 
-    public function UpdateCoach(Request $request){
-        
+    public function UpdateCoach(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+            'email' => 'nullable|email',
+            'nom' => 'nullable|string',
+            'prenom' => 'nullable|string',
+            'telephone' => 'nullable|string|min:8'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'champ {id} requis'
+            ]);
+        }
+
+        $user = $request->user();
+
+        try {
+            $coach = coach::find($request->id);
+            if (!$coach->exists || $coach->salle_id === $user->salle->id) {
+                return response()->json(
+                    [
+                        'message' => 'une erreur est survenue veuillez ressayer plus tard'
+                    ],
+                    500
+                );
+            }
+  
+
+            $coach->update([
+                'email' => $request->email ?? $coach->email,
+                'nom' => $request->nom ?? $coach->nom,
+                'prenom' => $request->prenom ?? $coach->prenom,
+                'telephone' => $request->telephone ?? $coach->telephone
+            ]);
+             DB::commit();
+
+                return response()->json([
+                'coach' => CoachRessource::collection($coach)
+            ], 200);
+
+        } catch (Exception $e) {
+        }
     }
+
+
+    public function affecterCoachCours(Request $request){
+        $user = $request->user();
+        // un cours est avec des adherant precis 
+        // le gerant selectionne le nombre d'haderant pour programmer a un cours precis
+        // le coach doit etre disponible 
+        // notifier le coach par sms ou par mail pour prendre par de sa disponibilte
+        
+        $validator = Validator::make($request->all(),[
+            'id_adherent'=>'required|array|integer',
+            'date'=>'required',
+            'heure'=>'required',
+            'coach_id'=>'required'
+        ]);
+
+        if ($validator->fails()){
+            return response()->json([
+                'message'=> 'remplir tous les champs'
+            ],400);
+            
+        }
+
+        try{
+            $coach = coach::findOrFail($request->coach_id);
+
+            // on recupere tous les cours et on verifie les coachs non libre
+
+
+
+
+        }
+        catch(Exception $e){
+            
+        }
+
+    } 
+
+
+
 
 }

@@ -10,6 +10,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Vtiful\Kernel\Excel;
 
 class HomeController extends Controller
 {
@@ -46,8 +47,17 @@ class HomeController extends Controller
         // $abonmment = $adherents->Abonnement();
         // // $adherents->paginate(10);
 
-$abonnement =abonnement::where('salle_id',$current->salle->id)->get();
-$abonnementpas = reabonnemen_trace::where('salle_id',$current->salle->id)->get();
+$abonnement = cache::remember('abonemment',100,function()use($current){
+    return abonnement::where('salle_id',$current->salle->id)->get();
+});  
+
+$abonnementpas = cache::remember('abonnementpas',100,function()use($current){
+    return reabonnemen_trace::where('salle_id',$current->salle->id)->get();
+});  
+
+
+
+
 
 foreach ($abonnement as $adh) {
     $plan = $adh->plan;
@@ -83,7 +93,7 @@ foreach ($abonnementpas as $adh) {
             break;
     }
 }
-
+          
         return response()->json([
 
             'adherents' => $adherents ?? ' pas de d\'adherant',
@@ -113,7 +123,11 @@ foreach ($abonnementpas as $adh) {
         }
         try {
             $salle = $user->salle;
-            $adhActif = $salle->adherentsActif();
+            // $adhActif = $salle->adherentsActif();
+            $adhActif = Cache::remember('adherentActif',100,function()use($salle){
+                return $salle->adherentsActif();
+
+            }); 
 
 
             // ici ce quand il n;y pas daderant actif
@@ -144,16 +158,13 @@ foreach ($abonnementpas as $adh) {
         // ici on va selectionner tous les adherant actif.....
 
         $user = $request->user();
-        if (!$user->hasRole('Gerant')) {
-            return response()->json([
-                'messsage' => 'vous n\'etes pas autorise a utiliser'
-            ], 401);
-        }
 
         try {
             $salle = $user->salle;
-            $adhActif = $salle->adherentsExpirer();
+            $adhActif = Cache::remember('adherentExpirer',100,function()use($salle){
+                return $salle->adherentsExpirer();
 
+            }); 
 
             // ici ce quand il n;y pas daderant actif
             if (!$adhActif) {
@@ -185,7 +196,11 @@ foreach ($abonnementpas as $adh) {
 
         try {
             $salle = $user->salle;
-            $bientotExpirer = $salle->bientotExpirer;
+              $bientotExpirer = Cache::remember('bientotExpirer',100,function()use($salle){
+                return $salle->bientotExpirer;
+
+            }); 
+            // $bientotExpirer = $salle->bientotExpirer;
 
 
             return response()->json([
@@ -203,7 +218,7 @@ foreach ($abonnementpas as $adh) {
         $user = $request->user();
 
         $historique = Cache::remember('historique',100,function() use($user){
-            return historique::where('gerant_id',$user->id)->get();
+            return historique::where('gerant_id',$user->id)->orderByDesc('date_connexion')->limit(10)->get();
         });
 
         return response()->json([
@@ -211,4 +226,10 @@ foreach ($abonnementpas as $adh) {
         ]);
     }
     /// les autres seront biens reflechis et pensee pour le bien du code 
+
+    // public function ExporterCsv(Request $request){
+    //     $user = $request->user();
+
+
+    // }
 }

@@ -63,6 +63,11 @@ class salle extends Model
 
 
 
+    public function gerantIds()
+{
+    return $this->coach()->pluck('coach_salle.salle_id');
+}
+
 
     public function adherentsActif()
     {

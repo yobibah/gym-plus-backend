@@ -18,6 +18,10 @@ return [
         'key' => env('POSTMARK_API_KEY'),
     ],
 
+     'senfenico' => [
+        'key' => env('SENFENICO_API_KEY'),
+    ],
+    
     'resend' => [
         'key' => env('RESEND_API_KEY'),
     ],

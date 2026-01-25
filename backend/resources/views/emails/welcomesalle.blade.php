@@ -1,78 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <title>Bienvenue chez {{ $nom_salle }}</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f8;
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
-        .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #007BFF;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        p {
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        .highlight {
-            font-weight: bold;
-            color: #007BFF;
-        }
-        .btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 25px;
-            background-color: #28a745;
-            color: #fff !important;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        .btn:hover {
-            background-color: #218838;
-        }
-        .footer {
-            margin-top: 30px;
-            font-size: 14px;
-            color: #777;
-            text-align: center;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <title>Bienvenue chez {{ $nom_salle }} - GymPlus</title>
 </head>
-<body>
-    <div class="container">
-        <h1>Bienvenue {{ $prenom }} {{ $username }} ! 🎉</h1>
 
-        <p>
-            Vous êtes maintenant membre de la salle <span class="highlight">{{ $nom_salle }}</span> située dans <span class="highlight">{{ $region_salle }}</span>.
-        </p>
+<body style="margin:0; padding:0; background-color:#fff7ed; font-family:Arial, Helvetica, sans-serif;">
 
-        <p>
-            Pour toute question, vous pouvez contacter la salle au : <span class="highlight">{{ $contact }}</span>.
-        </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0; background-color:#fff7ed;">
+        <tr>
+            <td align="center">
 
-        <a href="#" class="btn">Voir votre abonnement</a>
+                <table width="600" cellpadding="0" cellspacing="0"
+                       style="background-color:#ffffff; border-radius:12px; padding:30px;
+                              box-shadow:0 6px 18px rgba(0,0,0,0.1);">
 
-        <p>— L’équipe  {{ $nom_salle }}</p>
+                    <!-- Header -->
+                    <tr>
+                        <td style="text-align:center; padding-bottom:20px;">
+                            <h1 style="margin:0; font-size:24px; color:#ff7a00;">
+                                Bienvenue {{ $prenom }} {{ $username }} ! 🎉
+                            </h1>
+                        </td>
+                    </tr>
 
-        <div class="footer">
-            Vous recevez ce mail car vous êtes inscrit à {{ $nom_salle }}. Merci de ne pas répondre à ce message.
-        </div>
-    </div>
+                    <!-- Content -->
+                    <tr>
+                        <td style="color:#333333; font-size:16px; line-height:1.6;">
+
+                            <p>
+                                Vous êtes maintenant membre de la salle
+                                <strong style="color:#ff7a00;">{{ $nom_salle }}</strong>,
+                                située dans
+                                <strong style="color:#ff7a00;">{{ $region_salle }}</strong>.
+                            </p>
+
+                            <p>
+                                Pour toute question, vous pouvez contacter la salle au :
+                                <strong style="color:#ff7a00;">{{ $contact }}</strong>.
+                            </p>
+
+                            <!-- Button -->
+                            <p style="text-align:center; margin-top:25px;">
+                                <a href="#"
+                                   style="background-color:#ff7a00; color:#ffffff;
+                                          text-decoration:none; padding:12px 25px;
+                                          border-radius:8px; font-weight:bold;
+                                          display:inline-block;">
+                                    Voir votre abonnement
+                                </a>
+                            </p>
+
+                            <p style="margin-top:25px;">
+                                — L’équipe <strong>{{ $nom_salle }}</strong>
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding-top:30px; font-size:12px; color:#92400e; text-align:center;">
+                            Vous recevez ce mail car vous êtes inscrit à
+                            <strong>{{ $nom_salle }}</strong> via GymPlus.<br>
+                            Merci de ne pas répondre à ce message.
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
 </body>
 </html>

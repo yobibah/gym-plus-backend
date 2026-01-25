@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\Otp;
 use App\Models\gerant;
 use App\Mail\demandeDemo;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -161,6 +162,8 @@ class AuthController extends Controller
                 'email' => $gerant->email,
                 'abonnement' => $paiement ? $paiement : 'Aucun abonnement en cours de validite veuillez vous reabonner'
             ];
+
+            Cache::forget('historique');
 
             historique::create([
                 "date_connexion"=>Carbon::now(),

@@ -13,3 +13,8 @@ Schedule::command('app:adherant-expirer')
     ->runInBackground();
 
 // Schedule::command('email-rappel')->daily();
+
+Schedule::command('app:paiement-expire')
+    ->daily()
+    ->withoutOverlapping()
+    ->runInBackground();
