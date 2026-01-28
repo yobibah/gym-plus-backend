@@ -5,8 +5,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getToken } from "../../hooks/getToken";
 import { usePayment } from "../../contexts/PaymentContext";
-import PaiementOtp from "./PaiementOtp";
 import { Loader2 } from "lucide-react";
+import { PaymentOtp } from "../../api/subscribe/PaiementOtp";
 
 export default function PaiementOtp(){
     
@@ -48,7 +48,7 @@ export default function PaiementOtp(){
 
 
     const paiementOtp = useMutation({
-        mutationFn : PaiementOtp,
+        mutationFn : PaymentOtp,
         onSuccess : ()=>{
              
             localStorage.removeItem('form')
