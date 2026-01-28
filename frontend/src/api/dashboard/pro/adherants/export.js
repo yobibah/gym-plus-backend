@@ -3,10 +3,8 @@ import { getToken } from "../../../../hooks/getToken";
 import { apiUrl } from "../../../../../env";
 
 
-export async function ExportCsv({queryKey}){
+export async function ExportCsv({gerantId}){
     const token = getToken()
-    const [_key, gerantId] = queryKey
-
     const response = await fetch(`${apiUrl}export/users/${gerantId}`,{
         method : "GET",
         headers : {
@@ -15,7 +13,7 @@ export async function ExportCsv({queryKey}){
         },
     })
 
-    const data = await response.json()
+    const data = await response.blob()
     if(!response.ok){
         throw new Error(data.message || 'Erreur lors de l\'export CSV')
     }

@@ -411,24 +411,34 @@ export default function DashboardPro(){
     const infoError = infos.isError
 
 
-    const gerantId = infos?.data?.user?.id
-    const dataExport = useQuery({
-        queryKey : ['export', gerantId],
-        queryFn : ExportCsv
+    // const gerantId = infos?.data?.user?.id
+    const dataExport = useMutation({
+        // mutationKey: [gerantId],
+        mutationFn : ExportCsv,
+        onSuccess: ((blob)=>{
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = 'adherants_export.csv'
+            a.click()
+            window.URL.createObjectURL(url)
+        }),
+        onError : (()=>{
+
+            setTimeout(()=>{
+                dataExport.reset()
+            }, 3000)
+        })
     })
 
     const dataExportLoading = dataExport.isPending
     const dataExportSuccess = dataExport.isSuccess
     const dataExportError = dataExport.isError
 
-
-    function handleExport(gerantId){
+    async function handleExport(gerantId){
         if(!gerantId) return
-        dataExport
+        dataExport.mutate({gerantId})
     }
-    
-    // console.log('export', dataExport?.data)
-    // console.log('id actuel: ', infos?.data?.user?.id)
 
 
 
@@ -978,8 +988,6 @@ export default function DashboardPro(){
     const historyError = historyQuery.isError
     const dataHistory = history.data?.historiques || []
     const totalHistory = history.data?.historiques.length
-    // const dateHistory = history.data?.historiques[totalHistory-1]?.date || 'N/A'
-    // const timeHistory = history.data?.historiques[totalHistory-1]?.depuis || 'N/A'
 
     const date = new Date
     const d = date.toLocaleDateString('fr-FR')
@@ -994,11 +1002,6 @@ export default function DashboardPro(){
     const fin7 = planChoisit?.data?.abonnement?.fin;
     const endDate = new Date(fin7);
     const daysRemaining = getDaysDifference(today, endDate);
-    // console.log('date: ', daysRemaining)
-
-    // console.log('fin: ', dataAdh.map(item =>
-    //     item?.dernier_abonnement?.fin
-    // ))
 
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
@@ -1483,11 +1486,18 @@ export default function DashboardPro(){
                         <div className="flex items-center gap-2">
                             <motion.button 
                                 whileTap={{scale: 0.95}}
-                                disabled={daysRemaining <= 0}
+                                disabled={dataExportLoading || daysRemaining <= 0}
                                 onClick={handleExport}
                             className={`flex font-bold  text-sm items-center ${daysRemaining <= 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400 cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
-                                <Download className="h-5 w-5 "/>
-                                Export CSV
+                                {dataExportLoading  ? (
+                                    <Loader2 className="animate-spin h-5 w-5"/> 
+                                ):(
+                                    <>
+                                        <Download className="h-5 w-5 "/>
+                                        Export CSV
+                                    </>
+                                )}
+                                
                             </motion.button>
 
                             <motion.button 
@@ -1626,7 +1636,7 @@ export default function DashboardPro(){
                         <h1 className="font-bold text-3xl flex items-center">
                             Gestion Abonnements : 
                             <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalAbExpirer} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
-                            <span>{totalExpire}</span>
+                            <span className="text-yellow-600 bg-yellow-100 text-sm py-1 px-3 rounded-full">{totalExpire} suspendu{totalExpire > 1 ? 's' : ''}</span>
                         </h1>
                         <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
                     </div>
@@ -2478,7 +2488,8 @@ export default function DashboardPro(){
                                             type="button"
                                                 whileTap={{scale:0.95}}
                                                 onClick={FormMensuel}
-                                                className="px-5 py-3 rounded-lg shadow-lg border bg-orange-600 border-orange-600"
+                                                disabled={daysRemaining <= 0}
+                                                className={`${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 border-orange-600'} px-5 py-3 rounded-lg shadow-lg border `}
                                             >
                                                 {showFormTarif ? <X className="text-white"/> : <Plus className="text-white"/>}
                                             </motion.button>
@@ -3409,6 +3420,19 @@ export default function DashboardPro(){
                                 <X className="text-gray-400 hover:text-gray-500 transition-colors duration-200 h-8 w-8"/>
                             </motion.button>
                         </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {dataExportError && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                    <motion.div 
+                    initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
+                        <XCircle className="text-red-500 h-10 w-10" />
+                        <p className="text-xl">{dataExport.error.message}</p>
                     </motion.div>
                 </div>
             )}
