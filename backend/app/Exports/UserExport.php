@@ -45,6 +45,7 @@ public function collection()
             'Suspendu',
             'Debut',
             'Fin',
+            'forfait',
             'Numero de Transaction'
 
         ];
@@ -63,10 +64,10 @@ public function map($user): array
         $user->telephone ?? '',
         $user->created_at ? Carbon::parse($user->created_at)->format('Y-m-d H:i') : 'N/A',
 
+        // retourner les abonnements
         $abonnement ? ($abonnement->actif ? 'actif' : 'non actif') : 'pas d’abonnement',
         $abonnement ? ($abonnement->date_suspension ? 'suspendu' : 'non suspendu') : 'N/A',
 
-        // Convertir en Carbon si string
         $abonnement ? ( $abonnement->debut ? Carbon::parse($abonnement->debut)->format('Y-m-d H:i') : 'N/A') : 'N/A',
         $abonnement ? ( $abonnement->fin ? Carbon::parse($abonnement->fin)->format('Y-m-d H:i') : 'N/A') : 'N/A',
 
