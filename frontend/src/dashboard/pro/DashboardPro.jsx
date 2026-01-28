@@ -414,14 +414,17 @@ export default function DashboardPro(){
     // const gerantId = infos?.data?.user?.id
     const dataExport = useMutation({
         // mutationKey: [gerantId],
-        mutationFn : ExportCsv,
+        mutationFn : ({ gerantId }) => ExportCsv({ gerantId }),
         onSuccess: ((blob)=>{
             const url = window.URL.createObjectURL(blob)
             const a = document.createElement('a')
             a.href = url
-            a.download = 'adherants_export.csv'
-            a.click()
-            window.URL.createObjectURL(url)
+            a.download = 'adherants_export.xlsx'
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            URL.revokeObjectURL(url);
         }),
         onError : (()=>{
 
@@ -3402,6 +3405,11 @@ export default function DashboardPro(){
                             <div className="flex items-center bg-green-200 border border-green-200 p-1 rounded-lg justify-center gap-1">
                                 <Circle className="text-green-500 bg-green-500 animate-pulse rounded-full"/>
                                 <p className="font-semibold text-green-500">Abonnement en cours</p>
+                            </div>
+                        ):adhToUp?.dernier_abonnement?.date_suspension !== null ? (
+                            <div className="flex items-center bg-yellow-200 border border-yellow-200 p-1 rounded-lg justify-center gap-1">
+                                <Circle className="text-yellow-500 bg-yellow-500 animate-pulse rounded-full"/>
+                                <p className="text-yellow-500 font-semibold">Abonnement suspendu</p>
                             </div>
                         ):(
                             <div className="flex items-center bg-red-200 border border-red-200 p-1 rounded-lg justify-center gap-1">
