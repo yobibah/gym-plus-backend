@@ -11,10 +11,15 @@ import NotFound from './pages/NotFound.jsx'
 import InfosLogin from './pages/form/InfosLogin.jsx'
 import ChangePassword from './pages/auth/ChangePassword.jsx'
 import InfoSalle from './pages/form/InfoSalle.jsx'
-import Paiement from './pages/form/Paiement.jsx'
-import SuccessPaiement from './pages/form/SuccessPaiement.jsx'
+// import Paiement from './pages/form/Paiement.jsx'
+// import SuccessPaiement from './pages/form/SuccessPaiement.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import DashboardStandard from './dashboard/standard/DashboardStandard.jsx'
+import PaiementOtp from './pages/form/PaiementOtp.jsx'
+import PaiementProcess from './pages/form/PaiementProcess.jsx'
+// import pageOtp from './pages/form/p.jsx'
+// import PaieOtp from './pages/form/p.jsx'
+import Statut from './pages/form/Statut.jsx'
 
 function App() {
 
@@ -26,8 +31,11 @@ function App() {
     <Route path='/change-password' element={<ChangePassword/>}/>
     <Route path='/form-subscribe' element={<InfosLogin/>}/> 
     <Route path='/infos-salle' element={<InfoSalle/>}/> 
-    <Route path='/paiement' element={<Paiement/>}/> 
-    <Route path='/confirmation' element={<SuccessPaiement/>}/> 
+    {/* <Route path='/paiement' element={<Paiement/>}/>  */}
+    <Route path='/paiement-process' element={<PaiementProcess/>}/> 
+    <Route path='/paiement-otp' element={<PaiementOtp/>}/> 
+    <Route path='/statut' element={<Statut/>}/> 
+    {/* <Route path='/confirmation' element={<SuccessPaiement/>}/>  */}
     <Route path='/dashboard' element={<Dashboard/>}/>
     <Route path='/dashboard-standard' element={<DashboardStandard/>}/> 
     <Route path='*' element={<NotFound/>}/> 

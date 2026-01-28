@@ -37,7 +37,7 @@ import { UpdateCachet } from "../../api/dashboard/standard/parametres/changeCach
 import coverhero from '../../assets/images/coverhero.png'
 import { Suspendre } from "../../api/dashboard/standard/abonnements/suspendre";
 import { Reactiver } from "../../api/dashboard/pro/abonnements/reactiver";
-
+import { ExportCsv } from "../../api/dashboard/pro/adherants/export";
 
 export default function DashboardPro(){
 
@@ -305,6 +305,8 @@ export default function DashboardPro(){
     }, [dataAdh, search, abonnementTab])
 
 
+    // const exportQuery = queryClient()
+    
     const updateTarif = useQueryClient()
     const tarif = useMutation({
         mutationFn : Tarifs,
@@ -407,6 +409,27 @@ export default function DashboardPro(){
     const infosUser = infos?.data?.user
     const infosLoading = infos.isPending
     const infoError = infos.isError
+
+
+    const gerantId = infos?.data?.user?.id
+    const dataExport = useQuery({
+        queryKey : ['export', gerantId],
+        queryFn : ExportCsv
+    })
+
+    const dataExportLoading = dataExport.isPending
+    const dataExportSuccess = dataExport.isSuccess
+    const dataExportError = dataExport.isError
+
+
+    function handleExport(gerantId){
+        if(!gerantId) return
+        dataExport
+    }
+    
+    // console.log('export', dataExport?.data)
+    // console.log('id actuel: ', infos?.data?.user?.id)
+
 
 
     const update = useQueryClient()
@@ -842,9 +865,9 @@ export default function DashboardPro(){
             }, 3000)
         })
     })
-    const reactLoading = reabAdh.isPending
-    const reactSuccess = reabAdh.isSuccess
-    const reactError = reabAdh.isError
+    const reactLoading = reactAdh.isPending
+    const reactSuccess = reactAdh.isSuccess
+    const reactError = reactAdh.isError
 
     async function handleReactiver(e, id){
         e.preventDefault()
@@ -971,7 +994,11 @@ export default function DashboardPro(){
     const fin7 = planChoisit?.data?.abonnement?.fin;
     const endDate = new Date(fin7);
     const daysRemaining = getDaysDifference(today, endDate);
+    // console.log('date: ', daysRemaining)
 
+    // console.log('fin: ', dataAdh.map(item =>
+    //     item?.dernier_abonnement?.fin
+    // ))
 
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
@@ -1457,6 +1484,7 @@ export default function DashboardPro(){
                             <motion.button 
                                 whileTap={{scale: 0.95}}
                                 disabled={daysRemaining <= 0}
+                                onClick={handleExport}
                             className={`flex font-bold  text-sm items-center ${daysRemaining <= 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400 cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
                                 <Download className="h-5 w-5 "/>
                                 Export CSV
@@ -1598,6 +1626,7 @@ export default function DashboardPro(){
                         <h1 className="font-bold text-3xl flex items-center">
                             Gestion Abonnements : 
                             <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalAbExpirer} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
+                            <span>{totalExpire}</span>
                         </h1>
                         <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
                     </div>
@@ -3028,7 +3057,7 @@ export default function DashboardPro(){
                     className="bg-white py-3 px-4">
                         <div className="text-green-500 mb-5 font-bold text-xl flex items-center gap-2">
                             
-                            <p>Annuler la suspension de <br />l'adherant <span className="text-black">{react?.username}</span> ?</p>
+                            <p>Annuler la suspension de <br />l'adherant <span className="text-black">{react?.name} {react?.prenom}</span> ?</p>
                         </div>
                         <div className="flex items-center justify-end gap-3">
                             <button

@@ -83,7 +83,7 @@ export default function InfoSalle(){
         onSuccess : ()=>{
             localStorage.setItem('status_salle', 'salle_info_remplie')
             setTimeout(()=>{
-                navigate(`/paiement?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
+                navigate(`/paiement-process?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
             }, 2500)
         }
     })

@@ -766,55 +766,101 @@ export default function DashboardStandard(){
                     </div>
                 </div>
 
-                <motion.div 
-                    whileHover={{ scale: 1.02 }} 
-                    whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'dashboard' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
-                    onClick={()=>{setActiveTab('dashboard')}}
-                >
-                     <LayoutDashboard className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
-                    >Tableau de bord</button>
-                </motion.div>
+                <div className="flex flex-col gap-10">
 
-                <motion.div
+                    <motion.div 
+                        whileHover={{ scale: 1.02 }} 
+                        whileTap={{scale: 0.95}}
+                        className={`${activeTab === 'dashboard' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                        onClick={()=>{setActiveTab('dashboard')}}
+                    >
+                        <LayoutDashboard className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
+                        <button className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                            
+                        >Tableau de bord</button>
+                    </motion.div>
+
+                    <motion.div
+                        
+                        whileHover={{ scale: 1.02 }} 
+                        whileTap={{scale: 0.95}}
+                        className={`${activeTab === 'adherant' || showAdd  ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                        onClick={()=>{setActiveTab('adherant')}}
+                    >
+                        <Users className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200 `}/>
+                        <button className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                            
+                        >Adhérants</button>
+                    </motion.div>
+
+                    <motion.div
+                        whileHover={{ scale: 1.02 }} 
+                        whileTap={{scale: 0.95}} 
+                        className={`${activeTab === 'abonnement' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                        onClick={()=>{setActiveTab('abonnement')}}
+                    >
+                        <SquarePlus className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
+                        <button className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                            
+                        >Abonnements</button>
+                    </motion.div>
+
+                    <motion.div
+                        whileHover={{ scale: 1.02 }} 
+                        whileTap={{scale: 0.95}} 
+                        className={`${activeTab === 'settings' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                        onClick={()=>{setActiveTab('settings')}}
+                    >
+                        <Settings className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
+                        <button className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                            
+                        >Paramètres</button>
+                    </motion.div>
+                </div>
+
                     
-                    whileHover={{ scale: 1.02 }} 
-                    whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'adherant' || showAdd  ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
-                    onClick={()=>{setActiveTab('adherant')}}
-                >
-                     <Users className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200 `}/>
-                    <button className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
-                    >Adhérants</button>
-                </motion.div>
-
                 <motion.div
-                    whileHover={{ scale: 1.02 }} 
-                    whileTap={{scale: 0.95}} 
-                    className={`${activeTab === 'abonnement' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
-                    onClick={()=>{setActiveTab('abonnement')}}
+                    className="py-3 px-5"
                 >
-                     <SquarePlus className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
-                    >Abonnements</button>
-                </motion.div>
+                    {daysRemaining <= 0 && (
+                        <div className="flex flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
+                            {/* <AlertTriangle className="text-red-500" /> */}
+                            <p className="text-red-500 font-bold">
+                                {daysRemaining === 0 
+                                    ? "Votre abonnement expire aujourd'hui !" 
+                                    : "Votre abonnement est expiré !"
+                                }
+                            </p>
+                            <p className="text-gray-500">À l'expiration définitive de votre abonnement, certaines fonctionalités seront désactivées ! Veuillez-vous réabonnez pour continuer la gestion de votre salle.</p>
+                            <motion.button
+                                whileTap={{scale:0.95}}
+                                className="border p-2 bg-blue-500 text-white font-bold border-blue-500 rounded-lg"
+                            >
+                                Me Réabonner
+                            </motion.button>
+                        </div>
+                    )}
 
-                <motion.div
-                    whileHover={{ scale: 1.02 }} 
-                    whileTap={{scale: 0.95}} 
-                    className={`${activeTab === 'settings' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
-                    onClick={()=>{setActiveTab('settings')}}
-                >
-                     <Settings className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
-                    >Paramètres</button>
-                </motion.div>
+                    {0 < daysRemaining && daysRemaining <= 7 &&(
+                        <div className="flex flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
+                            {/* <AlertTriangle className="text-red-500" /> */}
+                            <p className="text-red-500 font-bold">
+                            {daysRemaining === 1 
+                                ? "Votre abonnement expire demain !" 
+                                : `Votre abonnement expirera dans ${daysRemaining} jours !`
+                            }
+                            </p>
+                            <p className="text-gray-500">À l'expiration définitive de votre abonnement, certaines fonctionalités seront désactivées ! Veuillez-vous réabonnez pour continuer la gestion de votre salle.</p>
+                            <motion.button
+                                whileTap={{scale:0.95}}
+                                className="border p-2 bg-blue-500 text-white font-bold border-blue-500 rounded-lg"
+                            >
+                                Me Réabonner
+                            </motion.button>
+                        </div>
+                    )}
 
+                </motion.div>
 
             {/* {'A gerer en fonction de la date de labonnement'} */}
                 <div className="absolute mx-5 py-3 px-5 transition-colors duration-200 bottom-5 mx-auto w-full flex flex-col gap-2">
@@ -2036,146 +2082,6 @@ export default function DashboardStandard(){
 
                             </form>
                         </div>
-
-                        {/* <div className=" border border-gray-300 rounded-lg p-4 my-5">
-                            <p className="font-semibold text-xl ">Cachet / Signature <span className="text-sm">(optionnel)</span></p>
-                            <p className="text-md mb-5 text-gray-400">Scannez votre signature pour les marquer sur vos factures</p>
-                            <form className="flex flex-col relative items-center gap-4">
-                                
-
-                                <motion.div
-                                    whileHover={{ scale: 1.08 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="rounded-lg w-full h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
-                                    onClick={() => signInputRef.current.click()}
-                                >
-                                    {previewSign ? (
-                                        <div className="relative w-full h-full">
-                                            <img src={previewSign} className="w-full h-full object-cover" />
-                                            <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                                
-                                            </div>
-                                        </div>
-                                    ) : infosSalle?.cachet_signer ? (
-                                            <div className="relative w-full h-full">
-                                                <img src={infosSalle.cachet_signer} className="w-full h-full object-cover" />
-                                                <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                                    
-                                                </div>
-                                            </div>
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                            <div className="flex flex-col items-center">
-                                            <PlusSquare size={50} />
-                                            <span className="font-bold">Ajoutervotre signature/cachet</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                </motion.div>
-
-                                <input 
-                                    type="file" 
-                                    accept="image/*"
-                                    ref={signInputRef}
-                                    hidden
-                                    onChange={handleSign}
-                                />
-
-                                {signSuccess && (
-                                    <p className="text-sm text-center text-green-500">Signature enregistré avec succès</p>
-                                )}
-
-                                {signError && (
-                                    <p className="text-sm text-center text-red-500">{signUpload.error.message}</p>
-                                )}
-
-                                {signEditSuccess && (
-                                    <p className="text-sm text-center text-green-500">Signature modifié avec succès</p>
-                                )}
-
-                                {signEditError && (
-                                    <p className="text-sm text-center text-red-500">{signEditUpload.error.message}</p>
-                                )}
-
-                                {signDelSuccess && (
-                                    <p className="text-sm text-center text-green-500">Logo supprimé avec succès</p>
-                                )}
-
-                                {signDelError && (
-                                    <p className="text-sm text-center text-red-500">{signDelUpload.error.message}</p>
-                                )}
-
-                                {sign && (
-                                    <div className="flex items-center gap-2">
-
-                                        <button
-                                            type='button'
-                                            className="text-sm border py-1 px-2 my-3 text-red-500"
-                                            onClick={()=>{setPreviewSign(null);setSign(null)}}
-                                            disabled={signLoading || signEditLoading}
-                                        >
-                                            Annuler
-                                        </button>
-
-                                        <button
-                                            type="submit"
-                                            onClick={(e)=>{infosSalle?.cachet_signer ? handlePostSign(e, 'PUT') : handlePostSign(e, 'POST')}}
-                                            disabled={signLoading || signEditLoading }
-                                            className="px-4 py-1 bg-blue-500 text-white rounded"
-                                        >
-                                            {signLoading || signEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
-
-                                        </button>
-
-
-                                    </div>
-                                )}
-
-                                {infosSalle?.cachet_signer && (
-                                    <div className={`flex items-center gap-2 ${sign ? "hidden" : "block"}`}>
-
-                                        <button
-                                            type="button"
-                                            className="text-sm border py-1 px-2 my-3 text-red-500"
-                                            onClick={()=>{setSignModal(true)}}
-                                        >
-                                            Suprimmer
-                                            
-                                        </button>
-
-                                    </div>
-                                )}
-
-                                {signModal && (
-                                    <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
-                                        <div className="flex items-center gap-2  animate-pulse">
-                                            <AlertTriangle className="h-8 w-8 text-red-500" />
-                                            <p className="font-semibold text-red-500">Cette action est irreversible !</p>
-                                        
-                                        </div>
-                                        <p className="text-white font-semibold">Supprimer définitivement ?</p>
-                                        <div className="flex gap-5 items-center justify-center">
-                                            <motion.button
-                                            type="button"
-                                                whileTap={{scale : 0.95}}
-                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
-                                                onClick={()=>{setSignModal(false)}}
-                                            >Non</motion.button>
-                                            <motion.button
-                                                type="submit"
-                                                whileTap={{scale : 0.95}}
-                                                onClick={(e)=>{handlePostSign(e, 'DELETE')}}
-                                                disabled={signDelLoading}
-                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
-                                            >
-                                                {signDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
-                                            </motion.button>
-                                        </div>
-                                    </div>
-                                )}
-
-                            </form>
-                        </div> */}
                     </div>
 
                     <div className="grid grid-cols-4 gap-2">
@@ -2417,7 +2323,8 @@ export default function DashboardStandard(){
                                             type="button"
                                                 whileTap={{scale:0.95}}
                                                 onClick={FormMensuel}
-                                                className="px-5 py-3 rounded-lg shadow-lg border bg-orange-600 border-orange-600"
+                                                disabled={daysRemaining <= 0}
+                                                className={`${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 border-orange-600'} px-5 py-3 rounded-lg shadow-lg border `}
                                             >
                                                 {showFormTarif ? <X className="text-white"/> : <Plus className="text-white"/>}
                                             </motion.button>
@@ -2874,8 +2781,12 @@ export default function DashboardStandard(){
 
             {showModalTrash && (
                 <div className="absolute inset-0 bg-black/80 backdrop-blur flex items-center justify-center">
-                    <div className="bg-white shadow-[0px_0px_30px_rgba(255,0,0,0.5)] rounded-sm p-3 ">
-                        <div className="font-bold text-red-600 flex items-center gap-2 text-2xl uppercase">
+                    <motion.div 
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                        className="bg-white shadow-[0px_0px_30px_rgba(255,0,0,0.5)] rounded-sm p-3 ">
+                        <div className="font-bold text-red-600 flex items-center gap-2 text-xl uppercase">
                             <AlertOctagon className="text-red-600 h-10 w-10" />
                             Attention !
                         </div>
@@ -2903,14 +2814,18 @@ export default function DashboardStandard(){
                                 {loadingTarifDel ?  <Loader2 className=" text-white animate-spin"/> : 'Confirmer'}
                             </motion.button>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             )}
 
             {modalSupAdherant && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
-                    <div className="bg-white py-3 px-4">
-                        <div className="text-red-500 mb-5 font-bold text-2xl flex items-center gap-2">
+                    <motion.div 
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    className="bg-white py-3 px-4">
+                        <div className="text-red-500 mb-5 font-bold text-xl flex items-center gap-2">
                             <AlertTriangle size={40} />
                             Confirmer la suppression !
                         </div>
@@ -2931,13 +2846,18 @@ export default function DashboardStandard(){
                                 {loadingSupAdh ? <Loader2 className="animate-spin h-5 w-5 text-red"/> : 'Supprimer'}
                             </button>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             )}
 
             {modalUpAdherant && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
                     {/* <p>{adhToUp.name}</p> */}
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    >
                     <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
                         <div className="mb-10">
                             <div className="flex items-center gap-2 text-xl font-bold mb-5">
@@ -3035,12 +2955,18 @@ export default function DashboardStandard(){
                             </button>
                         </div>
                     </form>
+                    </motion.div>
                 </div>
             )}
 
             {reabonnerModal && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
                     {/* <p>{adhToUp.name}</p> */}
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    >
                     <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
                         <div className="mb-10">
                             <div className="flex items-center gap-2 text-xl font-bold mb-5">
@@ -3158,6 +3084,7 @@ export default function DashboardStandard(){
                             </button>
                         </div>
                     </form>
+                    </motion.div>
                 </div>
             )}
 
@@ -3173,10 +3100,14 @@ export default function DashboardStandard(){
 
             {errorSupAdh && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <div className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
+                    <motion.div 
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                        className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
                         <XCircle className="text-red-500 h-10 w-10" />
                         <p className="text-xl">{supAdh.error.message}</p>
-                    </div>
+                    </motion.div>
                 </div>
             )}
         </div>

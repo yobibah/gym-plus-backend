@@ -91,6 +91,7 @@ export default function InfosLogin(){
         mutationFn : Otp,
         onSuccess : ()=>{
             localStorage.setItem('status_otp', 'otp_verifie')
+            localStorage.setItem('tel', tel)
             setTimeout(()=>{
                 navigate(`/infos-salle?forfait=${choix_forfait.forfait}&prix=${choix_forfait.montant}`)
             }, 2500)
