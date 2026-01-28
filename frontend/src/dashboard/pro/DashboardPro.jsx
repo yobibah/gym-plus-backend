@@ -100,6 +100,10 @@ export default function DashboardPro(){
 
     const [detailAdherant, setDetailAdherant] = useState(false)
     
+
+    const date = new Date
+    const d = date.toLocaleDateString('fr-FR')
+
     function handleNotif(){
         setNotifModal(!notifModal)
     }
@@ -298,7 +302,11 @@ export default function DashboardPro(){
         }
 
         if (abonnementTab === 'expirés') {
-            result = result.filter(item => !item.dernier_abonnement?.actif)
+            result = result.filter(item => !item.dernier_abonnement?.actif )
+        }
+
+        if (abonnementTab === 'suspendu') {
+            result = result.filter(item => item.dernier_abonnement?.date_suspension !== null)
         }
 
         return result
@@ -411,7 +419,7 @@ export default function DashboardPro(){
     const infoError = infos.isError
 
 
-    // const gerantId = infos?.data?.user?.id
+    
     const dataExport = useMutation({
         // mutationKey: [gerantId],
         mutationFn : ({ gerantId }) => ExportCsv({ gerantId }),
@@ -438,8 +446,13 @@ export default function DashboardPro(){
     const dataExportSuccess = dataExport.isSuccess
     const dataExportError = dataExport.isError
 
-    async function handleExport(gerantId){
+
+        
+
+    async function handleExport(){
+        const gerantId = infos?.data?.user?.id
         if(!gerantId) return
+
         dataExport.mutate({gerantId})
     }
 
@@ -992,8 +1005,7 @@ export default function DashboardPro(){
     const dataHistory = history.data?.historiques || []
     const totalHistory = history.data?.historiques.length
 
-    const date = new Date
-    const d = date.toLocaleDateString('fr-FR')
+    
     const fin = formatDate(planChoisit?.data?.abonnement?.fin)
 
     const getDaysDifference = (date1, date2) => {
@@ -1638,7 +1650,8 @@ export default function DashboardPro(){
                     <div className="flex flex-col gap-2">
                         <h1 className="font-bold text-3xl flex items-center">
                             Gestion Abonnements : 
-                            <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalAbExpirer} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
+                            <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">{nbrAdherantsActif} actif{totalAbExpirer > 1 ? 's' : ''}</span>
+                            <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full">{totalAbExpirer} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
                             <span className="text-yellow-600 bg-yellow-100 text-sm py-1 px-3 rounded-full">{totalExpire} suspendu{totalExpire > 1 ? 's' : ''}</span>
                         </h1>
                         <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
@@ -1683,6 +1696,15 @@ export default function DashboardPro(){
                             
                             Expirés
                         </motion.button>
+
+                        <motion.button 
+                            whileTap={{scale: 0.95}}
+                            onClick={()=>{setAbonnementTab('suspendu')}}
+                            
+                            className={`${abonnementTab === 'suspendu' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+                            
+                            Suspendus
+                        </motion.button>
                         </div>
                     </div>
 
@@ -1722,16 +1744,22 @@ export default function DashboardPro(){
                                             </td>
                                             <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
                                             <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
-                                            <td className=" px-3 ">
-                                                <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
-                                                    {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
-                                                </span>
+                                            <td className=" px-3 flex items-center justify-center">
+                                                {item.dernier_abonnement?.date_suspension !== null ?(
+                                                     <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl`}>
+                                                        suspendu
+                                                    </span>
+                                                ):(
+                                                    <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200  animate-pulse'} font-semibold py-1 px-2 rounded-xl`}>
+                                                        {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
+                                                    </span>
+                                                )}
                                             </td>
                                             
-                                            <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                            <td className=" py-5 items-center gap-2 px-3">
                                                 
                                                 {!item.dernier_abonnement?.actif ? (
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="">
                                                     {item.dernier_abonnement?.date_suspension === null ?(
                                                         <motion.button
                                                             type="button"
