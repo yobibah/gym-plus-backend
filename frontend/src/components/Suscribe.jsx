@@ -68,7 +68,7 @@ export default function Suscribe(){
                     text7={"Enregistrement des paiements"}
                     icon6={<CheckCircle size={20} className="text-green-400 flex-shrink-0"/>}
                     text8={"Alertes simples sur les abonnements expirés"}
-                    onClick={()=>{handleSubscribe("Standard", 15000)}}
+                    onClick={()=>{handleSubscribe("Standard", 100)}}
                     classNameButton={"flex w-full hover:text-white hover:bg-orange-600 cursor-pointer mx-auto items-center font-bold justify-center p-3 bg-orange-100 text-orange-600 rounded-lg transition-colors duration-200"}
                     titleButton={"Choisir Standard"}
                 />
@@ -108,7 +108,7 @@ export default function Suscribe(){
                     text9={"Emailing manuel pour les rappels ou annonces"}
                     icon8={<CheckCircle size={20} className="text-green-400 flex-shrink-0"/>}
                     text10={"Alertes avancées sur les abonnements expirés / bientôt expirés"}
-                    onClick={()=>{handleSubscribe("Pro", 25000)}}
+                    onClick={()=>{handleSubscribe("Pro", 100)}}
                     classNameButton={"flex w-full transition-colors duration-200 hover:bg-orange-100 hover:text-orange-600 cursor-pointer mx-auto items-center justify-center p-3 bg-orange-600 text-white font-bold rounded-lg"}
                     titleButton={"Choisir Pro"}
                 />
@@ -146,7 +146,7 @@ export default function Suscribe(){
                     text8={"Alertes intelligentes (adhérants à risque, expiration proche...)"}
                     icon7={<CheckCircle size={20} className="text-green-400 flex-shrink-0"/>}
                     text9={"Support Prioritaire"}
-                    onClick={()=>{handleSubscribe("Premium", 40000)}}
+                    onClick={()=>{handleSubscribe("Premium", 100)}}
                     classNameButton={"flex w-full hover:text-white hover:bg-orange-600 cursor-pointer mx-auto items-center font-bold justify-center p-3 bg-orange-100 text-orange-600 rounded-lg transition-colors duration-200"}
                     titleButton={"Choisir Premium"}
                 />

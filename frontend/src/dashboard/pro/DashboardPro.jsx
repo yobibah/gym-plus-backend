@@ -1352,8 +1352,8 @@ export default function DashboardPro(){
                                     <h3 className="font-bold">Gestion des Abonnements</h3>
                                     <div className="flex items-center justify-center gap-8">
                                         <div className="flex flex-col items-center">
-                                            <p className="text-yellow-500 text-xl font-bold">12</p>
-                                            <p className="text-gray-400 text-sm font-semibold">Suspendus</p>
+                                            <p className="text-yellow-500 text-xl font-bold">{totalExpire >= 10 ? `${totalExpire}` : `0${totalExpire}`}</p>
+                                            <p className="text-gray-400 text-sm font-semibold">Suspendu{totalExpire > 1? 's' : ''}</p>
                                         </div>
                                         <div className="flex flex-col items-center">
                                             <p className="text-green-500 text-xl font-bold">8</p>
@@ -1376,7 +1376,7 @@ export default function DashboardPro(){
                                             </div>
                                             {/* <p className="text-sm font-semibold">{totalAbExpirer > 0 ? {totalAbExpirer} : 'Aucun'} abonnement{totalAbExpirer > 0 ? 's' : ''} expiré{totalAbExpirer > 0 ? 's':''}</p> */}
                                             {totalAbExpirer >= 1 ? (
-                                                <p className="text-sm font-semibold">{totalAbExpirer} abonnements expirés</p>
+                                                <p className="text-sm font-semibold">{totalAbExpirer >= 10 ? `${totalAbExpirer}` : `0${totalAbExpirer}`} abonnement{totalAbExpirer > 1 ? 's' : ''} expiré{totalAbExpirer > 1 ? 's' : ''}</p>
                                             ):(
                                                 <p className="text-sm font-semibold">Aucun abonnement expiré</p>
                                             )}
@@ -1434,10 +1434,16 @@ export default function DashboardPro(){
                                                 </td>
                                                 <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
                                                 <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
-                                                <td className=" px-3 ">
-                                                    <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
-                                                        {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
-                                                    </span>
+                                                <td className=" px-3 flex items-center justify-center">
+                                                    {item.dernier_abonnement?.date_suspension !== null ?(
+                                                        <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl`}>
+                                                            suspendu
+                                                        </span>
+                                                    ):(
+                                                        <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200  animate-pulse'} font-semibold py-1 px-2 rounded-xl`}>
+                                                            {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
+                                                        </span>
+                                                    )}
                                                 </td>
                                                 
                                             </tr>
