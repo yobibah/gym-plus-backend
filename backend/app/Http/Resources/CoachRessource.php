@@ -18,7 +18,7 @@ class CoachRessource extends JsonResource
             'id'=>$this->id,
             'nom'=>$this->nom,
             'prenom'=>$this->prenom,
-            'competence'=>$this->competence
+            'competence'=>(array) $this->skills
         ];
     }
 }

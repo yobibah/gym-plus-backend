@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CoachRessource;
 use App\Models\coach;
-use App\Models\coach_salle;
 use Exception;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\Request;
@@ -41,28 +40,25 @@ class CoachController extends Controller
 
         DB::beginTransaction();
         try {
-            $exist = $user->salle->coach->where('telephone', $request->telephone);
+            $exist = coach::where('telephone', $request->telephone)->where('salle_id', $user->salle->id)->exists();
 
-            if ($exist->IsNotEmpty()) {
+            if ($exist) {
                 return response()->json([
                     'message' => 'cet numero est associer a un coach'
                 ], 409);
             }
 
-            $c = coach::create([
+            coach::create([
                 'nom' => strtolower($request->nom),
                 'prenom' => strtolower($request->prenom),
                 'telephone' => $request->telephone,
                 'skills' => $request->competence,
-
-            ]);
-
-
-            coach_salle::forceCreate([
-                'coach_id' => $c->id,
                 'salle_id' => $user->salle->id,
 
             ]);
+
+
+
             Cache::forget('coach_' . $user->id);
 
             DB::commit();
@@ -83,22 +79,19 @@ class CoachController extends Controller
     {
         $user = $request->user();
         $coach = Cache::remember('coach_' . $user->id, now()->addMinutes(5), function () use ($user) {
-            return $user->salle->coach;
+            return $user->coach();
         });
 
- 
+
 
         return response()->json([
-            'coach' => CoachRessource::collection( $coach),
-   
-
-
+            'coach' => CoachRessource::collection($coach),
 
         ]);
 
     }
 
-    public function deleteCoach(Request $request)
+    public function DeleteCoach(Request $request)
     {
         $user = $request->user();
         $validator = Validator::make($request->all(), [
@@ -114,10 +107,12 @@ class CoachController extends Controller
 
         try {
             DB::beginTransaction();
-            $coach = $user->salle->coach->where('id', $request->id);
-            if ($coach->IsEmpty()) {
+            $coach = coach::where('id', $request->id)->where('salle_id', $user->salle->id)->first();
+
+
+            if (!$coach) {
                 return response()->json([
-                    'message' => 'coach non trouve'
+                    'message' => 'coach n\'existe pas veuillez creer un nouveu coach'
                 ], 404);
             }
 
@@ -152,7 +147,7 @@ class CoachController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'champ {id} requis'
+                'message' => 'champ "id" requis'
             ]);
         }
 
@@ -160,15 +155,15 @@ class CoachController extends Controller
 
         try {
             $coach = coach::find($request->id);
-            if (!$coach->exists || $coach->salle_id === $user->salle->id) {
+            if (!$coach || $coach->salle_id != $user->salle->id) {
                 return response()->json(
                     [
                         'message' => 'une erreur est survenue veuillez ressayer plus tard'
                     ],
-                    500
+                    404
                 );
             }
-  
+
 
             $coach->update([
                 'email' => $request->email ?? $coach->email,
@@ -176,10 +171,16 @@ class CoachController extends Controller
                 'prenom' => $request->prenom ?? $coach->prenom,
                 'telephone' => $request->telephone ?? $coach->telephone
             ]);
-             DB::commit();
 
-                return response()->json([
-                'coach' => CoachRessource::collection($coach)
+            DB::commit();
+
+
+            return response()->json([
+
+                'message' => 'coach modifier avec succes',
+
+
+
             ], 200);
 
         } catch (Exception $e) {
@@ -187,28 +188,29 @@ class CoachController extends Controller
     }
 
 
-    public function affecterCoachCours(Request $request){
+    public function affecterCoachCours(Request $request)
+    {
         $user = $request->user();
         // un cours est avec des adherant precis 
         // le gerant selectionne le nombre d'haderant pour programmer a un cours precis
         // le coach doit etre disponible 
         // notifier le coach par sms ou par mail pour prendre par de sa disponibilte
-        
-        $validator = Validator::make($request->all(),[
-            'id_adherent'=>'required|array|integer',
-            'date'=>'required',
-            'heure'=>'required',
-            'coach_id'=>'required'
+
+        $validator = Validator::make($request->all(), [
+            'id_adherent' => 'required|array|integer',
+            'date' => 'required',
+            'heure' => 'required',
+            'coach_id' => 'required'
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
-                'message'=> 'remplir tous les champs'
-            ],400);
-            
+                'message' => 'remplir tous les champs'
+            ], 400);
+
         }
 
-        try{
+        try {
             $coach = coach::findOrFail($request->coach_id);
 
             // on recupere tous les cours et on verifie les coachs non libre
@@ -216,12 +218,11 @@ class CoachController extends Controller
 
 
 
-        }
-        catch(Exception $e){
-            
+        } catch (Exception $e) {
+
         }
 
-    } 
+    }
 
 
 
