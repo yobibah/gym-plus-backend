@@ -466,7 +466,7 @@ class UserController extends Controller
 
     }
 
-    public function deletePrix(Request $request)
+    public function deleteprix(Request $request)
     {
         $user = $request->user();
         if (!$user->hasrole('Gerant')) {
@@ -1019,7 +1019,7 @@ class UserController extends Controller
     }
 
 
-    public function Deletecachet(Request $request)
+    public function DeleteCachet(Request $request)
     {
 
         $user = $request->user();
@@ -1210,4 +1210,12 @@ class UserController extends Controller
     }
 
 
+    public function RelanceManuel(Request $request){
+
+    }
+
+
+    public function Annonce(Request $request){
+
+    }
 }

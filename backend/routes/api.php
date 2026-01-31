@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CoursController;
 use Aws\Middleware;
 use App\Exports\UserExport;
 use Illuminate\Http\Request;
@@ -23,10 +24,15 @@ Route::post('/infos-perso', [AuthController::class, 'Register']);
 Route::post('/forgot-password', [AuthController::class, 'sendLink']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 Route::post('/accueil-form', [AuthController::class, 'demo']);
+Route::get('/pays',[AuthController::class,'PaysList']);
+Route::post('/ville-pays',[AuthController::class,'RegionVille']);
+
 
 Route::middleware(['auth:sanctum'])->group(function () {
   Route::middleware('isGerant')->group(function () {
     Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
+    Route::post('/payment-process',[YengaPayController::class,'charge']);
+        Route::post('/payment-otp',[YengaPayController::class,'chargeOtp']);
 
     Route::get('/mes-infos', [UserController::class, 'mesInfo']);
     Route::put('/update-password', [UserController::class, 'UpdateMdp']);
@@ -39,8 +45,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/update-adherant', [UserController::class, 'UpdateAdherent']);
     Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
     Route::post('/mis-niveau', [UserController::class, 'Mettre_a_Niveau']);
-    Route::post('/ajouter-logo', [UserController::class, 'Addlogo']);
-    Route::post('/delete-logo', [UserController::class, 'deleteLogo']);
+    Route::post('/ajouter-logo', [UserController::class, 'AddLogo']);
+    Route::post('/delete-logo', [UserController::class, 'DeleteLogo']);
     Route::post('/update-logo', [UserController::class, 'EditLogo']);
 
     Route::delete('/delete-adherant', [UserController::class, 'DeleteAdherent']);
@@ -75,21 +81,27 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/recette', [DepensesController::class, 'Recette']);
     Route::get('/mes-depenses', [DepensesController::class, 'MesDepenses']);
     Route::get('/mes-coach', [CoachController::class, 'mesCoach']);
-    Route::post('/update-coach', [CoachController::class, 'UpdateCoach']);
+    Route::get('/mes-cours', [CoursController::class, 'Mescours']);
     Route::middleware(['proprem'])->group(function () {
 
       Route::get('/export/users/{gerantId}', function ($gerantId) {
 
         return Excel::download(new UserExport($gerantId), 'users_gerant_' . $gerantId . '.xlsx');
       });
+      Route::post('/test-sms',[HomeController::class,'testSms']);
 
+      Route::delete('/delete-cours', [CoursController::class, 'DeleteCours']);
+      Route::put('/update-cours', [CoursController::class, 'UpdateCours']);
+      Route::post('/ajouter-cours', [CoursController::class, 'AjouterCours']);
       Route::post('/suspendre-abonnement', [AbonnementController::class, 'SusprendreAbonnement']);
       Route::post('reactiver-abonnement', [AbonnementController::class, 'reactiverAbonnemnt']);
       Route::post('/ajouter-cachet', [UserController::class, 'CachetSigner']);
-      Route::post('/delete-cachet', [UserController::class, 'deleteCachet']);
+      Route::delete('/delete-cachet', [UserController::class, 'DeleteCachet']);
       Route::post('/update-cachet', [UserController::class, 'EditCachet']);
       Route::post('/ajouter-depense', [DepensesController::class, 'ajouterDepense']);
       Route::post('/ajouter-coach', [CoachController::class, 'AjouterCoach']);
+       Route::delete('/delete-coach', [CoachController::class, 'DeleteCoach']);
+        Route::put('/update-coach', [CoachController::class, 'UpdateCoach']);
 
     });
 

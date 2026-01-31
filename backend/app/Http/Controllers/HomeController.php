@@ -7,9 +7,17 @@ use App\Models\abonnement;
 use App\Models\historique;
 use App\Models\reabonnemen_trace;
 use App\Models\User;
+use App\Services\IkoddiService;
+use App\Services\PaysApiService;
+use App\Services\SenfenicoService;
+use Aws\Api\Parser\JsonParser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Senfenico\Senfenico;
 use Vtiful\Kernel\Excel;
 
 class HomeController extends Controller
@@ -214,11 +222,42 @@ foreach ($abonnementpas as $adh) {
 
     }
 
+    public function testSms(Request $request){
+
+        $user = $request->user();
+        $valdator = Validator::make($request->all(),[
+            'numero'=> 'required|string|min:8',
+             'montant'=>'required',
+             'ext_id'=>'nullable|string'
+        ]);
+
+        if ($valdator->fails()){
+            return response()->json([
+                'message'=>$valdator->errors()
+            ]);
+        }
+       
+        $data = [
+            'destinataire'=>$request->numero,
+            'montant'=>$request->montant,
+            'ext_id'=>Hash::make(rand(1,999)).'@'.$request->numerom
+        ];
+
+        $sms = new SenfenicoService();
+    //     $transID = $user->dernierPaiement->transId;
+    //    $ms= $sms ->fetch( (string)$transID);
+
+       $transf =$sms ->Transferer($data);
+     
+        return $transf;
+        
+
+    }
     public function ConnexionHistorique(Request $request){
         $user = $request->user();
 
-        $historique = Cache::remember('historique',100,function() use($user){
-            return historique::where('gerant_id',$user->id)->orderByDesc('date_connexion')->limit(10)->get();
+        $historique = Cache::remember('historique_'.$user->id,100,function() use($user){
+            return historique::where('gerant_id',$user->id)->orderByDesc('date_connexion')->get();
         });
 
         return response()->json([
@@ -232,4 +271,6 @@ foreach ($abonnementpas as $adh) {
 
 
     // }
+
+
 }

@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('coach_salle', function (Blueprint $table) {
+        Schema::create('cours', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('nom_cours');
             $table->foreignId('salle_id')->constrained('salles')->cascadeOnDelete();
-            $table->foreignId('coach_id')->constrained('coach')->cascadeOnDelete();
-            
+            $table->enum('niveaux',['debutant','intermediaire','all'])->default('debutant');
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('coach_salle');
+        Schema::dropIfExists('cours');
     }
 };

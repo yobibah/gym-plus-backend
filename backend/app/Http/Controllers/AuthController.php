@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\historique;
+use App\Services\PaysApiService;
 use Auth;
 use Exception;
 use App\Models\User;
@@ -21,12 +22,15 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Auth\Notifications\ResetPassword;
+use PhpParser\Node\Expr\Cast\String_;
 
 class AuthController extends Controller
 {
 
 
     // register
+
+    public function __construct(public PaysApiService $PaysService){}
 
     // verifions les informations de la salle ou du gerant d'abord
     public function Register(Request $request)
@@ -56,7 +60,7 @@ class AuthController extends Controller
         if ($gerantExiste) {
             return response()->json([
                 'message' => 'cet adresse email est deja associe a un compte.'
-            ], 400);
+            ], 409);
         }
 
         $mdp = (Str::random(10));
@@ -107,7 +111,7 @@ class AuthController extends Controller
         }
     }
 
-    public function login(Request $request)
+    public function Login(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|min:6',
@@ -237,7 +241,7 @@ public function VerifieEmail(Request $request)
 
 
 
-public function SendLink(Request $request)
+public function sendLink(Request $request)
 {
 
     $validator = Validator::make($request->all(), [
@@ -291,7 +295,7 @@ public function SendLink(Request $request)
 
 
 
-    public function resetpassword(Request $request)
+    public function resetPassword(Request $request)
     {
         $validate = Validator::make($request->all(), [
             'password' => 'required',
@@ -360,6 +364,23 @@ public function SendLink(Request $request)
                 'message' => 'une errreur est survenue'
             ], 500);
         }
+    }
+
+
+    public function PaysList(){
+        return response()->json([
+            'pays'=>Cache::remember('pays',now()->addMinutes(60),function(){ return $this->PaysService->CountrieName()->original;}) 
+        ],200);
+    }
+
+    public function RegionVille(Request $request){
+        $validator = Validator::make($request->all(),[
+            'pays'=>'required|string'
+        ]);
+
+        return response()->json([
+            'ville'=> $this->PaysService->Mesvilles((String)$request->pays)->original['data']
+        ],200);
     }
 
    

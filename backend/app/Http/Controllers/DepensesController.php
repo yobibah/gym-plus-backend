@@ -193,6 +193,8 @@ class DepensesController extends Controller
     //pour exporter en csv
     public function  rapportFinancier(Request $request){
 
+        
+
     }
 
 
