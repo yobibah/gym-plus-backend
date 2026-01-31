@@ -135,28 +135,28 @@ console.log('type', type);
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}}
                                         onClick={()=>{setProvider('orange_bf')}}
-                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'orange' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'orange_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={orange} alt="orange-logo" className="h-full w-full" />
                                     </motion.button>
                                     <motion.button
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}} 
                                         onClick={()=>{setProvider('moov_bf')}}
-                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'moov' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'moov_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={moov} alt="moov-logo" className="h-full w-full"/>
                                     </motion.button>
                                     <motion.button 
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}} 
                                         onClick={()=>{setProvider('corismoney_bf')}}
-                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'coris' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'corismoney_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={coris} alt="coris-logo" className="h-full w-full"/>
                                     </motion.button>
                                     <motion.button 
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}} 
                                         onClick={()=>{setProvider('sank_bf')}}
-                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'sank' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'sank_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={sank} alt="sank-logo" className="h-full w-full"/>
                                     </motion.button>
                                 </div>
