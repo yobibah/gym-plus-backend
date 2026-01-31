@@ -54,19 +54,10 @@ class salle extends Model
             ->withTimestamps();
     }
 
-        public function coach()
-    {
-        return $this->belongsToMany(coach::class, 'coach_salle', 'salle_id', 'coach_id')
-            // ->withPivot(['date_inscription', 'statut'])
-            ->withTimestamps();
-    }
 
 
 
-    public function gerantIds()
-{
-    return $this->coach()->pluck('coach_salle.salle_id');
-}
+
 
 
     public function adherentsActif()

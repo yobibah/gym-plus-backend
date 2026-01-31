@@ -253,4 +253,12 @@ class User extends Authenticatable
     // public function getEmailAttribute($value){
     //     return Str::mask($value, '*',5,6);
     // }
+
+   public function coach(){
+     return coach::where('salle_id',$this->salle->id)->get();
+   }
+
+//    public function DernierPaiementExpirerReussi(){
+//        return paiement::where('gerant_id',$this->id)->where('status','reussi')->
+//    }
 }
