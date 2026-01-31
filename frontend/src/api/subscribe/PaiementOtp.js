@@ -2,7 +2,6 @@ import React from "react";
 import { apiUrl } from "../../../env";
 import Cookies from "js-cookie";
 import { getToken } from "../../hooks/getToken";
-// import { token } from "../../hooks/getToken";
 
 
 export async function PaymentOtp({otp}){

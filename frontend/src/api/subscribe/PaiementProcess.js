@@ -17,7 +17,7 @@ export async function PaymentProcess({numero, montant, forfait}){
                 "Authorization" : `Bearer ${token}`, 
                 "Accept":"application/json",
             },
-            body: JSON.stringify({numero, montant, forfait})
+            body: JSON.stringify({numero, montant, forfait, type, provider})
         })
 
         const data = await response.json()

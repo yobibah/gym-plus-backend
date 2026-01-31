@@ -77,6 +77,7 @@ export default function DashboardStandard(){
     const [reabonner, setReabonner] = useState(null)
     const [reabonnerModal, setReabonnerModal] = useState(false)
     const [abonnementTab, setAbonnementTab] = useState('tous')
+    const type = 'reinscription'
     
 
 

@@ -6,9 +6,12 @@ import { getToken } from "../../hooks/getToken";
 import { useNavigate } from "react-router-dom";
 import { usePayment } from "../../contexts/PaymentContext";
 import { CheckCircle, Loader2, Lock, WalletCards, Smartphone } from "lucide-react";
-import { Payment } from "../../api/subscribe/paiement";
 import { useMutation } from "@tanstack/react-query";
 import { PaymentProcess } from "../../api/subscribe/PaiementProcess";
+import orange from '../../assets/images/orange.png'
+import moov from '../../assets/images/moov.png'
+import sank from '../../assets/images/sank.png'
+import coris from '../../assets/images/coris.webp'
 
 
 export default function PaiementProcess(){
@@ -18,7 +21,8 @@ export default function PaiementProcess(){
     const forfaitUrl = params.get('forfait')
     const montantUrl = params.get('montant')
     const [tel, setTel] = useState('')
-
+    const type = 'inscription'
+    const [provider, setProvider] = useState(null)
     const choix_forfait = JSON.parse(localStorage.getItem('choix_forfait')) 
 
     const navigate = useNavigate()
@@ -67,7 +71,7 @@ export default function PaiementProcess(){
 
     async function handlePayment(e) {
         e.preventDefault()
-        paiement.mutate({montant, numero: tel, forfait})
+        paiement.mutate({montant, numero: tel, forfait, type, provider})
     }
 
 
@@ -97,7 +101,7 @@ export default function PaiementProcess(){
                                     </div>
                                     <div>
                                         <p className="font-semibold">Paiement sécurisé</p>
-                                        <p className="text-sm text-gray-600">Carte bancaire ou mobile money</p>
+                                        <p className="text-sm text-gray-600">Mobile money</p>
                                     </div>
                                 </div>
                             </div>
@@ -120,6 +124,41 @@ export default function PaiementProcess(){
                                         Après paiement, votre compte sera activé immédiatement. 
                                         Vous recevrez un email de confirmation.
                                     </p>
+                                </div>
+                            </div>
+
+                            <div className="bg-orange-50  px-5 pb-5 flex flex-col">
+                                <p className="my-5 text-gray-500">Veuillez choisir votre moyen de paiement</p>
+                                <div className="flex items-center justify-center gap-5">
+
+                                    <motion.button 
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}}
+                                        onClick={()=>{setProvider('orange')}}
+                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'orange' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={orange} alt="orange-logo" className="h-full w-full" />
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}} 
+                                        onClick={()=>{setProvider('moov')}}
+                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'moov' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={moov} alt="moov-logo" className="h-full w-full"/>
+                                    </motion.button>
+                                    <motion.button 
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}} 
+                                        onClick={()=>{setProvider('coris')}}
+                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'coris' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={coris} alt="coris-logo" className="h-full w-full"/>
+                                    </motion.button>
+                                    <motion.button 
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}} 
+                                        onClick={()=>{setProvider('sank')}}
+                                        className={`border p-1 h-20 w-70 bg-white ${provider === 'sank' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={sank} alt="sank-logo" className="h-full w-full"/>
+                                    </motion.button>
                                 </div>
                             </div>
                         </div>
@@ -174,9 +213,9 @@ export default function PaiementProcess(){
                             </div>
                             <motion.button 
                                 whileTap={{scale:0.95}}
-                                className={`${!tel.trim() ? 'bg-orange-300 text-black/30 border-orange-300' : 'bg-orange-600 hover:bg-transparent border-orange-600 text-white hover:text-black'}  border  mb-5 w-full justify-center flex items-center  font-bold rounded-lg gap-2 mx-auto p-3 transition-colors duration-200`}
+                                className={`${!tel.trim() || provider === null ? 'bg-orange-300 text-black/30 border-orange-300' : 'bg-orange-600 hover:bg-transparent border-orange-600 text-white hover:text-black'}  border  mb-5 w-full justify-center flex items-center  font-bold rounded-lg gap-2 mx-auto p-3 transition-colors duration-200`}
                                 onClick={handlePayment}
-                                disabled={loading || !tel.trim()}
+                                disabled={loading || !tel.trim() || provider === null}
                             >
                                 {loading ? (
                                     <>
@@ -199,25 +238,11 @@ export default function PaiementProcess(){
                         </span>
                         
                         <div className="flex justify-center items-center gap-4">
-                            <div className="flex flex-col items-center">
-                                <div className="p-2 bg-orange-50 rounded-lg mb-1">
-                                    <WalletCards className="h-5 w-5" />
-                                </div>
-                                <span className="text-xs text-gray-600">Carte</span>
-                            </div>
-                            <div className="flex flex-col items-center">
-                                <div className="p-2 bg-orange-50 rounded-lg mb-1">
-                                    <Smartphone className="h-5 w-5" />
-                                </div>
-                                <span className="text-xs text-gray-600">Mobile</span>
+                            <span className="text-xs text-gray-600">Mobile Money</span>
+                            <div className="p-2 bg-orange-50 rounded-lg mb-1">
+                                <Smartphone className="h-5 w-5" />
                             </div>
                         </div>
-{/* 
-                        <div className="mt-6 text-center">
-                            <p className="text-xs text-gray-500">
-                                En cliquant sur "Payer maintenant", vous serez redirigé vers notre passerelle de paiement sécurisée.
-                            </p>
-                        </div> */}
                     </div>
                 </div>
             </div>
