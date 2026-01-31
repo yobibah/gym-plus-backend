@@ -37,176 +37,158 @@ class YengaPayController extends Controller
     }
 
 
-    public function payer(Request $request)
-    {
-        $current = $request->user();
-        $otp = new Otp($current);
+    // public function payer(Request $request)
+    // {
+    //     $current = $request->user();
+    //     $otp = new Otp($current);
 
-        $validator = Validator::make($request->all(), [
-            "montant" => "required|numeric",
-            "forfait" => "required|in:pro,standard,premium",
-            'fin' => "nullable|integer"
-        ]);
+    //     $validator = Validator::make($request->all(), [
+    //         "montant" => "required|numeric",
+    //         "forfait" => "required|in:pro,standard,premium",
+    //         'fin' => "nullable|integer"
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'une erreur est survenue'
-            ], 400);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'message' => 'une erreur est survenue'
+    //         ], 400);
+    //     }
 
-        try {
-            $fin = $request->fin ?? 1;
+    //     try {
+    //         $fin = $request->fin ?? 1;
 
-            switch ($request->forfait) {
+    //         switch ($request->forfait) {
 
-            }
-            $hasAbonnement = $current->paiements()
-                ->where('fin', '>=', Carbon::now())
-                ->exists();
+    //         }
+    //         $hasAbonnement = $current->paiements()
+    //             ->where('fin', '>=', Carbon::now())
+    //             ->exists();
 
-            if ($hasAbonnement) {
-                return response()->json([
-                    'message' => 'Vous avez déjà un abonnement en cours'
-                ], 400);
-            }
+    //         if ($hasAbonnement) {
+    //             return response()->json([
+    //                 'message' => 'Vous avez déjà un abonnement en cours'
+    //             ], 400);
+    //         }
 
-            $paiement = paiement::create([
-                'debut' => Carbon::now(),
-                'fin' => Carbon::today()->addMonths((int) $fin),
-                'montant' => $request->montant,
-                'plan' => strtolower($request->forfait),
-                'gerant_id' => $current->id,
-                'status' => 'attente',
-                'moyen paiment' => 'OM',
-                'transId' => Str::random(4) . Carbon::now()->format('Ymd') . '@' . rand(111, 999)
-            ]);
-            $response = $this->senfenico->initialize([
-                'email' => $current->email,
-                'amount' => (float) $request->montant,
-                'success_url' => route('paiement.success'),
-                'cancel_url' => route('paiement.cancel'),
+    //         $paiement = paiement::create([
+    //             'debut' => Carbon::now(),
+    //             'fin' => Carbon::today()->addMonths((int) $fin),
+    //             'montant' => $request->montant,
+    //             'plan' => strtolower($request->forfait),
+    //             'gerant_id' => $current->id,
+    //             'status' => 'attente',
+    //             'moyen paiment' => 'OM',
+    //             'transId' => Str::random(4) . Carbon::now()->format('Ymd') . '@' . rand(111, 999)
+    //         ]);
+    //         $response = $this->senfenico->initialize([
+    //             'email' => $current->email,
+    //             'amount' => (float) $request->montant,
+    //             'success_url' => route('paiement.success'),
+    //             'cancel_url' => route('paiement.cancel'),
 
-            ]);
+    //         ]);
 
-            $reference = $response->data->reference;
+    //         $reference = $response->data->reference;
 
-            $paiement->update(attributes: [
-                'transId' => $reference,
-                'moyen paiment' => 'OM',
-            ]);
-
-
-
-            // URL de paiement Senfenico
-            $reference = $response->data->reference;
-            return response()->json($response->data->authorization_url);
-
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'une erreur est survenue',
-                'error' => $e->getMessage()
-            ]);
-
-        }
-
-    }
-
-    public function success(Request $request)
-    {
-        $reference = $request->query('reference');
-
-        if (!$reference) {
-            return response()->json([
-                'message' => 'Référence manquante'
-            ], 400);
-        }
-        $checkout = $this->senfenico->fetch($reference);
-
-
-        if ($checkout->data->status === 'success') {
-
-            $paiement = $this->RetournerPaiement($reference);
-            $paiement->update([
-                'moyen paiment' => $checkout->data->provider,
-                'status' => 'reussi'
-            ]);
-
-            // Générer mot de passe temporaire
-            $mdp = Str::random(10);
-
-            $current = User::where('email', $checkout->data->email)
-                ->whereHas('roles', fn($q) => $q->where('name', 'Gerant'))
-                ->first();
-            $current->update([
-                'password' => bcrypt($mdp),
-                'otp' => null
-            ]);
-
-            $otp = new Otp($current);
-            // Envoyer les informations de connexion
-            $otp->sendLoginInformation($mdp);
-        }
-        return response()->json([
-            'message' => 'Paiement réussi',
-            'paiement' => $paiement,
-            // 'mdp_temporaire' => $mdp
-        ], 201);
+    //         $paiement->update(attributes: [
+    //             'transId' => $reference,
+    //             'moyen paiment' => 'OM',
+    //         ]);
 
 
 
-    }
+    //         // URL de paiement Senfenico
+    //         $reference = $response->data->reference;
+    //         return response()->json($response->data->authorization_url);
 
-    public function cancel(Request $request)
-    {
-        $reference = $request->query('reference');
+    //     } catch (Exception $e) {
+    //         return response()->json([
+    //             'message' => 'une erreur est survenue',
+    //             'error' => $e->getMessage()
+    //         ]);
 
-        if (!$reference) {
-            return response()->json([
-                'message' => 'Référence manquante'
-            ], 400);
-        }
-        $checkout = $this->senfenico->fetch($reference);
+    //     }
 
+    // }
 
-        if ($checkout->data->status === 'failed') {
+    // public function success(Request $request)
+    // {
+    //     $reference = $request->query('reference');
 
-            $paiement = $this->RetournerPaiement($reference);
-            $paiement->update([
-                'moyen paiment' => $checkout->data->provider,
-            ]);
-
-            // Générer mot de passe temporaire
-            return response()->json([
-                'message' => 'Paiement echouer',
-                'paiement' => $paiement,
-                // 'mdp_temporaire' => $mdp
-            ], 500);
+    //     if (!$reference) {
+    //         return response()->json([
+    //             'message' => 'Référence manquante'
+    //         ], 400);
+    //     }
+    //     $checkout = $this->senfenico->fetch($reference);
 
 
+    //     if ($checkout->data->status === 'success') {
 
-        }
+    //         $paiement = $this->RetournerPaiement($reference);
+    //         $paiement->update([
+    //             'moyen paiment' => $checkout->data->provider,
+    //             'status' => 'reussi'
+    //         ]);
+
+    //         // Générer mot de passe temporaire
+    //         $mdp = Str::random(10);
+
+    //         $current = User::where('email', $checkout->data->email)
+    //             ->whereHas('roles', fn($q) => $q->where('name', 'Gerant'))
+    //             ->first();
+    //         $current->update([
+    //             'password' => bcrypt($mdp),
+    //             'otp' => null
+    //         ]);
+
+    //         $otp = new Otp($current);
+    //         // Envoyer les informations de connexion
+    //         $otp->sendLoginInformation($mdp);
+    //     }
+    //     return response()->json([
+    //         'message' => 'Paiement réussi',
+    //         'paiement' => $paiement,
+    //         // 'mdp_temporaire' => $mdp
+    //     ], 201);
 
 
-    }
 
-    public function handle(Request $request)
-    {
-        Log::info('Webhook Senfenico', $request->all());
+    // }
 
-        if ($request->event === 'payment.success') {
+    // public function cancel(Request $request)
+    // {
+    //     $reference = $request->query('reference');
 
-            $data = is_array($request->data) ? $request->data : (array) $request->data;
+    //     if (!$reference) {
+    //         return response()->json([
+    //             'message' => 'Référence manquante'
+    //         ], 400);
+    //     }
+    //     $checkout = $this->senfenico->fetch($reference);
 
-            $reference = $data['reference'] ?? null;
 
-            if ($reference) {
+    //     if ($checkout->data->status === 'failed') {
 
-                $this->RetournerPaiement($reference)->update(['status' => 'reussi']);
-            }
-        }
+    //         $paiement = $this->RetournerPaiement($reference);
+    //         $paiement->update([
+    //             'moyen paiment' => $checkout->data->provider,
+    //         ]);
 
-        return response()->json(['status' => true]);
-    }
+    //         // Générer mot de passe temporaire
+    //         return response()->json([
+    //             'message' => 'Paiement echouer',
+    //             'paiement' => $paiement,
+    //             // 'mdp_temporaire' => $mdp
+    //         ], 500);
+
+
+
+    //     }
+
+
+    // }
+
 
     /// ces methodes sont reserver pour faire le sans redirection
 
@@ -216,10 +198,13 @@ class YengaPayController extends Controller
 
         $validator = Validator::make($request->all(), [
             "montant" => "required|numeric",
-            'numero' => "required|string|min:8"
+            'numero' => "required|string|min:8",
+            'forfait' => 'required|string',
+            'provider' => 'required|string|in:orange_bf,moov_bf,sank_bf,coris_bf',
+            'type' => 'required|string|in:reinscription,inscription'
         ]);
 
-        $forfait = $request->query('forfait');
+        // $forfait = $request->query('forfait');
         // verifier le forfait
 
         if ($validator->fails()) {
@@ -241,26 +226,25 @@ class YengaPayController extends Controller
             if ($hasAbonnement) {
                 return response()->json([
                     'message' => 'Vous avez déjà un abonnement en cours'
-                ], 400);
+                ], 409);
             }
 
             $paiement = paiement::create([
                 'debut' => Carbon::now(),
                 'fin' => Carbon::today()->addMonths((int) $fin),
                 'montant' => $request->montant,
-                'plan' => strtolower($forfait),
+                'plan' => strtolower($request->forfait),
                 'gerant_id' => $current->id,
                 'status' => 'attente',
-                'moyen paiment' => 'OM',
+                'moyen paiment' => 'N/A',
                 'transId' => Str::random(4) . Carbon::now()->format('Ymd') . '@' . rand(111, 999)
             ]);
 
             $data = [
                 "montant" => $request->montant,
-                'numero' => $request->numero
+                'numero' => $request->numero,
+                'provider' => $request->provider
             ];
-
-
 
             $response = $this->senfenico->charge($data);
 
@@ -269,11 +253,12 @@ class YengaPayController extends Controller
                 $message = $response->data->display_text;
                 // maj
                 $paiement->update([
-                    'transId'=>$ref,
+                    'transId' => $ref,
                 ]);
 
 
-                Cache::put('reference_' . $current->id, $ref, now()->addMinutes(30));
+                Cache::put('reference_' . $current->id, $ref, now()->addMinutes(15));
+                cache::put('type_' . $current->id, $request->type, now()->addMinutes(15));
 
                 return response()->json([
                     'message' => $message,
@@ -311,51 +296,124 @@ class YengaPayController extends Controller
             ]);
         }
         try {
+
             $data = [
-                'reference' => Cache::get('reference_'.$current->id),
+                'reference' => Cache::get('reference_' . $current->id),
                 'otp' => $request->otp
             ];
 
             $response = $this->senfenico->Otp($data);
 
-            return $response;
+            // return $response->data;
 
-            if ($response && $response['status'] == true) {
+            if ($response && $response->status == true) {
 
-                $data = $response['data'];
-                $msg = $response['message'];
+                $data = $response->data;
+                $msg = $response->message;
 
-                $paiement= paiement::where('gerant_id',$current->id)->where('transId',Cache::get('reference_'.$current->id))->first();
+
+                $paiement = Paiement::where('gerant_id', $current->id)
+                    ->where('transId', Cache::get('reference_' . $current->id))
+                    ->first();
+
+                if (!$paiement) {
+                    return response()->json([
+                        'message' => 'Aucun paiement trouvé pour cette référence'
+                    ], 404);
+                }
+
 
                 $paiement->update([
-                    'status'=>'reussi',
-                    'moyen paiement'=>$data->provider
+                    'status' => 'reussi',
+                    'moyen paiment' => $data->provider
                 ]);
 
                 // verfier s'il a eu abonnement actif auparavant 
                 // si oui lui notifier par mail et par sms que le paiement est acccepter
                 // sinon lui envoyer ses identifiant de connexion
 
+                $type = Cache::get('type_' . $current->id);
+
+                if ($type === 'inscription') {
+
+                    $mdp = Str::random(10);
+
+                    $current->update([
+                        'password' => bcrypt($mdp),
+                        'otp' => null
+                    ]);
+
+                    try {
+                        $send = new Otp($current);
+                        $send->sendLoginInformation($mdp);
+                    } catch (\Throwable $e) {
+                        Log::error('Erreur envoi identifiants', [
+                            'user_id' => $current->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+
+
+                return  response()->json(['message' => 'paiement reussi merci de profiter de nos services'], 200);
+                  
                 
-                return [
-                    response()->json(['message' => $msg], 200),
-                    'data' => $data
-                ];
             } else {
                 return response()->json([
-                    'message' => $response->message ?? 'le paiement a echouer pour une raison independant de notre volonte'
-                ], 500);
+                    'message' => $response->message ?? 'le paiement a echouer pour une raison independant de notre volonte',
+                    Cache::get('reference_' . $current->id)
 
+                ], 500);
 
             }
 
         } catch (Exception $e) {
             return response()->json([
-                'error' => $e->getMessage()
+                'error' => $e->getTrace()
             ], 500);
 
         }
 
     }
+
+
+    public function handle(Request $request)
+    {
+        Log::info('Webhook Senfenico', $request->all());
+
+
+
+        $payload = $request->getContent();
+        $webhook_hash = $request->header('X-Webhook-Hash');
+        $webhook_key = config('services.webhooks');
+
+        try {
+            $webhook = \Senfenico\Webhook::constructEvent($payload, $webhook_hash, $webhook_key);
+        } catch (Exception $e) {
+            Log::debug('Message: ' . $e->getMessage());
+            return response()->json(['message' => 'une erreur sest produite'], 400);
+        }
+
+
+        // Handle the event
+        switch ($webhook->event) {
+            case 'checkout.pending':
+                $this->RetournerPaiement($webhook->data->reference)->update(['status' => 'attente']);
+                break;
+            case 'checkout.success':
+                $this->RetournerPaiement($webhook->data->reference)->update(['status' => 'reussi']);
+
+                break;
+
+            default:
+                Log::debug('Received unknown event type ' . $webhook->event);
+                $this->RetournerPaiement($webhook->data->reference)->update(['status' => 'echoue']);
+        }
+
+        return response()->json(['message' => 'Webhook reccus'], 200);
+
+
+    }
+
 
 }

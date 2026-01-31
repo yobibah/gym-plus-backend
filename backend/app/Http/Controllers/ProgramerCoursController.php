@@ -33,7 +33,8 @@ class ProgramerCoursController extends Controller
 
             }
 
-                   $count = count($request->jours);
+        
+        $count = count($request->jours);
 
         for ($i = 0; $i < $count; $i++) {
             ProgramerCours::create([
@@ -46,9 +47,16 @@ class ProgramerCoursController extends Controller
         }
 
 
+        return response()->json([
+            'message'=> 'cours programmer avec succes'
+        ],200);
+
 
         }
         catch(Exception $e){
+                    return response()->json([
+            'message'=> $e->getMessage()
+        ],500);
 
         }
 

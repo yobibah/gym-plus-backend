@@ -63,7 +63,7 @@ class AuthController extends Controller
             ], 409);
         }
 
-        $mdp = (Str::random(10));
+        $mdp = (Str::random(15));
         $username = ($request->nom) . '_' . Str::random(6);
         $gerant = User::create([
             'email' => strtolower($request->email),
@@ -378,9 +378,18 @@ public function sendLink(Request $request)
             'pays'=>'required|string'
         ]);
 
+        try{
+
         return response()->json([
             'ville'=> $this->PaysService->Mesvilles((String)$request->pays)->original['data']
         ],200);
+
+    }
+    catch(Exception $e){
+        return response()->json([
+            'message'=>'donnee invalide'
+        ]);
+    }
     }
 
    

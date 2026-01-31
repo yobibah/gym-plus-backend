@@ -20,6 +20,7 @@ return [
 
      'senfenico' => [
         'key' => env('SENFENICO_API_KEY'),
+        'webhooks'=>env('SENFENICO_WEB_HOOKS')
     ],
     
     'resend' => [

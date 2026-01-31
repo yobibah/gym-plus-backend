@@ -29,10 +29,10 @@ class SalleController extends Controller
         'region'        => 'required|string|max:255',
         'pays'          => 'required|string|max:255',
         'description'   => 'nullable|string',
-        'numRegistre'   => 'required|string|max:50',
-        'numFiscale'    => 'required|string|max:50',
-        'fileF'         => 'required|file|mimes:jpg,jpeg,png,pdf|',
-        'fileRVerso'    => 'required|file|mimes:jpg,jpeg,png,pdf|',
+        // 'numRegistre'   => 'nullable|string|max:50',
+        // 'numFiscale'    => 'nullable|string|max:50',
+        // 'fileF'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|',
+        // 'fileRVerso'    => 'nullable|file|mimes:jpg,jpeg,png,pdf|',
     ]);
 
     if ($validator->fails()) {
@@ -67,28 +67,28 @@ class SalleController extends Controller
         ]);
 
         // Upload documents
-        $rectoName = $salle->id.'_recto_'.uniqid().'.'.$request->file('fileF')->extension();
-        $versoName = $salle->id.'_verso_'.uniqid().'.'.$request->file('fileRVerso')->extension();
+        // $rectoName = $salle->id.'_recto_'.uniqid().'.'.$request->file('fileF')->extension();
+        // $versoName = $salle->id.'_verso_'.uniqid().'.'.$request->file('fileRVerso')->extension();
 
-        $rectoPath = $request->file('fileF')->storeAs('documents', $rectoName, 'minio');
-        $versoPath = $request->file('fileRVerso')->storeAs('documents', $versoName, 'minio');
+        // $rectoPath = $request->file('fileF')->storeAs('documents', $rectoName, 'minio');
+        // $versoPath = $request->file('fileRVerso')->storeAs('documents', $versoName, 'minio');
 
-        if (!$rectoPath || !$versoPath) {
-            throw new Exception('Échec de l’upload des documents');
-        }
+        // if (!$rectoPath || !$versoPath) {
+        //     throw new Exception('Échec de l’upload des documents');
+        // }
 
-        $document = Document::create([
-            'type'              => $request->type_document ?? 'cni',
-            'numero_identite'   => $request->numRegistre.' '.$request->numFiscale,
-            'recto'             => Storage::disk('minio')->url($rectoPath),
-            'verso'             => Storage::disk('minio')->url($versoPath),
-            'status'            => 'attente',
-            'salle_id'          => $salle->id,
-            'date_soumission'   => now(),
-        ]);
+        // $document = Document::create([
+        //     'type'              => $request->type_document ?? 'cni',
+        //     'numero_identite'   => $request->numRegistre.' '.$request->numFiscale,
+        //     'recto'             => Storage::disk('minio')->url($rectoPath),
+        //     'verso'             => Storage::disk('minio')->url($versoPath),
+        //     'status'            => 'attente',
+        //     'salle_id'          => $salle->id,
+        //     'date_soumission'   => now(),
+        // ]);
 
-        Mail::to(env('ADMIN'))
-            ->queue(new DocumentValiation($current, $document));
+        // Mail::to(env('ADMIN'))
+        //     ->queue(new DocumentValiation($current, $document));
 
         DB::commit();
 

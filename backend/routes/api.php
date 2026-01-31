@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CoursController;
+use App\Http\Controllers\ProgramerCoursController;
 use Aws\Middleware;
 use App\Exports\UserExport;
 use Illuminate\Http\Request;
@@ -24,15 +25,15 @@ Route::post('/infos-perso', [AuthController::class, 'Register']);
 Route::post('/forgot-password', [AuthController::class, 'sendLink']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 Route::post('/accueil-form', [AuthController::class, 'demo']);
-Route::get('/pays',[AuthController::class,'PaysList']);
-Route::post('/ville-pays',[AuthController::class,'RegionVille']);
+Route::get('/pays', [AuthController::class, 'PaysList']);
+Route::post('/ville-pays', [AuthController::class, 'RegionVille']);
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
   Route::middleware('isGerant')->group(function () {
     Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
-    Route::post('/payment-process',[YengaPayController::class,'charge']);
-        Route::post('/payment-otp',[YengaPayController::class,'chargeOtp']);
+    Route::post('/payment-process', [YengaPayController::class, 'charge']);
+    Route::post('/payment-otp', [YengaPayController::class, 'chargeOtp']);
 
     Route::get('/mes-infos', [UserController::class, 'mesInfo']);
     Route::put('/update-password', [UserController::class, 'UpdateMdp']);
@@ -88,8 +89,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         return Excel::download(new UserExport($gerantId), 'users_gerant_' . $gerantId . '.xlsx');
       });
-      Route::post('/test-sms',[HomeController::class,'testSms']);
+      Route::post('/test-sms', [HomeController::class, 'testSms']);
 
+      Route::post('/programmer-cours', [ProgramerCoursController::class, 'ProgrammerCours']);
       Route::delete('/delete-cours', [CoursController::class, 'DeleteCours']);
       Route::put('/update-cours', [CoursController::class, 'UpdateCours']);
       Route::post('/ajouter-cours', [CoursController::class, 'AjouterCours']);
@@ -100,8 +102,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
       Route::post('/update-cachet', [UserController::class, 'EditCachet']);
       Route::post('/ajouter-depense', [DepensesController::class, 'ajouterDepense']);
       Route::post('/ajouter-coach', [CoachController::class, 'AjouterCoach']);
-       Route::delete('/delete-coach', [CoachController::class, 'DeleteCoach']);
-        Route::put('/update-coach', [CoachController::class, 'UpdateCoach']);
+      Route::delete('/delete-coach', [CoachController::class, 'DeleteCoach']);
+      Route::put('/update-coach', [CoachController::class, 'UpdateCoach']);
 
     });
 
