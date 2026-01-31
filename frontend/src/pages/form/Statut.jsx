@@ -3,6 +3,7 @@ import React, {useState, useEffect} from "react";
 import success from '../../assets/images/success.png'
 import { usePayment } from "../../contexts/PaymentContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export default function Statut(){
 
@@ -98,13 +99,23 @@ export default function Statut(){
                     </div>
                 </div>
 
-                <motion.button
-                    whileTap={{scale:0.95}}
-                    onClick={()=>{navigate('/')}}
-                    className="flex mx-auto hover:bg-transparent transition-colors duration-200 border-orange-500 hover:text-black rounded-lg my-10 py-2 px-4 text-sm font-bold items-center justify-center bg-orange-500 text white"
-                >
-                    Retourner à l'accueil
-                </motion.button>
+                <div className="flex items-center justify-center gap-5">
+                    <motion.button
+                        whileTap={{scale:0.95}}
+                        onClick={()=>{navigate('/')}}
+                        className="flex hover:bg-orange-500 transition-colors duration-200 border-orange-500 border text-black rounded-lg my-10 py-2 px-4 text-sm font-bold items-center justify-center bg-transparent hover:text-white"
+                    >
+                        Retourner à l'accueil
+                    </motion.button>
+
+                    <motion.button
+                        whileTap={{scale:0.95}}
+                        onClick={()=>{navigate('/auth')}}
+                        className="flex hover:bg-transparent transition-colors duration-200 border-orange-500 border hover:text-black rounded-lg my-10 py-2 px-4 text-sm font-bold items-center justify-center bg-orange-500 text-white"
+                    >
+                        Se connecter
+                    </motion.button>
+                </div>
 
                 <p className="text-sm text-center text-gray-600">En cas de question, n'hésitez pas à <span className="text-orange-400 cursor-pointer underline">contacter notre support</span></p>
             </div>
