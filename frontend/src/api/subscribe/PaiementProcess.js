@@ -5,7 +5,7 @@ import { getToken } from "../../hooks/getToken";
 // import { token } from "../../hooks/getToken";
 
 
-export async function PaymentProcess({numero, montant}){
+export async function PaymentProcess({numero, montant, forfait}){
 
         const token = getToken();
 
@@ -17,7 +17,7 @@ export async function PaymentProcess({numero, montant}){
                 "Authorization" : `Bearer ${token}`, 
                 "Accept":"application/json",
             },
-            body: JSON.stringify({numero, montant})
+            body: JSON.stringify({numero, montant, forfait})
         })
 
         const data = await response.json()

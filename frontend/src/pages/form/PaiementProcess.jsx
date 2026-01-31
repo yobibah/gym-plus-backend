@@ -67,7 +67,7 @@ export default function PaiementProcess(){
 
     async function handlePayment(e) {
         e.preventDefault()
-        paiement.mutate({montant, numero: tel})
+        paiement.mutate({montant, numero: tel, forfait})
     }
 
 
