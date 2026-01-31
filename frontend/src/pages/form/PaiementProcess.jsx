@@ -21,7 +21,7 @@ export default function PaiementProcess(){
     const forfaitUrl = params.get('forfait')
     const montantUrl = params.get('montant')
     const [tel, setTel] = useState('')
-    const type = 'inscription'
+    const [type, setType]= useState('inscription')
     const [provider, setProvider] = useState(null)
     const choix_forfait = JSON.parse(localStorage.getItem('choix_forfait')) 
 
@@ -134,28 +134,28 @@ export default function PaiementProcess(){
                                     <motion.button 
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}}
-                                        onClick={()=>{setProvider('orange')}}
+                                        onClick={()=>{setProvider('orange_bf')}}
                                         className={`border p-1 h-20 w-70 bg-white ${provider === 'orange' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={orange} alt="orange-logo" className="h-full w-full" />
                                     </motion.button>
                                     <motion.button
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}} 
-                                        onClick={()=>{setProvider('moov')}}
+                                        onClick={()=>{setProvider('moov_bf')}}
                                         className={`border p-1 h-20 w-70 bg-white ${provider === 'moov' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={moov} alt="moov-logo" className="h-full w-full"/>
                                     </motion.button>
                                     <motion.button 
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}} 
-                                        onClick={()=>{setProvider('corismoney')}}
+                                        onClick={()=>{setProvider('corismoney_bf')}}
                                         className={`border p-1 h-20 w-70 bg-white ${provider === 'coris' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={coris} alt="coris-logo" className="h-full w-full"/>
                                     </motion.button>
                                     <motion.button 
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}} 
-                                        onClick={()=>{setProvider('sank')}}
+                                        onClick={()=>{setProvider('sank_bf')}}
                                         className={`border p-1 h-20 w-70 bg-white ${provider === 'sank' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={sank} alt="sank-logo" className="h-full w-full"/>
                                     </motion.button>
