@@ -148,7 +148,7 @@ export default function PaiementProcess(){
                                     <motion.button 
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}} 
-                                        onClick={()=>{setProvider('coris')}}
+                                        onClick={()=>{setProvider('corismoney')}}
                                         className={`border p-1 h-20 w-70 bg-white ${provider === 'coris' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={coris} alt="coris-logo" className="h-full w-full"/>
                                     </motion.button>
