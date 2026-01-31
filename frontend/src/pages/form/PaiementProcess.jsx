@@ -24,7 +24,7 @@ export default function PaiementProcess(){
     const [type, setType]= useState('inscription')
     const [provider, setProvider] = useState(null)
     const choix_forfait = JSON.parse(localStorage.getItem('choix_forfait')) 
-
+console.log('type', type);  
     const navigate = useNavigate()
 
     useEffect(()=>{

@@ -5,7 +5,7 @@ import { getToken } from "../../hooks/getToken";
 // import { token } from "../../hooks/getToken";
 
 
-export async function PaymentProcess({numero, montant, forfait}){
+export async function PaymentProcess({numero, montant, forfait, type, provider}){
 
         const token = getToken();
 
