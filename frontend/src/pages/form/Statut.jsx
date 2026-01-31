@@ -11,10 +11,7 @@ export default function Statut(){
     const forfaitUrl = params.get('forfait')
     const montantUrl = params.get('montant')
 
-    const date = new Date()
-    const jour = date.getDay()
-    const mois = date.getMonth() + 1
-    const annee = date.getFullYear()
+    const date = new Date().toLocaleDateString('fr-FR')
 
     const navigate = useNavigate() 
 
@@ -69,7 +66,7 @@ export default function Statut(){
 
                         <div className="flex items-center justify-between">
                             <p className="text-sm text-gray-500">Date</p>
-                            <p className="text-sm font-semibold">{jour}/{mois}/{annee}</p>
+                            <p className="text-sm font-semibold">{date}</p>
                         </div>
                     </div>
 
@@ -104,7 +101,7 @@ export default function Statut(){
                 <motion.button
                     whileTap={{scale:0.95}}
                     onClick={()=>{navigate('/')}}
-                    className="flex mx-auto hover:bg-transparent rounded-lg text-white my-10 py-2 px-4 text-sm font-bold items-center justify-center bg-orange-500 text white"
+                    className="flex mx-auto hover:bg-transparent transition-colors duration-200 border-orange-500 hover:text-black rounded-lg my-10 py-2 px-4 text-sm font-bold items-center justify-center bg-orange-500 text white"
                 >
                     Retourner à l'accueil
                 </motion.button>
