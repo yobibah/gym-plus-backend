@@ -119,7 +119,7 @@ export default function PaiementOtp(){
                             whileTap={{scale:0.95}}
                                 onClick={handlePaymentOtp}
                                 disabled={loading || !otp.trim()}
-                                className={`${!otp.trim() ? 'bg-orange-300 border-orange-300 text-black/30' : 'hover:bg-transparent hover:text-black bg-orange-600 text-white border-orange-600'} border p-2 rounded-lg  font-bold  transition-colors duration-200 `}
+                                className={`${!otp.trim() ? 'bg-orange-300 border-orange-300 text-black/30' : 'hover:bg-transparent hover:text-black bg-orange-600 text-white border-orange-600'} flex items-center justify-center border p-2 rounded-lg  font-bold  transition-colors duration-200 `}
 
                             >
                                 {loading ? <Loader2 className="animate-spin h-5 w-5"/> : 'Validez et Terminez' }

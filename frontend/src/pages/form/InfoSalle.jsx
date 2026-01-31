@@ -6,8 +6,9 @@ import { motion } from "framer-motion";
 import form2 from '../../assets/images/form2.png'
 import { usePayment } from "../../contexts/PaymentContext";
 import { infosSalle } from "../../api/subscribe/infosSalle";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getToken } from "../../hooks/getToken";
+import { ListPays } from "../../api/ListPays";
 
 
 
@@ -71,6 +72,15 @@ export default function InfoSalle(){
         }
     }, [montant,forfait, montantUrl, forfaitUrl])
 
+
+    const paysS = useQueryClient()
+    const paysQuery = useQuery({
+        queryKey : ['pays'],
+        queryFn : ListPays
+    })
+
+    const paysLoading = paysS.isPending
+    const paysError = paysS.isError
     
 
     const infos = useMutation({

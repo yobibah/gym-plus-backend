@@ -28,7 +28,7 @@ export default function Statut(){
         }
 
         if(forfaitUrl !== forfait || montantUrl !== montant ){
-            navigate(`/confirmation?forfait=${forfait}&montant=${montant}`, {replace: true})
+            navigate(`/statut?forfait=${forfait}&montant=${montant}`, {replace: true})
         }
     }, [montant,forfait, montantUrl, forfaitUrl])
 
@@ -101,12 +101,13 @@ export default function Statut(){
                     </div>
                 </div>
 
-                <button
+                <motion.button
+                    whileTap={{scale:0.95}}
                     onClick={()=>{navigate('/')}}
-                    className="flex mx-auto rounded-lg text-white my-10 py-2 px-4 text-sm font-bold items-center justify-center bg-orange-500 text white"
+                    className="flex mx-auto hover:bg-transparent rounded-lg text-white my-10 py-2 px-4 text-sm font-bold items-center justify-center bg-orange-500 text white"
                 >
                     Retourner à l'accueil
-                </button>
+                </motion.button>
 
                 <p className="text-sm text-center text-gray-600">En cas de question, n'hésitez pas à <span className="text-orange-400 cursor-pointer underline">contacter notre support</span></p>
             </div>
