@@ -709,7 +709,6 @@ export default function DashboardStandard(){
     function FormMensuel(e){
         e.preventDefault()
         setShowFormTarif(!showFormTarif)
-        //  setActiveTab('settings')
     }
 
     function formatDate(dates){
@@ -728,11 +727,8 @@ export default function DashboardStandard(){
     const historyError = historyQuery.isError
     const dataHistory = history.data?.historiques || []
     const totalHistory = history.data?.historiques.length
-    // const dateHistory = history.data?.historiques[totalHistory-1]?.date || 'N/A'
-    // const timeHistory = history.data?.historiques[totalHistory-1]?.depuis || 'N/A'
 
     const date = new Date
-    console.log('date', date)
     const d = date.toLocaleDateString('fr-FR')
     const fin = formatDate(planChoisit?.data?.abonnement?.fin)
 
@@ -756,7 +752,8 @@ export default function DashboardStandard(){
                         {infosSalle?.logo_salle ? (
                             <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                         ):(
-                            <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                            
+                            <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>}</p>
                         )}
                         
                         
@@ -930,7 +927,7 @@ export default function DashboardStandard(){
                             <div className="relative w-full">
                                 <input type="text" value={search} 
                                     onChange={(e)=>{setSearch(e.target.value)}}
-                                placeholder="Rechercher adherant..." 
+                                    placeholder="Rechercher adherant..." 
                                     className="block w-full mx-2 p-2 pl-10 border border-orange-500 rounded-lg text-sm focus:outline-none bg-white"
                                 />
                                 <div className="absolute top-2 left-4">
@@ -942,7 +939,8 @@ export default function DashboardStandard(){
                                 {infosSalle?.logo_salle ? (
                                     <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                                 ):(
-                                    <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                                    
+                                    <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>}</p>
                                 )}
                             </div>
                         </div>

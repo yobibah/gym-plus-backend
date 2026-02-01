@@ -16,9 +16,14 @@ export default function InfoSalle(){
 
     const [nomSalle, setNomSalle] = useState('')
     const [ville, setVille] = useState('')
-    const [pays, setPays] = useState('')
+    const [pays, setPays] = useState(null)
     const [region, setRegion] = useState('')
     const [modalForfait, setModalForfait] = useState(false)
+    // console.log('pays', pays)
+    // const data = {
+    //     list : [
+    //     ]
+    // }
     
     const {forfait,montant, setForfait, setMontant} = usePayment()
 
@@ -79,6 +84,7 @@ export default function InfoSalle(){
         queryFn : ListPays
     })
 
+    const list = paysQuery?.data?.pays || []
     const paysLoading = paysS.isPending
     const paysError = paysS.isError
     
@@ -180,13 +186,20 @@ export default function InfoSalle(){
                         </div>
                         <div className="mb-4">
                             <p className="text-sm font-semibold mb-1">Pays <span className="text-orange-600">*</span></p>
-                            <Input 
-                                type={'text'}
-                                value={pays}
-                                placeholder={'Ex: Burkina Faso'}
-                                onChange={(e)=>{setPays(e.target.value)}}
-                                className={'w-full focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-sm border-1 border-gray-300'}
-                            />
+                        
+                            <select onChange={(e)=>{setPays(e.target.value)}} 
+                                className={`border ${paysLoading || list.length === 0 ? 'bg-gray-50 text-gray-400' : 'focus:ring-1 focus:ring-orange-600 '} w-full rounded-lg p-2 text-sm focus:outline-none  border-1 border-gray-300`}>
+                                {paysLoading ? (
+                                    <option value="" disabled >Chargement de la liste...</option>
+                                ):list.length === 0 ?(
+                                    <option value="" disabled>Aucun pays indisponible</option>
+                                ):list.map((item, index) => (
+                                    <option key={index} value={item}>{item}</option>
+                                ))}
+                            </select>
+                            {paysError && (
+                                <p className="text-xs text-red-600 my-1">{paysQuery.error.message}</p>
+                            )}
                         </div>
                         <div className="mb-4">
                             <p className="text-sm font-semibold mb-1">Ville <span className="text-orange-600">*</span></p>
@@ -212,13 +225,13 @@ export default function InfoSalle(){
                         </div>
                     </div>
                     {error && (
-                                <span className="mb-2 flex justify-center items-center gap-1 text-red-500 text-sm italic">
-                                    <XCircle className="h-4 w-4"/>{infos.error.message}</span>
-                                )}
-                                {success && (
-                                    <span className="mt-2 mb-2 justify-center flex items-center gap-1 text-green-500 text-sm italic">
-                                        <CheckCircle className="h-4 w-4"/>Informations de la salle validées !</span>
-                                )}
+                    <span className="mb-2 flex justify-center items-center gap-1 text-red-500 text-sm italic">
+                        <XCircle className="h-4 w-4"/>{infos.error.message}</span>
+                    )}
+                    {success && (
+                        <span className="mt-2 mb-2 justify-center flex items-center gap-1 text-green-500 text-sm italic">
+                        <CheckCircle className="h-4 w-4"/>Informations de la salle validées !</span>
+                    )}
 
                         
 

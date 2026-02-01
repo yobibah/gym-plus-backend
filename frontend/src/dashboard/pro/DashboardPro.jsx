@@ -1027,7 +1027,8 @@ export default function DashboardPro(){
                         {infosSalle?.logo_salle ? (
                             <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                         ):(
-                            <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                            
+                            <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>}</p>
                         )}
                         
                         
@@ -1265,7 +1266,8 @@ export default function DashboardPro(){
                                     {infosSalle?.logo_salle ? (
                                         <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                                     ):(
-                                        <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                                        
+                                        <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>}</p>
                                     )}
                                 </div>
                             </div>
