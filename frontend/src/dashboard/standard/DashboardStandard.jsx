@@ -704,11 +704,17 @@ export default function DashboardStandard(){
     const paiQuery = useQueryClient()
     const paiementOtp = useMutation({
         mutationFn : PaymentOtp,
-        onSuccess : ()=>{
+        onSuccess : (()=>{
             setStep('4'),
             paiQuery.invalidateQueries(['mes-infos'])
 
-        }
+        }),
+
+        onError: (()=>{
+            setTimeout(()=>{
+                paiement.reset()
+            }, 2500)
+        })
     })
 
     const loadingOtp = paiementOtp.isPending
@@ -725,7 +731,9 @@ export default function DashboardStandard(){
         }),
 
         onError: (()=>{
-
+            setTimeout(()=>{
+                reinscription.reset()
+            }, 2500)
         })
     })
 
