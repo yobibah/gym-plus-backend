@@ -91,7 +91,7 @@ export default function PaiementOtp(){
                         <div>
                             <p className="text-gray-600">Composez</p>
                             <p className="font-bold">*144*4*6*{montant}#</p>
-                            <p className="text-gray-600">sur votre téléphone pour obtenir le code OTP à entrez à entrez dans</p>
+                            <p className="text-gray-600">sur votre téléphone pour obtenir le code OTP à entrez dans</p>
                             <p className="text-gray-600">le champ ci-dessous pour valider le paiement</p>
                         </div>
                         <form className="flex flex-col gap-2 px-40">

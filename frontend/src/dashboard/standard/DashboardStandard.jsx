@@ -1,4 +1,4 @@
-import { AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, BadgeCheck, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, Wallet, WalletCards, X, XCircle } from "lucide-react";
+import { AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, ArrowRight, BadgeCheck, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, Wallet, WalletCards, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +31,13 @@ import { Reabonner } from "../../api/dashboard/standard/abonnements/reabonner";
 import { History } from "../../api/history";
 import { MisNiveau } from "../../api/dashboard/standard/miseNiveau";
 import { fetchDataPlan } from "../../api/fetchPlan";
+import { PaymentProcess } from "../../api/subscribe/PaiementProcess";
+import orange from '../../assets/images/orange.png'
+import moov from '../../assets/images/moov.png'
+import sank from '../../assets/images/sank.png'
+import coris from '../../assets/images/coris.webp'
+import ok from '../../assets/images/ok.png'
+import { PaymentOtp } from "../../api/subscribe/PaiementOtp";
 
 export default function DashboardStandard(){
 
@@ -77,7 +84,16 @@ export default function DashboardStandard(){
     const [reabonner, setReabonner] = useState(null)
     const [reabonnerModal, setReabonnerModal] = useState(false)
     const [abonnementTab, setAbonnementTab] = useState('tous')
-    const type = 'reinscription'
+    const [type, setType] = useState('reinscription')
+    const [modalReab, setModalReab] = useState(false)
+    const [modalNext, setModalNext] = useState(false)
+    const [provider, setProvider] = useState(null)
+    const [otp, setOtp] = useState('')
+    const [step, setStep] = useState('1')
+    const [desc, setDesc]= useState(null)
+    const [montantReab, setMontantReab]= useState(null)
+    const [telReab, setTelReab] = useState('')
+    const [errorStep, setErrorStep] = useState(null)
     
 
 
@@ -670,6 +686,134 @@ export default function DashboardStandard(){
         })
     }
 
+
+    function handleBack(e){
+        e.preventDefault()
+
+        if(step === '3'){
+            setStep('2')
+        }else if(step === '2'){
+            setStep('1')
+        }
+    }
+
+    
+
+
+    // Debut
+    const paiQuery = useQueryClient()
+    const paiementOtp = useMutation({
+        mutationFn : PaymentOtp,
+        onSuccess : ()=>{
+            setStep('4'),
+            paiQuery.invalidateQueries(['mes-infos'])
+
+        }
+    })
+
+    const loadingOtp = paiementOtp.isPending
+    const errorOtp = paiementOtp.isError
+    const successOtp = paiementOtp.isSuccess
+
+    
+    
+    const reinscription = useMutation({
+        mutationFn: PaymentProcess,
+
+        onSuccess: (()=>{
+            setStep('3')
+        }),
+
+        onError: (()=>{
+
+        })
+    })
+
+    const loadingReab = reinscription.isPending
+    const errorReab = reinscription.isError
+    const successReab = reinscription.isSuccess
+
+
+
+    async function handlePaymentOtp(e) {
+        if(!otp || !otp.trim()) return
+        paiementOtp.mutate({otp})
+    }
+
+
+    async function handleReinscription(){
+        if(!montantReab || !telReab || !desc || !type || !provider) return
+        if(!telReab.trim()) return
+        reinscription.mutate({
+            montant: montantReab, 
+            numero: telReab, 
+            forfait: desc, 
+            type, 
+            provider
+        })
+    }
+
+
+    function handleNext(e){
+        e.preventDefault()
+        if(step === '1'){
+            if(!desc){
+                setErrorStep('Veuillez choisir un forfait pour continuer')
+                setTimeout(()=>{
+                    setErrorStep('')
+                }, 2500)
+
+                return
+            }
+            setStep('2')
+        }else if(step === '2'){
+            if(!provider || !telReab){
+                setErrorStep('Informations manquantes (moyen de paiement non sélectionné ou numero de telephone mal renseigné)')
+                setTimeout(()=>{
+                    setErrorStep('')
+                }, 2500)
+                
+                return
+            }
+            handleReinscription()
+        } else if(step === '3'){
+            if(!otp){
+                setErrorStep('Veuillez saisir un code OTP')
+                setTimeout(()=>{
+                    setErrorStep('')
+                }, 2500)
+                
+                return
+            }
+            handlePaymentOtp()
+        } else if(step === '4'){
+            setModalReab(false)
+            setModalNext(false)
+            setProvider(null)
+            setMontant(null)
+            setDesc(null)
+            setTelReab('')
+            setStep('1')
+            setErrorStep('')
+            
+        }
+    }
+
+    function handleModalReab(){
+        if(modalNext){
+            setModalNext(false)
+        }
+        setModalReab(true)
+    }
+
+    // function nextStep(){
+    //     setModalNext(true)
+    //     if(modalNext){
+    //         setModalNext(false)
+    //     }
+    // }
+
+
     function clearCache(){
         return (
             queryClient.removeQueries(['plan']),
@@ -685,8 +829,6 @@ export default function DashboardStandard(){
         )
         
     }
-
-
 
 
     function logoutModal(e){
@@ -731,6 +873,10 @@ export default function DashboardStandard(){
     const date = new Date
     const d = date.toLocaleDateString('fr-FR')
     const fin = formatDate(planChoisit?.data?.abonnement?.fin)
+
+    const debutReab = planChoisit?.data?.abonnement?.debut
+    const finReab = planChoisit?.data?.abonnement?.fin
+    const montantActu = planChoisit?.data?.abonnement?.montant
 
     const getDaysDifference = (date1, date2) => {
         const diffTime = date2.getTime() - date1.getTime();
@@ -821,7 +967,7 @@ export default function DashboardStandard(){
                     className="py-3 px-5"
                 >
                     {daysRemaining <= 0 && (
-                        <div className="flex flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
+                        <div className="flex relative flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
                             {/* <AlertTriangle className="text-red-500" /> */}
                             <p className="text-red-500 font-bold">
                                 {daysRemaining === 0 
@@ -831,16 +977,29 @@ export default function DashboardStandard(){
                             </p>
                             <p className="text-gray-500">À l'expiration définitive de votre abonnement, certaines fonctionalités seront désactivées ! Veuillez-vous réabonnez pour continuer la gestion de votre salle.</p>
                             <motion.button
+                                type="button"
+                                onClick={handleModalReab}
                                 whileTap={{scale:0.95}}
-                                className="border p-2 bg-blue-500 text-white font-bold border-blue-500 rounded-lg"
+                                className="border hover:bg-transparent hover:text-black transition-colors duration-200 p-2 bg-blue-500 text-white font-bold border-blue-500 rounded-lg"
                             >
                                 Me Réabonner
                             </motion.button>
+
+                            {modalNext &&(
+                                <div className="absolute inset-0 bg-black">
+                                    <h1>Processus de réabonnement</h1>
+                                    <p>Voulez-vous continuez avec votre forfait actuel({planActuel}) ou sur d'autres forfait ?</p>
+                                    <div>
+                                        <button>Continuer avec mon forfait actuel</button>
+                                        <button>Choisir un autre forfait</button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 
                     {0 < daysRemaining && daysRemaining <= 7 &&(
-                        <div className="flex flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
+                        <div className="flex relative flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
                             {/* <AlertTriangle className="text-red-500" /> */}
                             <p className="text-red-500 font-bold">
                             {daysRemaining === 1 
@@ -850,11 +1009,55 @@ export default function DashboardStandard(){
                             </p>
                             <p className="text-gray-500">À l'expiration définitive de votre abonnement, certaines fonctionalités seront désactivées ! Veuillez-vous réabonnez pour continuer la gestion de votre salle.</p>
                             <motion.button
+                                type="button"
+                                onClick={handleModalReab}
                                 whileTap={{scale:0.95}}
-                                className="border p-2 bg-blue-500 text-white font-bold border-blue-500 rounded-lg"
+                                className="border hover:bg-transparent hover:text-black transition-colors duration-200 p-2 bg-blue-500 text-white font-bold border-blue-500 rounded-lg"
                             >
                                 Me Réabonner
                             </motion.button>
+
+                            {/* {modalNext &&(
+                                <>
+                                    <motion.div 
+                                         initial = {{opacity: 0, x: -80}}
+                                        animate = {{opacity: 1, x: 0}}
+                                        transition={{duration: 0.2}}
+                                        className="absolute rounded-lg inset-0 bg-black/90 backdrop-blur flex flex-col items-center gap-6 justify-center">
+                                        <h1 className="text-xl font-bold text-white">Processus de réabonnement</h1>
+                                        <p className="text-center text-gray-200">
+                                            Voulez-vous continuez avec votre forfait actuel 
+                                            <span className="font-bold text-orange-500 mx-1">({planActuel})</span> 
+                                            ou sur d'autres forfaits ?
+                                        </p>
+                                        <div className="px-3 gap-3 flex items-center justify-center">
+                                            <motion.button
+                                                whileTap={{scale:0.95}}
+                                                onClick={handleModalReabActu}
+                                                className="bg-transparent hover:text-black hover:bg-orange-500 rounded-lg p-2 w-full text-white font-bold text-[18px] border border-orange-500 transition-colors duration-200"
+                                            >
+                                                Continuer avec mon forfait
+                                            </motion.button>
+                                            <motion.button
+                                                whileTap={{scale:0.95}}
+                                                onClick={handleModalReab}
+                                                className="bg-orange-500 text-black w-full rounded-lg p-2 hover:bg-transparent hover:text-white transition-colors duration-200 font-bold text-[18px] border border-orange-500"
+                                            >
+                                                Choisir un autre forfait
+                                            </motion.button>
+                                        </div>
+                                    </motion.div>
+
+                                    <motion.button
+                                        initial = {{opacity: 0, x: -80}}
+                                        animate = {{opacity: 1, x: 0}}
+                                        transition={{duration: 0.2}} 
+                                        onClick={nextStep}
+                                        className="absolute top-0 right-0 p-1">
+                                        <X className="text-gray-400 hover:text-orange-500 transition-colors duration-200" />
+                                    </motion.button>
+                                </>
+                            )} */}
                         </div>
                     )}
 
@@ -3106,6 +3309,424 @@ export default function DashboardStandard(){
                         className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
                         <XCircle className="text-red-500 h-10 w-10" />
                         <p className="text-xl">{supAdh.error.message}</p>
+                    </motion.div>
+                </div>
+            )}
+
+            {modalReab &&(
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                    
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                        className="bg-white relative px-8  h-130 w-220 py-5"
+                    >
+                        <div className="flex items-center justify-center">
+                            {/* Etape */}
+                            <div className="flex items-center justify-center">
+                                <div className="flex items-center  w-full" >
+                                    <div className="flex items-center">
+                                        <div className=" flex flex-col border border-green-400 p-2 items-center">
+                                            {step === '2' ? (
+                                                <div className="border p-2 rounded-full bg-green-200 border-green-400 transition-colors duration-200">
+                                                    <Check className=" flex items-center justify-center text-green-500 h-5 w-5 transition-colors duration-200" />
+                                                </div>
+                                            ):(
+                                                <div className="border p-2 rounded-full transition-colors duration-200 bg-gray-200 border-gray-400">
+                                                    <p className="font-bold h-5 w-5 flex items-center justify-center ">1</p>
+                                                </div>
+                                            )}
+                                            <span className="text-sm text-gray-400">Forfait</span>
+                                        </div>
+                                        
+                                    </div>
+                                    <hr className="h-5  w-50 text-gray-300"/>
+                                </div>
+
+                                <div className="flex items-center w-full">
+                                    <div className="flex items-center">
+                                        <div className="flex flex-col p-2 border-gray-200 items-center border">
+                                            {step === '3' ? (
+                                                <div className="border p-2 rounded-full bg-green-200 border-green-400 transition-colors duration-200">
+                                                    <Check className=" flex items-center justify-center text-green-500 h-5 w-5 transition-colors duration-200" />
+                                                </div>
+                                            ):(
+                                                <div className="border p-2 rounded-full transition-colors duration-200 bg-gray-200 border-gray-400">
+                                                    <p className="font-bold h-5 w-5 flex items-center justify-center ">2</p>
+                                                </div>
+                                            )}
+
+                                        
+                                            <span className="text-sm text-gray-400">Paiement</span>
+                                        </div>
+                                        
+                                    </div>
+                                    <hr className="h-5  text-gray-300 w-50"/>
+                                </div>
+
+                                <div className="flex items-center w-full">
+                                    <div className="flex items-center">
+                                        <div className="flex flex-col p-2 border-gray-200 border items-center">
+                                            {step === '4' ? (
+                                                <div className="border p-2 rounded-full bg-green-200 border-green-400 transition-colors duration-200">
+                                                    <Check className=" flex items-center justify-center text-green-500 h-5 w-5 transition-colors duration-200" />
+                                                </div>
+                                            ):(
+                                                <div className="border p-2 rounded-full transition-colors duration-200 bg-gray-200 border-gray-400">
+                                                    <p className="font-bold h-5 w-5 flex items-center justify-center ">3</p>
+                                                </div>
+                                            )}
+                                            <span className="text-sm text-gray-400">Otp</span>
+                                        </div>
+                                        
+                                    </div>
+                                    <hr className="h-5 text-gray-300 w-50"/>
+                                </div>
+
+                                <div className="flex items-center w-full">
+                                    <div className="flex items-center">
+                                        <div className="flex flex-col p-2 border-gray-200 border items-center">
+                                            {step === '4' ? (
+                                                <div className="border p-2 rounded-full bg-green-200 border-green-400 transition-colors duration-200">
+                                                    <Check className=" flex items-center justify-center text-green-500 h-5 w-5 transition-colors duration-200" />
+                                                </div>
+                                            ):(
+                                                <div className="border p-2 rounded-full transition-colors duration-200 bg-gray-200 border-gray-400">
+                                                    <p className="font-bold h-5 w-5 flex items-center justify-center ">4</p>
+                                                </div>
+                                            )}
+                                            <span className="text-sm text-gray-400">Statut</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* etape de forfait 1 */}
+                        {step === '1' && (
+                            <motion.div 
+                                initial={{opacity:0, scale:0.75}}
+                                animate={{opacity:1, scale:1}}
+                                transition={{duration:0.4}}
+                                className="flex flex-col ">
+                                <div className=" flex items-center justify-between gap-8 my-8">
+                                    <div className="">
+                                        <h3 className=" font-bold mb-2">Forfait actuel</h3>
+                                        <motion.button
+                                            onClick={()=>{setDesc('standard'), setMontantReab(100)}} 
+                                            whileHover={{scale: 1.1}}
+                                            whileTap={{scale: 0.95}}
+                                            className={`border ${desc === 'standard' ? 'shadow-[0_0_10px_rgba(255,100,0,0.8)] border-orange-500' : 'border-gray-200'} `}>
+                                            <p className="border-b text-gray-500 bg-gray-100 px-2 border-gray-200 py-5">{planActuel}</p>
+                                            <p className="bg-orange-50  px-2 py-1 text-sm">Montant: {montantActu} XOF</p>
+                                        </motion.button>
+                                    </div>
+
+                                    <div className="">
+                                        <h3 className=" font-bold mb-2">Choisir un autre forfait</h3>
+                                        <div className="flex items-center gap-5">
+                                            <motion.button
+                                                onClick={()=>{setDesc('pro'), setMontantReab(100)}}  
+                                                whileHover={{scale: 1.1}}
+                                                whileTap={{scale: 0.95}}
+                                                className={`border relative ${desc === 'pro' ? 'shadow-[0_0_10px_rgba(255,100,0,0.8)] border-orange-500' : 'border-gray-200'} `}>
+                                                <p className="border-b text-gray-500 bg-gray-100 px-2 border-gray-200 py-5">pro</p>
+                                                <p className="bg-orange-50  px-2 py-1 text-sm">Montant: 25000 XOF</p>
+
+                                                <p className="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-2 rounded-bl-lg">Le plus utilisé</p>
+                                            </motion.button>
+
+                                            <motion.button
+                                                onClick={()=>{setDesc('premium'), setMontantReab(100)}} 
+                                                whileHover={{scale: 1.1}}
+                                                whileTap={{scale: 0.95}}
+                                                className={`border ${desc === 'premium' ? 'shadow-[0_0_10px_rgba(255,100,0,0.8)] border-orange-500' : 'border-gray-200'} `}>
+                                                <p className="border-b text-gray-500 bg-gray-100 px-2 border-gray-200 py-5">premium</p>
+                                                <p className="bg-orange-50  px-2 py-1 text-sm">Montant: 40000 XOF</p>
+                                            </motion.button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div>
+                                    {errorStep && (
+                                        <p className="text-red-600">{errorStep}</p>
+                                    )}
+                                    {desc === 'standard' && (
+                                        <>
+                                        <h2 className="font-bold">Idéal pour les petites salles et les studios qui débutent.</h2>
+                                        <p className="text-gray-500">
+                                            Gérer jusqu'à 200 membres,
+                                            Gestion des adhérents (fiches + activités),
+                                            Gestion basique des abonnements,
+                                            Suivi des dates d'expiration,
+                                            Enregistrement des paiements,
+                                            Alertes simples sur les abonnements expirés.
+
+                                        </p>
+                                        </>
+                                    )}
+
+                                    {desc === 'pro' && (
+                                        <>
+                                        <h2 className="font-bold">Pour les salles en croissance qui veulent plus d'outils.</h2>
+                                        <p className="text-gray-500">
+                                            Gérez jusqu'à 1000 membres,
+                                            Tout dans Standard+,
+                                            Gestion avancée des abonnements (suspension, réactivation...),
+                                            Gestion recettes et dépenses + créances,
+                                            Rapports financiers de base,
+                                            Statistiques et rapports avancés,
+                                            Emailing manuel pour les rappels ou annonces,
+                                            Alertes avancées sur les abonnements expirés / bientôt expirés.
+
+                                        </p>
+                                        </>
+                                    )}
+
+
+                                    {desc === 'premium' && (
+                                        <>
+                                        <h2 className="font-bold">Pour les grandes salles et réseaux de gyms.</h2>
+                                        <p className="text-gray-500">
+                                            Membres illimités,
+                                            Tout dans Pro+,
+                                            Emailing automatique (rappels, annonces, fermetures...),
+                                            Tableau de bord avancés,
+                                            Analyse détaillées + prévision des revenus,
+                                            Alertes intelligentes (adhérants à risque, expiration proche...),
+                                            Support Prioritaire.
+
+                                        </p>
+                                        </>
+                                    )}
+                                </div>
+                            </motion.div>
+                        )}
+
+
+                        {/* Etape de Paiement */}
+                        {step === '2' && (
+                            <motion.div 
+                                initial={{opacity:0, scale:0.75}}
+                                animate={{opacity:1, scale:1}}
+                                transition={{duration:0.4}}
+                                className=" relative bg-orange-50 my-7 px-5 pb-5 flex flex-col"
+                            >
+                                <div className="my-5 flex items-center gap-2">
+                                    <p className="text-gray-500">Veuillez choisir votre moyen de paiement</p>
+                                    {errorStep && (
+                                        <p className="text-red-600 text-sm">{errorStep}</p>
+                                    )}
+                                    {successReab && (
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <p className="text-green-600">Redirection, patientez...</p>
+                                            <Loader2 className="animate-spin h-5 w-5 text-green-600"/>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex items-center justify-center gap-5">
+
+                                    <motion.button 
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}}
+                                        onClick={()=>{setProvider('orange_bf')}}
+                                        className={`border p-1 h-30 w-70 bg-white ${provider === 'orange_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={orange} alt="orange-logo" className="h-full w-full" />
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}} 
+                                        onClick={()=>{setProvider('moov_bf')}}
+                                        className={`border p-1 h-30 w-70 bg-white ${provider === 'moov_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={moov} alt="moov-logo" className="h-full w-full"/>
+                                    </motion.button>
+                                    <motion.button 
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}} 
+                                        onClick={()=>{setProvider('corismoney_bf')}}
+                                        className={`border p-1 h-30 w-70 bg-white ${provider === 'corismoney_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={coris} alt="coris-logo" className="h-full w-full"/>
+                                    </motion.button>
+                                    <motion.button 
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}} 
+                                        onClick={()=>{setProvider('sank_bf')}}
+                                        className={`border p-1 h-30 w-70 bg-white ${provider === 'sank_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={sank} alt="sank-logo" className="h-full w-full"/>
+                                    </motion.button>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label
+                                        className="text-gray-500 my-5"
+                                    >Entrez votre numéro de telephone pour procéder au paiement</label>
+                                    <input type="text" 
+                                        value={telReab}
+                                        onChange={(e)=>{setTelReab(e.target.value)}}
+                                        placeholder="Saisissez içi"
+                                        className="border-b border-gray-400 text-center p-1 rounded-lg text-xl px-3 focus:outline-none "
+                                    />
+                                </div>
+
+                                {errorReab && (
+                                    <motion.div 
+                                        initial={{opacity:0, scale:0.75}}
+                                        animate={{opacity:1, scale:0.95}}
+                                        transition={{duration:0.4}}
+                                        className="absolute flex items-center justify-center inset-0 bg-black/80 backdrop-blur"
+                                    >
+                                        <p className="text-red-600 flex items-center gap-2 font-bold bg-white p-2">
+                                            <XCircle className=" text-red-600" />
+                                            {reinscription.error.message || 'Erreur veuillez reessayez !'}
+                                        </p>
+
+                                    </motion.div>
+                                )}
+                            </motion.div>
+                        )}
+
+
+                        {/* Etape de otp */}
+                        {step === '3' && (
+                            <motion.div 
+                                initial={{opacity:0, scale:0.75}}
+                                animate={{opacity:1, scale:1}}
+                                transition={{duration:0.4}}
+                                className="realtive my-20"
+                            >
+                                <div className="flex flex-col gap-5 text-center bg-orange-50  rounded-lg px-5 py-6 ">
+                                    <div>
+                                        <p className="text-gray-600">Composez</p>
+                                        <p className="font-bold">*144*4*6*100#</p>
+                                        <p className="text-gray-600">sur votre téléphone pour obtenir le code OTP à entrez dans</p>
+                                        <p className="text-gray-600">le champ ci-dessous pour valider le paiement</p>
+                                    </div>
+                                    <div className="flex flex-col gap-2 px-40">
+                                        <input 
+                                            type="tel" 
+                                            placeholder="Saisissez le code OTP içi"
+                                            value={otp}
+                                            onChange={(e)=>{setOtp(e.target.value)}}
+                                            className="border-b p-2 rounded-lg text-center border-gray-400 text-xl focus:outline-none"
+                                        />
+                                    </div>
+                                    {errorStep && (
+                                        <p className="text-red-600 text-sm">{errorStep}</p>
+                                    )}
+                                    {successOtp && (
+                                        <div className="flex items-center gap-2 text-sm">
+                                           <p>Réabonnement réussi...</p>
+                                           <Loader2 className="animate-spin h-5 w-5 text-green-600"/>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {errorOtp && (
+                                    <motion.div 
+                                        initial={{opacity:0, scale:0.75}}
+                                        animate={{opacity:1, scale:0.95}}
+                                        transition={{duration:0.4}}
+                                        className="absolute flex items-center justify-center inset-0 bg-black/80 backdrop-blur"
+                                    >
+                                        <p className="text-red-600 flex items-center gap-2 font-bold bg-white p-2">
+                                            <XCircle className=" text-red-600" />
+                                            {paiementOtp.error.message || 'Erreur veuillez reessayez !'}
+                                        </p>
+
+                                    </motion.div>
+                                )}
+                                
+                            </motion.div>
+                        )}
+
+                        
+                        {/* etape success */}
+                        {step === '4' && (
+                            <motion.div 
+                                initial={{opacity:0, scale:0.75}}
+                                animate={{opacity:1, scale:1}}
+                                transition={{duration:0.4}}
+                                className="my-8 flex items-center justify-center gap-5">
+                                <div className="w-100">
+                                    <img src={ok} alt="success" className="object-contain" />
+                                </div>
+                                <div className="flex flex-col gap-3">
+                                    <h3 className="font-bold text-xl">Votre abonnement sur le forfait standard a été réactivé avec succès</h3>
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-gray-400 text-[18px]">Inforamtions de paiement</p>
+                                        <div className="flex text-sm items-center gap-5">
+                                            <p className="">Moyen de paiement:</p>
+                                            <p className="text-gray-500">{provider}</p>
+                                        </div>
+                                        <div className="flex text-sm  items-center gap-5">
+                                            <p>Montant facturé:</p>
+                                            <p className="text-gray-500">{montantReab} XOF</p>
+                                        </div>
+                                        <div className="flex text-sm  items-center gap-5">
+                                            <p>Date de la transaction:</p>
+                                            <p className="text-gray-500">{new Date().toLocaleDateString('fr-FR')}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-gray-400 text-[18px]">Inforamtions sur le réabonnement</p>
+                                        <div className="flex text-sm items-center gap-5">
+                                            <p>Début:</p>
+                                            <p className="text-gray-500">{formatDate(debutReab)}</p>
+                                        </div>
+                                        <div className="flex text-sm items-center gap-5">
+                                            <p>Expire le:</p>
+                                            <p className="text-gray-500">{formatDate(finReab)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+
+
+                        {/* etape validation */}
+                        <div className="flex absolute bottom-4 items-center gap-5 w-204 justify-between ">
+                            {step !== '4' && (
+                                <motion.button
+                                    type="button"
+                                    onClick={()=>{setModalReab(false), setStep('1'), setDesc(null), setProvider(null), setOtp(''), setTelReab(''), setErrorStep('')}}
+                                    whileTap={{scale: 0.95}}
+                                    className="bg-gray-200 font-bold transition-colors duration-200 border border-gray-200 hover:bg-transparent cursor-pointer text-gray-500 px-2 py-1"
+                                >
+                                    
+                                    Annuler l'opération
+                                </motion.button>
+                            )}
+                            <div className=" flex gap-5 items-center">
+                                {(step !== '1' && step !== '4') && (
+                                    <motion.button
+                                        type="button"
+                                        onClick={handleBack}
+                                        whileTap={{scale: 0.95}}
+                                        className="bg-gray-200 font-bold transition-colors duration-200 border border-gray-200 hover:bg-transparent cursor-pointer text-gray-500 px-2 py-1"
+                                    >
+                                        
+                                        Retour
+                                    </motion.button>
+                                )}
+                                <motion.button
+                                    onClick={handleNext}
+                                    disabled={loadingReab || loadingOtp}
+                                    whileTap={{scale: 0.95}}
+                                    className="bg-orange-500 cursor-pointer hover:text-black transition-colors duration-200 hover:bg-transparent border border-orange-500 text-white font-bold text-gray-500 px-2 py-1"
+                                >
+                                    {step === '4' ? (
+                                        'Fermer'
+                                    ):loadingOtp || loadingReab ? <Loader2 className="animate-spin h-5 w-5 text-white hover:text-black transition-colors duration-200"/> : 'Suivant'
+                                    }
+                                </motion.button>
+                            </div>
+                        </div>
+                        
                     </motion.div>
                 </div>
             )}

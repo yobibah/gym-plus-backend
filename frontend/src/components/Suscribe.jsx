@@ -125,7 +125,7 @@ export default function Suscribe(){
                     className={"p-6 shadow-lg z-20 bg-white rounded-lg hover:border-2 hover:border-orange-600 transition-all"}
                     title={"premium"}
                     titleClass={"font-bold text-xl mb-2"}
-                    text={"Idéal pour les petites salles et les studios qui débutent"}
+                    text={"Pour les grandes salles et réseaux de gyms."}
                     textClass={"text-gray-600 text-sm mb-4"}
                     text1={
                          <>
