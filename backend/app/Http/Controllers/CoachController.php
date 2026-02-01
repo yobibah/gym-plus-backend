@@ -59,7 +59,7 @@ class CoachController extends Controller
 
 
 
-            Cache::forget('coach_' . $user->id);
+            Cache::forget('coach_'.$user->id);
 
             DB::commit();
             return response()->json([
@@ -78,7 +78,7 @@ class CoachController extends Controller
     public function mesCoach(Request $request)
     {
         $user = $request->user();
-        $coach = Cache::remember('coach_' . $user->id, now()->addMinutes(5), function () use ($user) {
+        $coach = Cache::remember('coach_'.$user->id, now()->addMinutes(5), function () use ($user) {
             return $user->coach();
         });
 
@@ -117,7 +117,7 @@ class CoachController extends Controller
             }
 
             $coach->delete();
-            Cache::forget('coach_' . $user->id);
+            Cache::forget('coach_'.$user->id);
             DB::commit();
 
             return response()->json([

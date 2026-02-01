@@ -43,7 +43,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/ajouter-mes-prix', [UserController::class, 'AddSallePrix']);
     Route::get('/mes-prix', [UserController::class, 'SallePrix'])->middleware('paiement');
     Route::post('/ajouter-adherant', [UserController::class, 'AjouterAdherant']);
-    Route::post('/update-adherant', [UserController::class, 'UpdateAdherent']);
+    Route::post('/update-adherant', action: [UserController::class, 'UpdateAdherent']);
     Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
     Route::post('/mis-niveau', [UserController::class, 'Mettre_a_Niveau']);
     Route::post('/ajouter-logo', [UserController::class, 'AddLogo']);

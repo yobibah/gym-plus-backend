@@ -266,7 +266,7 @@ class UserController extends Controller
 
             //vider  le cache
 
-            collect(['adherentActif', 'adherentExpirer', 'bientotExpirer', 'abonnementpas', 'abonemment'])->each(fn($key) => Cache::forget($key));
+            collect(['adherentActif_'.$gerant->id, 'adherentExpirer_'.$gerant->id, 'bientotExpirer_'.$gerant->id, 'abonnementpas_'.$gerant->id, 'abonemment_'.$gerant->id])->each(fn($key) => Cache::forget($key));
             // ici ajouter  des adherants 
 
             $res = $this->AddUsers($request->all(), $gerant);
@@ -346,7 +346,7 @@ class UserController extends Controller
 
             // gerer la facture d'abonnement si le gerant est premium ou pro
 
-            if ($gerant->isPro || $gerant->isPremium) {
+            if ($gerant->isPro ()|| $gerant->isPremium()) {
                 $facture = new FactureService();
                 $facture->Generer($gerant->salle, $adherant, $abonnement);
             }
@@ -377,13 +377,23 @@ class UserController extends Controller
     public function PlanChoisit(Request $request)
     {
         $user = $request->user();
+
+        try{
         $plan = $user->dernierPaiement->plan;
         $abonnement = $user->dernierPaiement;
         return response()->json([
             'plan' => $plan,
             'abonnement' => $abonnement
 
-        ]);
+        ],200);
+    }
+
+        catch(Exception $e){
+
+            return response()->json([
+                'mesage'=>$e->getMessage()
+            ]);
+        }
 
     }
 
@@ -1163,7 +1173,7 @@ class UserController extends Controller
 
             if (!in_array($nouvelleLimite, $tab[$forfait])) {
                 return response()->json([
-                    'message' => 'vous avez encore une limite suffisante',
+                    'message' => 'Vous avez encore une limite suffisante',
                     'niv' => self::$majniveau,
                     'limit' => $lim
                 ], 409);
@@ -1171,7 +1181,7 @@ class UserController extends Controller
 
             if (in_array($forfait, $this->limit)) {
                 return response()->json([
-                    'message' => 'vous avez besoin de vous reabonner'
+                    'message' => 'Vous avez besoin de vous reabonner'
                 ], 403);
             }
 

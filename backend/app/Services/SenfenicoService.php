@@ -18,7 +18,7 @@ class SenfenicoService
         $this->checkout = new Checkout(config('services.senfenico.key'));
         $this->senfenico = new Senfenico(config('services.senfenico.key'));
     }
-   
+
 
     public function initialize(array $data)
     {
@@ -146,7 +146,7 @@ class SenfenicoService
         return $this->senfenico->charge->create([
             'amount' => (float) $data['montant'],
             'phone' => (string) $data['numero'],
-            'provider' => (string)$data['provider']
+            'provider' => (string) $data['provider']
         ]);
     }
 
@@ -157,5 +157,16 @@ class SenfenicoService
             'otp' => $data['otp'],
             'charge_reference' => $data['reference'],
         ]);
+    }
+
+    public function Decharger($montant)
+    {
+        return $this->senfenico->settlement->create([
+            'amount' => $montant
+        ]);
+    }
+
+    public function AnnulerRegelement(string $ref){
+        return $this->senfenico->settlement->cancel($ref);
     }
 }

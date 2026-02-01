@@ -44,7 +44,7 @@ class AbonnementController extends Controller
         }
         DB::beginTransaction();
 
-        collect(['abonemment','abonnementpas','adherentExpirer','bientotExpirer'])->each(fn($key)=>Cache::forget($key));
+        collect(['abonemment_'.$current->id,'abonnementpas_'.$current->id,'adherentExpirer_'.$current->id,'bientotExpirer_'.$current->id])->each(fn($key)=>Cache::forget($key));
 
         try {
 
@@ -145,7 +145,7 @@ class AbonnementController extends Controller
             ], 403);
 
         }
-        collect(['abonemment','abonnementpas'])->each(fn($key)=>Cache::forget($key));
+        collect(['abonemment_'.$user->id,'abonnementpas_'.$user->id])->each(fn($key)=>Cache::forget($key));
 
         $validator = Validator::make($request->all(), [
             'id' => 'required|numeric'
@@ -233,7 +233,7 @@ class AbonnementController extends Controller
         }
 
         DB::beginTransaction();
-        collect(['abonemment','abonnementpas'])->each(fn($key)=>Cache::forget($key));
+        collect(['abonemment_'.$user->id,'abonnementpas_'.$user->id])->each(fn($key)=>Cache::forget($key));
         try {
             $adh = User::find($request->id);
             if (!$adh) {

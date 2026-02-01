@@ -55,11 +55,11 @@ class HomeController extends Controller
         // $abonmment = $adherents->Abonnement();
         // // $adherents->paginate(10);
 
-$abonnement = cache::remember('abonemment',100,function()use($current){
+$abonnement = cache::remember('abonemment_'.$current->id,100,function()use($current){
     return abonnement::where('salle_id',$current->salle->id)->get();
 });  
 
-$abonnementpas = cache::remember('abonnementpas',100,function()use($current){
+$abonnementpas = cache::remember('abonnementpas_'.$current->id,100,function()use($current){
     return reabonnemen_trace::where('salle_id',$current->salle->id)->get();
 });  
 
@@ -132,7 +132,7 @@ foreach ($abonnementpas as $adh) {
         try {
             $salle = $user->salle;
             // $adhActif = $salle->adherentsActif();
-            $adhActif = Cache::remember('adherentActif',100,function()use($salle){
+            $adhActif = Cache::remember('adherentActif_'.$user->id,100,function()use($salle){
                 return $salle->adherentsActif();
 
             }); 
@@ -169,7 +169,7 @@ foreach ($abonnementpas as $adh) {
 
         try {
             $salle = $user->salle;
-            $adhActif = Cache::remember('adherentExpirer',100,function()use($salle){
+            $adhActif = Cache::remember('adherentExpirer_'.$user->id,100,function()use($salle){
                 return $salle->adherentsExpirer();
 
             }); 
@@ -204,7 +204,7 @@ foreach ($abonnementpas as $adh) {
 
         try {
             $salle = $user->salle;
-              $bientotExpirer = Cache::remember('bientotExpirer',100,function()use($salle){
+              $bientotExpirer = Cache::remember('bientotExpirer_'.$user->id,100,function()use($salle){
                 return $salle->bientotExpirer;
 
             }); 

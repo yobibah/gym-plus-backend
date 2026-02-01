@@ -416,4 +416,82 @@ class YengaPayController extends Controller
     }
 
 
+
+    public function Reglement(Request $request){
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(),[
+            'montant'=>'required'
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'message'=> 'remplir correctement les champs'
+            ],400);
+        }
+
+        try{
+            $response = $this->senfenico->Decharger((int)$request->montant);
+
+        if ($response->status== true){
+
+            // je creer une table avec le user_id , la date de 
+
+            // Reglement::create([
+            //     'admin_id'=>$user->id,
+            //      'date'=> Carbon::now(),
+            //      'status'=>$response->data->status,
+            //      'reference'=>$response->data->reference,
+            //      'montant'=>$response->montant
+            // ]);
+
+            return response()->json([
+                'message'=> $response->data->message,
+                 'status'=> $response->data->status == 'processing' ? ' en cours ' : 'erreur'
+                
+            ],201);
+        }
+
+        }
+
+        catch(Exception $e){
+            return response()->json([
+                'message'=>$e->getMessage()
+            ]);
+
+        }
+        
+        
+    }
+
+
+    public function Annuler(Request $request){
+        $user =$request->user();
+
+        $validator = validator::make($request->all(),[
+            'reference'=>'required|string'
+        ]);
+
+        if ($validator->fails()){
+            return response()->json([
+                'message'=>'token dois etre en string'
+            ]);
+        }
+
+        try{
+            $response = $this->senfenico->AnnulerRegelement($request->reference);
+            if ($response->status != true){
+                return response()->json([
+                    'message'=>'une erreur est survenue'
+                ]);
+            }
+
+            
+
+        }
+        catch(Exception $e){
+            
+        }
+    }
+
 }

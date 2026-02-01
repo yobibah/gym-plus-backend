@@ -42,15 +42,15 @@ class DepensesController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'motif'=>'required|string',
-            'montant'=>'required:number',
+            'motif' => 'required|string',
+            'montant' => 'required:number',
 
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'message'=> $validator->errors()->first(),
-            ],400);
+                'message' => $validator->errors()->first(),
+            ], 400);
         }
         DB::beginTransaction();
         try {
@@ -63,32 +63,32 @@ class DepensesController extends Controller
             //     'motif'=>$request->motif,
             //     'montant'=>$request->montant
             // ];
-          
+
             depenses::create([
-                 'gerant_id'=>$user->id,
-                'salle_id'=>$salle->id,
-                'date_depense'=>Carbon::now(),
-                'motif'=>$request->motif,
-                'montant'=>$request->montant
+                'gerant_id' => $user->id,
+                'salle_id' => $salle->id,
+                'date_depense' => Carbon::now(),
+                'motif' => $request->motif,
+                'montant' => $request->montant
             ]);
             DB::commit();
             return response()->json([
-                'message'=>'une depense a ete creer'
-            ],201);
+                'message' => 'une depense a ete creer'
+            ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'message'=> $e->getMessage(),
-                'trace'=>$e->getTraceAsString()
-                ],500);
-            
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+
         }
 
     }
 
     public function MesDepenses(Request $request)
     {
-              $user = $request->user();
+        $user = $request->user();
 
         if (!$user->hasrole('Gerant')) {
             return response()->json([
@@ -96,17 +96,16 @@ class DepensesController extends Controller
             ], 401);
         }
 
-        try{
+        try {
             $salle = $user->salle;
             $depense = depenses::where('gerant_id', $user->id)->where('salle_id', $salle->id)->paginate(10);
 
             return response()->json([
-                'depense'=>$depense
-            ],200);
-        }
-        catch (\Exception $e) {
+                'depense' => $depense
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
-                'message'=> $e->getMessage(),
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -151,8 +150,10 @@ class DepensesController extends Controller
 
 
             $troisMois = $query
-                ->whereMonth('debut', Carbon::now()->subMonths(3)->month)
-                ->whereYear('debut', Carbon::now()->subMonths(3)->year)
+                ->whereBetween('debut', [
+                    Carbon::now()->subMonths(3)->startOfDay(),
+                    Carbon::now()->endOfDay(),
+                ])
                 ->get();
 
 
@@ -169,14 +170,18 @@ class DepensesController extends Controller
             DB::commit();
 
             return response()->json([
-                'ceMoi' => $dataN,
+                // 'ceMoi' => $dataN,
                 'nbrecmoi' => $dataN->count() ?? 0,
-                'troismois' => $troisMois,
+                'MontantCeMois' => $dataN->sum(fn($item) => $item->montant),
+                // 'troismois' => $troisMois,
                 'nbrtroismois' => $troisMois->count() ?? 0,
-                'moisDernier' => $moiD,
+                'MontantTroiMmois' => $troisMois->sum(fn($item) => $item->montant),
+                // 'moisDernier' => $moiD,
                 'nbrmoisDernier' => $moiD->count() ?? 0,
-                'annerDernierre' => $anD,
+                'montantMoisDernier' => $moiD->sum(fn($item) => $item->montant),
+                // 'annerDernierre' => $anD,
                 'nbrannerDernierre' => $anD->count() ?? 0,
+                'MontantAnnerDerniere' => $anD->sum(fn($item) => $item->montant),
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -191,14 +196,16 @@ class DepensesController extends Controller
 
     // utiliser composer require rap2hpoutre/fast-excel
     //pour exporter en csv
-    public function  rapportFinancier(Request $request){
+    public function rapportFinancier(Request $request)
+    {
 
-        
+
 
     }
 
 
-    public function Rappportavancer(){
-        
+    public function Rappportavancer()
+    {
+
     }
 }

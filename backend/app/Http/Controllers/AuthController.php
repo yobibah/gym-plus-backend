@@ -167,7 +167,7 @@ class AuthController extends Controller
                 'abonnement' => $paiement ? $paiement : 'Aucun abonnement en cours de validite veuillez vous reabonner'
             ];
 
-            Cache::forget('historique');
+            Cache::forget('historique_'.$gerant->id);
 
             historique::create([
                 "date_connexion"=>Carbon::now(),
