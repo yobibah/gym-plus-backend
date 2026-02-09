@@ -12,6 +12,11 @@ class skills extends Model
         'coach_id','comptence'
     ];
 
+        protected $cast =[
+        'comptence'=>'array'
+    ];
+
+
     public function Coach():BelongsTo{
         return $this->belongsTo(coach::class);
     }

@@ -17,8 +17,10 @@ class coach extends Model
 
 
 
+
     public function Skills():HasMany{
-        return $this->hasMany(skills::class,'coach_id');
+    return $this->hasMany(skills::class,'coach_id');
+         
     }
 
     // public function getSkillsAttribute($value){
