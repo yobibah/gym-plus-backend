@@ -298,9 +298,6 @@ export default function DashboardPro(){
 
 
 
-
-
-
     const mesAdh = useQuery({
         queryKey : ['mes-adherant', page],
         queryFn : mesAdherants,
@@ -1001,23 +998,36 @@ export default function DashboardPro(){
     const mesCoachError = mesCoach.isError
     const mes_coach = mesCoach.data?.coach || []
 
-    const filterCoach = useMemo(()=>{
+    // const filterCoach = useMemo(()=>{
 
-        let dataCoach = mes_coach
+    //     let dataCoach = mes_coach
 
-       if (search.trim()){
-            const s = search.toLowerCase()
-            dataCoach = dataCoach.filter(item =>
-                 item?.name?.toLowerCase().includes(s) ||
-                item?.prenom?.toLowerCase().includes(s) ||
-                item?.telephone?.includes(s) ||
-                item?.competence?.includes(s)
-            )
-       }
+    //    if (search.trim()){
+    //         const s = search.toLowerCase()
+    //         dataCoach = dataCoach.filter(item =>
+    //              item?.nom?.toLowerCase().includes(s) ||
+    //             item?.prenom?.toLowerCase().includes(s) ||
+    //             item?.telephone?.includes(s) ||
+    //             item?.competence?.includes(s)
+    //         )
+    //    }
 
-       return dataCoach
+    //    return dataCoach
 
+    // }, [mes_coach, search])
+
+    const filterCoach = useMemo(() => {
+        if (!search.trim()) return mes_coach
+
+        const s = search.toLowerCase()
+
+        return mes_coach.filter(item =>
+            item?.nom?.toLowerCase().includes(s) ||
+            item?.prenom?.toLowerCase().includes(s) ||
+            item?.telephone?.includes(s)
+        )
     }, [mes_coach, search])
+
 
 
     const supCoachQuery = useQueryClient()
@@ -1064,13 +1074,13 @@ export default function DashboardPro(){
             modifCoachQuery.invalidateQueries(['mes-coach'])
             setTimeout(()=>{
                 modifCoach.reset()
-            }, 5000)
+            }, 3000)
         }),
 
         onError: (()=>{
             setTimeout(()=>{
                 modifCoach.reset()
-            }, 2500)
+            }, 3000)
         })
     })
 
@@ -1087,9 +1097,8 @@ export default function DashboardPro(){
         return true
     }
 
-    async function handleModifCoach(e, id){
+    async function handleModifCoach(e){
         e.preventDefault()
-        if(!id) return
         if(!validationModif()) return
         modifCoach.mutate({
             id: coachEdit?.id,
@@ -1164,6 +1173,7 @@ export default function DashboardPro(){
 
         onSuccess: (()=>{
             coachQuery.invalidateQueries(['mes-coach'])
+            setModalCoach(false)
             setTimeout(()=>{
                 addCoach.reset()
             }, 2500)
@@ -1226,11 +1236,11 @@ export default function DashboardPro(){
 
 
     function removeSkillsC(index) {
-    setCoachEdit(prev => ({
-        ...prev,
-        competence: prev?.competence?.filter((_, i) => i !== index) || []
-    }))
-}
+        setCoachEdit(prev => ({
+            ...prev,
+            competence: prev?.competence?.filter((_, i) => i !== index) || []
+        }))
+    }
 
 
     function handleCancel(){
@@ -2093,6 +2103,19 @@ export default function DashboardPro(){
                                             <p className=" text-sm  text-green-600 font-bold">Coach supprimé avec succès</p>
                                         </div>
                                     )}
+                                    {modifCoachSuccess && (
+                                        <div className="flex px-3 py-1 rounded-full bg-white items-center gap-1">
+                                            <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                            <p className=" text-sm  text-green-600 font-bold">Coach modifié avec succès</p>
+                                        </div>
+                                    )}
+                                    {coachSuccess && (
+                                        <div className="flex px-3 py-1 rounded-full bg-white items-center gap-1">
+                                            <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                            <p className=" text-sm  text-green-600 font-bold">Coach ajouté à la salle avec succès</p>
+                                        </div>
+                                    )}
+                                    
                                 </div>
                                
                                 
@@ -3855,7 +3878,7 @@ export default function DashboardPro(){
                 </div>
             )}
 
-            {(successSupAdh || modifCoachSuccess || coachSuccess || reactSuccess || suspSuccess || successUpdateAdh || reabSuccess) && (
+            {(successSupAdh || reactSuccess || suspSuccess || successUpdateAdh || reabSuccess) && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
                     <div className="w-150 h-300">
                     <img src={checkvideo} alt="gif"
@@ -4117,9 +4140,7 @@ export default function DashboardPro(){
                                     ))}
                                 </div>
                             )}
-                            {coachSuccess && (
-                                <p className="text-green-600 text-sm mt-2">Coach ajouté à la salle avec succès</p>
-                            )}
+                            
                             {coachError && (
                                 <p className="text-red-500 text-sm mt-2">{addCoach.error.message}</p>
                             )}
@@ -4272,7 +4293,7 @@ export default function DashboardPro(){
                                 Annuler
                             </button>
                             <button
-                                onClick={(e)=>{handleModifCoach(e, coachEdit)}}
+                                onClick={(e)=>{handleModifCoach(e)}}
                                 disabled={modifCoachLoading || !validationModif()}
                                 className={`border py-1 px-3 ${!validationModif() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'}   text-white font-semibold  transition-colors duration-200`}
                             >

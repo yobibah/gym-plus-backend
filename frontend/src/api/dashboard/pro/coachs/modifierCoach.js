@@ -7,12 +7,12 @@ export async function UpdateCoach({id, nom, prenom, telephone, competence}) {
     const token = getToken()
 
     const response = await fetch(`${apiUrl}update-coach`,{
-        method: "POST",
+        method: "PUT",
         headers:{
             "Content-Type":"application/json",
             "Authorization":`Bearer ${token}`
         },
-        body:JSON.stringify({id, nom, prenom, telephone, email, competence})
+        body:JSON.stringify({id, nom, prenom, telephone, competence})
     })
 
     const data = await response.json()
