@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CoachRessource;
 use App\Models\coach;
+use App\Models\skills;
 use Exception;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\Request;
@@ -29,7 +30,7 @@ class CoachController extends Controller
             'nom' => 'required|string',
             'prenom' => 'required|string',
             'telephone' => 'required|string|min:8',
-            'competence' => 'required|array'
+            'competence' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -48,18 +49,34 @@ class CoachController extends Controller
                 ], 409);
             }
 
-            coach::create([
+
+
+            $coach = coach::create([
                 'nom' => strtolower($request->nom),
                 'prenom' => strtolower($request->prenom),
                 'telephone' => $request->telephone,
-                'skills' => $request->competence,
                 'salle_id' => $user->salle->id,
 
             ]);
 
+            if (is_array($request->competence)) {
+                $skills = $request->competence;
+                foreach ($skills as $skill) {
+                    skills::create([
+                        'coach_id' => $coach->id,
+                        'comptence' => $skill
+                    ]);
+                }
+            }
+            else{
+     skills::create([
+                'coach_id' => $coach->id,
+                'comptence' => $request->competence
+            ]);
+            }
 
-
-            Cache::forget('coach_'.$user->id);
+       
+            Cache::forget('coach_' . $user->id);
 
             DB::commit();
             return response()->json([
@@ -78,7 +95,7 @@ class CoachController extends Controller
     public function mesCoach(Request $request)
     {
         $user = $request->user();
-        $coach = Cache::remember('coach_'.$user->id, now()->addMinutes(5), function () use ($user) {
+        $coach = Cache::remember('coach_' . $user->id, now()->addMinutes(5), function () use ($user) {
             return $user->coach();
         });
 
@@ -117,7 +134,7 @@ class CoachController extends Controller
             }
 
             $coach->delete();
-            Cache::forget('coach_'.$user->id);
+            Cache::forget('coach_' . $user->id);
             DB::commit();
 
             return response()->json([
@@ -139,10 +156,11 @@ class CoachController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id' => 'required',
-            'email' => 'nullable|email',
             'nom' => 'nullable|string',
             'prenom' => 'nullable|string',
-            'telephone' => 'nullable|string|min:8'
+            'telephone' => 'nullable|string|min:8',
+            'comptence'=>'nullable'
+
         ]);
 
         if ($validator->fails()) {
@@ -166,7 +184,7 @@ class CoachController extends Controller
 
 
             $coach->update([
-                'email' => $request->email ?? $coach->email,
+            
                 'nom' => $request->nom ?? $coach->nom,
                 'prenom' => $request->prenom ?? $coach->prenom,
                 'telephone' => $request->telephone ?? $coach->telephone

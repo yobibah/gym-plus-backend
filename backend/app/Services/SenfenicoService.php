@@ -106,9 +106,9 @@ class SenfenicoService
         try {
 
             $response = $this->senfenico->transfer->create([
-                'amount' => $data['montant'],
-                'recipient_phone' => $data['destinataire'],
-                'recipient_wallet' => $this->DeterminerNumero($data['destinataire']),
+                'amount' => $data['amount'],
+                'recipient_phone' => $data['phone'],
+                'recipient_wallet' => $this->DeterminerNumero($data['phone']),
                 'ext_id' => '98b96ea4-210d-4ea0-9b03-8d7fd96e4064'
             ]);
 

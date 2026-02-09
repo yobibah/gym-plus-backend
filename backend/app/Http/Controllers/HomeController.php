@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\IkoddiService;
 use App\Services\PaysApiService;
 use App\Services\SenfenicoService;
+use App\Services\YengaPayService;
 use Aws\Api\Parser\JsonParser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -228,7 +229,7 @@ foreach ($abonnementpas as $adh) {
         $valdator = Validator::make($request->all(),[
             'numero'=> 'required|string|min:8',
              'montant'=>'required',
-             'ext_id'=>'nullable|string'
+            
         ]);
 
         if ($valdator->fails()){
@@ -238,18 +239,28 @@ foreach ($abonnementpas as $adh) {
         }
        
         $data = [
-            'destinataire'=>$request->numero,
-            'montant'=>$request->montant,
-            'ext_id'=>Hash::make(rand(1,999)).'@'.$request->numerom
+            
+            'phone'=>$request->numero,
+            'amount'=>$request->montant,
+            'reference'=>Hash::make(rand(1,999)).'@'.$request->numero,
+            'return_url'=>'',
+            'callback_url'=>''
         ];
 
         $sms = new SenfenicoService();
-    //     $transID = $user->dernierPaiement->transId;
-    //    $ms= $sms ->fetch( (string)$transID);
+    // //     $transID = $user->dernierPaiement->transId;
+    // //    $ms= $sms ->fetch( (string)$transID);
 
-       $transf =$sms ->Transferer($data);
+      return  $sms ->Transferer($data);
+
+//     $yenga = new YengaPayService();
+//   return   $yenga->createPayment($data);
+
+// return response()->json([
+//     'attente'=>$user->DernierPaiementReussi
+// ]);
      
-        return $transf;
+    
         
 
     }

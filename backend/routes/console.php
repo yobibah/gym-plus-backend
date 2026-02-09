@@ -18,3 +18,8 @@ Schedule::command('app:paiement-expire')
     ->daily()
     ->withoutOverlapping()
     ->runInBackground();
+
+Schedule::command('active-gerant-paiement')
+    ->daily()
+    ->withoutOverlapping()
+    ->runInBackground();

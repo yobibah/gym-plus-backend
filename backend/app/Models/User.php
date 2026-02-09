@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Laravel\Sanctum\HasApiTokens;
+use Psy\Command\WhereamiCommand;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasPermissions;
@@ -164,17 +165,31 @@ class User extends Authenticatable
     }
 
 
-    public function DernierPaiement():HasOne
+    public function DernierPaiement(): HasOne
     {
-        return $this->hasOne(paiement::class, 'gerant_id')->latestOfMany('fin');
+        return $this->hasOne(paiement::class, 'gerant_id')
+        ->whereIn('status',['reussi','expirer'])
+        ->latest();
     }
 
+    public function DernierPaiementAttente(): HasOne
+    {
+        return $this->hasOne(paiement::class, 'gerant_id')
+            ->where('status', 'attente')
+            ->latest();
+    }
     public function dernierPaiementReussi(): HasOne
     {
         return $this->hasOne(paiement::class, 'gerant_id')
-            ->whereDate('fin', '>=', Carbon::today())
-            ->latestOfMany('fin');
+            ->where('status', 'reussi')
+            ->latest();
     }
+//     public function dernierPaiementReussi(): HasOne
+// {
+//     return $this->hasOne(paiement::class, 'gerant_id')
+//         ->where('status', 'reussi')
+//         ->latestOfMany('fin');
+// }
 
     public function Activites()
     {
@@ -220,25 +235,20 @@ class User extends Authenticatable
 
     public function isGerant()
     {
-       
-               return $this->hasrole("Gerant") ? true : false;
-        }
-     
+
+        return $this->hasrole("Gerant") ? true : false;
+    }
+
 
     public function isPro(): bool
     {
-        $plan = $this->dernierPaiementReussi->plan;
+ return $this->dernierPaiementReussi?->plan === 'pro';
 
-        return $plan === 'pro' ? true : false;
     }
-
-
-    public function isPremium(): bool
-    {
-        $plan = $this->dernierPaiementReussi->plan;
-
-        return $plan === 'premium' ? true : false;
-    }
+public function isPremium(): bool
+{
+    return $this->dernierPaiementReussi?->plan === 'premium';
+}
 
     public function getNameAttribute($value)
     {
@@ -254,11 +264,24 @@ class User extends Authenticatable
     //     return Str::mask($value, '*',5,6);
     // }
 
-   public function coach(){
-     return coach::where('salle_id',$this->salle->id)->get();
-   }
+    public function coach()
+    {
+        return coach::where('salle_id', $this->salle->id)->get();
+    }
 
-//    public function DernierPaiementExpirerReussi(){
+    //    public function DernierPaiementExpirerReussi(){
 //        return paiement::where('gerant_id',$this->id)->where('status','reussi')->
 //    }
+
+
+    public function AbonnemntBientotExpirer()
+    {
+        return $this->hasOne(paiement::class, 'gerant_id')
+            ->whereBetween('fin', [
+                now()->startOfDay(),
+                now()->addDays(7)->endOfDay()
+            ])
+            ->latestOfMany('fin');
+
+    }
 }

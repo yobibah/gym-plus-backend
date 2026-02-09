@@ -19,13 +19,13 @@ class YengaPayService
             'Accept'        => 'application/json',
             'Content-Type'  => 'application/json',
         ])->post($url, [
-            'paymentAmount' => (float) $data['amount'],  // doit être float
+            'paymentAmount' => (float) $data['amount'],  
             'currency'      => 'XOF',
-            'reference'     => $data['reference'],       // unique
-            'customerNumber'=> $data['phone'],           // mobile valide
-            'callbackUrl'   => $data['callback_url'],    // HTTPS
-            'returnUrl'     => $data['return_url'],      // HTTPS
-            'description'   => $data['description'] ?? 'Paiement',
+            'reference'     => $data['reference'],      
+            'customerNumber'=> $data['phone'],          
+            'callbackUrl'   => $data['callback_url'],    
+            'returnUrl'     => $data['return_url'],      
+            'description'   => $data['description'] ?? 'Abonnement au service de Gymplus',
         ]);
     }
 }

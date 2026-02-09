@@ -303,7 +303,9 @@ class YengaPayController extends Controller
             ];
 
             $response = $this->senfenico->Otp($data);
-
+            $paiement = Paiement::where('gerant_id', $current->id)
+                ->where('transId', Cache::get('reference_' . $current->id))
+                ->first();
             // return $response->data;
 
             if ($response && $response->status == true) {
@@ -312,9 +314,7 @@ class YengaPayController extends Controller
                 $msg = $response->message;
 
 
-                $paiement = Paiement::where('gerant_id', $current->id)
-                    ->where('transId', Cache::get('reference_' . $current->id))
-                    ->first();
+
 
                 if (!$paiement) {
                     return response()->json([
@@ -355,10 +355,14 @@ class YengaPayController extends Controller
                 }
 
 
-                return  response()->json(['message' => 'paiement reussi merci de profiter de nos services'], 200);
-                  
-                
+                return response()->json(['message' => 'paiement reussi merci de profiter de nos services'], 200);
+
+
             } else {
+                $paiement->update([
+                    'status' => 'echoue',
+
+                ]);
                 return response()->json([
                     'message' => $response->message ?? 'le paiement a echouer pour une raison independant de notre volonte',
                     Cache::get('reference_' . $current->id)
@@ -417,80 +421,79 @@ class YengaPayController extends Controller
 
 
 
-    public function Reglement(Request $request){
+    public function Reglement(Request $request)
+    {
         $user = $request->user();
 
-        $validator = Validator::make($request->all(),[
-            'montant'=>'required'
+        $validator = Validator::make($request->all(), [
+            'montant' => 'required'
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
-                'message'=> 'remplir correctement les champs'
-            ],400);
+                'message' => 'remplir correctement les champs'
+            ], 400);
         }
 
-        try{
-            $response = $this->senfenico->Decharger((int)$request->montant);
+        try {
+            $response = $this->senfenico->Decharger((int) $request->montant);
 
-        if ($response->status== true){
+            if ($response->status == true) {
 
-            // je creer une table avec le user_id , la date de 
+                // je creer une table avec le user_id , la date de 
 
-            // Reglement::create([
-            //     'admin_id'=>$user->id,
-            //      'date'=> Carbon::now(),
-            //      'status'=>$response->data->status,
-            //      'reference'=>$response->data->reference,
-            //      'montant'=>$response->montant
-            // ]);
+                // Reglement::create([
+                //     'admin_id'=>$user->id,
+                //      'date'=> Carbon::now(),
+                //      'status'=>$response->data->status,
+                //      'reference'=>$response->data->reference,
+                //      'montant'=>$response->montant
+                // ]);
 
+                return response()->json([
+                    'message' => $response->data->message,
+                    'status' => $response->data->status == 'processing' ? ' en cours ' : 'erreur'
+
+                ], 201);
+            }
+
+        } catch (Exception $e) {
             return response()->json([
-                'message'=> $response->data->message,
-                 'status'=> $response->data->status == 'processing' ? ' en cours ' : 'erreur'
-                
-            ],201);
-        }
-
-        }
-
-        catch(Exception $e){
-            return response()->json([
-                'message'=>$e->getMessage()
+                'message' => $e->getMessage()
             ]);
 
         }
-        
-        
+
+
     }
 
 
-    public function Annuler(Request $request){
-        $user =$request->user();
+    public function Annuler(Request $request)
+    {
+        $user = $request->user();
 
-        $validator = validator::make($request->all(),[
-            'reference'=>'required|string'
+        $validator = validator::make($request->all(), [
+            'reference' => 'required|string'
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
-                'message'=>'token dois etre en string'
+                'message' => 'token dois etre en string'
             ]);
         }
 
-        try{
+        try {
             $response = $this->senfenico->AnnulerRegelement($request->reference);
-            if ($response->status != true){
+            if ($response->status != true) {
                 return response()->json([
-                    'message'=>'une erreur est survenue'
+                    'message' => 'une erreur est survenue'
                 ]);
             }
 
-            
 
-        }
-        catch(Exception $e){
-            
+
+        } catch (Exception $e) {
+
         }
     }
 
