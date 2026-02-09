@@ -38,6 +38,14 @@ import coverhero from '../../assets/images/coverhero.png'
 import { Suspendre } from "../../api/dashboard/standard/abonnements/suspendre";
 import { Reactiver } from "../../api/dashboard/pro/abonnements/reactiver";
 import { ExportCsv } from "../../api/dashboard/pro/adherants/export";
+import { NombreCoach } from "../../api/dashboard/pro/coachs/nombreCoach";
+import coach from '../../assets/images/coach.png'
+import { AjouterCoach } from "../../api/dashboard/pro/coachs/ajouterCoach";
+import { DeleteCoach } from "../../api/dashboard/pro/coachs/deleteCoach";
+import { Swiper, SwiperSlide } from 'swiper/react'
+import 'swiper/css'
+import { UpdateCoach } from "../../api/dashboard/pro/coachs/modifierCoach";
+
 
 export default function DashboardPro(){
 
@@ -64,7 +72,7 @@ export default function DashboardPro(){
     const [editMois, setEditMois] = useState(true)
     const [editTrim, setEditTrim] = useState(true)
     const [editAn, setEditAn] = useState(true)
-    const [action, setAction] = useState("POST"); 
+    const [action, setAction] = useState("POST");
     const [nom_salle, setNomSalle] = useState('')
     const [pays_salle, setPaysSalle] = useState('')
     const [region, setRegion] = useState('')
@@ -83,7 +91,7 @@ export default function DashboardPro(){
     const [previewSign, setPreviewSign] = useState(null)
     const signInputRef =useRef(null)
     const [signModal, setSignModal] = useState(false)
-    
+
     const [modalSupAdherant, setModalSupAdherant] = useState(false)
     const [modalUpAdherant, setModalUpAdherant] = useState(false)
     const [adhToDelete, setAdhToDelete] = useState(null)
@@ -99,7 +107,21 @@ export default function DashboardPro(){
     const [reactiverModal, setReactiverModal] = useState(false)
 
     const [detailAdherant, setDetailAdherant] = useState(false)
-    
+
+    const [modalCoach, setModalCoach] = useState(false)
+    const[nomCoach, setNomCoach] = useState('')
+    const[prenomCoach, setPrenomCoach] = useState('')
+    const[telCoach, setTelCoach] = useState('')
+    const[skillsCoach, setSkillsCoach] = useState([])
+    const [skills, setSkills] = useState('')
+
+    const [coachOuvert, setCoachOuvert] = useState(null)
+    const [deleteCoach, setDeleteCoach] = useState(null)
+    // const [del, setDel] = useState(null)
+    const [coachSup, setCoachSup] = useState(null)
+    const [selectCoach, setSelectCoach] = useState(null)
+    const [coachEdit, setCoachEdit] = useState(null)
+
 
     const date = new Date
     const d = date.toLocaleDateString('fr-FR')
@@ -119,24 +141,27 @@ export default function DashboardPro(){
         setPreview(URL.createObjectURL(logoSelection))
     }
 
-    
+
 
     const navigate = useNavigate()
     const token = getToken()
-    
+
     function ActiveTab(){
 
          if(activeTab === 'dashboard'){
             setActiveTab('dashboard')
             setView('part-dashboard')
             setShowAdd(false)
-            
+            setCoachOuvert(null)
+            setDeleteCoach(null)
             return
         }
 
         if(activeTab === 'adherant'){
             setActiveTab('adherant')
             setNotifModal(false)
+            setCoachOuvert(null)
+            setDeleteCoach(null)
             return
         }
 
@@ -144,6 +169,8 @@ export default function DashboardPro(){
             setActiveTab('abonnement')
             setShowAdd(false)
             setNotifModal(false)
+            setCoachOuvert(null)
+            setDeleteCoach(null)
             setAbonnementTab('tous')
             return
         }
@@ -159,6 +186,8 @@ export default function DashboardPro(){
             setActiveTab('cours')
             setShowAdd(false)
             setNotifModal(false)
+            setCoachOuvert(null)
+            setDeleteCoach(null)
             return
         }
 
@@ -166,6 +195,8 @@ export default function DashboardPro(){
             setActiveTab('finances')
             setShowAdd(false)
             setNotifModal(false)
+            setCoachOuvert(null)
+            setDeleteCoach(null)
             return
         }
 
@@ -173,6 +204,8 @@ export default function DashboardPro(){
             setActiveTab('settings')
             setShowAdd(false)
             setNotifModal(false)
+            setCoachOuvert(null)
+            setDeleteCoach(null)
             return
         }
     }
@@ -195,11 +228,11 @@ export default function DashboardPro(){
         queryKey : ['nbr_actif'],
         queryFn : FetchNombreActif
     })
-    const nbrAdherantsActif = Number(nbrActif.data?.nbr_actif) 
+    const nbrAdherantsActif = Number(nbrActif.data?.nbr_actif)
     const loadingNbrActif = nbrActif.isPending
     const errorNbrActif = nbrActif.isError
 
-    
+
     const prix = useQuery({
         queryKey : ['prix'],
         queryFn : fetchPrix
@@ -222,7 +255,7 @@ export default function DashboardPro(){
             setEmail('')
             setTel('')
             setMontant('')
-           
+
 
             queryClient.invalidateQueries(['nbr_adherant'])
             queryClient.invalidateQueries(['nbr_actif'])
@@ -267,7 +300,7 @@ export default function DashboardPro(){
 
 
 
-    
+
     const mesAdh = useQuery({
         queryKey : ['mes-adherant', page],
         queryFn : mesAdherants,
@@ -314,7 +347,7 @@ export default function DashboardPro(){
 
 
     // const exportQuery = queryClient()
-    
+
     const updateTarif = useQueryClient()
     const tarif = useMutation({
         mutationFn : Tarifs,
@@ -325,7 +358,7 @@ export default function DashboardPro(){
                 tarif.reset()
             }, 2500)
         }
-        
+
     })
     const loadingTarif = tarif.isPending
     const errorTarif = tarif.isError
@@ -348,7 +381,7 @@ export default function DashboardPro(){
                 tarifUpdate.reset()
             }, 2500)
         }
-        
+
     })
     const loadingTarifUp = tarifUpdate.isPending
     const errorTarifUp = tarifUpdate.isError
@@ -360,7 +393,7 @@ export default function DashboardPro(){
         mutationFn : DeleteTarif,
         onSuccess : ()=>{
             setShowModalTrash(false)
-            
+
             setMensuel('')
             setTrimestriel('')
             setAnnuel('')
@@ -380,7 +413,7 @@ export default function DashboardPro(){
                 tarifDelete.reset()
             }, 2500)
         }
-        
+
     })
     const loadingTarifDel = tarifDelete.isPending
     const errorTarifDel = tarifDelete.isError
@@ -407,7 +440,7 @@ export default function DashboardPro(){
             });
         }
     }
-    
+
 
     const infos = useQuery({
         queryKey : ['mes-infos'],
@@ -419,7 +452,7 @@ export default function DashboardPro(){
     const infoError = infos.isError
 
 
-    
+
     const dataExport = useMutation({
         // mutationKey: [gerantId],
         mutationFn : ({ gerantId }) => ExportCsv({ gerantId }),
@@ -447,7 +480,7 @@ export default function DashboardPro(){
     const dataExportError = dataExport.isError
 
 
-        
+
 
     async function handleExport(){
         const gerantId = infos?.data?.user?.id
@@ -465,7 +498,7 @@ export default function DashboardPro(){
             setNomSalle('')
             setPaysSalle('')
             setRegion('')
-            
+
             update.invalidateQueries(['mes-infos'])
 
             setTimeout(()=>{
@@ -481,7 +514,7 @@ export default function DashboardPro(){
         e.preventDefault()
         update_infos.mutate({
             nom_salle,
-            pays:pays_salle, 
+            pays:pays_salle,
             region
         })
     }
@@ -495,7 +528,7 @@ export default function DashboardPro(){
             setNomPerso('')
             setPrenomPerso('')
             setTelPerso('')
-            
+
             updatePerso.invalidateQueries(['mes-infos'])
 
             setTimeout(()=>{
@@ -528,9 +561,9 @@ export default function DashboardPro(){
             updatePassword.mutate({ password })
         } else {
             update_infos_perso.mutate({
-                nom:nomPerso, 
-                prenom:prenomPerso, 
-                telephone:telPerso, 
+                nom:nomPerso,
+                prenom:prenomPerso,
+                telephone:telPerso,
             })
         }
     }
@@ -614,7 +647,7 @@ export default function DashboardPro(){
         } else {
             logoUpload.mutate({formData})
         }
-        
+
 
     }
 
@@ -637,43 +670,43 @@ export default function DashboardPro(){
             onSuccess : (()=>{
                 setPreviewSign(null)
                 setSign(null)
-    
+
                 signQuery.invalidateQueries(['mes-infos'])
-    
+
                 setTimeout(()=>{
                     signUpload.reset()
                 }, 2500)
             })
             // onError : (()=>{
-    
+
             // })
         })
         const signLoading = signUpload.isPending
         const signSuccess = signUpload.isSuccess
         const signError = signUpload.isError
-    
+
         const signEditQuery = useQueryClient()
         const signEditUpload = useMutation({
             mutationFn : UpdateCachet,
             onSuccess : (()=>{
                 setPreviewSign(null)
                 setSign(null)
-    
+
                 signEditQuery.invalidateQueries(['mes-infos'])
-    
+
                 setTimeout(()=>{
                     signEditUpload.reset()
                 }, 2500)
             })
             // onError : (()=>{
-    
+
             // })
         })
         const signEditLoading = signEditUpload.isPending
         const signEditSuccess = signEditUpload.isSuccess
         const signEditError = signEditUpload.isError
-    
-    
+
+
         const signDelQuery = useQueryClient()
         const signDelUpload = useMutation({
             mutationFn : DeleteCachet,
@@ -681,9 +714,9 @@ export default function DashboardPro(){
                 setSignModal(false)
                 setPreviewSign(null)
                 setSign(null)
-    
+
                 signDelQuery.invalidateQueries(['mes-infos'])
-    
+
                 setTimeout(()=>{
                     signDelUpload.reset()
                 }, 2500)
@@ -695,14 +728,14 @@ export default function DashboardPro(){
         const signDelLoading = signDelUpload.isPending
         const signDelSuccess = signDelUpload.isSuccess
         const signDelError = signDelUpload.isError
-    
-    
+
+
         async function handlePostSign(e, action){
             e.preventDefault()
-    
+
             const formData = new FormData()
             formData.append("cachet", sign)
-    
+
             if(action === 'PUT'){
                 signEditUpload.mutate({formData})
             } else if(action === 'DELETE'){
@@ -710,8 +743,8 @@ export default function DashboardPro(){
             } else {
                 signUpload.mutate({formData})
             }
-            
-    
+
+
         }
 
 
@@ -764,7 +797,7 @@ export default function DashboardPro(){
             }, 5000)
 
             adhUpQuery.invalidateQueries(['mes-adherant'])
-            
+
         }),
         onError: (()=>{
             setTimeout(()=>{
@@ -782,10 +815,10 @@ export default function DashboardPro(){
         e.preventDefault()
         if(!id) return
         updateAdh.mutate({
-            id:adhToUp?.id, 
-            nom:adhToUp?.name, 
+            id:adhToUp?.id,
+            nom:adhToUp?.name,
             prenom:adhToUp?.prenom,
-            email:adhToUp?.email, 
+            email:adhToUp?.email,
             telephone:adhToUp?.telephone
         })
     }
@@ -917,7 +950,7 @@ export default function DashboardPro(){
     const misNiveau = useMutation({
         mutationFn : MisNiveau,
         onSuccess : (()=>{
-            
+
             misNiveauQuery.invalidateQueries(['nbr-adherant'])
 
             setTimeout(()=>{
@@ -952,13 +985,120 @@ export default function DashboardPro(){
             queryClient.removeQueries(['expire-bientot']),
             queryClient.removeQueries(['mes-adherant']),
             queryClient.removeQueries(['mes-infos']),
-            queryClient.removeQueries(['history'])
+            queryClient.removeQueries(['history']),
+            queryClient.removeQueries(['mes-coach'])
 
         )
-        
+
     }
 
 
+    const mesCoach = useQuery({
+        queryKey: ['mes-coach'],
+        queryFn: NombreCoach
+    })
+    const mesCoachLoad = mesCoach.isPending
+    const mesCoachError = mesCoach.isError
+    const mes_coach = mesCoach.data?.coach || []
+
+    const filterCoach = useMemo(()=>{
+
+        let dataCoach = mes_coach
+
+       if (search.trim()){
+            const s = search.toLowerCase()
+            dataCoach = dataCoach.filter(item =>
+                 item?.name?.toLowerCase().includes(s) ||
+                item?.prenom?.toLowerCase().includes(s) ||
+                item?.telephone?.includes(s) ||
+                item?.competence?.includes(s)
+            )
+       }
+
+       return dataCoach
+
+    }, [mes_coach, search])
+
+
+    const supCoachQuery = useQueryClient()
+    const supCoach = useMutation({
+        mutationFn : DeleteCoach,
+        onSuccess : (()=>{
+            setDeleteCoach(null)
+            setTimeout(()=>{
+                supCoach.reset()
+
+            }, 3000)
+
+            supCoachQuery.invalidateQueries(['mes-coach'])
+        }),
+
+        onError : (()=>{
+            setDeleteCoach(null)
+            // setModalErrorSupAdh(true)
+            setTimeout(()=>{
+                supCoach.reset()
+
+            }, 3000)
+        })
+    })
+
+    const loadingSupCoach = supCoach.isPending
+    const errorSupCoach = supCoach.isError
+    const successSupCoach = supCoach.isSuccess
+
+    async function handleDeleteCoach(e, id){
+        e.preventDefault()
+        if (!id) return
+        setCoachSup(id)
+        supCoach.mutate({id})
+    }
+
+
+    const modifCoachQuery = useQueryClient()
+    const modifCoach = useMutation({
+        mutationFn: UpdateCoach,
+
+        onSuccess: (()=>{
+            setSelectCoach(null)
+            modifCoachQuery.invalidateQueries(['mes-coach'])
+            setTimeout(()=>{
+                modifCoach.reset()
+            }, 5000)
+        }),
+
+        onError: (()=>{
+            setTimeout(()=>{
+                modifCoach.reset()
+            }, 2500)
+        })
+    })
+
+    const modifCoachLoading = modifCoach.isPending
+    const modifCoachError = modifCoach.isError
+    const modifCoachSuccess = modifCoach.isSuccess
+
+    function validationModif(){
+        if(!coachEdit?.nom || !coachEdit?.nom.trim()) return false
+        if(!coachEdit?.prenom || !coachEdit?.prenom.trim()) return false
+        if(!coachEdit?.telephone || !coachEdit?.telephone.trim() || coachEdit?.telephone.length !== 8) return false
+        if(!coachEdit?.competence || coachEdit?.competence.length === 0) return false
+
+        return true
+    }
+
+    async function handleModifCoach(e, id){
+        e.preventDefault()
+        if(!id) return
+        if(!validationModif()) return
+        modifCoach.mutate({
+            id: coachEdit?.id,
+            nom: coachEdit?.nom,
+            prenom: coachEdit?.prenom,
+            telephone: coachEdit?.telephone,
+            competence: coachEdit?.competence
+        })
+    }
 
 
     function logoutModal(){
@@ -968,18 +1108,18 @@ export default function DashboardPro(){
             return
         }
         setModalLogout(!modalLogout)
-        
+
     }
 
     function logout(e){
         e.preventDefault()
-        
+
         if(token){
             Cookies.remove('token')
             clearCache()
             navigate('/auth', {replace : true})
         }
-        
+
     }
 
     function FormMensuel(e){
@@ -1005,7 +1145,7 @@ export default function DashboardPro(){
     const dataHistory = history.data?.historiques || []
     const totalHistory = history.data?.historiques.length
 
-    
+
     const fin = formatDate(planChoisit?.data?.abonnement?.fin)
 
     const getDaysDifference = (date1, date2) => {
@@ -1018,28 +1158,114 @@ export default function DashboardPro(){
     const endDate = new Date(fin7);
     const daysRemaining = getDaysDifference(today, endDate);
 
+    const coachQuery = useQueryClient()
+    const addCoach = useMutation({
+        mutationFn: AjouterCoach,
+
+        onSuccess: (()=>{
+            coachQuery.invalidateQueries(['mes-coach'])
+            setTimeout(()=>{
+                addCoach.reset()
+            }, 2500)
+            setNomCoach('')
+            setPrenomCoach('')
+            setTelCoach('')
+            setSkills('')
+            setSkillsCoach([])
+        }),
+
+        onError: (()=>{
+            setTimeout(()=>{
+                addCoach.reset()
+            }, 2500)
+        })
+    })
+    const coachLoading = addCoach.isPending
+    const coachError = addCoach.isError
+    const coachSuccess = addCoach.isSuccess
+
+    function validation(){
+        if(!nomCoach || !nomCoach.trim()) return false
+        if(!prenomCoach || !prenomCoach.trim()) return false
+        if(!telCoach || !telCoach.trim() || telCoach.length !== 8) return false
+        if(skillsCoach.length === 0) return false
+
+        return true
+    }
+
+    async function handleSubmit(){
+        if(!validation()) return
+        addCoach.mutate({
+            nom: nomCoach,
+            prenom: prenomCoach,
+            telephone: telCoach,
+            competence: skillsCoach
+        })
+    }
+
+
+    function handleAddCoach(e){
+        e.preventDefault()
+        setModalCoach(!modalCoach)
+    }
+
+
+    function handleAddSkill(){
+        setSkillsCoach([...skillsCoach, skills])
+        setSkills('')
+    }
+
+    function handleAddSkillC(){
+        coachEdit?.competence.push(skills)
+        setSkills('')
+    }
+
+    function removeSkills(index){
+        setSkillsCoach(skillsCoach.filter((_,i)=> i !== index))
+    }
+
+
+    function removeSkillsC(index) {
+    setCoachEdit(prev => ({
+        ...prev,
+        competence: prev?.competence?.filter((_, i) => i !== index) || []
+    }))
+}
+
+
+    function handleCancel(){
+        setModalCoach(false)
+        setNomCoach('')
+        setPrenomCoach('')
+        setTelCoach('')
+        setSkillsCoach([])
+        setSkills('')
+    }
+
+
+
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
-            
+
             <div className="col-span-1 py-3 bg-white shadow-lg flex flex-col gap-5 h-screen overflow-y-auto sticky top-0">
                 <div className="flex items-center gap-2  px-5 my-5">
                     <div className="rounded-full flex items-center justify-center border border-orange-500 bg-orange-500 w-18 h-15">
                         {infosSalle?.logo_salle ? (
                             <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                         ):(
-                            
+
                             <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>}</p>
                         )}
-                        
-                        
+
+
                     </div>
                     <div className="flex items-center w-full justify-between">
                         <div className="flex flex-col">
-                            <div className="font-semibold text-2xl">{infosSalle?.nom_salle || 'GymPlus'}</div> 
+                            <div className="font-semibold text-2xl">{infosSalle?.nom_salle || 'GymPlus'}</div>
                             <div className="text-orange-500 text-sm">Plan {planActuel}</div>
                         </div>
 
-                        <motion.button 
+                        <motion.button
                             whileTap={{scale: 0.95}}
                             className="text-red-500 border hover:bg-orange-50 transition-colors duration-200 border-red-500 rounded-lg p-2"
                             onClick={logoutModal}
@@ -1049,98 +1275,98 @@ export default function DashboardPro(){
                     </div>
                 </div>
 
-                <motion.div 
-                    whileHover={{ scale: 1.02 }} 
+                <motion.div
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{scale: 0.95}}
                     className={`${activeTab === 'dashboard' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                     onClick={()=>{setActiveTab('dashboard')}}
                 >
                      <LayoutDashboard className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
                     <button className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
+
                     >Tableau de bord</button>
                 </motion.div>
 
                 <motion.div
-                    
-                    whileHover={{ scale: 1.02 }} 
+
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{scale: 0.95}}
                     className={`${activeTab === 'adherant' || showAdd  ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                     onClick={()=>{setActiveTab('adherant')}}
                 >
                      <Users className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200 `}/>
                     <button className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
+
                     >Adhérants</button>
                 </motion.div>
 
                 <motion.div
-                    whileHover={{ scale: 1.02 }} 
-                    whileTap={{scale: 0.95}} 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{scale: 0.95}}
                     className={`${activeTab === 'abonnement' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                     onClick={()=>{setActiveTab('abonnement')}}
                 >
                      <SquarePlus className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
                     <button className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
+
                     >Abonnements</button>
                 </motion.div>
-                
+
                 {/* Ajout a reveoir avec les data */}
                 <motion.div
-                    whileHover={{ scale: 1.02 }} 
-                    whileTap={{scale: 0.95}} 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{scale: 0.95}}
                     className={`${activeTab === 'coach' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                     onClick={()=>{setActiveTab('coach')}}
                 >
                      <UserCog className={`${activeTab === 'coach' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
                     <button className={`${activeTab === 'coach' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
+
                     >Coachs</button>
                 </motion.div>
                 <motion.div
-                    whileHover={{ scale: 1.02 }} 
-                    whileTap={{scale: 0.95}} 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{scale: 0.95}}
                     className={`${activeTab === 'cours' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                     onClick={()=>{setActiveTab('cours')}}
                 >
                      <Calendar className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
                     <button className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
+
                     >Planning de cours</button>
                 </motion.div>
 
                 <motion.div
-                    whileHover={{ scale: 1.02 }} 
-                    whileTap={{scale: 0.95}} 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{scale: 0.95}}
                     className={`${activeTab === 'finances' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                     onClick={()=>{setActiveTab('finances')}}
                 >
                      <Euro className={`${activeTab === 'finances' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
                     <button className={`${activeTab === 'finances' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
+
                     >Finances</button>
                 </motion.div>
 
                 {/* Fin ajout */}
 
                 <motion.div
-                    whileHover={{ scale: 1.02 }} 
-                    whileTap={{scale: 0.95}} 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{scale: 0.95}}
                     className={`${activeTab === 'settings' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                     onClick={()=>{setActiveTab('settings')}}
                 >
                      <Settings className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
                     <button className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                        
+
                     >Paramètres</button>
                 </motion.div>
 
 
             {/* {'A gerer en fonction de la date de labonnement'} */}
                 <div className="absolute mx-5 py-3 px-5 transition-colors duration-200 bottom-5 mx-auto w-full flex flex-col gap-2">
-                    
-                    <motion.button 
+
+                    <motion.button
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
                         disabled={misNiveauLoading || daysRemaining <= 0}
@@ -1153,7 +1379,7 @@ export default function DashboardPro(){
                             'Mettre à niveau'
                         )}
                     </motion.button>
-                    {/* <motion.button 
+                    {/* <motion.button
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
                         className="bg-red-700 shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3"
@@ -1163,14 +1389,14 @@ export default function DashboardPro(){
 
             </div>
 
-        
+
             {activeTab === 'dashboard' && (
                 <>
                     <div className="absolute top-0 right-0 opacity-40 h-200 overflow-hidden w-200">
                         <img src={coverhero} alt="logo" className="h-full w-full" />
                     </div>
                     <div className="col-span-4 relative px-8 py-3 my-5 overflow-y-auto">
-                        
+
                         <div className="flex items-center mb-10 justify-between border-b-1 pb-5 border-gray-200">
                             <div className="flex flex-col gap-2 text-lg">
                                 <div className="flex items-center gap-5">
@@ -1179,8 +1405,8 @@ export default function DashboardPro(){
                                         <div className="flex items-center gap-1 bg-red-100 px-4 rounded-full py-1">
                                             <AlertTriangle className="text-red-500" />
                                             <p className="text-red-500 font-bold">
-                                            {daysRemaining === 0 
-                                                ? "Votre abonnement expire aujourd'hui !" 
+                                            {daysRemaining === 0
+                                                ? "Votre abonnement expire aujourd'hui !"
                                                 : "Votre abonnement est expiré !"
                                             }
                                             </p>
@@ -1191,24 +1417,24 @@ export default function DashboardPro(){
                                         <div className="flex items-center gap-1 bg-red-100 px-4 animate-pulse rounded-full py-1">
                                             <AlertTriangle className="text-red-500" />
                                             <p className="text-red-500 font-bold">
-                                            {daysRemaining === 1 
-                                                ? "Votre abonnement expire demain !" 
+                                            {daysRemaining === 1
+                                                ? "Votre abonnement expire demain !"
                                                 : `Votre abonnement expirera dans ${daysRemaining} jours !`
                                             }
                                             </p>
                                         </div>
                                     )}
-                                    
+
                                 </div>
                                 <p className="text-[18px] text-gray-400">Bienvenue {infosUser?.name || ''} {infosUser?.prenom || ''} !</p>
-                                
+
                             </div>
 
                             <div className="flex items-center justify-center gap-5">
                                 <div className="relative w-full">
-                                    <input type="text" value={search} 
+                                    <input type="text" value={search}
                                         onChange={(e)=>{setSearch(e.target.value)}}
-                                        placeholder="Rechercher adherant..." 
+                                        placeholder="Rechercher adherant..."
                                         className="block w-full mx-2 p-2 pl-10 border border-orange-500 rounded-lg text-sm focus:outline-none bg-white"
                                     />
                                     <div className="absolute top-2 left-4">
@@ -1234,13 +1460,13 @@ export default function DashboardPro(){
                                     >
                                         <Bell className="h-7 w-7"/>
                                     </motion.button>
-                                    
+
                                     <div className="absolute -top-3 text-sm -right-2 bg-orange-600 text-white font-bold h-6 w-6 flex items-center justify-center rounded-full">
                                         <p>+9</p>
                                     </div>
 
                                     {notifModal && (
-                                        <motion.div 
+                                        <motion.div
                                             initial = {{opacity: 0, y: -8}}
                                             animate = {{opacity: 1, y: 0}}
                                             transition={{duration: 0.5}}
@@ -1266,7 +1492,7 @@ export default function DashboardPro(){
                                     {infosSalle?.logo_salle ? (
                                         <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                                     ):(
-                                        
+
                                         <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>}</p>
                                     )}
                                 </div>
@@ -1284,7 +1510,7 @@ export default function DashboardPro(){
                                     <p className="font-bold text-3xl">{nbrAdherants || 0} / 1000</p>
                                 </div>
                             </motion.div>
-                            <motion.div 
+                            <motion.div
                             whileHover={{scale: 1.08}}
                             className="bg-white shadow-[0_0_5px_rgba(0,255,0,0.8)] w-full flex flex-col gap-2 p-4 rounded-lg">
                                 <div>
@@ -1294,7 +1520,7 @@ export default function DashboardPro(){
                                     <p className="font-bold text-3xl text-green-500">{nbrAdherantsActif || 0}</p>
                                 </div>
                             </motion.div>
-                            <motion.div 
+                            <motion.div
                             whileHover={{scale: 1.08}}
                             className="bg-white shadow-[0_0_5px_rgba(255,0,0,0.8)] w-full flex flex-col gap-2 p-4 rounded-lg">
                                 <div>
@@ -1304,7 +1530,7 @@ export default function DashboardPro(){
                                     <p className="font-bold text-3xl text-red-600">XOF 1000</p>
                                 </div>
                             </motion.div>
-                            <motion.div 
+                            <motion.div
                             whileHover={{scale: 1.08}}
                             className="bg-white rounded-lg shadow-[0_0_5px_rgba(251,255,0,0.8)] w-full flex flex-col gap-2 p-4">
                                 <div>
@@ -1391,16 +1617,22 @@ export default function DashboardPro(){
                                     {/* <p className="text-yellow-500 text-xl text-center font-bold">10</p> */}
                                     <div className="flex items-center justify-center gap-8">
                                         <div className="flex flex-col items-center">
-                                            <p className="text-green-500 text-xl font-bold">10</p>
-                                            <p className="text-gray-400 text-sm font-semibold">Enregistrements</p>
+                                            <p className="text-green-500 text-xl font-bold">
+                                                {mes_coach.length === 0 ?(
+                                                    0
+                                                ):(
+                                                    mes_coach.length
+                                                )}
+                                            </p>
+                                            <p className="text-gray-400 text-sm font-semibold">Enregistrement{mes_coach.length <= 1 ? '' : 's'}</p>
                                         </div>
-                                        
+
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        
+
                         <div className="bg-white sticky top-0 overflow-hidden flex flex-col gap-3 shadow-[0_0_5px_rgba(0,0,0,0.5)] w-full p-4 rounded-lg ">
                             <h3 className="font-bold">Suivi des Abonnés</h3>
                             <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
@@ -1428,7 +1660,7 @@ export default function DashboardPro(){
                                             </tr>
                                         ): adherentsFiltres.map(item => (
                                             <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
-                                                
+
                                                 <td className="flex items-center  font-bold  gap-2 py-5 px-3">
                                                 <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
                                                 {`${item.name} ${item.prenom}` || item.username }
@@ -1447,14 +1679,14 @@ export default function DashboardPro(){
                                                         </span>
                                                     )}
                                                 </td>
-                                                
+
                                             </tr>
                                         ))}
-                                    
-                                    </tbody>
-                                
 
-                                
+                                    </tbody>
+
+
+
                             </table>
                             <div className="flex  p-4 items-center justify-between">
                                     <div>
@@ -1465,14 +1697,14 @@ export default function DashboardPro(){
 
                                     <div className="flex text-sm items-center gap-2">
                                         <motion.button
-                                        disabled={page === 1} 
+                                        disabled={page === 1}
                                         onClick={()=>{setPage(p => p - 1)}}
                                             whileTap={{scale: 0.95}}
                                             className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
                                         >Précedent</motion.button>
 
-                                        <motion.button 
-                                        disabled={page === mesAdh.data?.adherents?.last_page} 
+                                        <motion.button
+                                        disabled={page === mesAdh.data?.adherents?.last_page}
                                         onClick={()=>{setPage(p => p + 1)}}
                                         whileTap={{scale: 0.95}}
                                             className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
@@ -1487,7 +1719,7 @@ export default function DashboardPro(){
 
             {activeTab === 'adherant' && (
                 <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-                    
+
                     <div className="flex flex-col gap-2" >
                         <h1 className="font-bold text-3xl">Gestion des Adhérants</h1>
                         <p className="text-gray-400 text-[18px]">Plan {planActuel} - {nbrAdherants}/1000 adhérants</p>
@@ -1498,7 +1730,7 @@ export default function DashboardPro(){
                             <div className="absolute top-2">
                                 <Search className="h-5 w-5 text-orange-400 ml-2"/>
                             </div>
-                            <input type="text" 
+                            <input type="text"
                             value={search}
                             onChange={(e)=>{setSearch(e.target.value)}}
                                 className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
@@ -1507,23 +1739,23 @@ export default function DashboardPro(){
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <motion.button 
+                            <motion.button
                                 whileTap={{scale: 0.95}}
                                 disabled={dataExportLoading || daysRemaining <= 0}
                                 onClick={handleExport}
                             className={`flex font-bold  text-sm items-center ${daysRemaining <= 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400 cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
                                 {dataExportLoading  ? (
-                                    <Loader2 className="animate-spin h-5 w-5"/> 
+                                    <Loader2 className="animate-spin h-5 w-5"/>
                                 ):(
                                     <>
                                         <Download className="h-5 w-5 "/>
                                         Export CSV
                                     </>
                                 )}
-                                
+
                             </motion.button>
 
-                            <motion.button 
+                            <motion.button
                                 whileTap={{scale: 0.95}}
                                 onClick={()=>{setShowAdd(true), setActiveTab('')}}
                                 // disabled={daysRemaining <= 0}
@@ -1566,7 +1798,7 @@ export default function DashboardPro(){
                                     </tr>
                                 ): adherentsFiltres.map(item => (
                                     <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
-                                        
+
                                         <td className="flex items-center  font-bold  gap-2 py-5 px-3">
                                         <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
                                         {`${item.name} ${item.prenom}` || item.username }
@@ -1593,7 +1825,7 @@ export default function DashboardPro(){
                                         <td className="flex justify-center py-5 items-center gap-2 px-3">
                                             <motion.button
                                                 type="button"
-                                                onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}} 
+                                                onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}}
                                                     whileTap={{scale: 0.95}}
                                                 className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm `}>
                                                 <Eye className="text-gray-600 h-4 w-4"/>
@@ -1601,7 +1833,7 @@ export default function DashboardPro(){
                                             <motion.button
                                                 type="button"
                                                 disabled={daysRemaining <= 0}
-                                                onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}} 
+                                                onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}}
                                                 whileTap={{scale: 0.95}}
                                                 className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
                                                 <Pencil className="text-white h-4 w-4"/>
@@ -1609,7 +1841,7 @@ export default function DashboardPro(){
                                             <motion.button
                                                 type="button"
                                                 disabled={daysRemaining <= 0}
-                                                onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item)}} 
+                                                onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item)}}
                                                 whileTap={{scale: 0.95}}
                                                 className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
                                             >
@@ -1618,10 +1850,10 @@ export default function DashboardPro(){
                                         </td>
                                     </tr>
                                 ))}
-                              
+
                             </tbody>
 
-                            
+
                         </table>
                         <div className="flex  p-4 items-center justify-between">
                                 <div>
@@ -1632,14 +1864,14 @@ export default function DashboardPro(){
 
                                 <div className="flex text-sm items-center gap-2">
                                     <motion.button
-                                    disabled={page === 1} 
+                                    disabled={page === 1}
                                     onClick={()=>{setPage(p => p - 1)}}
                                         whileTap={{scale: 0.95}}
                                         className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
                                     >Précedent</motion.button>
 
-                                    <motion.button 
-                                    disabled={page === mesAdh.data?.adherents?.last_page} 
+                                    <motion.button
+                                    disabled={page === mesAdh.data?.adherents?.last_page}
                                     onClick={()=>{setPage(p => p + 1)}}
                                     whileTap={{scale: 0.95}}
                                         className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
@@ -1648,16 +1880,16 @@ export default function DashboardPro(){
                             </div>
 
                     </div>
-                    
+
                 </div>
             )}
 
             {activeTab === 'abonnement' && (
                 <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-                    
+
                     <div className="flex flex-col gap-2">
                         <h1 className="font-bold text-3xl flex items-center">
-                            Gestion Abonnements : 
+                            Gestion Abonnements :
                             <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">{nbrAdherantsActif} actif{totalAbExpirer > 1 ? 's' : ''}</span>
                             <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full">{totalAbExpirer} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
                             <span className="text-yellow-600 bg-yellow-100 text-sm py-1 px-3 rounded-full">{totalExpire} suspendu{totalExpire > 1 ? 's' : ''}</span>
@@ -1670,7 +1902,7 @@ export default function DashboardPro(){
                             <div className="absolute top-2">
                                 <Search className="h-5 w-5 text-orange-400 ml-2"/>
                             </div>
-                            <input type="text" 
+                            <input type="text"
                             value={search}
                             onChange={(e)=>{setSearch(e.target.value)}}
                                 className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
@@ -1679,38 +1911,38 @@ export default function DashboardPro(){
                         </div>
 
                         <div className="flex items-center gap-2">
-                        <motion.button 
+                        <motion.button
                             whileTap={{scale: 0.95}}
                             onClick={()=>{setAbonnementTab('tous')}}
                             className={`${abonnementTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-                            
+
                             Tous
                         </motion.button>
 
-                        <motion.button 
+                        <motion.button
                             whileTap={{scale: 0.95}}
                             onClick={()=>{setAbonnementTab('actifs')}}
-                            
+
                             className={`${abonnementTab === 'actifs' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-                            
+
                             Actifs
                         </motion.button>
 
-                        <motion.button 
+                        <motion.button
                             whileTap={{scale: 0.95}}
                             onClick={()=>{setAbonnementTab('expirés')}}
-                            
+
                             className={`${abonnementTab === 'expirés' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-                            
+
                             Expirés
                         </motion.button>
 
-                        <motion.button 
+                        <motion.button
                             whileTap={{scale: 0.95}}
                             onClick={()=>{setAbonnementTab('suspendu')}}
-                            
+
                             className={`${abonnementTab === 'suspendu' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-                            
+
                             Suspendus
                         </motion.button>
                         </div>
@@ -1744,7 +1976,7 @@ export default function DashboardPro(){
                                         </tr>
                                     ): adherentsFiltres.map(item => (
                                         <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
-                                            
+
                                             <td className="flex items-center  font-bold  gap-2 py-5 px-3">
                                             <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
                                             {`${item.name} ${item.prenom}` || item.username }
@@ -1763,9 +1995,9 @@ export default function DashboardPro(){
                                                     </span>
                                                 )}
                                             </td>
-                                            
+
                                             <td className=" py-5 items-center gap-2 px-3">
-                                                
+
                                                 {!item.dernier_abonnement?.actif ? (
                                                     <div className="">
                                                     {item.dernier_abonnement?.date_suspension === null ?(
@@ -1789,7 +2021,7 @@ export default function DashboardPro(){
                                                     </div>
                                                 ): (
 
-                                                    
+
                                                         <motion.button
                                                             type="button"
                                                             disabled={daysRemaining <= 0}
@@ -1798,18 +2030,18 @@ export default function DashboardPro(){
                                                             Suspendre
                                                         </motion.button>
 
-                                                        
-                                                    
+
+
                                                 )}
-                                                
+
                                             </td>
                                         </tr>
                                     ))}
-                                
-                                </tbody>
-                            
 
-                            
+                                </tbody>
+
+
+
                         </table>
                         <div className="flex  p-4 items-center justify-between">
                                 <div>
@@ -1820,14 +2052,14 @@ export default function DashboardPro(){
 
                                 <div className="flex text-sm items-center gap-2">
                                     <motion.button
-                                    disabled={page === 1} 
+                                    disabled={page === 1}
                                     onClick={()=>{setPage(p => p - 1)}}
                                         whileTap={{scale: 0.95}}
                                         className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
                                     >Précedent</motion.button>
 
-                                    <motion.button 
-                                    disabled={page === mesAdh.data?.adherents?.last_page} 
+                                    <motion.button
+                                    disabled={page === mesAdh.data?.adherents?.last_page}
                                     onClick={()=>{setPage(p => p + 1)}}
                                     whileTap={{scale: 0.95}}
                                         className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
@@ -1840,9 +2072,308 @@ export default function DashboardPro(){
             )}
 
             {activeTab === 'coach' &&(
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-                    <p>Coach</p>
-                </div>
+                <>
+                    {mes_coach.length > 0 && (
+                        <div className="absolute z-10 top-22 right-0 opacity-40 h-200 overflow-hidden w-200">
+                            <img src={coach} alt="logo" className="h-full w-full" />
+                        </div>
+                    )}
+                    <div className="col-span-4 z-20 px-8 py-3 my-5 overflow-y-auto">
+
+                        <div className="flex items-center justify-between">
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-5">
+                                    <h1 className="font-bold text-3xl flex items-center">
+                                        Equipe des coachs :
+                                        <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">Total : {mes_coach.length === 0 ? 0 : mes_coach.length}</span>
+                                    </h1>
+                                     {successSupCoach && (
+                                        <div className="flex px-3 py-1 rounded-full bg-white items-center gap-1">
+                                            <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                            <p className=" text-sm  text-green-600 font-bold">Coach supprimé avec succès</p>
+                                        </div>
+                                    )}
+                                </div>
+                               
+                                
+                                <p className="text-gray-400 text-[18px]">Consultez et gérer votre personnel de coaching</p>
+                            </div>
+
+                            <motion.button
+                                whileTap={{scale: 0.95}}
+                                onClick={handleAddCoach}
+                                className="flex items-center text-white hover:text-black bg-orange-500 transition-colors duration-200 py-2 px-5 font-bold  border border-orange-500 hover:bg-transparent rounded-lg gap-3"
+                            >
+                                <UserPlus className="h-5 w-5  transition-colors duration-200" />
+                                <p>Ajouter un coach</p>
+                            </motion.button>
+                        </div>
+
+                        <div className="flex items-center w-full relative w-90 my-8">
+                            <div className="absolute top-3">
+                                <Search className="h-6 w-6 text-orange-400 ml-2"/>
+                            </div>
+                            <input type="text"
+                            value={search}
+                            onChange={(e)=>{setSearch(e.target.value)}}
+                                className="block p-3 pl-10 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border text-[16px] w-full"
+                                placeholder="Recherche..."
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-3 my-8">
+                            <motion.button
+                                whileTap={{scale: 0.95}}
+                                className="rounded-lg bg-orange-500 py-1 px-5 font-bold border border-orange-500"
+                            >
+                                Tous
+                            </motion.button>
+                            {mes_coach?.map(item =>(
+                                <div key={item.id}>
+                                    <Swiper
+                                        slidesPerView="auto"
+                                        spaceBetween={10}
+                                        className="w-30"
+                                        >
+                                        {[...new Set(item.competence)].map((comp, index) => (
+                                            <SwiperSlide key={index} className="w-auto">
+                                            <motion.button
+                                                key={index}
+                                                whileTap={{ scale: 0.95 }}
+                                                className="rounded-lg bg-white py-1 px-5 border border-gray-300"
+                                            >
+                                                <p className="text-gray-500 font-bold">{comp}</p>
+                                            </motion.button>
+                                    </SwiperSlide>
+                                    ))}
+                                    </Swiper>
+
+                                </div>
+                                
+                            ))}
+                        </div>
+
+ 
+
+                        <div className="grid grid-cols-6 gap-8">
+
+                           {mesCoachLoad ? ( 
+                                [1,2,3,4,5,6,7,8,9,10,11].map(item => (
+                                    <div
+                                        key={item}
+                                        className="relative z-30 shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 flex flex-col gap-3 items-center justify-center"
+                                    >
+                                        <div className="border-b bg-gray-200 border-gray-300 w-full h-60 flex items-center justify-center">
+
+                                        </div>
+                                        <div className="h-15 border-b bg-gray-200  border-gray-300 w-full flex flex-col gap-3 p-2">
+                                            <div className="flex items-center gap-2 font-bold">
+                                                <p className="w-15 h-4 bg-gray-400 animate-pulse"></p>
+                                                <p className="w-15 h-4 bg-gray-400 animate-pulse"></p>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <p className="w-30 h-4 bg-gray-400 animate-pulse"></p>
+                                                <p
+                                                    className="w-10 h-4 bg-gray-400 animate-pulse"
+                                                ></p>
+                                            </div>
+                                        </div>
+
+                                        <div className="h-5 bg-gray-200 w-full flex items-center px-2 py-4">
+                                            <p
+                                                className="w-full border-r border-gray-300 flex items-center justify-center"
+                                            >
+                                                <p className="w-5 h-2 rounded-full bg-gray-400 animate-pulse"></p>
+                                            </p>
+                                            <p
+                                                className="w-full  flex items-center justify-center"
+                                            >
+                                                <p className="w-5 h-2 rounded-full bg-gray-400 animate-pulse"></p>
+                                            </p>
+                                        </div>
+
+                                        <div className="absolute top-2 left-2">
+                                            <p className="rounded-full w-30 bg-gray-400 animate-pulse text-white font-bold text-xs h-6"></p>
+                                        </div>
+                                    </div>))
+                            ): filterCoach.length === 0 ? (
+                                <div
+                                    className=" col-span-6 flex flex-col gap-3 items-center justify-center"
+                                >
+                                    {search.trim() ? (
+                                        <div className="flex w-full h-170 items-center justify-center">
+                                            <p className="text-xl text-gray-600">Aucun coach trouvé</p>
+                                        </div>
+                                    ):(
+                                        <>
+                                            <div className="w-120 flex flex-col items-center">
+                                                <img src={coach} alt="" />
+                                                <p>Aucun coach affecté à la salle pour le moment.</p>
+                                            </div>
+                                            <motion.button
+                                                whileTap={{scale: 0.95}}
+                                                onClick={handleAddCoach}
+                                                className="flex items-center bg-orange-500 transition-colors duration-200 text-white hover:text-black py-2 px-5 font-bold  border border-orange-500 hover:bg-transparent rounded-lg gap-3"
+                                            >
+                                                <UserPlus className="h-5 w-5  transition-colors duration-200" />
+                                                <p>Ajouter un coach</p>
+                                            </motion.button>
+                                        </>
+                                    )}
+
+                                </div>
+                            ): filterCoach.map(item => (
+                                    <motion.div
+                                        key={item.id}
+                                        className="relative z-30 shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 flex flex-col bg-white"
+                                    >
+
+                                        <div className="border-b border-gray-300 bg-orange-50 h-40 flex items-center justify-center">
+                                            <p className="text-5xl uppercase">{item.nom[0]}</p>
+                                        </div>
+
+                                        <div className="border-b border-gray-300 p-2">
+                                            <div className="font-bold flex gap-2">
+                                                <p>{item.nom}</p>
+                                                <p>{item.prenom}</p>
+                                            </div>
+
+                                            <div className="flex items-center">
+                                                <div className="text-gray-500 text-sm">
+                                                    {item.competence[0]}
+                                                    {item.competence.length > 1 && " ..."}
+                                                </div>
+
+                                                {item.competence.length > 1 && (
+                                                    <button
+                                                        onClick={() =>
+                                                        setCoachOuvert(coachOuvert === item.id ? null : item.id)
+                                                        }
+                                                        className="text-xs hover:text-orange-500"
+                                                    >
+                                                        {coachOuvert === item.id ? "voir moins" : "voir plus"}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {coachOuvert === item.id && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{duration: 0.5}}
+                                                className="absolute 
+                                                    left-0 
+                                                    bottom-12 
+                                                    translate-y-full
+                                                    z-50
+                                                    w-full
+                                                    bg-black/80 backdrop-blur
+                                                    text-white
+                                                    shadow-lg
+                                                    p-3
+                                                    flex
+                                                    flex-wrap
+                                                    gap-2
+                                                    rounded-b-lg
+                                                    "
+                                            >
+                                                {item.competence.map((comp, index) => (
+                                                    <span
+                                                        key={index}
+                                                        className="bg-orange-500 text-xs px-2 py-1 rounded-full"
+                                                    >
+                                                        {comp}
+                                                    </span>
+                                                ))}
+                                            </motion.div>
+                                        )}
+
+                                        <div className="flex h-10  gap-1">
+                                            <motion.button 
+                                                whileTap={{scale: 0.95}}
+                                                onClick={()=>{setSelectCoach(selectCoach === item.id ? null : item.id), setCoachEdit(item)}}
+                                                className="w-1/2 flex items-center justify-center border-r border-gray-300">
+                                                <Pencil className="h-5 w-5 text-blue-500" />
+                                            </motion.button>
+                                            <motion.button 
+                                                whileTap={{scale: 0.95}}
+                                                onClick={()=>{setDeleteCoach(deleteCoach === item.id ? null : item.id)}}
+                                                className="w-1/2 flex items-center justify-center">
+                                                <Trash className="h-5 w-5 text-red-600" />
+                                            </motion.button>
+                                        </div>
+
+                                        
+                                        
+                                        {errorSupCoach && coachSup === item.id && (
+                                            <motion.div className="absolute inset-0 bg-black/80 backdrop-blur z-20 px-2 flex items-center text-center justify-center">
+                                                <p className="bg-white text-xs py-1 text-red-600 font-bold">{supCoach.error.message}</p>
+                                            </motion.div>
+                                        )}
+
+                                        {deleteCoach === item.id && (
+                                            <motion.div 
+                                                initial={{opacity:0, scale:0.85}}
+                                                animate={{opacity:1, scale:1}}
+                                                transition={{duration: 0.3}}
+                                                className="absolute flex gap-3 flex-col items-center text-center px-2 justify-center z-20 inset-0 bg-black/80 backdrop-blur">
+                                                <p className="text-white">Vous êtes sur le point de supprimer coach <span className="font-bold">{item?.nom} {item?.prenom}</span>.</p>
+                                                <p className="text-white">Confirmer la suppression ?</p>
+                                                <div className=" w-full  flex ">
+                                                    <motion.button
+                                                        onClick={()=>{setDeleteCoach(null)}}
+                                                        whileTap={{scale: 0.95}}
+                                                        className="border border-gray-300 text-gray-800 bg-gray-50 w-full"
+                                                    >Non</motion.button>
+                                                    <motion.button
+                                                    whileTap={{scale: 0.95}}
+                                                    onClick={(e)=>{handleDeleteCoach(e,deleteCoach)}}
+                                                    disabled={loadingSupCoach}
+                                                    className="border border-red-600 flex items-center justify-center font-bold text-white bg-red-600 w-full"
+                                                    >
+                                                        {loadingSupCoach ? (
+                                                            <Loader2 className="animate-spin h-5 w-5 text-white" />
+                                                        ):(
+                                                            'Oui'
+                                                         )}
+                                                    </motion.button>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                        <div className="absolute top-2 left-2">
+                                            <p className="rounded-full bg-orange-500 text-white text-xs px-2 py-1">
+                                                Tel: {item.telephone}
+                                            </p>
+                                        </div>
+
+                                    </motion.div>
+                                )
+                            )}
+
+                            {mesCoachError && (
+                                <div className="flex items-center h-150 justify-center gap-2 col-span-6">
+                                    <XCircle className="text-red-500 h-5 w-5 animate-spin"/>
+                                    <p className="text-red-500 font-bold">{mesCoach.error.message}</p>
+                                </div>
+                            )}
+                            
+
+                            {mes_coach.length > 0 && (
+                                <motion.button
+                                    whileHover={{scale: 1.03}}
+                                    whileTap={{scale: 0.95}}
+                                    onClick={handleAddCoach}
+                                    className={`${search.trim() ? 'hidden' : 'block'} shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 flex flex-col gap-3 items-center bg-orange-50 justify-center`}
+                                >
+
+                                    <Plus className="text-gray-500 h-10 w-10"/>
+                                    <span className="text-sm text-gray-500">Ajouter un nouveau coach</span>
+                                </motion.button>
+                            )}
+                        </div>
+                    </div>
+                </>
             )}
 
             {activeTab === 'cours' &&(
@@ -1865,13 +2396,13 @@ export default function DashboardPro(){
                     </div>
 
                     <div className="grid grid-cols-4 gap-2">
-                    
+
                         <div className="col-span-2">
                             {infosLoading ? (
                                 <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 animate-pulse">
-                                    
+
                                     <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
-                                    
+
                                     <div className="flex flex-col gap-2 my-3">
                                         <div className="h-4 bg-gray-200 rounded w-1/6"></div>
                                         <div className="h-10 bg-gray-100 rounded-lg"></div>
@@ -1880,23 +2411,23 @@ export default function DashboardPro(){
                                         <div className="h-4 bg-gray-200 rounded w-1/6"></div>
                                         <div className="h-10 bg-gray-100 rounded-lg"></div>
                                     </div>
-                                    
+
                                     <div className="flex items-center justify-between gap-5">
                                         <div className="flex flex-col gap-2 my-3 w-full">
                                             <div className="h-4 bg-gray-200 rounded w-1/6"></div>
                                             <div className="h-10 bg-gray-100 rounded-lg"></div>
                                         </div>
-                                        
+
                                         <div className="flex flex-col gap-2 my-3 w-full">
                                             <div className="h-4 bg-gray-200 rounded w-1/6"></div>
                                             <div className="h-10 bg-gray-100 rounded-lg"></div>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="my-3">
                                         <div className="h-4 bg-gray-200 rounded w-1/3"></div>
                                     </div>
-                                    
+
                                     <div className="flex items-center gap-2">
                                         <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
                                     </div>
@@ -1906,7 +2437,7 @@ export default function DashboardPro(){
                                     <span className="font-semibold text-xl">Informations de la salle</span>
 
                                     <div className="flex flex-col gap-2 my-3">
-                                        <label className="text-gray-400 flex gap-1">Nom de la salle 
+                                        <label className="text-gray-400 flex gap-1">Nom de la salle
                                             <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
                                         </label>
                                         <input type="text"
@@ -1929,7 +2460,7 @@ export default function DashboardPro(){
 
                                     <div className="flex items-center justify-between gap-5">
                                         <div className="flex flex-col gap-2 my-3 w-full">
-                                            <label className="text-gray-400 flex gap-1">Pays 
+                                            <label className="text-gray-400 flex gap-1">Pays
                                                 <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
                                             </label>
                                             <input type="text"
@@ -1967,9 +2498,9 @@ export default function DashboardPro(){
 
                                     <div className="flex items-center gap-2" >
                                         <div className={`${showButtonSalle ? 'hidden' : ''}`}>
-                                    
+
                                         <motion.button
-                                            type="button" 
+                                            type="button"
                                             whileTap={{scale:0.95}}
                                             onClick={()=>{setShowButtonSalle(true) }}
                                             className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
@@ -1980,14 +2511,14 @@ export default function DashboardPro(){
                                         {showButtonSalle && (
                                             <div className={`${successUpdate ? setShowButtonSalle(false) : 'block'} gap-2 flex items-center`}>
                                             <motion.button
-                                                type="button" 
+                                                type="button"
                                                 whileTap={{scale:0.95}}
                                                 onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPaysSalle(''), setRegion('')}}
                                                 className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
                                             >
                                                 Annuler
                                             </motion.button>
-                                            <motion.button 
+                                            <motion.button
                                                 type="submit"
                                                 whileTap={{scale:0.95}}
                                                 disabled={updateLoading || !nom_salle.trim() || !pays_salle.trim() || !region.trim()}
@@ -1998,7 +2529,7 @@ export default function DashboardPro(){
                                                 ):(
                                                     'Enregistrer'
                                                 )}
-                                                
+
                                             </motion.button>
                                             </div>
                                         )}
@@ -2011,7 +2542,7 @@ export default function DashboardPro(){
                             <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
                             <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
                             <form className="flex flex-col relative items-center gap-4">
-                                
+
 
                                 <motion.div
                                     whileHover={{ scale: 1.08 }}
@@ -2023,14 +2554,14 @@ export default function DashboardPro(){
                                         <div className="relative w-full h-full">
                                             <img src={preview} className="w-full h-full object-cover" />
                                             <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                                
+
                                             </div>
                                         </div>
                                     ) : infosSalle?.logo_salle ? (
                                             <div className="relative w-full h-full">
                                                 <img src={infosSalle.logo_salle} className="w-full h-full object-cover" />
                                                 <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                                    
+
                                                 </div>
                                             </div>
                                     ) : (
@@ -2043,8 +2574,8 @@ export default function DashboardPro(){
                                     )}
                                 </motion.div>
 
-                                <input 
-                                    type="file" 
+                                <input
+                                    type="file"
                                     accept="image/*"
                                     ref={logoInputRef}
                                     hidden
@@ -2110,7 +2641,7 @@ export default function DashboardPro(){
                                             onClick={()=>{setLogoModal(true)}}
                                         >
                                             Suprimmer
-                                            
+
                                         </button>
 
                                     </div>
@@ -2121,7 +2652,7 @@ export default function DashboardPro(){
                                         <div className="flex items-center gap-2  animate-pulse">
                                             <AlertTriangle className="h-8 w-8 text-red-500" />
                                             <p className="font-semibold text-red-500">Cette action est irreversible !</p>
-                                        
+
                                         </div>
                                         <p className="text-white font-semibold">Supprimer définitivement ?</p>
                                         <div className="flex gap-5 items-center justify-center">
@@ -2151,7 +2682,7 @@ export default function DashboardPro(){
                             <p className="font-semibold text-xl ">Cachet / Signature <span className="text-sm">(optionnel)</span></p>
                             <p className="text-md mb-5 text-gray-400">Scannez votre signature pour les marquer sur vos factures</p>
                             <form className="flex flex-col relative items-center gap-4">
-                                
+
 
                                 <motion.div
                                     whileHover={{ scale: 1.08 }}
@@ -2163,14 +2694,14 @@ export default function DashboardPro(){
                                         <div className="relative w-full h-full">
                                             <img src={previewSign} className="w-full h-full object-cover" />
                                             <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                                
+
                                             </div>
                                         </div>
                                     ) : infosSalle?.cachet_signer ? (
                                             <div className="relative w-full h-full">
                                                 <img src={infosSalle.cachet_signer} className="w-full h-full object-cover" />
                                                 <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                                    
+
                                                 </div>
                                             </div>
                                     ) : (
@@ -2183,8 +2714,8 @@ export default function DashboardPro(){
                                     )}
                                 </motion.div>
 
-                                <input 
-                                    type="file" 
+                                <input
+                                    type="file"
                                     accept="image/*"
                                     ref={signInputRef}
                                     hidden
@@ -2250,7 +2781,7 @@ export default function DashboardPro(){
                                             onClick={()=>{setSignModal(true)}}
                                         >
                                             Suprimmer
-                                            
+
                                         </button>
 
                                     </div>
@@ -2261,7 +2792,7 @@ export default function DashboardPro(){
                                         <div className="flex items-center gap-2  animate-pulse">
                                             <AlertTriangle className="h-8 w-8 text-red-500" />
                                             <p className="font-semibold text-red-500">Cette action est irreversible !</p>
-                                        
+
                                         </div>
                                         <p className="text-white font-semibold">Supprimer définitivement ?</p>
                                         <div className="flex gap-5 items-center justify-center">
@@ -2292,15 +2823,15 @@ export default function DashboardPro(){
                         <div className="col-span-3">
                             {infosLoading ? (
                                 <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 animate-pulse">
-                                    
+
                                     <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
-                                    
+
                                     <div className="flex items-center justify-between gap-5">
                                         <div className="flex flex-col gap-2 my-3 w-full">
                                             <div className="h-4 bg-gray-200 rounded w-1/6"></div>
                                             <div className="h-10 bg-gray-100 rounded-lg"></div>
                                         </div>
-                                        
+
                                         <div className="flex flex-col gap-2 my-3 w-full">
                                             <div className="h-4 bg-gray-200 rounded w-1/6"></div>
                                             <div className="h-10 bg-gray-100 rounded-lg"></div>
@@ -2315,13 +2846,13 @@ export default function DashboardPro(){
                                         <div className="h-4 bg-gray-200 rounded w-1/6"></div>
                                         <div className="h-10 bg-gray-100 rounded-lg"></div>
                                     </div>
-                                    
-                                    
-                                    
+
+
+
                                     <div className="my-3">
                                         <div className="h-10 bg-gray-200 rounded w-1/3"></div>
                                     </div>
-                                    
+
                                     <div className="flex items-center gap-2">
                                         <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
                                     </div>
@@ -2332,7 +2863,7 @@ export default function DashboardPro(){
 
                                     <div className="flex items-center justify-between gap-5">
                                         <div className="flex flex-col gap-2 my-3 w-full">
-                                            <label className="text-gray-400 flex gap-1">Prénom 
+                                            <label className="text-gray-400 flex gap-1">Prénom
                                                 <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
                                             </label>
                                             <input type="text"
@@ -2358,7 +2889,7 @@ export default function DashboardPro(){
                                         </div>
                                     </div>
                                     <div className="flex flex-col gap-2 my-3 w-full">
-                                        <label className="text-gray-400 flex gap-1">Numéro de téléphone 
+                                        <label className="text-gray-400 flex gap-1">Numéro de téléphone
                                             <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
                                         </label>
                                         <input type="tel"
@@ -2382,7 +2913,7 @@ export default function DashboardPro(){
                                     <div className="flex items-center gap-2" >
                                         <motion.button
                                         whileTap={{scale:0.95}}
-                                        type="button" 
+                                        type="button"
                                             onClick={()=>{setShowPasswordChange(!showPasswordChange)}}
                                             disabled={showButtonProfil}
                                             className={`${showButtonProfil ? 'bg-gray-200 text-gray-400 border-gray-200' : 'bg-tranparent border-gray-300 cursor-pointer'}  border-2 rounded-lg py-2 px-4 my-3`}
@@ -2392,7 +2923,7 @@ export default function DashboardPro(){
 
                                         {showPasswordChange && (
                                             <div className={`flex items-center gap-2 my-3 ${passwordSuccess ? setShowPasswordChange(false) : 'block'}`}>
-                                                <input type="password" 
+                                                <input type="password"
                                                     placeholder="nouveau mot de passe"
                                                     value={password}
                                                     onChange={(e)=>{setPassword(e.target.value), updatePassword.reset()}}
@@ -2410,7 +2941,7 @@ export default function DashboardPro(){
                                                     ):(
                                                         <CheckCircle2 className={`h-7 w-7 ${!password.trim() ? 'text-gray-400' : 'text-green-600'}`} />
                                                     )}
-                                                
+
                                                 </motion.button>
                                             </div>
                                         )}
@@ -2435,7 +2966,7 @@ export default function DashboardPro(){
                                     <div className="flex items-center gap-2" >
                                         <div className={`${showButtonProfil ? 'hidden' : ''}`}>
                                             <motion.button
-                                                type="button" 
+                                                type="button"
                                                 whileTap={{scale:0.95}}
                                                 disabled={showPasswordChange}
                                                 onClick={()=>{setShowButtonProfil(true) }}
@@ -2447,7 +2978,7 @@ export default function DashboardPro(){
                                         {showButtonProfil && (
                                             <div className={`${persoSuccess ? setShowButtonProfil(false) : 'block flex items-center gap-2'}`}>
                                                 <motion.button
-                                                    type="button" 
+                                                    type="button"
                                                     whileTap={{scale:0.95}}
                                                     onClick={()=>{setShowButtonProfil(false), setNomPerso(''), setPrenomPerso(''), setTelPerso('')}}
                                                     className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
@@ -2456,7 +2987,7 @@ export default function DashboardPro(){
                                                 </motion.button>
                                                 <motion.button
                                                     type="submit"
-                                                    // onClick={()=>{setActionProfil('PUT_PROFIL')}} 
+                                                    // onClick={()=>{setActionProfil('PUT_PROFIL')}}
                                                     whileTap={{scale:0.95}}
                                                     disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim()}
                                                     className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
@@ -2466,12 +2997,12 @@ export default function DashboardPro(){
                                                     ):(
                                                         'Enregistrer'
                                                     )}
-                                                    
+
                                                 </motion.button>
                                             </div>
                                         )}
                                     </div>
-                                    
+
                                 </form>
                             )}
                         </div>
@@ -2492,7 +3023,7 @@ export default function DashboardPro(){
                         </div>
                     </div>
 
-                    <div className="p-4 ">  
+                    <div className="p-4 ">
                     {/* gerer le tarification, à voir apres une route api pour l'edition et la suppressio */}
                         <form onSubmit={sendTarif} className="">
 
@@ -2523,7 +3054,7 @@ export default function DashboardPro(){
                                 <div className="flex items-center gap-2">
                                     <div>
                                         <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
-                                            <motion.button 
+                                            <motion.button
                                             type="button"
                                                 whileTap={{scale:0.95}}
                                                 onClick={FormMensuel}
@@ -2540,17 +3071,17 @@ export default function DashboardPro(){
                                                 // type="submit"
                                                 type={`${action === "PUT" ? "submit" : "button"}`}
                                                 disabled={action === "PUT" ? loadingTarifUp : loadingTarifDel}
-                                                // onClick={(e) =>{editMois && editAn && editTrim ? sendTarif(e, "DELETE") : sendTarif(e, "PUT")}} 
-                                                onClick={(e) =>{editMois && editAn && editTrim ? setShowModalTrash(true) : sendTarif(e, "PUT")}} 
+                                                // onClick={(e) =>{editMois && editAn && editTrim ? sendTarif(e, "DELETE") : sendTarif(e, "PUT")}}
+                                                onClick={(e) =>{editMois && editAn && editTrim ? setShowModalTrash(true) : sendTarif(e, "PUT")}}
                                                     whileTap={{scale:0.95}}
                                                     className={`px-5 py-3 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
                                                 >
                                                     {editMois && editAn && editTrim ? (
                                                      <Trash className=" text-white"/>
                                                     ): loadingTarifUp ? <Loader2 className="text-green-600 animate-spin"/> : <Check className="text-green-600"/>
-                                                        
-                                                    } 
-                                                </motion.button> 
+
+                                                    }
+                                                </motion.button>
                                             )}
                                         </div>
                                     </div>
@@ -2580,8 +3111,8 @@ export default function DashboardPro(){
                                     <div className="flex items-center justify-between">
                                         <span className="font-bold">Mensuel</span>
                                         <hr className=" w-80 text-gray-400 "/>
-                                        
-                                        <Calendar className="text-gray-400"/> 
+
+                                        <Calendar className="text-gray-400"/>
                                     </div>
 
                                     {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
@@ -2589,18 +3120,18 @@ export default function DashboardPro(){
                                             {/* Si ajout réssui... */}
                                             {(successTarif || prix_mensuel) ? (
                                                 <>
-                                                    <input 
+                                                    <input
                                                         type="tel"
                                                         value={mensuel}
-                                                        onChange={(e)=>{setMensuel(e.target.value), tarif.reset(), tarifUpdate.reset()}} 
+                                                        onChange={(e)=>{setMensuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
                                                         className={`border w-full ${editMois ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
                                                         placeholder={editMois ? prix_mensuel : 'Saisissez un nouveau tarif mensuel'}
                                                         disabled={editMois}
-                                                    /> 
+                                                    />
                                                     <div >
                                                         <motion.button
                                                             type="button"
-                                                            onClick={()=>{setEditMois(!editMois), setMensuel('')}} 
+                                                            onClick={()=>{setEditMois(!editMois), setMensuel('')}}
                                                             whileTap={{scale:0.95}}
                                                             className="border p-1 bg-orange-600 border-orange-600"
                                                         >
@@ -2610,17 +3141,17 @@ export default function DashboardPro(){
                                                 </>
                                             ):(
 
-                                                <input 
+                                                <input
                                                     type="tel"
                                                     value={mensuel}
-                                                    onChange={(e)=>{setMensuel(e.target.value)}} 
+                                                    onChange={(e)=>{setMensuel(e.target.value)}}
                                                     className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
                                                     placeholder="Saisissez le tarif par mois"
                                                 />
                                             )}
 
-                                        
-                                            
+
+
                                         </div>
                                     )}
                                 </div>
@@ -2630,8 +3161,8 @@ export default function DashboardPro(){
                                     <div className="flex items-center justify-between">
                                         <span className="font-bold">Trimestriel</span>
                                         <hr className=" w-80 text-gray-400 "/>
-                                        
-                                        <Calendar className="text-gray-400"/> 
+
+                                        <Calendar className="text-gray-400"/>
                                     </div>
 
                                     {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
@@ -2639,18 +3170,18 @@ export default function DashboardPro(){
                                             {/* Si ajout réssui... */}
                                             {(successTarif || prix_trimestriel) ? (
                                                 <>
-                                                    <input 
+                                                    <input
                                                         type="tel"
                                                         value={trimestriel}
-                                                        onChange={(e)=>{setTrimestriel(e.target.value), tarif.reset(), tarifUpdate.reset()}} 
+                                                        onChange={(e)=>{setTrimestriel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
                                                         className={`border w-full ${editTrim ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
                                                         placeholder={editTrim ? prix_trimestriel : 'Saisissez un nouveau tarif trimestriel'}
                                                         disabled={editTrim}
-                                                    /> 
+                                                    />
                                                     <div >
-                                                        <motion.button 
+                                                        <motion.button
                                                             type="button"
-                                                            onClick={()=>{setEditTrim(!editTrim), setTrimestriel('')}} 
+                                                            onClick={()=>{setEditTrim(!editTrim), setTrimestriel('')}}
                                                             whileTap={{scale:0.95}}
                                                             className="border p-1 bg-orange-600 border-orange-600"
                                                         >
@@ -2660,17 +3191,17 @@ export default function DashboardPro(){
                                                 </>
                                             ):(
 
-                                                <input 
+                                                <input
                                                     type="tel"
                                                     value={trimestriel}
-                                                    onChange={(e)=>{setTrimestriel(e.target.value)}} 
+                                                    onChange={(e)=>{setTrimestriel(e.target.value)}}
                                                     className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
                                                     placeholder="Saisissez le tarif par mois"
                                                 />
                                             )}
 
-                                        
-                                            
+
+
                                         </div>
                                     )}
                                 </div>
@@ -2680,8 +3211,8 @@ export default function DashboardPro(){
                                     <div className="flex items-center justify-between">
                                         <span className="font-bold">Annuel</span>
                                         <hr className=" w-80 text-gray-400 "/>
-                                        
-                                        <Calendar className="text-gray-400"/> 
+
+                                        <Calendar className="text-gray-400"/>
                                     </div>
 
                                     {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
@@ -2689,18 +3220,18 @@ export default function DashboardPro(){
                                             {/* Si ajout réssui... */}
                                             {(successTarif || prix_annuel) ? (
                                                 <>
-                                                    <input 
+                                                    <input
                                                         type="tel"
                                                         value={annuel}
-                                                        onChange={(e)=>{setAnnuel(e.target.value), tarif.reset(), tarifUpdate.reset()}} 
+                                                        onChange={(e)=>{setAnnuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
                                                         className={`border w-full ${editAn ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
                                                         placeholder={editAn ? prix_annuel : 'Saisissez un nouveau tarif annuel'}
                                                         disabled={editAn}
-                                                    /> 
+                                                    />
                                                     <div >
-                                                        <motion.button 
+                                                        <motion.button
                                                             type="button"
-                                                            onClick={()=>{setEditAn(!editAn), setAnnuel('')}} 
+                                                            onClick={()=>{setEditAn(!editAn), setAnnuel('')}}
                                                             whileTap={{scale:0.95}}
                                                             className="border p-1 bg-orange-600 border-orange-600"
                                                         >
@@ -2710,17 +3241,17 @@ export default function DashboardPro(){
                                                 </>
                                             ):(
 
-                                                <input 
+                                                <input
                                                     type="tel"
                                                     value={annuel}
-                                                    onChange={(e)=>{setAnnuel(e.target.value)}} 
+                                                    onChange={(e)=>{setAnnuel(e.target.value)}}
                                                     className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
                                                     placeholder="Saisissez le tarif par mois"
                                                 />
                                             )}
 
-                                        
-                                            
+
+
                                         </div>
                                     )}
                                 </div>
@@ -2739,30 +3270,30 @@ export default function DashboardPro(){
 
 
             {misNiveauSuccess && (
-                <motion.div 
+                <motion.div
                      initial = {{opacity: 0, x: -80}}
                     animate = {{opacity: 1, x: 0}}
                     transition={{duration: 0.2}}
                     className="bg-white shadow-[0_0_30px_rgba(0,255,0,0.5)] border border-green-500 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute bottom-22 left-5 w-84 h-12 ">
                     <p className="text-sm text-green-500 font-semibold">Mise à niveau réussie</p>
-                   
+
                 </motion.div>
             )}
 
             {miseNiveauError && (
-                <motion.div 
+                <motion.div
                       initial = {{opacity: 0, x: -80}}
                     animate = {{opacity: 1, x: 0}}
                     transition={{duration: 0.2}}
                     className="bg-white shadow-[0_0_30px_rgba(255,0,0,0.5)] border border-red-500 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute bottom-8 left-5 w-84 h-12 ">
                     <p className="text-sm text-red-500 font-semibold">{misNiveau.error.message}</p>
-                   
+
                 </motion.div>
             )}
 
             {modalLogout && (
                 <div className="absolute inset-0 bg-black/80 backdrop-blur flex items-center justify-center">
-                    <motion.div 
+                    <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
@@ -2783,7 +3314,7 @@ export default function DashboardPro(){
                                 whileTap={{scale:0.95}}
                                 onClick={()=>setModalLogout(false)}
                                 className="px-2 py-1 transition-colors duration-200 border border-gray-400/50 bg-gray-400/50 font-semibold"
-                               
+
                             >Non
                             </motion.button>
                             <motion.button
@@ -2800,7 +3331,7 @@ export default function DashboardPro(){
 
             {showAdd && (
                 <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-                    <button 
+                    <button
                         onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
                     className="flex items-center cursor-pointer justify-center gap-2">
                         <ArrowLeft className="h-5 w-5 text-orange-500" />
@@ -2814,7 +3345,7 @@ export default function DashboardPro(){
                     <div className="my-10">
 
                             <form onSubmit={handleAdd} className="grid grid-cols-4 gap-5 rounded-lg  px-8 py-5">
-                                
+
                                 <div className="col-span-4 w-full flex gap-10 justify-between">
                                     {/* info perso */}
                                     <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
@@ -2824,7 +3355,7 @@ export default function DashboardPro(){
                                         </div>
                                         <div className="flex-col flex gap-2 mb-5">
                                             <label className="font-bold text-lg">Nom <span className="text-red-600">*</span></label>
-                                            <Input 
+                                            <Input
                                                 type={'text'}
                                                 value={nom}
                                                 onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
@@ -2840,7 +3371,7 @@ export default function DashboardPro(){
 
                                         <div className="flex-col flex gap-2 mb-5">
                                             <label className="font-bold text-lg">Prénom <span className="text-red-600">*</span></label>
-                                            <Input 
+                                            <Input
                                                 type={'text'}
                                                 value={prenom}
                                                 onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
@@ -2855,7 +3386,7 @@ export default function DashboardPro(){
                                         </div>
                                         <div className="flex-col flex gap-2 mb-5">
                                             <label className="font-bold text-lg">Adresse e-mail <span className="text-red-600">*</span></label>
-                                            <Input 
+                                            <Input
                                                 type={'email'}
                                                 value={email}
                                                 onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
@@ -2871,7 +3402,7 @@ export default function DashboardPro(){
 
                                         <div className="flex-col flex gap-2 mb-5">
                                             <label className="font-bold text-lg">Numéro de téléphone <span className="text-red-600">*</span></label>
-                                            <Input 
+                                            <Input
                                                 type={'tel'}
                                                 value={tel}
                                                 onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
@@ -2895,7 +3426,7 @@ export default function DashboardPro(){
 
                                         <div className="flex-col flex gap-2 mb-5 ">
                                             <label className="font-bold text-lg">Abonnement <span className="text-red-600">*</span></label>
-                                        
+
 
                                             <select
                                                 value={plan}
@@ -2916,7 +3447,7 @@ export default function DashboardPro(){
                                         </div>
 
                                         <div>
-                                        
+
 
                                             {showPrix && (
                                             <div className="flex-col flex gap-2 ">
@@ -2953,9 +3484,9 @@ export default function DashboardPro(){
                                         </div>
                                     </div>
                                 </div>
-                                 
 
-                                
+
+
                                 <div className="flex items-center my-3  col-span-4 w-full px-8">
                                     {errorAdherant && (
                                         <span className="text-red-600 text-lg  flex item-center gap-2"><XCircle className="h-5 w-5 text-red-600"/>{addAdh.error.message}</span>
@@ -2965,22 +3496,22 @@ export default function DashboardPro(){
                                     )}
                                 </div>
 
-                               
+
                                <div className="flex justify-end items-center gap-2 w-full col-span-4">
-                                    <motion.button 
+                                    <motion.button
                                         onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
                                         whileTap={{scale: 0.95}}
                                         className='flex items-center justify-center cursor-pointer text-black/80 border rounded-lg bg-gray-300  border-gray-300 font-bold  text-xl py-3 px-5'
-                                    
+
                                     >
                                         Annuler
                                     </motion.button>
 
-                                    <motion.button 
+                                    <motion.button
                                         whileTap={{scale: 0.95}}
                                         disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
                                         className={`flex items-center justify-center  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-orange-200 text-gray-500 border-orange-200' : 'bg-orange-600 text-white cursor-pointer '} font-bold  text-xl py-3 px-5`}
-                                    
+
                                     >
                                         {loadingAdherant ? (
                                             <Loader2 className='h-5 w-5 text-white animate-spin'/>
@@ -2989,14 +3520,14 @@ export default function DashboardPro(){
                                         )}
                                     </motion.button>
                                 </div>
-                                
-                               
+
+
                             </form>
 
                         </div>
                 </div>
 
-                
+
             )}
 
             {showModalTrash && (
@@ -3008,7 +3539,7 @@ export default function DashboardPro(){
                         </div>
 
                         <div className="my-5">
-                            <p className="text-[16px] text-black/80">Vous êtes sur le point de supprimer la 
+                            <p className="text-[16px] text-black/80">Vous êtes sur le point de supprimer la
                                 configuration de <br />tous vos tarifs (mensuel,
                                 trimestriel, annuel).
                             </p>
@@ -3036,7 +3567,7 @@ export default function DashboardPro(){
 
             {modalSupAdherant && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
-                    <motion.div 
+                    <motion.div
                     initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
@@ -3068,7 +3599,7 @@ export default function DashboardPro(){
 
             {suspendreModal &&(
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
-                    <motion.div 
+                    <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
@@ -3106,7 +3637,7 @@ export default function DashboardPro(){
                         transition={{duration:0.4}}
                     className="bg-white py-3 px-4">
                         <div className="text-green-500 mb-5 font-bold text-xl flex items-center gap-2">
-                            
+
                             <p>Annuler la suspension de <br />l'adherant <span className="text-black">{react?.name} {react?.prenom}</span> ?</p>
                         </div>
                         <div className="flex items-center justify-end gap-3">
@@ -3146,7 +3677,7 @@ export default function DashboardPro(){
                                 </div>
                                 <div className="flex-col flex gap-2 mb-5">
                                     <label className="font-bold text-lg">Nom </label>
-                                    <Input 
+                                    <Input
                                         type={'text'}
                                         value={adhToUp?.name}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, name: e.target.value }), updateAdh.reset()}}
@@ -3162,7 +3693,7 @@ export default function DashboardPro(){
 
                                 <div className="flex-col flex gap-2 mb-5">
                                     <label className="font-bold text-lg">Prénom </label>
-                                    <Input 
+                                    <Input
                                         type={'text'}
                                         value={adhToUp?.prenom}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, prenom: e.target.value }), updateAdh.reset()}}
@@ -3177,7 +3708,7 @@ export default function DashboardPro(){
                                 </div>
                                 <div className="flex-col flex gap-2 mb-5">
                                     <label className="font-bold text-lg">Adresse e-mail </label>
-                                    <Input 
+                                    <Input
                                         type={'email'}
                                         value={adhToUp?.email}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, email: e.target.value }), updateAdh.reset()}}
@@ -3193,7 +3724,7 @@ export default function DashboardPro(){
 
                                 <div className="flex-col flex gap-2 mb-5">
                                     <label className="font-bold text-lg">Numéro de téléphone </label>
-                                    <Input 
+                                    <Input
                                         type={'tel'}
                                         value={adhToUp?.telephone}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, telephone: e.target.value }), updateAdh.reset()}}
@@ -3211,7 +3742,7 @@ export default function DashboardPro(){
                                     <p className="text-red-500 text-sm">{updateAdh.error.message}</p>
                                 )}
                             </div>
-                            
+
                             <div className=" flex justify-end items-center gap-2">
                                 <button
                                 type="button"
@@ -3231,7 +3762,7 @@ export default function DashboardPro(){
                                     ):(
                                         'Modifier'
                                     )}
-                                    
+
                                 </button>
                             </div>
                         </form>
@@ -3255,7 +3786,7 @@ export default function DashboardPro(){
                                 </div>
                                 <div className="flex-col flex gap-2 mb-5">
                                     <label className="font-bold text-lg">Adresse e-mail </label>
-                                    <Input 
+                                    <Input
                                         type={'email'}
                                         value={reabonner?.email}
                                         onChange={(e)=>{setReabonner({ ...reabonner, email: e.target.value }), reabAdh.reset()}}
@@ -3272,12 +3803,12 @@ export default function DashboardPro(){
                                 {/* <div className="grid grid-cols-2 gap-10"> */}
                                     <div className="flex-col flex gap-2 ">
                                         <label className="font-bold">Abonnement</label>
-                                    
+
 
                                         <select
                                             value={reabonner?.plan}
                                             onChange={(e)=>{setReabonner({ ...reabonner, plan: e.target.value }), reabAdh.reset()}}
-                                            
+
                                             className="border-4 border-gray-300 p-2 border-dotted text-sm"
                                             >
                                             <option value="">-- Choisir --</option>
@@ -3285,18 +3816,18 @@ export default function DashboardPro(){
                                             <option value="trimestriel">Trimestriel</option>
                                             <option value="annuel">Annuel</option>
                                         </select>
-                                    
 
-                                    
+
+
                                     </div>
 
-                                
+
 
                                 {reabError && (
                                     <p className="text-red-500 text-sm">{reabAdh.error.message}</p>
                                 )}
                             </div>
-                            
+
                             <div className=" flex justify-end items-center gap-2">
                                 <button
                                     type="button"
@@ -3316,7 +3847,7 @@ export default function DashboardPro(){
                                     ):(
                                         'Confirmer'
                                     )}
-                                    
+
                                 </button>
                             </div>
                         </form>
@@ -3324,10 +3855,10 @@ export default function DashboardPro(){
                 </div>
             )}
 
-            {(successSupAdh || reactSuccess || suspSuccess || successUpdateAdh || reabSuccess) && (
+            {(successSupAdh || modifCoachSuccess || coachSuccess || reactSuccess || suspSuccess || successUpdateAdh || reabSuccess) && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
                     <div className="w-150 h-300">
-                    <img src={checkvideo} alt="gif" 
+                    <img src={checkvideo} alt="gif"
                         className="w-full h-auto object-cover"
                     />
                     </div>
@@ -3336,7 +3867,7 @@ export default function DashboardPro(){
 
             {errorSupAdh && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <motion.div 
+                    <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
@@ -3349,7 +3880,7 @@ export default function DashboardPro(){
 
             {suspError && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <motion.div 
+                    <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
@@ -3362,7 +3893,7 @@ export default function DashboardPro(){
 
             {reactError && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <motion.div 
+                    <motion.div
                     initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
@@ -3375,7 +3906,7 @@ export default function DashboardPro(){
 
             {detailAdherant && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur items-center h-screen justify-center flex ">
-                    <motion.div 
+                    <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
@@ -3384,19 +3915,19 @@ export default function DashboardPro(){
                         <div className="flex flex-col gap-1">
                             <h2 className="text-gray-400">Informations personnelles</h2>
                             <div className="flex items-center gap-1 text-sm">
-                                <p className="font-semibold">Nom :</p>    
+                                <p className="font-semibold">Nom :</p>
                                 <p>{adhToUp?.name}</p>
                             </div>
                             <div className="flex items-center gap-1 text-sm">
-                                <p className="font-semibold">Prénom :</p>   
+                                <p className="font-semibold">Prénom :</p>
                                 <p>{adhToUp?.prenom}</p>
                             </div>
                             <div className="flex items-center gap-1 text-sm">
-                                <p className="font-semibold">Adresse e-mail :</p>   
+                                <p className="font-semibold">Adresse e-mail :</p>
                                 <p>{adhToUp?.email}</p>
                             </div>
                             <div className="flex items-center gap-1 text-sm">
-                                <p className="font-semibold">Numéro de téléphone :</p>  
+                                <p className="font-semibold">Numéro de téléphone :</p>
                                 <p>{adhToUp?.telephone}</p>
                             </div>
                         </div>
@@ -3404,11 +3935,11 @@ export default function DashboardPro(){
                         <div className="flex flex-col gap-1">
                             <h2 className="text-gray-400">Informations sur l'abonnement</h2>
                             <div className="flex items-center gap-1 text-sm">
-                                <p className="font-semibold">Forfait choisie :</p> 
+                                <p className="font-semibold">Forfait choisie :</p>
                                 <p>{adhToUp?.dernier_abonnement?.plan}</p>
                             </div>
                             <div className="flex items-center gap-1 text-sm">
-                                <p className="font-semibold">Montant payé :</p> 
+                                <p className="font-semibold">Montant payé :</p>
                                 <p>{adhToUp?.dernier_abonnement?.montant}</p>
                             </div>
                         </div>
@@ -3416,11 +3947,11 @@ export default function DashboardPro(){
                         <div className="flex flex-col gap-1">
                             <h2 className="text-gray-400">Informations sur le délai de l'abonnement</h2>
                             <div className="flex items-center gap-1 text-sm">
-                                <p className="font-semibold">Abonné le</p> 
+                                <p className="font-semibold">Abonné le</p>
                                 <p>{formatDate(adhToUp?.dernier_abonnement?.debut)}</p>
                             </div>
                             <div className="flex items-center gap-1 text-sm">
-                                <p className="font-semibold">Prend fin le</p> 
+                                <p className="font-semibold">Prend fin le</p>
                                 <p>{formatDate(adhToUp?.dernier_abonnement?.fin)}</p>
                             </div>
                         </div>
@@ -3428,11 +3959,11 @@ export default function DashboardPro(){
                         <div className="flex flex-col gap-1">
                             <h2 className="text-gray-400">Informations d'inscription</h2>
                             <div className="flex items-center gap-1 text-sm">
-                                <p className="font-semibold">Créé le</p> 
+                                <p className="font-semibold">Créé le</p>
                                 <p>{formatDate(adhToUp?.created_at)}</p>
                             </div>
                             <div className="flex items-center gap-1 text-sm">
-                                <p className="font-semibold">Mis à jour</p> 
+                                <p className="font-semibold">Mis à jour</p>
                                 <p>{formatDate(adhToUp?.updated_at)}</p>
                             </div>
                         </div>
@@ -3453,7 +3984,7 @@ export default function DashboardPro(){
                                 <p className="text-red-500 font-semibold">Abonnement expiré</p>
                             </div>
                         )}
-                    
+
 
                         <div className="flex absolute top-0 right-0  items-center justify-center">
                             <motion.button
@@ -3470,13 +4001,289 @@ export default function DashboardPro(){
 
             {dataExportError && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <motion.div 
+                    <motion.div
                     initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
                     className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
                         <XCircle className="text-red-500 h-10 w-10" />
                         <p className="text-xl">{dataExport.error.message}</p>
+                    </motion.div>
+                </div>
+            )}
+
+            {modalCoach && (
+                <div className="absolute z-30 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                   
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                        className=" bg-white py-5 px-8 rounded-lg shadow-lg"
+                    >
+                        <div className="mb-3">
+                            <div className="flex items-center gap-2 text-2xl font-bold mb-5">
+                                {/* <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/> */}
+                                Ajouter un nouveau coach
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Nom </label>
+                                    <Input
+                                        type={'text'}
+                                        value={nomCoach}
+                                        onChange={(e)=>{setNomCoach(e.target.value)}}
+                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'saisissez son nom'}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Prénom </label>
+                                    <Input
+                                        type={'text'}
+                                        value={prenomCoach}
+                                        onChange={(e)=>{setPrenomCoach(e.target.value)}}
+                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'saisissez son prenom'}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="flex-col flex gap-2 mb-5">
+                                <label className="font-bold text-lg">Téléphone </label>
+                                <Input
+                                    type={'text'}
+                                    value={telCoach}
+                                    onChange={(e)=>{setTelCoach(e.target.value)}}
+                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                    placeholder={'saisissez son numéro de telephone'}
+                                    disabled={false}
+                                    hidden={false}
+                                    pattern={null}
+                                    ref={null}
+                                    checked={null}
+                                />
+                            </div>
+
+                            <div className="relative flex-col flex gap-2 mb-5">
+                                <label className="font-bold text-lg">Spécialité(s) </label>
+                                <Input
+                                    type={'text'}
+                                    value={skills}
+                                    onChange={(e)=>{setSkills(e.target.value)}}
+                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                    placeholder={'saisissez sa ou ses sompétence(s)...'}
+                                    disabled={false}
+                                    hidden={false}
+                                    pattern={null}
+                                    ref={null}
+                                    checked={null}
+                                />
+
+                                <motion.button
+                                    type="button"
+                                    onClick={handleAddSkill}
+                                    whileTap={{scale: 0.95}}
+                                    className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
+                                >
+                                    <SquarePlus />
+                                </motion.button>
+                            </div>
+
+                            {skillsCoach.length > 0 && (
+                                <div className="grid grid-cols-3  gap-3 ">
+                                    {skillsCoach.map((item,index) =>(
+                                        
+                                        <p key={index}  className=" relative text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
+                                            {item}
+                                            <button
+                                                onClick={()=>{removeSkills(index)}}
+                                                className="absolute -top-1 -right-1 border bg-red-600 rounded-full"
+                                            >
+                                                <X className="h-3 w-3 text-white" />
+                                            </button>
+                                        </p>
+                                        
+                                    ))}
+                                </div>
+                            )}
+                            {coachSuccess && (
+                                <p className="text-green-600 text-sm mt-2">Coach ajouté à la salle avec succès</p>
+                            )}
+                            {coachError && (
+                                <p className="text-red-500 text-sm mt-2">{addCoach.error.message}</p>
+                            )}
+                            
+                        </div>
+
+                        <div className=" flex justify-end items-center gap-2">
+                            <button
+                            type="button"
+                                onClick={handleCancel}
+                                className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={handleSubmit}
+                                disabled={coachLoading || !validation()}
+                                className={`border py-1 px-3 ${!validation() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'}   text-white font-semibold  transition-colors duration-200`}
+                            >
+                                {coachLoading ?(
+                                    <Loader2 className="animate-spin"/>
+                                ):(
+                                    'Enregistrer'
+                                )}
+
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {selectCoach && (
+                <div className="absolute z-30 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                   
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                        className=" bg-white py-5 px-8 rounded-lg shadow-lg"
+                    >
+                        <div className="mb-3">
+                            <div className="flex items-center gap-2 text-2xl font-bold mb-5">
+                                {/* <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/> */}
+                                Modifer le coach 
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Nom </label>
+                                    <Input
+                                        type={'text'}
+                                        value={coachEdit?.nom}
+                                        onChange={(e)=>{setCoachEdit({...coachEdit, nom: e.target.value})}}
+                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'saisissez son nom'}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Prénom </label>
+                                    <Input
+                                        type={'text'}
+                                        value={coachEdit?.prenom}
+                                        onChange={(e)=>{setCoachEdit({...coachEdit, prenom: e.target.value})}}
+                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'saisissez son prenom'}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="flex-col flex gap-2 mb-5">
+                                <label className="font-bold text-lg">Téléphone </label>
+                                <Input
+                                    type={'text'}
+                                    value={coachEdit?.telephone}
+                                    onChange={(e)=>{setCoachEdit({...coachEdit, telephone:e.target.value})}}
+                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                    placeholder={'saisissez son numéro de telephone'}
+                                    disabled={false}
+                                    hidden={false}
+                                    pattern={null}
+                                    ref={null}
+                                    checked={null}
+                                />
+                            </div>
+
+                            <div className="relative flex-col flex gap-2 mb-5">
+                                <label className="font-bold text-lg">Spécialité(s) </label>
+                                <Input
+                                    type={'text'}
+                                    value={skills}
+                                    // onChange={(e)=>{setCoachEdit({...coachEdit, competence:e.target.value})}}
+                                    onChange={(e)=>{setSkills(e.target.value)}}
+                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                    placeholder={'saisissez sa ou ses sompétence(s)...'}
+                                    disabled={false}
+                                    hidden={false}
+                                    pattern={null}
+                                    ref={null}
+                                    checked={null}
+                                />
+
+                                <motion.button
+                                    type="button"
+                                    onClick={handleAddSkillC}
+                                    whileTap={{scale: 0.95}}
+                                    className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
+                                >
+                                    <SquarePlus />
+                                </motion.button>
+                            </div>
+                            
+                            {coachEdit?.competence.length > 0 && (
+                                <div className="grid grid-cols-3  gap-3 ">
+                                    {coachEdit?.competence.map((item,index) =>(
+                                        
+                                        <p key={index}  className=" relative text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
+                                            {item}
+                                            <button
+                                                onClick={()=>{removeSkillsC(index)}}
+                                                className="absolute -top-1 -right-1 border bg-red-600 rounded-full"
+                                            >
+                                                <X className="h-3 w-3 text-white" />
+                                            </button>
+                                        </p>
+                                        
+                                    ))}
+                                </div>
+                            )} 
+                            {modifCoachError && (
+                                <p className="text-red-500 text-sm mt-2">{modifCoach.error.message}</p>
+                            )}
+                            
+                        </div>
+
+                        <div className=" flex justify-end items-center gap-2">
+                            <button
+                            type="button"
+                                onClick={()=>{setSelectCoach(null)}}
+                                className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={(e)=>{handleModifCoach(e, coachEdit)}}
+                                disabled={modifCoachLoading || !validationModif()}
+                                className={`border py-1 px-3 ${!validationModif() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'}   text-white font-semibold  transition-colors duration-200`}
+                            >
+                                {modifCoachLoading ?(
+                                    <Loader2 className="animate-spin"/>
+                                ):(
+                                    'Modifier'
+                                )}
+
+                            </button>
+                        </div>
                     </motion.div>
                 </div>
             )}
