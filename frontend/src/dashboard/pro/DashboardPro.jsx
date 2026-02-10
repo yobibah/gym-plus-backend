@@ -49,6 +49,9 @@ import { AjouterCours } from "../../api/dashboard/pro/cours/ajouterCours";
 import { DeleteCours } from "../../api/dashboard/pro/cours/supprimerCours";
 import { UpdateCours } from "../../api/dashboard/pro/cours/modifierCours";
 import { MesCours } from "../../api/dashboard/pro/cours/mesCours";
+import course from '../../assets/images/cours.png'
+import adhh from '../../assets/images/adhh.png'
+import abonnement from '../../assets/images/abonnement.png'
 
 
 export default function DashboardPro(){
@@ -358,7 +361,6 @@ export default function DashboardPro(){
     }, [dataAdh, search, abonnementTab])
 
 
-    // const exportQuery = queryClient()
 
     const updateTarif = useQueryClient()
     const tarif = useMutation({
@@ -998,7 +1000,8 @@ export default function DashboardPro(){
             queryClient.removeQueries(['mes-adherant']),
             queryClient.removeQueries(['mes-infos']),
             queryClient.removeQueries(['history']),
-            queryClient.removeQueries(['mes-coach'])
+            queryClient.removeQueries(['mes-coach']),
+            queryClient.removeQueries(['mes-cours'])
 
         )
 
@@ -1013,23 +1016,6 @@ export default function DashboardPro(){
     const mesCoachError = mesCoach.isError
     const mes_coach = mesCoach.data?.coach || []
 
-    // const filterCoach = useMemo(()=>{
-
-    //     let dataCoach = mes_coach
-
-    //    if (search.trim()){
-    //         const s = search.toLowerCase()
-    //         dataCoach = dataCoach.filter(item =>
-    //              item?.nom?.toLowerCase().includes(s) ||
-    //             item?.prenom?.toLowerCase().includes(s) ||
-    //             item?.telephone?.includes(s) ||
-    //             item?.competence?.includes(s)
-    //         )
-    //    }
-
-    //    return dataCoach
-
-    // }, [mes_coach, search])
 
     const filterCoach = useMemo(() => {
         if (!search.trim()) return mes_coach
@@ -1053,7 +1039,7 @@ export default function DashboardPro(){
             setTimeout(()=>{
                 supCoach.reset()
 
-            }, 3000)
+            }, 5000)
 
             supCoachQuery.invalidateQueries(['mes-coach'])
         }),
@@ -1188,10 +1174,10 @@ export default function DashboardPro(){
 
         onSuccess: (()=>{
             coachQuery.invalidateQueries(['mes-coach'])
-            setModalCoach(false)
+            // setModalCoach(false)
             setTimeout(()=>{
                 addCoach.reset()
-            }, 2500)
+            }, 3000)
             setNomCoach('')
             setPrenomCoach('')
             setTelCoach('')
@@ -1202,7 +1188,7 @@ export default function DashboardPro(){
         onError: (()=>{
             setTimeout(()=>{
                 addCoach.reset()
-            }, 2500)
+            }, 3000)
         })
     })
     const coachLoading = addCoach.isPending
@@ -1382,13 +1368,12 @@ export default function DashboardPro(){
 
         onSuccess: (()=>{
             coursQuery.invalidateQueries(['mes-cours'])
-            setModalAddCours(false)
             setTimeout(()=>{
                 cours.reset()
 
-            }, 5000)
+            }, 3000)
             setNomCours('')
-            setNiveaux(null)
+            setNiveaux('debutant')
         }),
 
         onError: (()=>{
@@ -1408,7 +1393,6 @@ export default function DashboardPro(){
             niveaux: niveaux
         })
     }
-
 
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
@@ -1608,15 +1592,6 @@ export default function DashboardPro(){
                                     </div>
                                 </div>
 
-                                {/* <motion.button
-                                type="button"
-                                    whileTap={{scale : 0.95}}
-                                    // onClick={}
-                                    className=""
-                                >
-                                    <Bell className="h-7 w-7"/>
-                                </motion.button> */}
-
                                 <div className="relative">
                                     <motion.button
                                         // type="button"
@@ -1641,7 +1616,7 @@ export default function DashboardPro(){
                                                 <p>{totalAbExpirer} abonnements expirés</p>
                                             </div>
                                             <div className=" p-2 bg-gray-50">
-                                                <p>12 renouvellement à venir</p>
+                                                <p>{totalExpire} renouvellement à venir</p>
                                             </div>
                                             <hr className="w-45 text-gray-300  mt-2 mx-auto"/>
                                             <button
@@ -1667,8 +1642,8 @@ export default function DashboardPro(){
 
                         <div className="flex items-center justify-between gap-8 ">
                             <motion.div
-                            whileHover={{scale: 1.08}}
-                            className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.8)] rounded-lg w-full flex flex-col gap-2 p-4">
+                                whileHover={{scale: 1.08}}
+                                className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.8)] rounded-lg w-full flex flex-col gap-2 p-4">
                                 <div className="">
                                     <p className="text-gray-400 font-bold text-[18px]">Adhérants</p>
                                 </div>
@@ -1677,8 +1652,8 @@ export default function DashboardPro(){
                                 </div>
                             </motion.div>
                             <motion.div
-                            whileHover={{scale: 1.08}}
-                            className="bg-white shadow-[0_0_5px_rgba(0,255,0,0.8)] w-full flex flex-col gap-2 p-4 rounded-lg">
+                                whileHover={{scale: 1.08}}
+                                className="bg-white shadow-[0_0_5px_rgba(0,255,0,0.8)] w-full flex flex-col gap-2 p-4 rounded-lg">
                                 <div>
                                     <p className="text-gray-400 font-bold text-[18px]">Adhérants Actifs</p>
                                 </div>
@@ -1687,8 +1662,8 @@ export default function DashboardPro(){
                                 </div>
                             </motion.div>
                             <motion.div
-                            whileHover={{scale: 1.08}}
-                            className="bg-white shadow-[0_0_5px_rgba(255,0,0,0.8)] w-full flex flex-col gap-2 p-4 rounded-lg">
+                                whileHover={{scale: 1.08}}
+                                className="bg-white shadow-[0_0_5px_rgba(255,0,0,0.8)] w-full flex flex-col gap-2 p-4 rounded-lg">
                                 <div>
                                     <p className="text-gray-400 font-bold text-[18px]">Dépenses du Mois</p>
                                 </div>
@@ -1697,8 +1672,8 @@ export default function DashboardPro(){
                                 </div>
                             </motion.div>
                             <motion.div
-                            whileHover={{scale: 1.08}}
-                            className="bg-white rounded-lg shadow-[0_0_5px_rgba(251,255,0,0.8)] w-full flex flex-col gap-2 p-4">
+                                whileHover={{scale: 1.08}}
+                                className="bg-white rounded-lg shadow-[0_0_5px_rgba(251,255,0,0.8)] w-full flex flex-col gap-2 p-4">
                                 <div>
                                     <p className="text-gray-400 font-bold text-[18px]">Récettes du Mois</p>
                                 </div>
@@ -1762,7 +1737,7 @@ export default function DashboardPro(){
                                             <div className="flex items-center rounded-full justify-center p-1 bg-yellow-100">
                                                 <Calendar className="h-5 w-5 text-yellow-500"/>
                                             </div>
-                                            <p className="text-sm font-semibold">15 abonnements expirent cette semaine</p>
+                                            <p className="text-sm font-semibold">{totalExpire >= 10 ? `${totalExpire}` : `0${totalExpire}`} abonnement{totalExpire > 1 ? 's' : ''} expire{totalExpire > 1 ? 'nt' : ''} cette semaine</p>
                                         </div>
                                         <div className="flex gap-2 items-center">
                                             <div className="flex items-center rounded-full justify-center p-1 bg-red-100">
@@ -1884,260 +1859,105 @@ export default function DashboardPro(){
             )}
 
             {activeTab === 'adherant' && (
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-
-                    <div className="flex flex-col gap-2" >
-                        <h1 className="font-bold text-3xl">Gestion des Adhérants</h1>
-                        <p className="text-gray-400 text-[18px]">Plan {planActuel} - {nbrAdherants}/1000 adhérants</p>
+                <>
+                    <div className="absolute opacity-40 right-0 w-200">
+                        <img src={abonnement} alt="logo-cours" />
                     </div>
+                    <div className="relative col-span-4 px-8 py-3 my-5 overflow-y-auto">
 
-                    <div className="flex items-center justify-between my-8">
-                        <div className="flex items-center relative w-90">
-                            <div className="absolute top-2">
-                                <Search className="h-5 w-5 text-orange-400 ml-2"/>
-                            </div>
-                            <input type="text"
-                            value={search}
-                            onChange={(e)=>{setSearch(e.target.value)}}
-                                className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
-                                placeholder="Rechercher un adherant..."
-                            />
+                        <div className="flex flex-col gap-2" >
+                            <h1 className="font-bold text-3xl">Gestion des Adhérants</h1>
+                            <p className="text-gray-400 text-[18px]">Plan {planActuel} - {nbrAdherants}/1000 adhérants</p>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <motion.button
-                                whileTap={{scale: 0.95}}
-                                disabled={dataExportLoading || daysRemaining <= 0}
-                                onClick={handleExport}
-                            className={`flex font-bold  text-sm items-center ${daysRemaining <= 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400 cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
-                                {dataExportLoading  ? (
-                                    <Loader2 className="animate-spin h-5 w-5"/>
-                                ):(
-                                    <>
-                                        <Download className="h-5 w-5 "/>
-                                        Export CSV
-                                    </>
-                                )}
-
-                            </motion.button>
-
-                            <motion.button
-                                whileTap={{scale: 0.95}}
-                                onClick={()=>{setShowAdd(true), setActiveTab('')}}
-                                // disabled={daysRemaining <= 0}
-                                disabled={daysRemaining <= 0}
-                            className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
-                                <Plus className="h-5 w-5 "/>
-                                Ajouter un adhérant
-                            </motion.button>
-                        </div>
-                    </div>
-
-                    {/* A revoir avec les vraies donnees */}
-                    <div className="bg-white my-8 rounded-lg ">
-                        <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
-                            <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
-                                <tr >
-                                    <th className=" p-3 text-left">Nom complet</th>
-                                    <th className=" p-3">Adresse e-mail</th>
-                                    <th className=" p-3">Telephone</th>
-                                    <th className=" p-3">Forfait</th>
-                                    <th className=" p-3">Montant</th>
-                                    <th className=" p-3">Statut</th>
-                                    {/* <th className=" p-3">Fin d'abonnement</th> */}
-                                    <th className=" p-3">Actions</th>
-                                </tr>
-                            </thead>
-
-                            <tbody className="">
-                                {loadingAdh ? (
-                                    <tr>
-                                        <td colSpan={8} className="py-6 text-center">
-                                            <Loader2 className="mx-auto animate-spin" />
-                                        </td>
-                                    </tr>
-                                ): adherentsFiltres.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={8} className="py-6 text-center text-sm text-gray-500">
-                                            {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Pas encore d'adhérents inscrits"}
-                                        </td>
-                                    </tr>
-                                ): adherentsFiltres.map(item => (
-                                    <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
-
-                                        <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                        <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                        {`${item.name} ${item.prenom}` || item.username }
-
-                                        </td>
-                                        <td className=" px-3 py-5">{item.email || '-'}</td>
-                                        <td className=" px-3 py-5">{item.telephone || '-'}</td>
-                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.plan : '-'}</td>
-                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? `${item.dernier_abonnement.montant} XOF` : '-'}</td>
-                                        {item.dernier_abonnement !== null ? (
-                                            <td className=" px-3 ">
-                                                <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
-                                                    {item.dernier_abonnement.actif ? 'actif' : 'expiré'}
-                                                </span>
-                                            </td>
-                                        ):(
-                                            <td className=" px-3 ">
-                                                <span className="bg-red-200 font-semibold py-1 px-2 rounded-xl">
-                                                expiré
-                                                </span>
-                                            </td>
-                                        )}
-                                        {/* <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td> */}
-                                        <td className="flex justify-center py-5 items-center gap-2 px-3">
-                                            <motion.button
-                                                type="button"
-                                                onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}}
-                                                    whileTap={{scale: 0.95}}
-                                                className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm `}>
-                                                <Eye className="text-gray-600 h-4 w-4"/>
-                                            </motion.button>
-                                            <motion.button
-                                                type="button"
-                                                disabled={daysRemaining <= 0}
-                                                onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}}
-                                                whileTap={{scale: 0.95}}
-                                                className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
-                                                <Pencil className="text-white h-4 w-4"/>
-                                            </motion.button>
-                                            <motion.button
-                                                type="button"
-                                                disabled={daysRemaining <= 0}
-                                                onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item)}}
-                                                whileTap={{scale: 0.95}}
-                                                className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
-                                            >
-                                                <Trash className="h-4 w-4 text-white" />
-                                            </motion.button>
-                                        </td>
-                                    </tr>
-                                ))}
-
-                            </tbody>
-
-
-                        </table>
-                        <div className="flex  p-4 items-center justify-between">
-                                <div>
-                                    <div className="text-sm text-gray-400">
-                                        Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
-                                    </div>
+                        <div className="flex items-center justify-between my-8">
+                            <div className="flex items-center relative w-90">
+                                <div className="absolute top-2">
+                                    <Search className="h-5 w-5 text-orange-400 ml-2"/>
                                 </div>
+                                <input type="text"
+                                value={search}
+                                onChange={(e)=>{setSearch(e.target.value)}}
+                                    className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
+                                    placeholder="Rechercher un adherant..."
+                                />
+                            </div>
 
-                                <div className="flex text-sm items-center gap-2">
-                                    <motion.button
-                                    disabled={page === 1}
-                                    onClick={()=>{setPage(p => p - 1)}}
-                                        whileTap={{scale: 0.95}}
-                                        className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                    >Précedent</motion.button>
-
-                                    <motion.button
-                                    disabled={page === mesAdh.data?.adherents?.last_page}
-                                    onClick={()=>{setPage(p => p + 1)}}
+                            <div className="flex items-center gap-2">
+                                <motion.button
                                     whileTap={{scale: 0.95}}
-                                        className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                    > Suivant</motion.button>
-                                </div>
+                                    disabled={dataExportLoading || daysRemaining <= 0}
+                                    onClick={handleExport}
+                                className={`flex font-bold  text-sm items-center ${daysRemaining <= 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400 cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
+                                    {dataExportLoading  ? (
+                                        <Loader2 className="animate-spin h-5 w-5"/>
+                                    ):(
+                                        <>
+                                            <Download className="h-5 w-5 "/>
+                                            Export CSV
+                                        </>
+                                    )}
+
+                                </motion.button>
+
+                                <motion.button
+                                    whileTap={{scale: 0.95}}
+                                    onClick={()=>{setShowAdd(true), setActiveTab('')}}
+                                    // disabled={daysRemaining <= 0}
+                                    disabled={daysRemaining <= 0}
+                                className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
+                                    <Plus className="h-5 w-5 "/>
+                                    Ajouter un adhérant
+                                </motion.button>
                             </div>
-
-                    </div>
-
-                </div>
-            )}
-
-            {activeTab === 'abonnement' && (
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-
-                    <div className="flex flex-col gap-2">
-                        <h1 className="font-bold text-3xl flex items-center">
-                            Gestion Abonnements :
-                            <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">{nbrAdherantsActif} actif{totalAbExpirer > 1 ? 's' : ''}</span>
-                            <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full">{totalAbExpirer} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
-                            <span className="text-yellow-600 bg-yellow-100 text-sm py-1 px-3 rounded-full">{totalExpire} suspendu{totalExpire > 1 ? 's' : ''}</span>
-                        </h1>
-                        <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
-                    </div>
-
-                    <div className="flex items-center justify-between my-8">
-                        <div className="flex items-center relative w-90">
-                            <div className="absolute top-2">
-                                <Search className="h-5 w-5 text-orange-400 ml-2"/>
-                            </div>
-                            <input type="text"
-                            value={search}
-                            onChange={(e)=>{setSearch(e.target.value)}}
-                                className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
-                                placeholder="Rechercher des infos par page..."
-                            />
                         </div>
 
-                        <div className="flex items-center gap-2">
-                        <motion.button
-                            whileTap={{scale: 0.95}}
-                            onClick={()=>{setAbonnementTab('tous')}}
-                            className={`${abonnementTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-
-                            Tous
-                        </motion.button>
-
-                        <motion.button
-                            whileTap={{scale: 0.95}}
-                            onClick={()=>{setAbonnementTab('actifs')}}
-
-                            className={`${abonnementTab === 'actifs' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-
-                            Actifs
-                        </motion.button>
-
-                        <motion.button
-                            whileTap={{scale: 0.95}}
-                            onClick={()=>{setAbonnementTab('expirés')}}
-
-                            className={`${abonnementTab === 'expirés' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-
-                            Expirés
-                        </motion.button>
-
-                        <motion.button
-                            whileTap={{scale: 0.95}}
-                            onClick={()=>{setAbonnementTab('suspendu')}}
-
-                            className={`${abonnementTab === 'suspendu' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-
-                            Suspendus
-                        </motion.button>
-                        </div>
-                    </div>
-
-                    {/* A revoir avec les vraies donnees */}
-                    <div className="bg-white my-8 rounded-lg ">
-                        <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
-                            <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
-                                <tr >
-                                    <th className=" p-3 text-left">Nom de l'adhérant</th>
-                                    <th className=" p-3">Date de début</th>
-                                    <th className=" p-3">Date de fin</th>
-                                    <th className=" p-3">Statut</th>
-                                    <th className=" p-3">Actions</th>
-                                </tr>
-                            </thead>
+                        {/* A revoir avec les vraies donnees */}
+                        <div className="bg-white my-8 rounded-lg ">
+                            <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                                <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                    <tr >
+                                        <th className=" p-3 text-left">Nom complet</th>
+                                        <th className=" p-3">Adresse e-mail</th>
+                                        <th className=" p-3">Telephone</th>
+                                        <th className=" p-3">Forfait</th>
+                                        <th className=" p-3">Montant</th>
+                                        <th className=" p-3">Statut</th>
+                                        {/* <th className=" p-3">Fin d'abonnement</th> */}
+                                        <th className=" p-3">Actions</th>
+                                    </tr>
+                                </thead>
 
                                 <tbody className="">
                                     {loadingAdh ? (
-                                        <tr>
-                                            <td colSpan={5} className="py-6 text-center">
-                                                <Loader2 className="mx-auto animate-spin" />
-                                            </td>
-                                        </tr>
+                                        [1,2,3,4,5,6,7,8,9].map(item =>(
+
+                                            <tr key={item} className="text-sm p-2 border-b border-gray-200">
+
+                                                <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                    <span className=" h-5 w-5 rounded-full bg-gray-200 animate-pulse flex items-center p-2"></span>
+                                                    <p className="h-5 w-20 animate-pulse bg-gray-200"></p>
+                                                    
+
+                                                </td>
+                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse mx-auto w-20 bg-gray-200"></p></td>
+                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
+                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
+                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
+                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
+                                                
+
+                                                <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                                    <p className="h-5 w-5 animate-pulse bg-gray-200"></p>
+                                                    <p className="h-5 w-5 animate-pulse bg-gray-200"></p>
+                                                    <p className="h-5 w-5 animate-pulse bg-gray-200"></p>
+                                                </td>
+                                            </tr>
+                                        ))
                                     ): adherentsFiltres.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="py-6 text-center text-sm text-gray-500">
-                                                {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
+                                            <td colSpan={7} className={`${search.trim() ? '' : 'h-140'} py-6 text-center text-sm text-gray-500`}>
+                                                {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Pas encore d'adhérents inscrits"}
                                             </td>
                                         </tr>
                                     ): adherentsFiltres.map(item => (
@@ -2148,46 +1968,251 @@ export default function DashboardPro(){
                                             {`${item.name} ${item.prenom}` || item.username }
 
                                             </td>
-                                            <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
-                                            <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
-                                            <td className=" px-3 flex items-center justify-center">
-                                                {item.dernier_abonnement?.date_suspension !== null ?(
-                                                     <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl`}>
-                                                        suspendu
+                                            <td className=" px-3 py-5">{item.email || '-'}</td>
+                                            <td className=" px-3 py-5">{item.telephone || '-'}</td>
+                                            <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.plan : '-'}</td>
+                                            <td className=" px-3 py-5">{item.dernier_abonnement !== null ? `${item.dernier_abonnement.montant} XOF` : '-'}</td>
+                                            {item.dernier_abonnement !== null ? (
+                                                <td className=" px-3 ">
+                                                    <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
+                                                        {item.dernier_abonnement.actif ? 'actif' : 'expiré'}
                                                     </span>
-                                                ):(
-                                                    <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200  animate-pulse'} font-semibold py-1 px-2 rounded-xl`}>
-                                                        {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
+                                                </td>
+                                            ):(
+                                                <td className=" px-3 ">
+                                                    <span className="bg-red-200 font-semibold py-1 px-2 rounded-xl">
+                                                    expiré
                                                     </span>
-                                                )}
+                                                </td>
+                                            )}
+                                            {/* <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td> */}
+                                            <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                                <motion.button
+                                                    type="button"
+                                                    onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}}
+                                                        whileTap={{scale: 0.95}}
+                                                    className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm `}>
+                                                    <Eye className="text-gray-600 h-4 w-4"/>
+                                                </motion.button>
+                                                <motion.button
+                                                    type="button"
+                                                    disabled={daysRemaining <= 0}
+                                                    onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}}
+                                                    whileTap={{scale: 0.95}}
+                                                    className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
+                                                    <Pencil className="text-white h-4 w-4"/>
+                                                </motion.button>
+                                                <motion.button
+                                                    type="button"
+                                                    disabled={daysRemaining <= 0}
+                                                    onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item)}}
+                                                    whileTap={{scale: 0.95}}
+                                                    className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
+                                                >
+                                                    <Trash className="h-4 w-4 text-white" />
+                                                </motion.button>
                                             </td>
+                                        </tr>
+                                    ))}
 
-                                            <td className=" py-5 items-center gap-2 px-3">
+                                    {errorAdh && (
+                                        <tr className="">
+                                            <td colSpan={7} className="py-6 h-140 text-center  text-red-600">
+                                                <p className="flex items-center justify-center gap-2 ">
+                                                <XCircle className="animate-spin text-red-600" />
+                                                {mesAdh.error.message}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    )}
 
-                                                {!item.dernier_abonnement?.actif ? (
-                                                    <div className="">
-                                                    {item.dernier_abonnement?.date_suspension === null ?(
-                                                        <motion.button
-                                                            type="button"
-                                                            onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
-                                                            whileTap={{scale: 0.95}}
-                                                            disabled={daysRemaining <= 0}
-                                                            className={`border ${daysRemaining <= 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
-                                                            Reabonner
-                                                        </motion.button>
+                                </tbody>
+
+
+                            </table>
+                            <div className="flex  p-4 items-center justify-between">
+                                    <div>
+                                        <div className="text-sm text-gray-400">
+                                            Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex text-sm items-center gap-2">
+                                        <motion.button
+                                        disabled={page === 1}
+                                        onClick={()=>{setPage(p => p - 1)}}
+                                            whileTap={{scale: 0.95}}
+                                            className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                        >Précedent</motion.button>
+
+                                        <motion.button
+                                        disabled={page === mesAdh.data?.adherents?.last_page}
+                                        onClick={()=>{setPage(p => p + 1)}}
+                                        whileTap={{scale: 0.95}}
+                                            className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                        > Suivant</motion.button>
+                                    </div>
+                                </div>
+
+                        </div>
+
+                    </div>
+                </>
+            )}
+
+            {activeTab === 'abonnement' && (
+                <>
+                    <div className="absolute opacity-40 right-0 w-200">
+                        <img src={adhh} alt="logo-cours" />
+                    </div>
+                    <div className="relative col-span-4 px-8 py-3 my-5 overflow-y-auto">
+
+                        <div className="flex flex-col gap-2">
+                            <h1 className="font-bold text-3xl flex items-center">
+                                Gestion Abonnements :
+                                <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">{nbrAdherantsActif} actif{nbrAdherantsActif > 1 ? 's' : ''}</span>
+                                <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full">{totalAbExpirer} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
+                                <span className="text-yellow-600 bg-yellow-100 text-sm py-1 px-3 rounded-full mx-3">{totalExpire} suspendu{totalExpire > 1 ? 's' : ''}</span>
+                            </h1>
+                            <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
+                        </div>
+
+                        <div className="flex items-center justify-between my-8">
+                            <div className="flex items-center relative w-90">
+                                <div className="absolute top-2">
+                                    <Search className="h-5 w-5 text-orange-400 ml-2"/>
+                                </div>
+                                <input type="text"
+                                value={search}
+                                onChange={(e)=>{setSearch(e.target.value)}}
+                                    className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
+                                    placeholder="Rechercher des infos par page..."
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                            <motion.button
+                                whileTap={{scale: 0.95}}
+                                onClick={()=>{setAbonnementTab('tous')}}
+                                className={`${abonnementTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+
+                                Tous
+                            </motion.button>
+
+                            <motion.button
+                                whileTap={{scale: 0.95}}
+                                onClick={()=>{setAbonnementTab('actifs')}}
+
+                                className={`${abonnementTab === 'actifs' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+
+                                Actifs
+                            </motion.button>
+
+                            <motion.button
+                                whileTap={{scale: 0.95}}
+                                onClick={()=>{setAbonnementTab('expirés')}}
+
+                                className={`${abonnementTab === 'expirés' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+
+                                Expirés
+                            </motion.button>
+
+                            <motion.button
+                                whileTap={{scale: 0.95}}
+                                onClick={()=>{setAbonnementTab('suspendu')}}
+
+                                className={`${abonnementTab === 'suspendu' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+
+                                Suspendus
+                            </motion.button>
+                            </div>
+                        </div>
+
+                        {/* A revoir avec les vraies donnees */}
+                        <div className="bg-white my-8 rounded-lg ">
+                            <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                                <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                    <tr >
+                                        <th className=" p-3 text-left">Nom de l'adhérant</th>
+                                        <th className=" p-3">Date de début</th>
+                                        <th className=" p-3">Date de fin</th>
+                                        <th className=" p-3">Statut</th>
+                                        <th className=" p-3">Actions</th>
+                                    </tr>
+                                </thead>
+
+                                    <tbody className="">
+                                        {loadingAdh ? (
+                                            [1,2,3,4,5,6,7,8,9].map(item =>(
+
+                                                <tr key={item} className="text-sm p-2 border-b border-gray-200">
+
+                                                    <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                        <span className=" h-5 w-5 rounded-full bg-gray-200 animate-pulse flex items-center p-2"></span>
+                                                        <p className="h-5 w-20 animate-pulse bg-gray-200"></p>
+                                                    </td>
+                                                    <td className=" px-3 py-5"><p className="h-5 animate-pulse mx-auto w-20 bg-gray-200"></p></td>
+                                                    <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
+                                                    <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
+                                                    
+
+                                                    <td className=" py-5 px-3">
+                                                        <p className="h-5 w-20 mx-auto animate-pulse bg-gray-200"></p>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ): adherentsFiltres.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={5} className={`${search.trim() ? '' : 'h-140'} py-6 text-center text-sm text-gray-500`}>
+                                                    {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
+                                                </td>
+                                            </tr>
+                                        ): adherentsFiltres.map(item => (
+                                            <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+
+                                                <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
+                                                {`${item.name} ${item.prenom}` || item.username }
+
+                                                </td>
+                                                <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
+                                                <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
+                                                <td className=" px-3 flex items-center justify-center">
+                                                    {item.dernier_abonnement?.date_suspension !== null ?(
+                                                        <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl`}>
+                                                            suspendu
+                                                        </span>
                                                     ):(
-                                                        <motion.button
-                                                            type="button"
-                                                            disabled={daysRemaining <= 0}
-                                                            onClick={()=>{setReactiverModal(true), setReact(item)}}
-                                                            className={`border  border-green-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-green-500`}>
-                                                            Réactiver
-                                                        </motion.button>
+                                                        <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200  animate-pulse'} font-semibold py-1 px-2 rounded-xl`}>
+                                                            {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
+                                                        </span>
                                                     )}
-                                                    </div>
-                                                ): (
+                                                </td>
 
+                                                <td className=" py-5 items-center gap-2 px-3">
 
+                                                    {!item.dernier_abonnement?.actif ? (
+                                                        <div className="">
+                                                        {item.dernier_abonnement?.date_suspension === null ?(
+                                                            <motion.button
+                                                                type="button"
+                                                                onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
+                                                                whileTap={{scale: 0.95}}
+                                                                disabled={daysRemaining <= 0}
+                                                                className={`border ${daysRemaining <= 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
+                                                                Reabonner
+                                                            </motion.button>
+                                                        ):(
+                                                            <motion.button
+                                                                type="button"
+                                                                disabled={daysRemaining <= 0}
+                                                                onClick={()=>{setReactiverModal(true), setReact(item)}}
+                                                                className={`border  border-green-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-green-500`}>
+                                                                Réactiver
+                                                            </motion.button>
+                                                        )}
+                                                        </div>
+                                                    ): (
                                                         <motion.button
                                                             type="button"
                                                             disabled={daysRemaining <= 0}
@@ -2195,56 +2220,65 @@ export default function DashboardPro(){
                                                             className={` border  border-red-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-red-500`}>
                                                             Suspendre
                                                         </motion.button>
+                                                    )}
+
+                                                </td>
+                                            </tr>
+                                        ))}
+
+                                        {errorAdh && (
+                                            <tr className="">
+                                                <td colSpan={5} className="py-6 h-140 text-center  text-red-600">
+                                                    <p className="flex items-center justify-center gap-2 ">
+                                                    <XCircle className="animate-spin text-red-600" />
+                                                    {mesAdh.error.message}
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        )}
+
+                                    </tbody>
 
 
 
-                                                )}
+                            </table>
+                            <div className="flex  p-4 items-center justify-between">
+                                    <div>
+                                        <div className="text-sm text-gray-400">
+                                            Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+                                        </div>
+                                    </div>
 
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    <div className="flex text-sm items-center gap-2">
+                                        <motion.button
+                                        disabled={page === 1}
+                                        onClick={()=>{setPage(p => p - 1)}}
+                                            whileTap={{scale: 0.95}}
+                                            className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                        >Précedent</motion.button>
 
-                                </tbody>
-
-
-
-                        </table>
-                        <div className="flex  p-4 items-center justify-between">
-                                <div>
-                                    <div className="text-sm text-gray-400">
-                                        Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+                                        <motion.button
+                                        disabled={page === mesAdh.data?.adherents?.last_page}
+                                        onClick={()=>{setPage(p => p + 1)}}
+                                        whileTap={{scale: 0.95}}
+                                            className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                        > Suivant</motion.button>
                                     </div>
                                 </div>
 
-                                <div className="flex text-sm items-center gap-2">
-                                    <motion.button
-                                    disabled={page === 1}
-                                    onClick={()=>{setPage(p => p - 1)}}
-                                        whileTap={{scale: 0.95}}
-                                        className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                    >Précedent</motion.button>
-
-                                    <motion.button
-                                    disabled={page === mesAdh.data?.adherents?.last_page}
-                                    onClick={()=>{setPage(p => p + 1)}}
-                                    whileTap={{scale: 0.95}}
-                                        className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                    > Suivant</motion.button>
-                                </div>
-                            </div>
-
+                        </div>
                     </div>
-                </div>
+                </>
             )}
 
             {activeTab === 'coach' &&(
                 <>
                     {mes_coach.length > 0 && (
-                        <div className="absolute z-10 top-22 right-0 opacity-40 h-200 overflow-hidden w-200">
+                        <div className="absolute right-0 opacity-40  w-200">
                             <img src={coach} alt="logo" className="h-full w-full" />
                         </div>
                     )}
-                    <div className="col-span-4 z-20 px-8 py-3 my-5 overflow-y-auto">
+                    <div className="relative col-span-4 px-8 py-3 my-5 overflow-y-auto">
 
                         <div className="flex items-center justify-between">
                             <div className="flex flex-col gap-2">
@@ -2253,25 +2287,6 @@ export default function DashboardPro(){
                                         Equipe des coachs :
                                         <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">Total : {mes_coach.length === 0 ? 0 : mes_coach.length}</span>
                                     </h1>
-                                     {successSupCoach && (
-                                        <div className="flex px-3 py-1 rounded-full bg-white items-center gap-1">
-                                            <CheckCircle2 className="h-5 w-5 text-green-600" />
-                                            <p className=" text-sm  text-green-600 font-bold">Coach supprimé avec succès</p>
-                                        </div>
-                                    )}
-                                    {modifCoachSuccess && (
-                                        <div className="flex px-3 py-1 rounded-full bg-white items-center gap-1">
-                                            <CheckCircle2 className="h-5 w-5 text-green-600" />
-                                            <p className=" text-sm  text-green-600 font-bold">Coach modifié avec succès</p>
-                                        </div>
-                                    )}
-                                    {coachSuccess && (
-                                        <div className="flex px-3 py-1 rounded-full bg-white items-center gap-1">
-                                            <CheckCircle2 className="h-5 w-5 text-green-600" />
-                                            <p className=" text-sm  text-green-600 font-bold">Coach ajouté à la salle avec succès</p>
-                                        </div>
-                                    )}
-                                    
                                 </div>
                                
                                 
@@ -2337,12 +2352,12 @@ export default function DashboardPro(){
                         <div className="grid grid-cols-6 gap-8">
 
                            {mesCoachLoad ? ( 
-                                [1,2,3,4,5,6,7,8,9,10,11].map(item => (
+                                [1,2,3,4,5,6,7,8,9,10,11, 12].map(item => (
                                     <div
                                         key={item}
-                                        className="relative z-30 shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 flex flex-col gap-3 items-center justify-center"
+                                        className="relative shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 flex flex-col items-center justify-center"
                                     >
-                                        <div className="border-b bg-gray-200 border-gray-300 w-full h-60 flex items-center justify-center">
+                                        <div className="border-b bg-gray-200 border-gray-300 w-full h-50 flex items-center justify-center">
 
                                         </div>
                                         <div className="h-15 border-b bg-gray-200  border-gray-300 w-full flex flex-col gap-3 p-2">
@@ -2374,7 +2389,8 @@ export default function DashboardPro(){
                                         <div className="absolute top-2 left-2">
                                             <p className="rounded-full w-30 bg-gray-400 animate-pulse text-white font-bold text-xs h-6"></p>
                                         </div>
-                                    </div>))
+                                    </div>
+                                ))
                             ): filterCoach.length === 0 ? (
                                 <div
                                     className=" col-span-6 flex flex-col gap-3 items-center justify-center"
@@ -2401,10 +2417,11 @@ export default function DashboardPro(){
                                     )}
 
                                 </div>
+                                
                             ): filterCoach.map(item => (
                                     <motion.div
                                         key={item.id}
-                                        className="relative z-30 shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 flex flex-col bg-white"
+                                        className="relative shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 flex flex-col bg-white"
                                     >
 
                                         <div className="border-b border-gray-300 bg-orange-50 h-40 flex items-center justify-center">
@@ -2543,7 +2560,7 @@ export default function DashboardPro(){
                                     whileHover={{scale: 1.03}}
                                     whileTap={{scale: 0.95}}
                                     onClick={handleAddCoach}
-                                    className={`${search.trim() ? 'hidden' : 'block'} shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 flex flex-col gap-3 items-center bg-orange-50 justify-center`}
+                                    className={`${search.trim() ? 'hidden' : 'block'} shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 h-65 flex flex-col gap-3 items-center bg-orange-50 justify-center`}
                                 >
 
                                     <Plus className="text-gray-500 h-10 w-10"/>
@@ -2556,164 +2573,196 @@ export default function DashboardPro(){
             )}
 
             {activeTab === 'cours' &&(
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-
-                    <div className="flex flex-col gap-2">
-                        <h1 className="font-bold text-3xl flex items-center">
-                            Catalogue des cours
-                            {/* <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">{nbrAdherantsActif} actif{totalAbExpirer > 1 ? 's' : ''}</span> */}
-                        </h1>
-                        <p className="text-gray-400 text-[18px]">Planifier vos cours comme vous le sentez</p>
+                <>
+                    <div className="absolute opacity-40 right-0 w-200">
+                        <img src={course} alt="logo-cours" />
                     </div>
-
-                    <div className="flex items-center justify-between my-8">
-                        <div className="flex flex-col gap-3">
-                            <div className="flex items-center relative w-90">
-                                <div className="absolute top-2">
-                                    <Search className="h-5 w-5 text-orange-400 ml-2"/>
-                                </div>
-                                <input type="text"
-                                    value={search}
-                                    onChange={(e)=>{setSearch(e.target.value)}}
-                                    className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
-                                    placeholder="Rechercher des infos par page..."
-                                />
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <motion.button
-                                    whileTap={{scale: 0.95}}
-                                    onClick={()=>{setCoursTab('tous')}}
-                                    className={`${coursTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-
-                                    Tous
-                                </motion.button>
-
-                                <motion.button
-                                    whileTap={{scale: 0.95}}
-                                    onClick={()=>{setCoursTab('debutant')}}
-
-                                    className={`${coursTab === 'debutant' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-
-                                    Débutant
-                                </motion.button>
-
-                                <motion.button
-                                    whileTap={{scale: 0.95}}
-                                    onClick={()=>{setCoursTab('intermediaire')}}
-
-                                    className={`${coursTab === 'intermediaire' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-
-                                    Intermédiare
-                                </motion.button>
-                            </div>
+                
+                    <div className=" relative col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                        <div className="flex flex-col gap-2">
+                            <h1 className="font-bold text-3xl flex items-center">
+                                Catalogue des cours
+                                {/* <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">{nbrAdherantsActif} actif{totalAbExpirer > 1 ? 's' : ''}</span> */}
+                            </h1>
+                            <p className="text-gray-400 text-[18px]">Planifier vos cours comme vous le sentez</p>
                         </div>
-                        <motion.button
-                            whileTap={{scale: 0.95}}
-                            onClick={()=>{setModalAddCours(true), setNiveaux('debutant')}}
-                            disabled={daysRemaining <= 0}
-                            className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
-                            <Plus className="h-5 w-5 "/>
-                            Ajouter un cours
-                        </motion.button>
-                    </div>
 
-                    {/* A revoir avec les vraies donnees */}
-                    <div className="bg-white my-8 rounded-lg ">
-                        <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
-                            <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
-                                <tr >
-                                    <th className=" p-3 text-left">Intitulé du cours</th>
-                                    <th className=" p-3">Niveau</th>
-                                    <th className=" p-3">Créé le</th>
-                                    <th className=" p-3">Modifié le</th>
-                                    <th className=" p-3">Actions</th>
-                                </tr>
-                            </thead>
+                        <div className="flex items-center justify-between my-8">
+                            <div className="flex flex-col gap-5">
+                                <div className="flex items-center relative w-90">
+                                    <div className="absolute top-2">
+                                        <Search className="h-5 w-5 text-orange-400 ml-2"/>
+                                    </div>
+                                    <input type="text"
+                                        value={search}
+                                        onChange={(e)=>{setSearch(e.target.value)}}
+                                        className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
+                                        placeholder="Rechercher des infos par page..."
+                                    />
+                                </div>
 
-                            <tbody className="">
-                                {coursLoading ? (
-                                    <tr>
-                                        <td colSpan={5} className="py-6 text-center">
-                                            <Loader2 className="mx-auto animate-spin" />
-                                        </td>
+                                <div className="flex items-center gap-2">
+                                    <motion.button
+                                        whileTap={{scale: 0.95}}
+                                        onClick={()=>{setCoursTab('tous')}}
+                                        className={`${coursTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+
+                                        Tous
+                                    </motion.button>
+
+                                    <motion.button
+                                        whileTap={{scale: 0.95}}
+                                        onClick={()=>{setCoursTab('debutant')}}
+
+                                        className={`${coursTab === 'debutant' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+
+                                        Débutant
+                                    </motion.button>
+
+                                    <motion.button
+                                        whileTap={{scale: 0.95}}
+                                        onClick={()=>{setCoursTab('intermediaire')}}
+
+                                        className={`${coursTab === 'intermediaire' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+
+                                        Intermédiare
+                                    </motion.button>
+                                </div>
+                            </div>
+                            <motion.button
+                                whileTap={{scale: 0.95}}
+                                onClick={()=>{setModalAddCours(true), setNiveaux('debutant')}}
+                                disabled={daysRemaining <= 0}
+                                className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
+                                <Plus className="h-5 w-5 "/>
+                                Ajouter un cours
+                            </motion.button>
+                        </div>
+
+                        {/* A revoir avec les vraies donnees */}
+                        <div className="bg-white my-8 rounded-lg ">
+                            <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                                <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                    <tr >
+                                        <th className=" p-3 text-left">Intitulé du cours</th>
+                                        <th className=" p-3">Niveau</th>
+                                        <th className=" p-3">Créé le</th>
+                                        <th className=" p-3">Modifié le</th>
+                                        <th className=" p-3">Actions</th>
                                     </tr>
-                                ): CoursFiltres.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={5} className="py-6 text-center text-sm text-gray-500">
-                                            {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun cours enregistré"}
-                                        </td>
-                                    </tr>
-                                ): CoursFiltres.map(item => (
-                                    <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                </thead>
 
-                                        <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                            <span className="rounded-full bg-gray-200 flex items-center p-2"><File className="h-4 w-4"/></span>
-                                            {item?.nom_cours || 'N/A' }
+                                <tbody className="">
+                                    {coursLoading ? (
+                                        [1,2,3,4,5,6,7,8,9].map(item =>(
 
-                                        </td>
-                                        <td className=" px-3 py-5">{item?.niveaux || 'N/A'}</td>
-                                        <td className=" px-3 py-5">{formatDate(item?.created_at) || 'N/A'}</td>
-                                        <td className=" px-3 py-5">{formatDate(item?.updated_at) || 'N/A'}</td>
-                                        
+                                            <tr key={item} className="text-sm p-2 border-b border-gray-200">
 
-                                        <td className="flex justify-center py-5 items-center gap-2 px-3">
-                                            {/* <motion.button
-                                                type="button"
-                                                onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}}
+                                                <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                    <span className=" h-5 w-5 bg-gray-200 animate-pulse flex items-center p-2"></span>
+                                                    <p className="h-5 w-20 animate-pulse bg-gray-200"></p>
+                                                    
+
+                                                </td>
+                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse mx-auto w-20 bg-gray-200"></p></td>
+                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
+                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
+                                                
+
+                                                <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                                    <p className="h-5 w-5 animate-pulse bg-gray-200"></p>
+                                                    <p className="h-5 w-5 animate-pulse bg-gray-200"></p>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ): CoursFiltres.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className={`${search.trim() ? '' : 'h-140'} py-6  text-center text-sm text-gray-500`}>
+                                                {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun cours enregistré"}
+                                            </td>
+                                        </tr>
+                                    ): CoursFiltres.map(item => (
+                                        <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+
+                                            <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                <span className="rounded-full bg-gray-200 flex items-center p-2"><File className="h-4 w-4"/></span>
+                                                {item?.nom_cours || 'N/A' }
+
+                                            </td>
+                                            <td className=" px-3 py-5">{item?.niveaux || 'N/A'}</td>
+                                            <td className=" px-3 py-5">{formatDate(item?.created_at) || 'N/A'}</td>
+                                            <td className=" px-3 py-5">{formatDate(item?.updated_at) || 'N/A'}</td>
+                                            
+
+                                            <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                                {/* <motion.button
+                                                    type="button"
+                                                    onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}}
+                                                        whileTap={{scale: 0.95}}
+                                                    className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm `}>
+                                                    <Eye className="text-gray-600 h-4 w-4"/>
+                                                </motion.button> */}
+                                                <motion.button
+                                                    type="button"
+                                                    disabled={daysRemaining <= 0}
+                                                    onClick={()=>{setModalUpCours(true), setCoursToUp(item)}}
                                                     whileTap={{scale: 0.95}}
-                                                className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm `}>
-                                                <Eye className="text-gray-600 h-4 w-4"/>
-                                            </motion.button> */}
-                                            <motion.button
-                                                type="button"
-                                                disabled={daysRemaining <= 0}
-                                                onClick={()=>{setModalUpCours(true), setCoursToUp(item)}}
-                                                whileTap={{scale: 0.95}}
-                                                className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
-                                                <Pencil className="text-white h-4 w-4"/>
-                                            </motion.button>
-                                            <motion.button
-                                                type="button"
-                                                disabled={daysRemaining <= 0}
-                                                onClick={()=>{setModalSupCours(true), setCoursToDelete(item)}}
-                                                whileTap={{scale: 0.95}}
-                                                className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
-                                            >
-                                                <Trash className="h-4 w-4 text-white" />
-                                            </motion.button>
-                                        </td>
-                                    </tr>
-                                ))}
+                                                    className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
+                                                    <Pencil className="text-white h-4 w-4"/>
+                                                </motion.button>
+                                                <motion.button
+                                                    type="button"
+                                                    disabled={daysRemaining <= 0}
+                                                    onClick={()=>{setModalSupCours(true), setCoursToDelete(item)}}
+                                                    whileTap={{scale: 0.95}}
+                                                    className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
+                                                >
+                                                    <Trash className="h-4 w-4 text-white" />
+                                                </motion.button>
+                                            </td>
+                                        </tr>
+                                    ))}
 
-                            </tbody>
-                        </table>
-                        <div className="flex  p-4 items-center justify-between">
-                                <div>
-                                    <div className="text-sm text-gray-400">
-                                        Page <span className="font-bold text-black">{mesCours.data?.cours?.current_page}</span> sur <span className="font-bold text-black">{mesCours.data?.cours?.last_page}</span>
+                                    {coursError && (
+                                        <tr className="">
+                                            <td colSpan={5} className="py-6 h-140 text-center  text-red-600">
+                                                <p className="flex items-center justify-center gap-2 ">
+                                                <XCircle className="animate-spin text-red-600" />
+                                                {mesCours.error.message}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    )}
+
+                                </tbody>
+                            </table>
+                            <div className="flex  p-4 items-center justify-between">
+                                    <div>
+                                        <div className="text-sm text-gray-400">
+                                            Page <span className="font-bold text-black">{mesCours.data?.cours?.current_page}</span> sur <span className="font-bold text-black">{mesCours.data?.cours?.last_page}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex text-sm items-center gap-2">
+                                        <motion.button
+                                        disabled={pageCours === 1}
+                                        onClick={()=>{setPageCours(p => p - 1)}}
+                                            whileTap={{scale: 0.95}}
+                                            className={`${mesCours.data?.cours?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                        >Précedent</motion.button>
+
+                                        <motion.button
+                                        disabled={pageCours === mesCours.data?.cours?.last_page}
+                                        onClick={()=>{setPageCours(p => p + 1)}}
+                                        whileTap={{scale: 0.95}}
+                                            className={`${mesCours.data?.cours?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                        > Suivant</motion.button>
                                     </div>
                                 </div>
 
-                                <div className="flex text-sm items-center gap-2">
-                                    <motion.button
-                                    disabled={pageCours === 1}
-                                    onClick={()=>{setPageCours(p => p - 1)}}
-                                        whileTap={{scale: 0.95}}
-                                        className={`${mesCours.data?.cours?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                    >Précedent</motion.button>
-
-                                    <motion.button
-                                    disabled={pageCours === mesCours.data?.cours?.last_page}
-                                    onClick={()=>{setPageCours(p => p + 1)}}
-                                    whileTap={{scale: 0.95}}
-                                        className={`${mesCours.data?.cours?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                    > Suivant</motion.button>
-                                </div>
-                            </div>
-
+                        </div>
                     </div>
-                </div>
+                </>
             )}
 
             {activeTab === 'finances' &&(
@@ -4141,13 +4190,14 @@ export default function DashboardPro(){
                     {/* <p>{adhToUp.name}</p> */}
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
+                        animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
                     >
-                        <div className=" bg-white py-5 px-8 rounded-lg shadow-lg">
-                            <div className="mb-10">
-                                <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                        <div className=" bg-white flex flex-col gap-5 justify-between py-5 px-8 h-100 w-100 rounded-lg shadow-lg">
+                            <div className="">
+                                <div className="flex flex-col gap-1 opacity-50 text-xl font-bold mb-5">
                                     Ajouter un nouveau cours
+                                    <p className="text-gray-400 text-xs">Ajouter un ou plusieurs cours à la suite après un ajout réussi.</p>
                                 </div>
                                 <div className="flex-col flex gap-2 mb-5">
                                     <label className="font-bold text-lg">Intitulé du cours</label>
@@ -4165,7 +4215,7 @@ export default function DashboardPro(){
                                     />
                                 </div>
 
-                                <div className="flex-col flex gap-2 mb-5">
+                                <div className="flex-col flex gap-2">
                                     <label className="font-bold text-lg">Niveau du cours </label>
                                     <div className="flex items-center justify-between border rounded-lg bg-orange-50  border-orange-500">
                                         <button
@@ -4177,23 +4227,27 @@ export default function DashboardPro(){
                                         </button>
                                         <button 
                                             type="button"
-                                            onClick={()=>{setNiveaux('intermediare')}}
-                                            className={`${niveaux === 'intermediare' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
+                                            onClick={()=>{setNiveaux('intermediaire')}}
+                                            className={`${niveaux === 'intermediaire' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
                                         >
                                             Intermédiare
                                         </button>
                                     </div>
                                 </div>
-
-                                {errorAddCours && (
-                                    <p className="text-red-500 text-sm">{cours.error.message}</p>
-                                )}
                             </div>
+                             {successAddCours && (
+                                <p className="text-green-500 flex gap-1 font-bold text-sm"><CheckCircle2 className="h-5 w-5 text-green-500"/>Cours ajouté avec succès</p>
+                            )}
+
+                            {errorAddCours && (
+                                <p className="text-red-500 flex gap-1 font-bold text-sm"><XCircle className="h-5 w-5 text-red-500"/>{cours.error.message}</p>
+                            )}
+
 
                             <div className=" flex justify-end items-center gap-2">
                                 <button
                                 type="button"
-                                    onClick={()=>{setModalAddCours(false)}}
+                                    onClick={()=>{setModalAddCours(false), setNiveaux(null), setNomCours('')}}
                                     className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
                                 >
                                     Annuler
@@ -4221,12 +4275,12 @@ export default function DashboardPro(){
                     {/* <p>{adhToUp.name}</p> */}
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
+                        animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
                     >
-                        <div className=" bg-white py-5 px-8 w-100 rounded-lg shadow-lg">
-                            <div className="mb-10">
-                                <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                        <div className=" bg-white flex flex-col gap-5 justify-between py-5 px-8 h-90 w-100 rounded-lg shadow-lg">
+                            <div className="">
+                                <div className="flex items-center gap-1 text-xl font-bold opacity-50 mb-5">
                                     {/* <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/> */}
                                     Modifier le cours
                                 </div>
@@ -4246,32 +4300,30 @@ export default function DashboardPro(){
                                     />
                                 </div>
 
-                                <div className="flex-col flex gap-2 mb-5">
+                                <div className="flex-col flex gap-2">
                                     <label className="font-bold text-lg">Niveau de cours </label>
                                     
                                     <div className="flex items-center justify-between border rounded-lg bg-orange-50  border-orange-500">
                                         <button
                                             type="button"
                                             onClick={(e)=>{setNiveaux('debutant'),  setCoursToUp({...coursToUp,niveaux: 'debutant'})}}
-                                            className={`${niveaux === 'debutant' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
+                                            className={`${coursToUp?.niveaux === 'debutant' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
                                         >
                                             Débutant
                                         </button>
                                         <button 
                                             type="button"
                                             onClick={(e)=>{setNiveaux('intermediaire'),  setCoursToUp({...coursToUp,niveaux: 'intermediaire'})}}
-                                            className={`${niveaux === 'intermediaire' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
+                                            className={`${coursToUp?.niveaux === 'intermediaire' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
                                         >
                                             Intermédiare
                                         </button>
                                     </div>
                                 </div>
-
-                                {errorUpdateCours && (
-                                    <p className="text-red-500 text-sm">{updateCours.error.message}</p>
-                                )}
                             </div>
-
+                            {errorUpdateCours && (
+                                <p className="text-red-500 flex gap-1 font-bold text-sm"><XCircle className="h-5 w-5 text-red-500"/>{updateCours.error.message}</p>
+                            )}
                             <div className=" flex justify-end items-center gap-2">
                                 <button
                                 type="button"
@@ -4384,8 +4436,8 @@ export default function DashboardPro(){
                 </div>
             )}
 
-            {(successSupAdh || successSupCours || successAddCours || reactSuccess || suspSuccess || successUpdateAdh || successUpdateCours || reabSuccess) && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+            {(successSupAdh || modifCoachSuccess || successSupCoach || successSupCours || reactSuccess || suspSuccess || successUpdateAdh || successUpdateCours || reabSuccess) && (
+                <div className="absolute z-30 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
                     <div className="w-150 h-300">
                     <img src={checkvideo} alt="gif"
                         className="w-full h-auto object-cover"
@@ -4559,39 +4611,56 @@ export default function DashboardPro(){
                    
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
+                        animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
-                        className=" bg-white py-5 px-8 rounded-lg shadow-lg"
                     >
-                        <div className="mb-3">
-                            <div className="flex items-center gap-2 text-2xl font-bold mb-5">
-                                {/* <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/> */}
-                                Ajouter un nouveau coach
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Nom </label>
-                                    <Input
-                                        type={'text'}
-                                        value={nomCoach}
-                                        onChange={(e)=>{setNomCoach(e.target.value)}}
-                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={'saisissez son nom'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
-                                    />
+                        <div className=" bg-white flex flex-col gap-8 justify-between py-5 px-8 w-128 rounded-lg shadow-lg">
+                            <div className="">
+                                <div className="flex flex flex-col gap-1 opacity-50 text-xl font-bold mb-5">
+                                    Ajouter un nouveau coach
+                                        <p className="text-gray-400 text-xs">Ajouter un ou plusieurs coachs à la suite après un ajout réussi.</p>
                                 </div>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex-col flex gap-2 mb-5">
+                                        <label className="font-bold text-lg">Nom </label>
+                                        <Input
+                                            type={'text'}
+                                            value={nomCoach}
+                                            onChange={(e)=>{setNomCoach(e.target.value)}}
+                                            className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                            placeholder={'saisissez son nom'}
+                                            disabled={false}
+                                            hidden={false}
+                                            pattern={null}
+                                            ref={null}
+                                            checked={null}
+                                        />
+                                    </div>
+                                    <div className="flex-col flex gap-2 mb-5">
+                                        <label className="font-bold text-lg">Prénom </label>
+                                        <Input
+                                            type={'text'}
+                                            value={prenomCoach}
+                                            onChange={(e)=>{setPrenomCoach(e.target.value)}}
+                                            className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                            placeholder={'saisissez son prenom'}
+                                            disabled={false}
+                                            hidden={false}
+                                            pattern={null}
+                                            ref={null}
+                                            checked={null}
+                                        />
+                                    </div>
+                                </div>
+                                
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Prénom </label>
+                                    <label className="font-bold text-lg">Téléphone </label>
                                     <Input
                                         type={'text'}
-                                        value={prenomCoach}
-                                        onChange={(e)=>{setPrenomCoach(e.target.value)}}
+                                        value={telCoach}
+                                        onChange={(e)=>{setTelCoach(e.target.value)}}
                                         className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={'saisissez son prenom'}
+                                        placeholder={'saisissez son numéro de telephone'}
                                         disabled={false}
                                         hidden={false}
                                         pattern={null}
@@ -4599,93 +4668,81 @@ export default function DashboardPro(){
                                         checked={null}
                                     />
                                 </div>
-                            </div>
-                            
-                            <div className="flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-lg">Téléphone </label>
-                                <Input
-                                    type={'text'}
-                                    value={telCoach}
-                                    onChange={(e)=>{setTelCoach(e.target.value)}}
-                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={'saisissez son numéro de telephone'}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
-                                />
-                            </div>
 
-                            <div className="relative flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-lg">Spécialité(s) </label>
-                                <Input
-                                    type={'text'}
-                                    value={skills}
-                                    onChange={(e)=>{setSkills(e.target.value)}}
-                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={'saisissez sa ou ses sompétence(s)...'}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
-                                />
+                                <div className="relative flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Spécialité(s) </label>
+                                    <Input
+                                        type={'text'}
+                                        value={skills}
+                                        onChange={(e)=>{setSkills(e.target.value)}}
+                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'saisissez sa ou ses sompétence(s)...'}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
 
-                                <motion.button
-                                    type="button"
-                                    onClick={handleAddSkill}
-                                    whileTap={{scale: 0.95}}
-                                    className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
-                                >
-                                    <SquarePlus />
-                                </motion.button>
-                            </div>
-
-                            {skillsCoach.length > 0 && (
-                                <div className="grid grid-cols-3  gap-3 ">
-                                    {skillsCoach.map((item,index) =>(
-                                        
-                                        <p key={index}  className=" relative text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
-                                            {item}
-                                            <button
-                                                onClick={()=>{removeSkills(index)}}
-                                                className="absolute -top-1 -right-1 border bg-red-600 rounded-full"
-                                            >
-                                                <X className="h-3 w-3 text-white" />
-                                            </button>
-                                        </p>
-                                        
-                                    ))}
+                                    <motion.button
+                                        type="button"
+                                        onClick={handleAddSkill}
+                                        whileTap={{scale: 0.95}}
+                                        className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
+                                    >
+                                        <SquarePlus />
+                                    </motion.button>
                                 </div>
-                            )}
-                            
-                            {coachError && (
-                                <p className="text-red-500 text-sm mt-2">{addCoach.error.message}</p>
-                            )}
-                            
-                        </div>
 
-                        <div className=" flex justify-end items-center gap-2">
-                            <button
-                            type="button"
-                                onClick={handleCancel}
-                                className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                onClick={handleSubmit}
-                                disabled={coachLoading || !validation()}
-                                className={`border py-1 px-3 ${!validation() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'}   text-white font-semibold  transition-colors duration-200`}
-                            >
-                                {coachLoading ?(
-                                    <Loader2 className="animate-spin"/>
-                                ):(
-                                    'Enregistrer'
+                                {skillsCoach.length > 0 && (
+                                    <div className="grid grid-cols-3  gap-3 ">
+                                        {skillsCoach.map((item,index) =>(
+                                            
+                                            <p key={index}  className=" relative text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
+                                                {item}
+                                                <button
+                                                    onClick={()=>{removeSkills(index)}}
+                                                    className="absolute -top-1 -right-1 border bg-red-600 rounded-full"
+                                                >
+                                                    <X className="h-3 w-3 text-white" />
+                                                </button>
+                                            </p>
+                                            
+                                        ))}
+                                    </div>
                                 )}
 
-                            </button>
+                                {coachSuccess && (
+                                    <p className="text-green-500 flex gap-1 font-bold text-sm"><CheckCircle2 className="h-5 w-5 text-green-500"/>Coach ajouté avec succès</p>
+                                )}
+
+                                {coachError && (
+                                    <p className="text-red-500 flex gap-1 font-bold text-sm"><XCircle className="h-5 w-5 text-red-500"/>{addCoach.error.message}</p>
+                                )}
+
+                            </div>
+
+                            <div className=" flex justify-end items-center gap-2">
+                                <button
+                                type="button"
+                                    onClick={handleCancel}
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={coachLoading || !validation()}
+                                    className={`border py-1 px-3 ${!validation() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'}   text-white font-semibold  transition-colors duration-200`}
+                                >
+                                    {coachLoading ?(
+                                        <Loader2 className="animate-spin"/>
+                                    ):(
+                                        'Enregistrer'
+                                    )}
+
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 </div>
@@ -4696,39 +4753,57 @@ export default function DashboardPro(){
                    
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
+                        animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
-                        className=" bg-white py-5 px-8 rounded-lg shadow-lg"
                     >
-                        <div className="mb-3">
-                            <div className="flex items-center gap-2 text-2xl font-bold mb-5">
-                                {/* <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/> */}
-                                Modifer le coach 
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Nom </label>
-                                    <Input
-                                        type={'text'}
-                                        value={coachEdit?.nom}
-                                        onChange={(e)=>{setCoachEdit({...coachEdit, nom: e.target.value})}}
-                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={'saisissez son nom'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
-                                    />
+
+                        <div className=" bg-white flex flex-col gap-8 justify-between py-5 px-8 w-128 rounded-lg shadow-lg">
+                            <div className="">
+                                <div className="flex items-center gap-2 text-xl opacity-50 font-bold mb-5">
+                                    {/* <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/> */}
+                                    Modifer le coach 
                                 </div>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex-col flex gap-2 mb-5">
+                                        <label className="font-bold text-lg">Nom </label>
+                                        <Input
+                                            type={'text'}
+                                            value={coachEdit?.nom}
+                                            onChange={(e)=>{setCoachEdit({...coachEdit, nom: e.target.value})}}
+                                            className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                            placeholder={'saisissez son nom'}
+                                            disabled={false}
+                                            hidden={false}
+                                            pattern={null}
+                                            ref={null}
+                                            checked={null}
+                                        />
+                                    </div>
+                                    <div className="flex-col flex gap-2 mb-5">
+                                        <label className="font-bold text-lg">Prénom </label>
+                                        <Input
+                                            type={'text'}
+                                            value={coachEdit?.prenom}
+                                            onChange={(e)=>{setCoachEdit({...coachEdit, prenom: e.target.value})}}
+                                            className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                            placeholder={'saisissez son prenom'}
+                                            disabled={false}
+                                            hidden={false}
+                                            pattern={null}
+                                            ref={null}
+                                            checked={null}
+                                        />
+                                    </div>
+                                </div>
+                                
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Prénom </label>
+                                    <label className="font-bold text-lg">Téléphone </label>
                                     <Input
                                         type={'text'}
-                                        value={coachEdit?.prenom}
-                                        onChange={(e)=>{setCoachEdit({...coachEdit, prenom: e.target.value})}}
+                                        value={coachEdit?.telephone}
+                                        onChange={(e)=>{setCoachEdit({...coachEdit, telephone:e.target.value})}}
                                         className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={'saisissez son prenom'}
+                                        placeholder={'saisissez son numéro de telephone'}
                                         disabled={false}
                                         hidden={false}
                                         pattern={null}
@@ -4736,93 +4811,77 @@ export default function DashboardPro(){
                                         checked={null}
                                     />
                                 </div>
-                            </div>
-                            
-                            <div className="flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-lg">Téléphone </label>
-                                <Input
-                                    type={'text'}
-                                    value={coachEdit?.telephone}
-                                    onChange={(e)=>{setCoachEdit({...coachEdit, telephone:e.target.value})}}
-                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={'saisissez son numéro de telephone'}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
-                                />
-                            </div>
 
-                            <div className="relative flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-lg">Spécialité(s) </label>
-                                <Input
-                                    type={'text'}
-                                    value={skills}
-                                    // onChange={(e)=>{setCoachEdit({...coachEdit, competence:e.target.value})}}
-                                    onChange={(e)=>{setSkills(e.target.value)}}
-                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={'saisissez sa ou ses sompétence(s)...'}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
-                                />
+                                <div className="relative flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Spécialité(s) </label>
+                                    <Input
+                                        type={'text'}
+                                        value={skills}
+                                        // onChange={(e)=>{setCoachEdit({...coachEdit, competence:e.target.value})}}
+                                        onChange={(e)=>{setSkills(e.target.value)}}
+                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'saisissez sa ou ses sompétence(s)...'}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
 
-                                <motion.button
-                                    type="button"
-                                    onClick={handleAddSkillC}
-                                    whileTap={{scale: 0.95}}
-                                    className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
-                                >
-                                    <SquarePlus />
-                                </motion.button>
-                            </div>
-                            
-                            {coachEdit?.competence.length > 0 && (
-                                <div className="grid grid-cols-3  gap-3 ">
-                                    {coachEdit?.competence.map((item,index) =>(
-                                        
-                                        <p key={index}  className=" relative text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
-                                            {item}
-                                            <button
-                                                onClick={()=>{removeSkillsC(index)}}
-                                                className="absolute -top-1 -right-1 border bg-red-600 rounded-full"
-                                            >
-                                                <X className="h-3 w-3 text-white" />
-                                            </button>
-                                        </p>
-                                        
-                                    ))}
+                                    <motion.button
+                                        type="button"
+                                        onClick={handleAddSkillC}
+                                        whileTap={{scale: 0.95}}
+                                        className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
+                                    >
+                                        <SquarePlus />
+                                    </motion.button>
                                 </div>
-                            )} 
-                            {modifCoachError && (
-                                <p className="text-red-500 text-sm mt-2">{modifCoach.error.message}</p>
-                            )}
-                            
-                        </div>
-
-                        <div className=" flex justify-end items-center gap-2">
-                            <button
-                            type="button"
-                                onClick={()=>{setSelectCoach(null)}}
-                                className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                onClick={(e)=>{handleModifCoach(e)}}
-                                disabled={modifCoachLoading || !validationModif()}
-                                className={`border py-1 px-3 ${!validationModif() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'}   text-white font-semibold  transition-colors duration-200`}
-                            >
-                                {modifCoachLoading ?(
-                                    <Loader2 className="animate-spin"/>
-                                ):(
-                                    'Modifier'
+                                
+                                {coachEdit?.competence.length > 0 && (
+                                    <div className="grid grid-cols-3  gap-3 ">
+                                        {coachEdit?.competence.map((item,index) =>(
+                                            
+                                            <p key={index}  className=" relative text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
+                                                {item}
+                                                <button
+                                                    onClick={()=>{removeSkillsC(index)}}
+                                                    className="absolute -top-1 -right-1 border bg-red-600 rounded-full"
+                                                >
+                                                    <X className="h-3 w-3 text-white" />
+                                                </button>
+                                            </p>
+                                            
+                                        ))}
+                                    </div>
+                                )} 
+                                {modifCoachError && (
+                                    <p className="text-red-500 flex gap-1 font-bold text-sm">{modifCoach.error.message}</p>
                                 )}
+                                
+                            </div>
 
-                            </button>
+                            <div className=" flex justify-end items-center gap-2">
+                                <button
+                                type="button"
+                                    onClick={()=>{setSelectCoach(null)}}
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    onClick={(e)=>{handleModifCoach(e)}}
+                                    disabled={modifCoachLoading || !validationModif()}
+                                    className={`border py-1 px-3 ${!validationModif() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'}   text-white font-semibold  transition-colors duration-200`}
+                                >
+                                    {modifCoachLoading ?(
+                                        <Loader2 className="animate-spin"/>
+                                    ):(
+                                        'Modifier'
+                                    )}
+
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 </div>
