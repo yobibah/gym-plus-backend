@@ -1,4 +1,4 @@
-import { AlarmClockIcon, AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, BadgeCheck, Bell, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, Circle, CircleAlert, Clock, Download, Euro, ExpandIcon, Eye, LayoutDashboard, LayoutDashboardIcon, Loader2, LogOut, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserCog, UserPlus, UserPlus2, Users, Wallet, WalletCards, Weight, X, XCircle } from "lucide-react";
+import { AlarmClockIcon, AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, BadgeCheck, Bell, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, Circle, CircleAlert, Clock, Download, Euro, ExpandIcon, Eye, File, LayoutDashboard, LayoutDashboardIcon, Loader2, LogOut, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserCog, UserPlus, UserPlus2, Users, Wallet, WalletCards, Weight, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -45,6 +45,10 @@ import { DeleteCoach } from "../../api/dashboard/pro/coachs/deleteCoach";
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
 import { UpdateCoach } from "../../api/dashboard/pro/coachs/modifierCoach";
+import { AjouterCours } from "../../api/dashboard/pro/cours/ajouterCours";
+import { DeleteCours } from "../../api/dashboard/pro/cours/supprimerCours";
+import { UpdateCours } from "../../api/dashboard/pro/cours/modifierCours";
+import { MesCours } from "../../api/dashboard/pro/cours/mesCours";
 
 
 export default function DashboardPro(){
@@ -122,6 +126,16 @@ export default function DashboardPro(){
     const [selectCoach, setSelectCoach] = useState(null)
     const [coachEdit, setCoachEdit] = useState(null)
 
+    const [nomCours, setNomCours] = useState('')
+    const [niveaux, setNiveaux] = useState(null)
+    const [modalSupCours, setModalSupCours] = useState(false)
+    const [modalUpCours, setModalUpCours] = useState(false)
+    const [coursToDelete, setCoursToDelete] = useState(null)
+    const [coursToUp, setCoursToUp] = useState(null)
+    const [coursTab, setCoursTab] = useState('tous')
+    const [pageCours, setPageCours] = useState(1)
+    const [modalAddCours, setModalAddCours] = useState(false)
+
 
     const date = new Date
     const d = date.toLocaleDateString('fr-FR')
@@ -188,6 +202,7 @@ export default function DashboardPro(){
             setNotifModal(false)
             setCoachOuvert(null)
             setDeleteCoach(null)
+            setCoursTab('tous')
             return
         }
 
@@ -1252,6 +1267,147 @@ export default function DashboardPro(){
         setSkills('')
     }
 
+
+    const mesCours = useQuery({
+        queryKey : ['mes-cours', page],
+        queryFn : MesCours,
+        keepPreviousData: true
+    })
+
+    const dataCours = mesCours?.data?.cours?.data || []
+    const coursLoading = mesCours.isPending
+    const coursError = mesCours.isError
+
+    const CoursFiltres = useMemo(() => {
+        if (!dataCours || !Array.isArray(dataCours)) return []
+
+        let result = dataCours
+
+        if (search.trim()) {
+            const s = search.toLowerCase()
+            result = result.filter(item =>
+                item.nom_cours?.toLowerCase().includes(s) ||
+                item.niveaux?.toLowerCase().includes(s)
+            )
+        }
+
+        if (coursTab === 'debutant') {
+            result = result.filter(item => item?.niveaux === 'debutant')
+        }
+
+        if (coursTab === 'intermediaire') {
+            result = result.filter(item => item?.niveaux === 'intermediaire' )
+        }
+
+        return result
+    }, [dataCours, search, coursTab])
+
+
+    const supCoursQuery = useQueryClient()
+    const supCours = useMutation({
+        mutationFn : DeleteCours,
+        onSuccess : (()=>{
+            setModalSupCours(false)
+            // setModalSuccessSupAdh(true)
+            setTimeout(()=>{
+                supCours.reset()
+
+            }, 5000)
+
+            supCoursQuery.invalidateQueries(['mes-cours'])
+        }),
+
+        onError : (()=>{
+            setModalSupCours(false)
+            // setModalErrorSupAdh(true)
+            setTimeout(()=>{
+                supCours.reset()
+
+            }, 3000)
+        })
+    })
+
+    const loadingSupCours = supCours.isPending
+    const errorSupCours = supCours.isError
+    const successSupCours = supCours.isSuccess
+
+    async function handleDeleteCours(e, id){
+        e.preventDefault()
+        if (!id) return
+        supCours.mutate({id})
+    }
+
+
+    const coursUpQuery = useQueryClient()
+    const updateCours = useMutation({
+        mutationFn: UpdateCours,
+
+        onSuccess: (()=>{
+            setModalUpCours(false)
+
+            setTimeout(()=>{
+                updateCours.reset()
+
+            }, 5000)
+
+            coursUpQuery.invalidateQueries(['mes-cours'])
+
+        }),
+        onError: (()=>{
+            setTimeout(()=>{
+                updateCours.reset()
+
+            }, 3000)
+        })
+    })
+    const loadingUpdateCours = updateCours.isPending
+    const errorUpdateCours = updateCours.isError
+    const successUpdateCours = updateCours.isSuccess
+
+
+    async function updateCoursUp(e, id){
+        e.preventDefault()
+        if(!id) return
+        updateCours.mutate({
+            id:coursToUp?.id,
+            cours:coursToUp?.nom_cours,
+            niveaux:coursToUp?.niveaux
+        })
+    }
+
+
+    const coursQuery = useQueryClient()
+    const cours = useMutation({
+        mutationFn: AjouterCours,
+
+        onSuccess: (()=>{
+            coursQuery.invalidateQueries(['mes-cours'])
+            setModalAddCours(false)
+            setTimeout(()=>{
+                cours.reset()
+
+            }, 5000)
+            setNomCours('')
+            setNiveaux(null)
+        }),
+
+        onError: (()=>{
+            setTimeout(()=>{
+                cours.reset()
+            }, 3000)
+        })
+    })
+
+    const loadingAddCours = cours.isPending
+    const errorAddCours = cours.isError
+    const successAddCours = cours.isSuccess
+
+    async function handleAddCours(){
+        cours.mutate({
+            cours: nomCours,
+            niveaux: niveaux
+        })
+    }
 
 
     return(
@@ -2401,7 +2557,162 @@ export default function DashboardPro(){
 
             {activeTab === 'cours' &&(
                 <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-                    <p>Cours</p>
+
+                    <div className="flex flex-col gap-2">
+                        <h1 className="font-bold text-3xl flex items-center">
+                            Catalogue des cours
+                            {/* <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">{nbrAdherantsActif} actif{totalAbExpirer > 1 ? 's' : ''}</span> */}
+                        </h1>
+                        <p className="text-gray-400 text-[18px]">Planifier vos cours comme vous le sentez</p>
+                    </div>
+
+                    <div className="flex items-center justify-between my-8">
+                        <div className="flex flex-col gap-3">
+                            <div className="flex items-center relative w-90">
+                                <div className="absolute top-2">
+                                    <Search className="h-5 w-5 text-orange-400 ml-2"/>
+                                </div>
+                                <input type="text"
+                                    value={search}
+                                    onChange={(e)=>{setSearch(e.target.value)}}
+                                    className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
+                                    placeholder="Rechercher des infos par page..."
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <motion.button
+                                    whileTap={{scale: 0.95}}
+                                    onClick={()=>{setCoursTab('tous')}}
+                                    className={`${coursTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+
+                                    Tous
+                                </motion.button>
+
+                                <motion.button
+                                    whileTap={{scale: 0.95}}
+                                    onClick={()=>{setCoursTab('debutant')}}
+
+                                    className={`${coursTab === 'debutant' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+
+                                    Débutant
+                                </motion.button>
+
+                                <motion.button
+                                    whileTap={{scale: 0.95}}
+                                    onClick={()=>{setCoursTab('intermediaire')}}
+
+                                    className={`${coursTab === 'intermediaire' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+
+                                    Intermédiare
+                                </motion.button>
+                            </div>
+                        </div>
+                        <motion.button
+                            whileTap={{scale: 0.95}}
+                            onClick={()=>{setModalAddCours(true), setNiveaux('debutant')}}
+                            disabled={daysRemaining <= 0}
+                            className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
+                            <Plus className="h-5 w-5 "/>
+                            Ajouter un cours
+                        </motion.button>
+                    </div>
+
+                    {/* A revoir avec les vraies donnees */}
+                    <div className="bg-white my-8 rounded-lg ">
+                        <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                            <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                <tr >
+                                    <th className=" p-3 text-left">Intitulé du cours</th>
+                                    <th className=" p-3">Niveau</th>
+                                    <th className=" p-3">Créé le</th>
+                                    <th className=" p-3">Modifié le</th>
+                                    <th className=" p-3">Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody className="">
+                                {coursLoading ? (
+                                    <tr>
+                                        <td colSpan={5} className="py-6 text-center">
+                                            <Loader2 className="mx-auto animate-spin" />
+                                        </td>
+                                    </tr>
+                                ): CoursFiltres.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="py-6 text-center text-sm text-gray-500">
+                                            {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun cours enregistré"}
+                                        </td>
+                                    </tr>
+                                ): CoursFiltres.map(item => (
+                                    <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+
+                                        <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                            <span className="rounded-full bg-gray-200 flex items-center p-2"><File className="h-4 w-4"/></span>
+                                            {item?.nom_cours || 'N/A' }
+
+                                        </td>
+                                        <td className=" px-3 py-5">{item?.niveaux || 'N/A'}</td>
+                                        <td className=" px-3 py-5">{formatDate(item?.created_at) || 'N/A'}</td>
+                                        <td className=" px-3 py-5">{formatDate(item?.updated_at) || 'N/A'}</td>
+                                        
+
+                                        <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                            {/* <motion.button
+                                                type="button"
+                                                onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}}
+                                                    whileTap={{scale: 0.95}}
+                                                className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm `}>
+                                                <Eye className="text-gray-600 h-4 w-4"/>
+                                            </motion.button> */}
+                                            <motion.button
+                                                type="button"
+                                                disabled={daysRemaining <= 0}
+                                                onClick={()=>{setModalUpCours(true), setCoursToUp(item)}}
+                                                whileTap={{scale: 0.95}}
+                                                className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
+                                                <Pencil className="text-white h-4 w-4"/>
+                                            </motion.button>
+                                            <motion.button
+                                                type="button"
+                                                disabled={daysRemaining <= 0}
+                                                onClick={()=>{setModalSupCours(true), setCoursToDelete(item)}}
+                                                whileTap={{scale: 0.95}}
+                                                className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
+                                            >
+                                                <Trash className="h-4 w-4 text-white" />
+                                            </motion.button>
+                                        </td>
+                                    </tr>
+                                ))}
+
+                            </tbody>
+                        </table>
+                        <div className="flex  p-4 items-center justify-between">
+                                <div>
+                                    <div className="text-sm text-gray-400">
+                                        Page <span className="font-bold text-black">{mesCours.data?.cours?.current_page}</span> sur <span className="font-bold text-black">{mesCours.data?.cours?.last_page}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex text-sm items-center gap-2">
+                                    <motion.button
+                                    disabled={pageCours === 1}
+                                    onClick={()=>{setPageCours(p => p - 1)}}
+                                        whileTap={{scale: 0.95}}
+                                        className={`${mesCours.data?.cours?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                    >Précedent</motion.button>
+
+                                    <motion.button
+                                    disabled={pageCours === mesCours.data?.cours?.last_page}
+                                    onClick={()=>{setPageCours(p => p + 1)}}
+                                    whileTap={{scale: 0.95}}
+                                        className={`${mesCours.data?.cours?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                    > Suivant</motion.button>
+                                </div>
+                            </div>
+
+                    </div>
                 </div>
             )}
 
@@ -3620,6 +3931,38 @@ export default function DashboardPro(){
                 </div>
             )}
 
+            {modalSupCours && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
+                    <motion.div
+                    initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    className="bg-white py-3 px-4">
+                        <div className=" text-red-500 mb-5 font-bold text-xl flex items-center gap-2">
+                            <AlertTriangle size={40} />
+                            <p>Voulez-vous vraiment supprimer <br />ce cours <span className="text-black">{coursToDelete.nom_cours}</span> ?</p>
+                        </div>
+                        <div className="flex items-center justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={()=>{setModalSupCours(false)}}
+                                className="border py-1 px-3 text-sm font-semibold"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                type="submit"
+                                onClick={(e)=>{handleDeleteCours(e, coursToDelete.id)}}
+                                disabled={loadingSupCours}
+                                className="border py-1 px-3 text-sm bg-red-500 text-white font-semibold hover:bg-transparent hover:text-black transition-colors duration-200"
+                            >
+                                {loadingSupCours ? <Loader2 className="animate-spin h-5 w-5 text-red"/> : 'Supprimer'}
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
             {suspendreModal &&(
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
                     <motion.div
@@ -3793,6 +4136,169 @@ export default function DashboardPro(){
                 </div>
             )}
 
+            {modalAddCours && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                    {/* <p>{adhToUp.name}</p> */}
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    >
+                        <div className=" bg-white py-5 px-8 rounded-lg shadow-lg">
+                            <div className="mb-10">
+                                <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                                    Ajouter un nouveau cours
+                                </div>
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Intitulé du cours</label>
+                                    <Input
+                                        type={'text'}
+                                        value={nomCours}
+                                        onChange={(e)=>{setNomCours(e.target.value)}}
+                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'saisissez le nom du cours'}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
+
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Niveau du cours </label>
+                                    <div className="flex items-center justify-between border rounded-lg bg-orange-50  border-orange-500">
+                                        <button
+                                            type="button"
+                                            onClick={()=>{setNiveaux('debutant')}}
+                                            className={`${niveaux === 'debutant' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
+                                        >
+                                            Débutant
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            onClick={()=>{setNiveaux('intermediare')}}
+                                            className={`${niveaux === 'intermediare' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
+                                        >
+                                            Intermédiare
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {errorAddCours && (
+                                    <p className="text-red-500 text-sm">{cours.error.message}</p>
+                                )}
+                            </div>
+
+                            <div className=" flex justify-end items-center gap-2">
+                                <button
+                                type="button"
+                                    onClick={()=>{setModalAddCours(false)}}
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    onClick={handleAddCours}
+                                    disabled={loadingAddCours || !niveaux}
+                                    className={`${!niveaux ? 'bg-orange-200 border-orange-200' : 'border-orange-400 bg-orange-500 hover:bg-transparent hover:text-black'} border py-1 px-3 text-white font-semibold transition-colors duration-200`}
+                                >
+                                    {loadingAddCours ?(
+                                        <Loader2 className="animate-spin"/>
+                                    ):(
+                                        'Enregistrer'
+                                    )}
+
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {modalUpCours && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                    {/* <p>{adhToUp.name}</p> */}
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    >
+                        <div className=" bg-white py-5 px-8 w-100 rounded-lg shadow-lg">
+                            <div className="mb-10">
+                                <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                                    {/* <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/> */}
+                                    Modifier le cours
+                                </div>
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Intitulé du cours</label>
+                                    <Input
+                                        type={'text'}
+                                        value={coursToUp?.nom_cours}
+                                        onChange={(e)=>{setCoursToUp({ ...coursToUp, nom_cours: e.target.value }), updateCours.reset()}}
+                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={null}
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                </div>
+
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Niveau de cours </label>
+                                    
+                                    <div className="flex items-center justify-between border rounded-lg bg-orange-50  border-orange-500">
+                                        <button
+                                            type="button"
+                                            onClick={(e)=>{setNiveaux('debutant'),  setCoursToUp({...coursToUp,niveaux: 'debutant'})}}
+                                            className={`${niveaux === 'debutant' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
+                                        >
+                                            Débutant
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            onClick={(e)=>{setNiveaux('intermediaire'),  setCoursToUp({...coursToUp,niveaux: 'intermediaire'})}}
+                                            className={`${niveaux === 'intermediaire' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
+                                        >
+                                            Intermédiare
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {errorUpdateCours && (
+                                    <p className="text-red-500 text-sm">{updateCours.error.message}</p>
+                                )}
+                            </div>
+
+                            <div className=" flex justify-end items-center gap-2">
+                                <button
+                                type="button"
+                                    onClick={()=>{setModalUpCours(false)}}
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                type="submit"
+                                onClick={(e)=>{updateCoursUp(e, coursToUp)}}
+                                disabled={loadingUpdateCours}
+                                    className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200"
+                                >
+                                    {loadingUpdateCours ?(
+                                        <Loader2 className="animate-spin"/>
+                                    ):(
+                                        'Modifier'
+                                    )}
+
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
             {reabonnerModal && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
                     {/* <p>{adhToUp.name}</p> */}
@@ -3878,7 +4384,7 @@ export default function DashboardPro(){
                 </div>
             )}
 
-            {(successSupAdh || reactSuccess || suspSuccess || successUpdateAdh || reabSuccess) && (
+            {(successSupAdh || successSupCours || successAddCours || reactSuccess || suspSuccess || successUpdateAdh || successUpdateCours || reabSuccess) && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
                     <div className="w-150 h-300">
                     <img src={checkvideo} alt="gif"
@@ -3897,6 +4403,19 @@ export default function DashboardPro(){
                     className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
                         <XCircle className="text-red-500 h-10 w-10" />
                         <p className="text-xl">{supAdh.error.message}</p>
+                    </motion.div>
+                </div>
+            )}
+
+            {errorSupCours && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                    className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
+                        <XCircle className="text-red-500 h-10 w-10" />
+                        <p className="text-xl">{supCours.error.message}</p>
                     </motion.div>
                 </div>
             )}
