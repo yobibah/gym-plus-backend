@@ -39,7 +39,7 @@ class CoursController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             cours::create([
                 'nom_cours' => $request->cours,
                 'salle_id' => $user->salle->id,
@@ -47,7 +47,7 @@ class CoursController extends Controller
             ]);
 
             DB::commit();
-            Cache::forget('cours_'.$user->id);
+            Cache::forget('cours_' . $user->id);
 
 
             return response()->json([
@@ -63,54 +63,54 @@ class CoursController extends Controller
         }
     }
 
-public function UpdateCours(Request $request)
-{
-    $user = $request->user();
+    public function UpdateCours(Request $request)
+    {
+        $user = $request->user();
 
-    $validator = Validator::make($request->all(), [
-        'id' => 'required|integer',
-        'cours' => 'nullable|string',
-        'niveaux' => 'nullable|in:debutant,intermediaire,all'
-    ]);
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer',
+            'cours' => 'nullable|string',
+            'niveaux' => 'nullable|in:debutant,intermediaire,all'
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json(
-            ['message' => 'Veuillez remplir correctement les champs', 'errors' => $validator->errors()],
-            400
-        );
-    }
-
-    try {
-        DB::beginTransaction();
-
-        $cours = Cours::find($request->id);
-
-        if (!$cours || $cours->salle_id != $user->salle->id) {
+        if ($validator->fails()) {
             return response()->json(
-                ['message' => 'Cours non trouvé, veuillez réessayer'],
-                404
+                ['message' => 'Veuillez remplir correctement les champs', 'errors' => $validator->errors()],
+                400
             );
         }
 
-        $cours->update([
-            'nom_cours' => $request->cours ?? $cours->nom_cours,
-            'niveaux' => $request->niveaux ?? $cours->niveaux
-        ]);
+        try {
+            DB::beginTransaction();
 
-        DB::commit();
-        Cache::forget('cours_'.$user->id);
+            $cours = Cours::find($request->id);
 
-        return response()->json([
-            'message' => 'Ce cours vient d\'être modifié'
-        ], 200);
+            if (!$cours || $cours->salle_id != $user->salle->id) {
+                return response()->json(
+                    ['message' => 'Cours non trouvé, veuillez réessayer'],
+                    404
+                );
+            }
 
-    } catch (Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'message' => 'Une erreur est survenue, veuillez réessayer : '.$e->getMessage()
-        ], 500);
+            $cours->update([
+                'nom_cours' => $request->cours ?? $cours->nom_cours,
+                'niveaux' => $request->niveaux ?? $cours->niveaux
+            ]);
+
+            DB::commit();
+            Cache::forget('cours_' . $user->id);
+
+            return response()->json([
+                'message' => 'Ce cours vient d\'être modifié'
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Une erreur est survenue, veuillez réessayer : ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
     public function DeleteCours(Request $request)
@@ -142,6 +142,7 @@ public function UpdateCours(Request $request)
             $cours->delete();
 
             DB::commit();
+            Cache::forget('cours_' . $user->id);
 
             return response()->json([
                 'message' => 'cet coours viens d\'etre retirer de la liste des cours'
@@ -161,21 +162,22 @@ public function UpdateCours(Request $request)
     }
 
 
-    public function Mescours(Request $request){
+    public function Mescours(Request $request)
+    {
         $user = $request->user();
 
-        $cours = Cache::remember('cours_'.$user->id, now()->addMinutes(30),function() use ($user){
-            return cours::where('salle_id',$user->salle->id)->paginate(10);
+        $cours = Cache::remember('cours_' . $user->id, now()->addMinutes(30), function () use ($user) {
+            return cours::where('salle_id', $user->salle->id)->paginate(10);
         });
 
-        if ($cours->isEmpty()){
+        if ($cours->isEmpty()) {
             return response()->json([
-                'message'=>'vous n\'avez pas de cours veuillez creer'
-            ],404);
+                'message' => 'vous n\'avez pas de cours veuillez creer'
+            ], 404);
         }
 
         return response()->json([
-            'cours'=>$cours
+            'cours' => $cours
         ]);
     }
 

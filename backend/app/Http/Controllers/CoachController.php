@@ -67,15 +67,14 @@ class CoachController extends Controller
                         'comptence' => $skill
                     ]);
                 }
-            }
-            else{
-     skills::create([
-                'coach_id' => $coach->id,
-                'comptence' => $request->competence
-            ]);
+            } else {
+                skills::create([
+                    'coach_id' => $coach->id,
+                    'comptence' => $request->competence
+                ]);
             }
 
-       
+
             Cache::forget('coach_' . $user->id);
 
             DB::commit();
@@ -159,7 +158,7 @@ class CoachController extends Controller
             'nom' => 'nullable|string',
             'prenom' => 'nullable|string',
             'telephone' => 'nullable|string|min:8',
-            'comptence'=>'nullable'
+            'competence' => 'nullable'
 
         ]);
 
@@ -184,12 +183,27 @@ class CoachController extends Controller
 
 
             $coach->update([
-            
+
                 'nom' => $request->nom ?? $coach->nom,
                 'prenom' => $request->prenom ?? $coach->prenom,
                 'telephone' => $request->telephone ?? $coach->telephone
             ]);
 
+
+            if (is_array($request->competence)) {
+                $skills = $request->competence;
+                foreach ($skills as $skill) {
+                    skills::create([
+                        'coach_id' => $coach->id,
+                        'comptence' => $skill
+                    ]);
+                }
+            } else {
+                skills::create([
+                    'coach_id' => $coach->id,
+                    'comptence' => $request->competence
+                ]);
+            }
             DB::commit();
 
 
@@ -244,5 +258,12 @@ class CoachController extends Controller
 
 
 
+    public function UpdateSkills(Request $request)
+{
+    $validator = Validator::make($request->all(),[
+        'id'=>'required',
+        'comptence'=>'nullable'
+    ]);
+}
 
 }
