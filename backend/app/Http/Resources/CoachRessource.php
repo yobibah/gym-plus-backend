@@ -19,6 +19,7 @@ class CoachRessource extends JsonResource
             'nom'=>$this->nom,
             'prenom'=>$this->prenom,
             'telephone'=>$this->telephone,
+            'comptence_id'=>$this->Skills()->pluck('id'),
             'competence'=> $this->Skills()->pluck('comptence')
         ];
     }
