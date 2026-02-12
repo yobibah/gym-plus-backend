@@ -1,4 +1,4 @@
-import { AlarmClockIcon, AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, BadgeCheck, Bell, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, Circle, CircleAlert, Clock, Download, Euro, ExpandIcon, Eye, File, LayoutDashboard, LayoutDashboardIcon, Loader2, LogOut, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserCog, UserPlus, UserPlus2, Users, Wallet, WalletCards, Weight, X, XCircle } from "lucide-react";
+import { AlarmClockIcon, AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, ArrowRight, BadgeCheck, Bell, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, Circle, CircleAlert, Clock, Download, Euro, ExpandIcon, Eye, File, LayoutDashboard, LayoutDashboardIcon, Loader2, LogOut, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserCog, UserPlus, UserPlus2, Users, Wallet, WalletCards, Weight, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -52,6 +52,8 @@ import { MesCours } from "../../api/dashboard/pro/cours/mesCours";
 import course from '../../assets/images/cours.png'
 import adhh from '../../assets/images/adhh.png'
 import abonnement from '../../assets/images/abonnement.png'
+import { Recette } from "../../api/dashboard/pro/tableau/recette";
+import { ProgrammerCours } from "../../api/dashboard/pro/cours/programmerCours";
 
 
 export default function DashboardPro(){
@@ -139,9 +141,21 @@ export default function DashboardPro(){
     const [pageCours, setPageCours] = useState(1)
     const [modalAddCours, setModalAddCours] = useState(false)
 
-
     const date = new Date
-    const d = date.toLocaleDateString('fr-FR')
+    const dateActuel = date.toLocaleDateString('fr-FR')
+    const heureActuel = date.toLocaleTimeString('fr-FR')
+
+    const [jours, setJours] = useState(dateActuel)
+    const [horaire, setHoraire] = useState(heureActuel)
+    const [selectAdherant, setSelectAdherant] = useState(null)
+    const [selectedCoach, setSelectedCoach] = useState(null)
+    const [program, setProgram] = useState(null)
+    const [modalProgram, setModalProgram] = useState(false)
+    const [modalSelect, setModalSelect] = useState(false)
+
+
+
+    
 
     function handleNotif(){
         setNotifModal(!notifModal)
@@ -1089,14 +1103,14 @@ export default function DashboardPro(){
     const modifCoachError = modifCoach.isError
     const modifCoachSuccess = modifCoach.isSuccess
 
-    function validationModif(){
-        if(!coachEdit?.nom || !coachEdit?.nom.trim()) return false
-        if(!coachEdit?.prenom || !coachEdit?.prenom.trim()) return false
-        if(!coachEdit?.telephone || !coachEdit?.telephone.trim() || coachEdit?.telephone.length !== 8) return false
-        if(!coachEdit?.competence || coachEdit?.competence.length === 0) return false
-
-        return true
-    }
+    const validationModif = () => {
+    if (!coachEdit) return false;
+    if (!coachEdit.nom?.trim()) return false;
+    if (!coachEdit.prenom?.trim()) return false;
+    if (!coachEdit.telephone?.trim()) return false;
+    // if (coachEdit.competence.length === 0) return false;
+    return true;
+};
 
     async function handleModifCoach(e){
         e.preventDefault()
@@ -1226,22 +1240,44 @@ export default function DashboardPro(){
         setSkills('')
     }
 
-    function handleAddSkillC(){
-        coachEdit?.competence.push(skills)
-        setSkills('')
-    }
+    // function handleAddSkillC(){
+    //     coachEdit?.competence.push(skills)
+    //     setSkills('')
+    // }
+
+    const handleAddSkillC = () => {
+        if (!skills.trim()) return;
+
+        const existe = coachEdit.competence.some(
+            (c) => c.toLowerCase() === skills.trim().toLowerCase()
+        );
+        if (existe) return;
+
+        setCoachEdit({
+            ...coachEdit,
+            competence: [...coachEdit.competence, skills.trim()]
+        });
+        setSkills('');
+    };
 
     function removeSkills(index){
         setSkillsCoach(skillsCoach.filter((_,i)=> i !== index))
     }
 
 
-    function removeSkillsC(index) {
-        setCoachEdit(prev => ({
-            ...prev,
-            competence: prev?.competence?.filter((_, i) => i !== index) || []
-        }))
-    }
+    // function removeSkillsC(index) {
+    //     setCoachEdit(prev => ({
+    //         ...prev,
+    //         competence: prev?.competence?.filter((_, i) => i !== index) || []
+    //     }))
+    // }
+
+    const removeSkillsC = (index) => {
+        setCoachEdit({
+            ...coachEdit,
+            competence: coachEdit.competence.filter((_, i) => i !== index)
+        });
+    };
 
 
     function handleCancel(){
@@ -1394,6 +1430,17 @@ export default function DashboardPro(){
         })
     }
 
+
+    const recette = useQuery({
+        queryKey: ['recette'],
+        queryFn: Recette
+    })
+
+    const loadingRecette = recette.isPending
+    const successRecette = recette.isSuccess
+    const errorRecette = recette.isError
+    const dataRecette = recette?.data || {}
+
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
 
@@ -1529,12 +1576,6 @@ export default function DashboardPro(){
                             'Mettre à niveau'
                         )}
                     </motion.button>
-                    {/* <motion.button
-                        whileHover={{scale: 1.03}}
-                        whileTap={{scale: 0.95}}
-                        className="bg-red-700 shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3"
-                        onClick={logoutModal}
-                    >Se Déconnecter</motion.button> */}
                 </div>
 
             </div>
@@ -1648,7 +1689,7 @@ export default function DashboardPro(){
                                     <p className="text-gray-400 font-bold text-[18px]">Adhérants</p>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-3xl">{nbrAdherants || 0} / 1000</p>
+                                    <p className="font-bold text-3xl">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}` || 0} / 1000</p>
                                 </div>
                             </motion.div>
                             <motion.div
@@ -1658,7 +1699,7 @@ export default function DashboardPro(){
                                     <p className="text-gray-400 font-bold text-[18px]">Adhérants Actifs</p>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-3xl text-green-500">{nbrAdherantsActif || 0}</p>
+                                    <p className="font-bold text-3xl text-green-500">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}` || 0}</p>
                                 </div>
                             </motion.div>
                             <motion.div
@@ -1678,7 +1719,7 @@ export default function DashboardPro(){
                                     <p className="text-gray-400 font-bold text-[18px]">Récettes du Mois</p>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-3xl text-yellow-500">XOF 1000</p>
+                                    <p className="font-bold text-3xl text-yellow-500">XOF {dataRecette?.MontantCeMois || '-'}</p>
                                 </div>
                             </motion.div>
                         </div>
@@ -2296,7 +2337,7 @@ export default function DashboardPro(){
                             <motion.button
                                 whileTap={{scale: 0.95}}
                                 onClick={handleAddCoach}
-                                className="flex items-center text-white hover:text-black bg-orange-500 transition-colors duration-200 py-2 px-5 font-bold  border border-orange-500 hover:bg-transparent rounded-lg gap-3"
+                                className="flex items-center text-sm text-white hover:text-black bg-orange-600 transition-colors duration-200 py-2 px-5 font-bold  border border-orange-600 hover:bg-transparent rounded-lg gap-3"
                             >
                                 <UserPlus className="h-5 w-5  transition-colors duration-200" />
                                 <p>Ajouter un coach</p>
@@ -2304,13 +2345,13 @@ export default function DashboardPro(){
                         </div>
 
                         <div className="flex items-center w-full relative w-90 my-8">
-                            <div className="absolute top-3">
-                                <Search className="h-6 w-6 text-orange-400 ml-2"/>
+                            <div className="absolute top-2">
+                                <Search className="h-5 w-5 text-orange-400 ml-2"/>
                             </div>
                             <input type="text"
                             value={search}
                             onChange={(e)=>{setSearch(e.target.value)}}
-                                className="block p-3 pl-10 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border text-[16px] w-full"
+                                className="block p-2 text-sm pl-10 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border text-[16px] w-full"
                                 placeholder="Recherche..."
                             />
                         </div>
@@ -2486,10 +2527,20 @@ export default function DashboardPro(){
                                         )}
 
                                         <div className="flex h-10  gap-1">
-                                            <motion.button 
-                                                whileTap={{scale: 0.95}}
-                                                onClick={()=>{setSelectCoach(selectCoach === item.id ? null : item.id), setCoachEdit(item)}}
-                                                className="w-1/2 flex items-center justify-center border-r border-gray-300">
+                                           
+
+                                            <motion.button
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => {
+                                                    setSelectCoach(selectCoach === item.id ? null : item.id);
+                                                    setCoachEdit({
+                                                        ...item,
+                                                        competence: [...item.competence]  // ← copie propre
+                                                    });
+                                                    setSkills('');  // ← vider l'input
+                                                }}
+                                                className="w-1/2 flex items-center justify-center border-r border-gray-300"
+                                            >
                                                 <Pencil className="h-5 w-5 text-blue-500" />
                                             </motion.button>
                                             <motion.button 
@@ -2695,13 +2746,14 @@ export default function DashboardPro(){
                                             
 
                                             <td className="flex justify-center py-5 items-center gap-2 px-3">
-                                                {/* <motion.button
+                                                <motion.button
                                                     type="button"
-                                                    onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}}
-                                                        whileTap={{scale: 0.95}}
-                                                    className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm `}>
-                                                    <Eye className="text-gray-600 h-4 w-4"/>
-                                                </motion.button> */}
+                                                    disabled={daysRemaining <= 0}
+                                                    onClick={()=>{setModalProgram(true), setProgram(item)}}
+                                                    whileTap={{scale: 0.95}}
+                                                    className={`border ${daysRemaining <= 0 ? 'bg-blue-300' : 'cursor-pointer bg-blue-500 '}  border-blue-100 rounded-lg text-white font-bold p-1 px-3`}>
+                                                    Programmer
+                                                </motion.button>
                                                 <motion.button
                                                     type="button"
                                                     disabled={daysRemaining <= 0}
@@ -4812,7 +4864,7 @@ export default function DashboardPro(){
                                     />
                                 </div>
 
-                                <div className="relative flex-col flex gap-2 mb-5">
+                                {/* <div className="relative flex-col flex gap-2 mb-5">
                                     <label className="font-bold text-lg">Spécialité(s) </label>
                                     <Input
                                         type={'text'}
@@ -4832,6 +4884,30 @@ export default function DashboardPro(){
                                         type="button"
                                         onClick={handleAddSkillC}
                                         whileTap={{scale: 0.95}}
+                                        className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
+                                    >
+                                        <SquarePlus />
+                                    </motion.button>
+                                </div> */}
+
+                                <div className="relative flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Spécialité(s)</label>
+                                    <Input
+                                        type="text"
+                                        value={skills}
+                                        onChange={(e) => setSkills(e.target.value)}
+                                        className="border focus:outline-none border-orange-500 text-md p-2 rounded-lg"
+                                        placeholder="saisissez sa ou ses compétence(s)..."
+                                        disabled={false}
+                                        hidden={false}
+                                        pattern={null}
+                                        ref={null}
+                                        checked={null}
+                                    />
+                                    <motion.button
+                                        type="button"
+                                        onClick={handleAddSkillC}
+                                        whileTap={{ scale: 0.95 }}
                                         className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
                                     >
                                         <SquarePlus />
@@ -4864,7 +4940,7 @@ export default function DashboardPro(){
                             <div className=" flex justify-end items-center gap-2">
                                 <button
                                 type="button"
-                                    onClick={()=>{setSelectCoach(null)}}
+                                    onClick={()=>{setSelectCoach(null), setCoachEdit(null), setSkills('')}}
                                     className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
                                 >
                                     Annuler
@@ -4879,6 +4955,150 @@ export default function DashboardPro(){
                                     ):(
                                         'Modifier'
                                     )}
+
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {modalProgram && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                    {/* <p>{adhToUp.name}</p> */}
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.15}}
+                        transition={{duration:0.4}}
+                    >
+                        <div className=" bg-white flex flex-col gap-5 justify-between py-5 px-8 h-100 w-100 rounded-lg shadow-lg">
+                           
+                            <div className="flex flex-col gap-1 opacity-50 text-xl font-bold mb-5">
+                                Programmer le cours de {program?.nom_cours || 'N/A'}
+                                <p className="text-gray-400 text-xs">Programmer un ou plusieurs cours à la suite après un ajout réussi.</p>
+                            </div>
+
+                            <div className="relative">
+
+                                <div
+                                    onClick={()=>{setModalSelect(!modalSelect)}}
+                                    className="border border-gray-400 p-2 cursor-pointer text-gray-500 bg-gray-200"
+                                >
+
+                                    {!selectAdherant ? (
+                                        'Quel(s) adhérant(s) pour ce cours ?'
+                                    ):(
+                                        `${selectAdherant?.name} ${selectAdherant?.prenom}`
+                                    )}
+                                    
+                                    
+                                </div>
+
+                                {modalSelect && (
+                                    <div
+                                        className="absolute top-10 inset-x-0 border border-gray-400 bg-gray-200 overflow-auto h-100 z-10"
+                                    >
+                                        {loadingAdh ? (
+                                            [1,2,3,4,5,6,7,8,9,10].map(item => (
+                                                <div key={item}
+                                                    className="p-2 flex items-center gap-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
+                                                >
+                                                    <p className="w-15 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
+                                                    <p className="w-25 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
+                                                </div>
+                                            ))
+                                        ):dataAdh.length === 0 ? (
+                                            <div
+                                                className="flex items-center justify-center gap-2 transition-all h-100"
+                                            >
+                                                <p className="text-gray-400 text-sm">Aucun adhérant inscrit dans votre salle</p>
+                                            </div>
+                                        ):dataAdh.map(item => (
+                                            <div
+                                                key={item.id}
+                                                onClick={()=>{
+                                                    setSelectAdherant(item)
+                                                    setModalSelect(false)
+                                                }}
+                                                className="p-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
+                                            >
+                                                {item?.name || 'N/A'} {item?.prenom || 'N/A'}
+                                            </div>
+                                        ))}
+
+                                        {dataAdh.length >= 0 && (
+                                            <div className="flex justify-between p-2 bg-gray-400 items-center">
+                                                <button
+                                                    disabled={page===1}
+                                                    onClick={()=>{setPage(p=>p-1)}}
+                                                >
+                                                    <ArrowLeft className="h-5 w-5"/>
+                                                </button>
+
+                                                <span>
+                                                    {page}/{mesAdh.data?.adherents?.last_page || 1}
+                                                </span>
+
+                                                <button
+                                                    disabled={page===mesAdh.data?.adherents?.last_page}
+                                                    onClick={()=>{setPage(p=>p+1)}}
+                                                >
+                                                    <ArrowRight className="h-5 w-5"/>
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {errorAdh && (
+                                            <div
+                                                className="flex flex-col items-center justify-center gap-2 transition-all h-100"
+                                            >   
+                                                <XCircle className="h-8 w-8 text-red-500"/>
+                                                <p className=" text-center text-sm text-red-500">{mesAdh.error.message}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2">
+                                <div className="border w-full">
+                                    <input type="date" name="" id="" />
+                                    <p>{jours}</p>
+                                </div>
+                                <div className="border w-full">
+                                    <input type="time" name="" id="" />
+                                    <p>{horaire}</p>
+                                </div>
+                            </div>
+                             {/* {successAddCours && (
+                                <p className="text-green-500 flex gap-1 font-bold text-sm"><CheckCircle2 className="h-5 w-5 text-green-500"/>Cours ajouté avec succès</p>
+                            )}
+
+                            {errorAddCours && (
+                                <p className="text-red-500 flex gap-1 font-bold text-sm"><XCircle className="h-5 w-5 text-red-500"/>{cours.error.message}</p>
+                            )} */}
+
+
+                            <div className=" flex justify-end items-center gap-2">
+                                <button
+                                type="button"
+                                    onClick={()=>{setModalProgram(false), setSelectAdherant(null)}}
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    onClick={null}
+                                    disabled
+                                    className={`border-orange-400 bg-orange-500 hover:bg-transparent hover:text-black border py-1 px-3 text-white font-semibold transition-colors duration-200`}
+                                >
+                                    {/* {loadingAddCours ?(
+                                        <Loader2 className="animate-spin"/>
+                                    ):(
+                                        'Enregistrer'
+                                    )} */}
+                                    Enregistrer
 
                                 </button>
                             </div>
