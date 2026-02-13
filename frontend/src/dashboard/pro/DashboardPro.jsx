@@ -5299,7 +5299,7 @@ export default function DashboardPro(){
                             </div>
 
                             <div className="w-full flex flex-col gap-3">
-                                <p className="text-gray-500 flex items-center gap-2"><Clock className="h-5 w-5"/>Quels heures ?</p>
+                                <p className="text-gray-500 flex items-center gap-2"><Clock className="h-5 w-5"/>Quelles heures ?</p>
                                 <div className="flex items-center justify-between gap-2">
                                     <div className="w-full border border-gray-400 bg-gray-200 flex flex-col justify-center items-center py-2">
                                         <p className="text-gray-500">Début</p>
