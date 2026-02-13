@@ -144,14 +144,22 @@ export default function DashboardPro(){
     const date = new Date
     const dateActuel = date.toLocaleDateString('fr-FR')
     const heureActuel = date.toLocaleTimeString('fr-FR')
-
-    const [jours, setJours] = useState(dateActuel)
-    const [horaire, setHoraire] = useState(heureActuel)
+    const dateChoice = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+    const [jours, setJours] = useState([])
+    const [horaire, setHoraire] = useState([])
+    const [heure, setHeure] = useState(null)
+    const [heureFin, setHeureFin] = useState(null)
     const [selectAdherant, setSelectAdherant] = useState(null)
+    const [adherantChoice, setAdherantChoice] = useState([])
+    const [adherantChoiceId, setAdherantChoiceId] = useState([])
     const [selectedCoach, setSelectedCoach] = useState(null)
     const [program, setProgram] = useState(null)
     const [modalProgram, setModalProgram] = useState(false)
     const [modalSelect, setModalSelect] = useState(false)
+
+    const [modalSelectCoach, setModalSelectCoach] = useState(false)
+    const [coachChoice, setCoachChoice] = useState(null)
+    const [coachChoiceId, setCoachChoiceId] = useState(null)
 
 
 
@@ -341,6 +349,19 @@ export default function DashboardPro(){
     const totalAnnuel = Number(mesAdh.data?.annuel) || 0
     const loadingAdh = mesAdh.isPending
     const errorAdh = mesAdh.isError
+
+
+    const AdherantProgram = useMemo(()=>{
+        if (!dataAdh || !Array.isArray(dataAdh)) return []
+
+        let result = dataAdh
+
+        if(modalSelect){
+            result = result.filter(item => item.dernier_abonnement?.actif)
+        }
+
+        return result
+    }, [modalSelect, dataAdh])
 
 
     const adherentsFiltres = useMemo(() => {
@@ -1240,10 +1261,6 @@ export default function DashboardPro(){
         setSkills('')
     }
 
-    // function handleAddSkillC(){
-    //     coachEdit?.competence.push(skills)
-    //     setSkills('')
-    // }
 
     const handleAddSkillC = () => {
         if (!skills.trim()) return;
@@ -1264,13 +1281,6 @@ export default function DashboardPro(){
         setSkillsCoach(skillsCoach.filter((_,i)=> i !== index))
     }
 
-
-    // function removeSkillsC(index) {
-    //     setCoachEdit(prev => ({
-    //         ...prev,
-    //         competence: prev?.competence?.filter((_, i) => i !== index) || []
-    //     }))
-    // }
 
     const removeSkillsC = (index) => {
         setCoachEdit({
@@ -1440,6 +1450,76 @@ export default function DashboardPro(){
     const successRecette = recette.isSuccess
     const errorRecette = recette.isError
     const dataRecette = recette?.data || {}
+
+    // console.log('choix;', adherantChoice)
+    // console.log('choixID;', adherantChoiceId)
+    // console.log('jours', jours)
+    // console.log('horaire', horaire)
+    // console.log('debut', heure)
+    // console.log('fin', heureFin)
+    // console.log('coach', coachChoice)
+    // console.log('coachID', coachChoiceId)
+
+    const programCoursQuery = useQueryClient()
+    const programCours = useMutation({
+        mutationFn: ProgrammerCours,
+
+        onSuccess: (()=>{
+            // programCoursQuery.invalidateQueries([''])
+            setSelectAdherant(null), 
+            setAdherantChoice([]), 
+            setAdherantChoiceId([]),
+            setJours([]),
+            setHeure(null),
+            setHeureFin(null)
+            setHoraire([])
+            setCoachChoice(null)
+            setCoachChoiceId(null)
+            setTimeout(()=>{
+                programCours.reset()
+            }, 3000)
+        }),
+
+        onError: (()=>{
+
+            setTimeout(()=>{
+                programCours.reset()
+            })
+        })
+    })
+
+    const programLoading = programCours.isPending
+    const programSuccess = programCours.isSuccess
+    const programError = programCours.isError
+
+    function validateProgram(){
+        if (!adherantChoiceId) return false
+        if (!coachChoiceId) return false
+        if(!jours) return false
+        if (!horaire) return false
+
+        return true
+
+    }
+
+    async function handleProgram(e) {
+        e.preventDefault()
+        if(!validateProgram) return
+        const heuree = horaire.find(h => h.heure)?.heure
+        const heureFine = horaire.find(h => h.heureFin)?.heureFin
+        const heures = [heuree, heureFine]
+        programCours.mutate({
+            cours_id: program?.id,
+            ahderent_id: adherantChoiceId,
+            jours: jours,
+            horaire: heures,
+            prof_id: coachChoiceId
+        })
+    }
+
+
+    
+
 
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
@@ -4971,136 +5051,356 @@ export default function DashboardPro(){
                         animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
                     >
-                        <div className=" bg-white flex flex-col gap-5 justify-between py-5 px-8 h-100 w-100 rounded-lg shadow-lg">
+                        <div className=" bg-white flex flex-col justify-between py-5 px-8 h-180 w-150 rounded-lg shadow-lg">
                            
-                            <div className="flex flex-col gap-1 opacity-50 text-xl font-bold mb-5">
+                            <div className="flex flex-col gap-1 opacity-50 text-xl font-bold">
                                 Programmer le cours de {program?.nom_cours || 'N/A'}
                                 <p className="text-gray-400 text-xs">Programmer un ou plusieurs cours à la suite après un ajout réussi.</p>
                             </div>
 
-                            <div className="relative">
+                            <div className="grid grid-cols-4 gap-2">
+                                <div className="relative col-span-3">
 
-                                <div
-                                    onClick={()=>{setModalSelect(!modalSelect)}}
-                                    className="border border-gray-400 p-2 cursor-pointer text-gray-500 bg-gray-200"
-                                >
+                                    <div
+                                        onClick={()=>{
+                                            setModalSelect(!modalSelect)
+                                            setModalSelectCoach(false)
+                                        }}
+                                        className="border border-gray-400 p-2 cursor-pointer text-gray-500 bg-gray-200"
+                                    >
+                                        {adherantChoice.length > 0 ?
+                                            'Ajouter un autre adhérant...'
+                                        :
+                                            'Quel(s) adhérant(s) pour ce cours ?'
+                                        }
+                                    </div>
 
-                                    {!selectAdherant ? (
-                                        'Quel(s) adhérant(s) pour ce cours ?'
+                                    <div className="my-2">
+                                        <p className="text-gray-400 text-sm">
+                                            {adherantChoice.length > 0 ? 
+                                                `${adherantChoice.length > 9 ? adherantChoice.length : `0${adherantChoice.length}`} adhérant${adherantChoice.length > 1 ? 's' : ''} sélectionné${adherantChoice.length > 1 ? 's' : ''}`
+                                            :   
+                                                'Aucun adhérant sélectionné'
+                                            }
+                                        </p>
+                                    </div>
+
+                                    {adherantChoice.length > 0 && (
+                                        <div
+                                            onClick={null}
+                                            className={` my-2 grid grid-cols-4 gap-2 ${adherantChoice.length > 8 ? 'border border-orange-500 p-2 overflow-auto h-20' : ''}`}
+                                        >
+                                            {adherantChoice.map(item => (
+                                                <motion.div
+                                                    initial={{opacity:0, scale:0.75}}
+                                                    animate={{opacity:1, scale:0.95}}
+                                                    transition={{duration:0.4}}
+                                                    key={item.id}  
+                                                    className=" relative rounded-lg border border-orange-400 px-2 py-1 text-gray-600 text-xs font-bold bg-orange-200"
+                                                >
+                                                    {item?.name || 'N/A'} {item?.prenom || 'N/A'}
+                                                    <motion.button
+                                                        onClick={()=>{
+                                                            setAdherantChoice(adherantChoice.filter(i => i.id !== item.id))
+                                                            setAdherantChoiceId(adherantChoiceId.filter(index => index !== item.id))
+                                                        }}
+                                                        className="absolute top-0 right-0 bg-red-300 rounded-full"
+                                                    >
+                                                        <XCircle className="h-3 w-3 text-red-600"/>
+                                                    </motion.button>
+                                                </motion.div>
+                                            ))}   
+                                            
+                                        </div>
+                                    )}
+                                    
+
+                                    {modalSelect && (
+                                        <motion.div
+                                            initial={{opacity:0, y:-5}}
+                                            animate={{opacity:1, y:2}}
+                                            transition={{duration: 0.5}}
+                                            className="absolute top-10 inset-x-0 border border-gray-400 bg-gray-200 overflow-auto h-100 z-10"
+                                        >
+                                            {loadingAdh ? (
+                                                [1,2,3,4,5,6,7,8,9,10].map(item => (
+                                                    <div key={item}
+                                                        className="p-2 flex items-center gap-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
+                                                    >
+                                                        <p className="w-15 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
+                                                        <p className="w-25 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
+                                                    </div>
+                                                ))
+                                            ):AdherantProgram.length === 0 ? (
+                                                <div
+                                                    className="flex items-center justify-center gap-2 transition-all h-100"
+                                                >
+                                                    <p className="text-gray-400 text-sm">Aucun adhérant inscrit dans votre salle</p>
+                                                </div>
+                                            ):AdherantProgram.map(item => (
+                                                <div
+                                                    key={item.id}
+                                                    onClick={()=>{
+                                                        setAdherantChoiceId([...adherantChoiceId, item.id])
+                                                        setAdherantChoice([...adherantChoice, item])
+                                                        setModalSelect(false)
+                                                    }}
+                                                    className="p-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
+                                                >
+                                                    {item?.name || 'N/A'} {item?.prenom || 'N/A'}
+                                                </div>
+                                            ))}
+
+                                            {AdherantProgram.length >= 0 && (
+                                                <div className="flex justify-between p-2 bg-gray-400 items-center">
+                                                    <button
+                                                        disabled={page===1}
+                                                        onClick={()=>{setPage(p=>p-1)}}
+                                                    >
+                                                        <ArrowLeft className="h-5 w-5"/>
+                                                    </button>
+
+                                                    <span>
+                                                        {page}/{mesAdh.data?.adherents?.last_page || 1}
+                                                    </span>
+
+                                                    <button
+                                                        disabled={page===mesAdh.data?.adherents?.last_page}
+                                                        onClick={()=>{setPage(p=>p+1)}}
+                                                    >
+                                                        <ArrowRight className="h-5 w-5"/>
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            {errorAdh && (
+                                                <div
+                                                    className="flex flex-col items-center justify-center gap-2 transition-all h-100"
+                                                >   
+                                                    <XCircle className="h-8 w-8 text-red-500"/>
+                                                    <p className=" text-center text-sm text-red-500">{mesAdh.error.message}</p>
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    )}
+                                    
+                                </div>
+
+                                <div  className="relative flex flex-col">
+                                    
+                                    
+                                    <div
+                                        onClick={()=>{
+                                            setModalSelectCoach(!modalSelectCoach)
+                                            setModalSelect(false)
+                                        }}
+                                        className={`${!coachChoice ? 'border-gray-400 text-gray-500 bg-gray-200' : ' border-orange-400 text-gray-600 bg-orange-200' } border w-full flex items-center justify-center cursor-pointer `}
+                                    >
+                                        
+                                        {!coachChoice ?
+                                            <div className="flex flex-col items-center text-center">
+                                                <User className="h-5 w-5" />
+                                                Associer un coach
+                                            </div>
+                                            
+                                        :
+                                            <div className="flex uppercase font-bold flex-col  items-center text-xs py-1 text-center">
+                                                <span>{coachChoice?.nom || 'N/A'}</span>
+                                                <span>{coachChoice?.prenom || 'N/A'}</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    {coachChoice && (
+                                        <p className="text-[10px] text-gray-400">NB: Cliquez à nouveau pour changer de coach</p>
+                                    )}
+
+                                    {modalSelectCoach && (
+                                        <motion.div
+                                            initial={{opacity:0, y:-5}}
+                                            animate={{opacity:1, y:2}}
+                                            transition={{duration: 0.5}}
+                                            className={`absolute ${!coachChoice ? 'top-17' : 'top-9'} inset-x-0 border border-gray-400 bg-gray-200 overflow-auto h-50 z-10`}
+                                        >
+                                            {coachLoading ? (
+                                                [1,2,3,4,5].map(item => (
+                                                    <div key={item}
+                                                        className="p-2 flex items-center gap-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
+                                                    >
+                                                        <p className="w-15 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
+                                                        <p className="w-25 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
+                                                    </div>
+                                                ))
+                                            ):mes_coach.length === 0 ? (
+                                                <div
+                                                    className="flex items-center justify-center gap-2 transition-all h-50"
+                                                >
+                                                    <p className="text-gray-400 text-sm">Aucun coach inscrit dans votre salle</p>
+                                                </div>
+                                            ):mes_coach.map(item => (
+                                                <div
+                                                    key={item.id}
+                                                    onClick={()=>{
+                                                        setCoachChoice(item)
+                                                        setCoachChoiceId(item.id)
+                                                        setModalSelectCoach(false)
+                                                    }}
+                                                    className="p-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
+                                                >
+                                                    {item?.nom || 'N/A'} {item?.prenom || 'N/A'}
+                                                </div>
+                                            ))}
+
+                                            
+                                            {coachError && (
+                                                <div
+                                                    className="flex flex-col items-center justify-center gap-2 transition-all h-50"
+                                                >   
+                                                    <XCircle className="h-8 w-8 text-red-500"/>
+                                                    <p className=" text-center text-sm text-red-500">{mes_coach.error.message}</p>
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="w-full flex flex-col gap-3">
+                                <p className="text-gray-500 flex items-center gap-2"><Calendar className="h-5 w-5"/>Quels jours ?</p>
+                                <div className="grid grid-cols-4  gap-2">
+                                    {dateChoice.map((date,index) => (
+                                        <button
+                                        key={index}
+                                        className={`${jours.includes(date) ? 'border-orange-400 bg-orange-200 text-gray-600 font-bold' : 'border-gray-400 bg-gray-200 text-gray-500'} transition-all duration-200 border `}
+                                        onClick={()=>{
+                                            if(jours.includes(date)){
+                                                setJours(jours.filter(i => i !== date))
+                                            } else {
+                                                setJours([...jours, date])
+                                            }
+                                        }}
+                                        >{date}</button>
+                                    ))}
+                                </div>
+                                <div>
+                                    {jours.length === 0 ? (
+                                        <p className="text-gray-400 text-sm">Aucun jour sélectionné</p>
                                     ):(
-                                        `${selectAdherant?.name} ${selectAdherant?.prenom}`
+                                        <div className="text-sm text-orange-500 ">
+                                            <p className="text-gray-400 ">
+                                                Jour{jours.length > 1 ? 's' : ''} programmé{jours.length > 1 ? 's' : ''}: 
+                                            </p>
+                                            [
+                                                {jours.map((item,index) => (
+                                                    <span className='px-1' key={index}>{item},</span>
+                                                ))}]
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="w-full flex flex-col gap-3">
+                                <p className="text-gray-500 flex items-center gap-2"><Clock className="h-5 w-5"/>Quels heures ?</p>
+                                <div className="flex items-center justify-between gap-2">
+                                    <div className="w-full border border-gray-400 bg-gray-200 flex flex-col justify-center items-center py-2">
+                                        <p className="text-gray-500">Début</p>
+                                        <input type="time" value={heure} 
+                                            onChange={(e)=>{
+                                                setHoraire([...horaire, {heure: e.target.value}])
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="w-full border border-gray-400 bg-gray-200 flex flex-col justify-center items-center py-2">
+                                        <p className="text-gray-500">Fin</p>
+                                        <input type="time" value={heureFin} 
+                                            onChange={(e)=>{
+                                                setHoraire([...horaire, {heureFin: e.target.value}])
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    {horaire.length === 0 ? (
+                                        <p className="text-sm text-gray-400">Horaires non définis</p>
+                                    ): horaire.length === 1 ? (
+                                        horaire.find(h => h.heure) ? (
+                                            <p className="text-sm text-gray-400 flex items-center gap-2">À partir de 
+                                                <span className="text-orange-500">{horaire.find(h => h.heure)?.heure || "N/A"} </span>
+                                            </p>
+                                        ):<p className="text-sm text-gray-400">Horaires non définis</p>
+                                    ):( 
+                                        <p className="text-sm text-gray-400 flex items-center gap-2">De 
+                                            <span className="text-orange-500 flex items-center gap-2">
+                                                {horaire.find(h => h.heure)?.heure || "N/A"} 
+                                                {" "}<span className="text-sm text-gray-400">À</span>{" "}
+                                                {horaire.find(h => h.heureFin)?.heureFin || "N/A"}
+                                            </span>
+                                        </p>
                                     )}
                                     
                                     
                                 </div>
+                            </div>
 
-                                {modalSelect && (
-                                    <div
-                                        className="absolute top-10 inset-x-0 border border-gray-400 bg-gray-200 overflow-auto h-100 z-10"
-                                    >
-                                        {loadingAdh ? (
-                                            [1,2,3,4,5,6,7,8,9,10].map(item => (
-                                                <div key={item}
-                                                    className="p-2 flex items-center gap-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
-                                                >
-                                                    <p className="w-15 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
-                                                    <p className="w-25 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
-                                                </div>
-                                            ))
-                                        ):dataAdh.length === 0 ? (
-                                            <div
-                                                className="flex items-center justify-center gap-2 transition-all h-100"
-                                            >
-                                                <p className="text-gray-400 text-sm">Aucun adhérant inscrit dans votre salle</p>
-                                            </div>
-                                        ):dataAdh.map(item => (
-                                            <div
-                                                key={item.id}
-                                                onClick={()=>{
-                                                    setSelectAdherant(item)
-                                                    setModalSelect(false)
-                                                }}
-                                                className="p-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
-                                            >
-                                                {item?.name || 'N/A'} {item?.prenom || 'N/A'}
-                                            </div>
-                                        ))}
 
-                                        {dataAdh.length >= 0 && (
-                                            <div className="flex justify-between p-2 bg-gray-400 items-center">
-                                                <button
-                                                    disabled={page===1}
-                                                    onClick={()=>{setPage(p=>p-1)}}
-                                                >
-                                                    <ArrowLeft className="h-5 w-5"/>
-                                                </button>
-
-                                                <span>
-                                                    {page}/{mesAdh.data?.adherents?.last_page || 1}
-                                                </span>
-
-                                                <button
-                                                    disabled={page===mesAdh.data?.adherents?.last_page}
-                                                    onClick={()=>{setPage(p=>p+1)}}
-                                                >
-                                                    <ArrowRight className="h-5 w-5"/>
-                                                </button>
-                                            </div>
-                                        )}
-
-                                        {errorAdh && (
-                                            <div
-                                                className="flex flex-col items-center justify-center gap-2 transition-all h-100"
-                                            >   
-                                                <XCircle className="h-8 w-8 text-red-500"/>
-                                                <p className=" text-center text-sm text-red-500">{mesAdh.error.message}</p>
-                                            </div>
-                                        )}
-                                    </div>
+                            <div className=" flex justify-between items-center">
+                                {programSuccess && (
+                                    <p className="text-green-500 flex gap-1 font-bold text-sm w-full"><CheckCircle2 className="h-5 w-5 text-green-500"/>Programmation réussie </p>
                                 )}
-                                
-                            </div>
+                                {programError && (
+                                    <p className="text-red-500 flex gap-1 font-bold text-sm"><XCircle className="h-5 w-5 text-red-500"/>{programCours.error.message}</p>
+                                )}
+                                <div className="flex items-center justify-end w-full gap-2">
+                                    <button
+                                    type="button"
+                                        onClick={()=>{
+                                            setModalProgram(false), 
+                                            setSelectAdherant(null), 
+                                            setAdherantChoice([]), 
+                                            setAdherantChoiceId([]),
+                                            setJours([]),
+                                            setHeure(null),
+                                            setHeureFin(null)
+                                            setHoraire([])
+                                            setCoachChoice(null)
+                                            setCoachChoiceId(null)
+                                        }}
+                                        className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        onClick={(e)=>{handleProgram(e)}}
+                                        disabled={
+                                            programLoading ||
+                                            adherantChoice.length === 0 ||
+                                            !coachChoice ||
+                                            jours.length === 0 ||
+                                            horaire.length === 0
+                                        }
+                                        className={`
+                                            ${
+                                                    programLoading ||
+                                                    adherantChoice.length === 0 ||
+                                                    !coachChoice ||
+                                                    jours.length === 0 ||
+                                                    horaire.length === 0
+                                                ?
+                                                    'border-orange-200 bg-orange-200'
+                                                :
+                                                    'border-orange-400 bg-orange-500 hover:bg-transparent hover:text-black'
+                                            }
+                                             border py-1 px-3 text-white font-semibold transition-colors duration-200
+                                        `}
+                                    >
+                                        {programLoading ?(
+                                            <Loader2 className="animate-spin"/>
+                                        ):(
+                                            'Programmer'
+                                        )}
 
-                            <div className="flex items-center justify-between gap-2">
-                                <div className="border w-full">
-                                    <input type="date" name="" id="" />
-                                    <p>{jours}</p>
+                                    </button>
                                 </div>
-                                <div className="border w-full">
-                                    <input type="time" name="" id="" />
-                                    <p>{horaire}</p>
-                                </div>
-                            </div>
-                             {/* {successAddCours && (
-                                <p className="text-green-500 flex gap-1 font-bold text-sm"><CheckCircle2 className="h-5 w-5 text-green-500"/>Cours ajouté avec succès</p>
-                            )}
-
-                            {errorAddCours && (
-                                <p className="text-red-500 flex gap-1 font-bold text-sm"><XCircle className="h-5 w-5 text-red-500"/>{cours.error.message}</p>
-                            )} */}
-
-
-                            <div className=" flex justify-end items-center gap-2">
-                                <button
-                                type="button"
-                                    onClick={()=>{setModalProgram(false), setSelectAdherant(null)}}
-                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
-                                >
-                                    Annuler
-                                </button>
-                                <button
-                                    onClick={null}
-                                    disabled
-                                    className={`border-orange-400 bg-orange-500 hover:bg-transparent hover:text-black border py-1 px-3 text-white font-semibold transition-colors duration-200`}
-                                >
-                                    {/* {loadingAddCours ?(
-                                        <Loader2 className="animate-spin"/>
-                                    ):(
-                                        'Enregistrer'
-                                    )} */}
-                                    Enregistrer
-
-                                </button>
                             </div>
                         </div>
                     </motion.div>
