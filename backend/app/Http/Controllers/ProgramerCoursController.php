@@ -105,6 +105,7 @@ class ProgramerCoursController extends Controller
 
         try {
             $cours = ProgramerCours::where('salle_id', $user->salle->id)->get();
+            
 
             if (!$cours) {
                 return response()->json([

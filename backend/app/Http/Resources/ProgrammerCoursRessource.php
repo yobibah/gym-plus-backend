@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Coach;
+use App\Models\coach;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,26 +16,39 @@ class ProgrammerCoursRessource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
-            'horaire' => explode(',', $this->horaire),
+     
 
-            'adherent' => function () {
-                $ids = explode(',', $this->adherent_id);
+        // recuprer le coach et la comptence qui va avec ses skills
+        $coach = coach::find($this->coach_id);
+        $coachData = $coach ? $coach?->only(['id', 'nom', 'prenom']) : null;
+        $skills = $coach?->Skills()->pluck('comptence');
+        $data = [
+            'coach' => $coachData,
+            'skills' => $skills
+        ];
+
+        // recuperer les adherents
+           $adh = $this->adherent_id;
+                $ids = explode(',', $adh);
                 $users = User::whereIn('id', $ids)->get();
-                return $users->map(function ($user) {
+                $adherent =  $users->map(function ($user) {
                     return [
                         'id' => $user->id,
                         'nom' => $user->nom,
                         'prenom' => $user->prenom,
-                     
+
                     ];
                 });
-            },
 
-            'coach' => function () {
-                $coach = coach::find($this->coach_id);
-                return $coach ? new CoachRessource($coach) : $this->coach_id;
-            },
+
+
+
+        return [
+            'horaire' => explode(',', $this->horaire),
+
+            'adherent' => $adherent,
+
+            'coach' => $data ?? $this->coach_id,
 
             'jours' => explode(',', $this->jours)
         ];
