@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\coach;
+use App\Models\cours;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,6 +17,7 @@ class ProgrammerCoursRessource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $gerant = $request->user();
      
 
         // recuprer le coach et la comptence qui va avec ses skills
@@ -34,7 +36,7 @@ class ProgrammerCoursRessource extends JsonResource
                 $adherent =  $users->map(function ($user) {
                     return [
                         'id' => $user->id,
-                        'nom' => $user->nom,
+                        'nom' => $user->name,
                         'prenom' => $user->prenom,
 
                     ];
@@ -42,8 +44,13 @@ class ProgrammerCoursRessource extends JsonResource
 
 
 
+    // recuperer le cours
+
+    $cours =  cours::where('id',$this->cours_id)->where('salle_id',$gerant->salle->id);
+    $nomCours = $cours?->pluck('nom_cours');
 
         return [
+            'cours'=>$nomCours,
             'horaire' => explode(',', $this->horaire),
 
             'adherent' => $adherent,
