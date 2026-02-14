@@ -84,14 +84,14 @@ class User extends Authenticatable
         //         ], 401)
         //     );
         // }
-        return $this->HasOne(Salle::class, 'gerant_id', 'id');
+        return $this->HasOne(salle::class, 'gerant_id', 'id');
     }
 
 
     //salle avec adherant
     public function salles()
     {
-        return $this->belongsToMany(Salle::class, 'adherent_salle', 'adherent_id', 'salle_id')
+        return $this->belongsToMany(salle::class, 'adherent_salle', 'adherent_id', 'salle_id')
             ->withPivot(['date_inscription', 'statut'])
             ->withTimestamps();
     }
@@ -152,6 +152,7 @@ class User extends Authenticatable
     public function dernierAbonnement()
     {
         return $this->hasOne(abonnement::class, 'adherant_id')
+            
 
             ->latestOfMany('fin');
     }
@@ -193,7 +194,7 @@ class User extends Authenticatable
 
     public function Activites()
     {
-        return $this->hasMany(Activites::class, 'gerant_id');
+        return $this->hasMany(activites::class, 'gerant_id');
     }
 
 
@@ -211,7 +212,7 @@ class User extends Authenticatable
     public function Aherantsalles()
     {
         return $this->belongsToMany(
-            Salle::class,
+            salle::class,
             'salle_adherant',
             'adherant_id',
             'salle_id'

@@ -2,10 +2,7 @@
 
 use App\Http\Controllers\CoursController;
 use App\Http\Controllers\ProgramerCoursController;
-use Aws\Middleware;
 use App\Exports\UserExport;
-use Illuminate\Http\Request;
-use App\Http\Middleware\paiementMid;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -13,7 +10,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CoachController;
 use App\Http\Controllers\SalleController;
-use App\Http\Controllers\GerantController;
+
 use App\Http\Controllers\DepensesController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\YengaPayController;
@@ -104,7 +101,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
       Route::post('/ajouter-coach', [CoachController::class, 'AjouterCoach']);
       Route::delete('/delete-coach', [CoachController::class, 'DeleteCoach']);
       Route::put('/update-coach', [CoachController::class, 'UpdateCoach']);
+      Route::get('/skills',[CoachController::class,'Skills']);
+      Route::delete('/delete-skills',[CoachController::class,'DeleteSkills']);
+      Route::post('/add-skills',[CoachController::class,'AddSkills']);
+      Route::post('/programmer-cours ',[ProgramerCoursController::class,'ProgrammerCours']);
 
+      Route::get('/cours-programmer-listes',[ProgramerCoursController::class,'MesCoursProgrammer']);
     });
 
     Route::get('/mon-historique', [HomeController::class, 'ConnexionHistorique']);

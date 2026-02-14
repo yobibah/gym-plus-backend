@@ -47,7 +47,7 @@ class CoursController extends Controller
             ]);
 
             DB::commit();
-            Cache::forget('cours_' . $user->id);
+            Cache::forget('cours_'.$user->id);
 
 
             return response()->json([
@@ -98,7 +98,7 @@ class CoursController extends Controller
             ]);
 
             DB::commit();
-            Cache::forget('cours_' . $user->id);
+            Cache::forget('cours_'.$user->id);
 
             return response()->json([
                 'message' => 'Ce cours vient d\'être modifié'
@@ -142,7 +142,7 @@ class CoursController extends Controller
             $cours->delete();
 
             DB::commit();
-            Cache::forget('cours_' . $user->id);
+            Cache::forget('cours_'.$user->id);
 
             return response()->json([
                 'message' => 'cet coours viens d\'etre retirer de la liste des cours'
@@ -166,7 +166,7 @@ class CoursController extends Controller
     {
         $user = $request->user();
 
-        $cours = Cache::remember('cours_' . $user->id, now()->addMinutes(30), function () use ($user) {
+        $cours = Cache::remember('cours_'.$user->id, now()->addMinutes(30), function () use ($user) {
             return cours::where('salle_id', $user->salle->id)->paginate(10);
         });
 

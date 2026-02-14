@@ -220,8 +220,9 @@ class YengaPayController extends Controller
 
             }
             $hasAbonnement = $current->paiements()
-                ->where('fin', '>=', Carbon::now())
-                ->exists();
+    ->whereBetween('fin', [Carbon::now(), Carbon::now()->addDays(7)])
+    ->where('status','reussi')
+    ->exists();
 
             if ($hasAbonnement) {
                 return response()->json([

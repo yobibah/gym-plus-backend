@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,8 +21,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-            Gate::before(function ($user, $ability) {
-        return $user->hasRole('super_admin') ? true : null;
-    });
+        Gate::before(function ($user, $ability) {
+            return $user->hasRole('super_admin') ? true : null;
+        });
+
+        // DB::listen(function ($query) {
+        //     dump($query->sql);
+        //     dump($query->bindings);
+        //     dump($query->time);
+        // });
     }
 }
