@@ -43,7 +43,7 @@ class SalleController extends Controller
     }
 
     // Une seule salle par gérant
-    if (Salle::where('gerant_id', $current->id)->exists()) {
+    if (salle::where('gerant_id', $current->id)->exists()) {
         return response()->json([
             'message' => 'Vous avez déjà une salle'
         ], 409);
@@ -52,7 +52,7 @@ class SalleController extends Controller
     DB::beginTransaction();
 
     try {
-        $salle = Salle::create([
+        $salle = salle::create([
             'nom_salle'         => $request->nomSalle,
             'numero_salle'      => $current->telephone,
             'ville'             => $request->ville,

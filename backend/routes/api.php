@@ -88,7 +88,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
       });
       Route::post('/test-sms', [HomeController::class, 'testSms']);
 
-      Route::post('/programmer-cours', [ProgramerCoursController::class, 'ProgrammerCours']);
+  
       Route::delete('/delete-cours', [CoursController::class, 'DeleteCours']);
       Route::put('/update-cours', [CoursController::class, 'UpdateCours']);
       Route::post('/ajouter-cours', [CoursController::class, 'AjouterCours']);
