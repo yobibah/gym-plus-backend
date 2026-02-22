@@ -1,5 +1,5 @@
 import React from "react";
-import ContactImage from "../components/ui/image";
+import ImageComponent from "../components/ui/image";
 import Button from "../components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +21,7 @@ export default function NotFound() {
     <div className="flex flex-col gap-10 items-center justify-center bg-orange-100 h-screen p-4">
       <div className=" relative flex items-center">
         <p className="text-9xl uppercase font-bold text-orange-600/70">Erreur</p>
-        <ContactImage 
+        <ImageComponent 
           source={notfoundimg}
           label={"not-found"}
           style={" mx-auto w-150 h-150 animate-pulse"}

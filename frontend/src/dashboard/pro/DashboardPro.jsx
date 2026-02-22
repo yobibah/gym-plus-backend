@@ -1,4 +1,4 @@
-import { AlarmClockIcon, AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, ArrowRight, BadgeCheck, Bell, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, Circle, CircleAlert, Clock, Download, Euro, ExpandIcon, Eye, File, LayoutDashboard, LayoutDashboardIcon, Loader2, LogOut, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserCog, UserPlus, UserPlus2, Users, Wallet, WalletCards, Weight, X, XCircle } from "lucide-react";
+import { AlertOctagon, AlertTriangle, AlertTriangleIcon, ArrowDownUpIcon, ArrowLeft, ArrowRight, Bell, Calendar, Calendar1, CalendarOff, Check, CheckCircle, CheckCircle2, Circle, Clock, Download, Euro, Eye, File, Info, LayoutDashboard, Loader2, LogOut, NotebookPen, Pencil, Plus, PlusSquare, Save, Search, Settings, SquarePlus, Star, Timer, Trash, Trash2, UploadCloud, User, UserCog, UserPlus, Users, Users2, WalletCards, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +24,6 @@ import { addLogo } from "../../api/dashboard/standard/parametres/addLogo";
 import { UpdateLogo } from "../../api/dashboard/standard/parametres/changeLogo";
 import { DeleteLogo } from "../../api/dashboard/standard/parametres/deleteLogo";
 import { DeleteAdh } from "../../api/dashboard/standard/adherants/deleteAdh";
-import checkvideo from '../../assets/videos/check2.gif'
 import { UpdateAdh } from "../../api/dashboard/standard/adherants/updateAdh";
 import logoGym from '../../assets/images/coverhero.png'
 import { Reabonner } from "../../api/dashboard/standard/abonnements/reabonner";
@@ -42,8 +41,6 @@ import { NombreCoach } from "../../api/dashboard/pro/coachs/nombreCoach";
 import coach from '../../assets/images/coach.png'
 import { AjouterCoach } from "../../api/dashboard/pro/coachs/ajouterCoach";
 import { DeleteCoach } from "../../api/dashboard/pro/coachs/deleteCoach";
-import { Swiper, SwiperSlide } from 'swiper/react'
-import 'swiper/css'
 import { UpdateCoach } from "../../api/dashboard/pro/coachs/modifierCoach";
 import { AjouterCours } from "../../api/dashboard/pro/cours/ajouterCours";
 import { DeleteCours } from "../../api/dashboard/pro/cours/supprimerCours";
@@ -51,12 +48,38 @@ import { UpdateCours } from "../../api/dashboard/pro/cours/modifierCours";
 import { MesCours } from "../../api/dashboard/pro/cours/mesCours";
 import course from '../../assets/images/cours.png'
 import adhh from '../../assets/images/adhh.png'
+import calendarc from '../../assets/images/calendarc.png'
+import support from '../../assets/images/support.png'
+import settings from '../../assets/images/settings.png'
 import abonnement from '../../assets/images/abonnement.png'
 import { Recette } from "../../api/dashboard/pro/tableau/recette";
 import { ProgrammerCours } from "../../api/dashboard/pro/cours/programmerCours";
+import { CoursProgrammer } from "../../api/dashboard/pro/cours/coursProgrammer";
+import ToastSuccess from "../../components/ui/ToastSuccess";
+import ToastError from "../../components/ui/ToastError";
+import ResponseCoach from "../../utils/coach/response.api";
+import ResponseAdherant from "../../utils/adherant/response.api";
+import ResponseAbonnement from "../../utils/abonnement/response.api";
+import ResponseCours from "../../utils/cours/response.api";
+import ResponseLogo from "../../utils/logo/response.api";
+import ResponseCachet from "../../utils/cachet/response.api";
+import ResponseTarif from "../../utils/tarif/response.api";
+import ResponseInfoPerso from "../../utils/infosPerso/response.api";
+import ResponseInfoSalle from "../../utils/infosSalle/response.api";
+import ResponseError from "../../utils/error.response";
+import ModalComponent from "../../components/ui/ModalComponent";
+import ModalLogout from "../../components/ui/Modal";
+import ImageComponent from "../../components/ui/image";
+import SkeletonCours from "../../components/ui/SkeletonCours";
+import SkeletonAdh from "../../components/ui/SkeletonAdh";
+import SkeletonAbonnement from "../../components/ui/SkeletonAbonnemet";
+import SkeletonCoach from "../../components/ui/SkeletonCoach";
+import { CreateActivity } from "../../api/dashboard/pro/params/createActivity";
+import ResponseActivity from "../../utils/activity/response.api";
 
 
 export default function DashboardPro(){
+
 
     const [activeTab, setActiveTab] = useState('dashboard')
     const [view, setView] = useState("part-dashboard");
@@ -126,7 +149,6 @@ export default function DashboardPro(){
 
     const [coachOuvert, setCoachOuvert] = useState(null)
     const [deleteCoach, setDeleteCoach] = useState(null)
-    // const [del, setDel] = useState(null)
     const [coachSup, setCoachSup] = useState(null)
     const [selectCoach, setSelectCoach] = useState(null)
     const [coachEdit, setCoachEdit] = useState(null)
@@ -141,9 +163,9 @@ export default function DashboardPro(){
     const [pageCours, setPageCours] = useState(1)
     const [modalAddCours, setModalAddCours] = useState(false)
 
-    const date = new Date
-    const dateActuel = date.toLocaleDateString('fr-FR')
-    const heureActuel = date.toLocaleTimeString('fr-FR')
+    // const date = new Date
+    // const dateActuel = date.toLocaleDateString('fr-FR')
+    // const heureActuel = date.toLocaleTimeString('fr-FR')
     const dateChoice = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
     const [jours, setJours] = useState([])
     const [horaire, setHoraire] = useState([])
@@ -152,7 +174,6 @@ export default function DashboardPro(){
     const [selectAdherant, setSelectAdherant] = useState(null)
     const [adherantChoice, setAdherantChoice] = useState([])
     const [adherantChoiceId, setAdherantChoiceId] = useState([])
-    const [selectedCoach, setSelectedCoach] = useState(null)
     const [program, setProgram] = useState(null)
     const [modalProgram, setModalProgram] = useState(false)
     const [modalSelect, setModalSelect] = useState(false)
@@ -161,9 +182,23 @@ export default function DashboardPro(){
     const [coachChoice, setCoachChoice] = useState(null)
     const [coachChoiceId, setCoachChoiceId] = useState(null)
 
+    const [paramsTab, setParamstab] = useState('salle')
+    const [historyP, setHistoryP] = useState(false)
 
+    const [sideBar, setSideBar] = useState(false)
+    const [filtreJour, setFiltreJour] = useState('')
 
-    
+    const [images_activte, setImg] = useState(null)
+    const [previewActivity, setPreviewActivity] = useState(null)
+    const activityInputRef =useRef(null)
+    const [nom_activite, setNomActivite] = useState('')
+    const [descriptions, setDescription] = useState('')
+    const [date_activite, setDateActivite] = useState('')
+    const [heure_activite, setHeureActivite] = useState('')
+    const [status, setStatus] = useState(null)
+
+    const navigate = useNavigate()
+    const token = getToken()
 
     function handleNotif(){
         setNotifModal(!notifModal)
@@ -180,10 +215,17 @@ export default function DashboardPro(){
         setPreview(URL.createObjectURL(logoSelection))
     }
 
+    function handleImgActivity(e){
+        const imgSelection = e.target.files[0]
+
+        if(!imgSelection) return
+
+        setImg(imgSelection)
+        
+        setPreviewActivity(URL.createObjectURL(imgSelection))
+    }
 
 
-    const navigate = useNavigate()
-    const token = getToken()
 
     function ActiveTab(){
 
@@ -193,6 +235,7 @@ export default function DashboardPro(){
             setShowAdd(false)
             setCoachOuvert(null)
             setDeleteCoach(null)
+            setHistoryP(false)
             return
         }
 
@@ -201,6 +244,7 @@ export default function DashboardPro(){
             setNotifModal(false)
             setCoachOuvert(null)
             setDeleteCoach(null)
+            setHistoryP(false)
             return
         }
 
@@ -211,6 +255,7 @@ export default function DashboardPro(){
             setCoachOuvert(null)
             setDeleteCoach(null)
             setAbonnementTab('tous')
+            setHistoryP(false)
             return
         }
 
@@ -218,6 +263,7 @@ export default function DashboardPro(){
             setActiveTab('coach')
             setShowAdd(false)
             setNotifModal(false)
+            setHistoryP(false)
             return
         }
 
@@ -228,6 +274,7 @@ export default function DashboardPro(){
             setCoachOuvert(null)
             setDeleteCoach(null)
             setCoursTab('tous')
+            setHistoryP(false)
             return
         }
 
@@ -237,11 +284,13 @@ export default function DashboardPro(){
             setNotifModal(false)
             setCoachOuvert(null)
             setDeleteCoach(null)
+            setHistoryP(false)
             return
         }
 
         if(activeTab === 'settings'){
             setActiveTab('settings')
+            paramTab()
             setShowAdd(false)
             setNotifModal(false)
             setCoachOuvert(null)
@@ -250,9 +299,62 @@ export default function DashboardPro(){
         }
     }
 
+    function paramTab(){
+        if(paramsTab === 'salle'){
+            setParamstab('salle')
+            if(historyP){
+                setHistoryP(false)
+            }
+            return
+        }
+
+        if(paramsTab === 'perso'){
+            setParamstab('perso')
+            if(historyP){
+                setHistoryP(false)
+            }
+            return
+        }
+
+        if(paramsTab === 'visuel'){
+            setParamstab('visuel')
+            if(historyP){
+                setHistoryP(false)
+            }
+            return
+        }
+
+        if(paramsTab === 'tarif'){
+            setParamstab('tarif')
+            if(historyP){
+                setHistoryP(false)
+            }
+            return
+        }
+
+        if(paramsTab === 'activity'){
+            setParamstab('activity')
+            setStatus('publie')
+            if(historyP){
+                setHistoryP(false)
+            }
+            return
+        }
+
+
+        if(paramsTab === 'support'){
+            setParamstab('support')
+            if(historyP){
+                setHistoryP(false)
+            }
+            return
+        }
+    }
+
     useEffect(()=>{
         ActiveTab()
-    }, [activeTab])
+        paramTab()
+    }, [activeTab, paramsTab])
 
     const nbrAdh = useQuery({
         queryKey : ['nbr_adherant'],
@@ -261,7 +363,6 @@ export default function DashboardPro(){
     const nbrAdherants = Number(nbrAdh.data?.nbr_adherant)
     const loadingNbrAdherant = nbrAdh.isPending
     const errorNbrAdherant = nbrAdh.isError
-    const progressBarAdherant = (nbrAdherants / 200) * 100
 
 
     const nbrActif = useQuery({
@@ -302,7 +403,7 @@ export default function DashboardPro(){
 
              setTimeout(()=>{
                 addAdh.reset()
-            }, 2500)
+            }, 4000)
         }
     })
 
@@ -344,11 +445,9 @@ export default function DashboardPro(){
         keepPreviousData: true
     })
     const dataAdh = mesAdh.data?.adherents?.data || []
-    const totalMensuel = Number(mesAdh.data?.mensuel) || 0
-    const totalTrimestre = Number(mesAdh.data?.trimestriel) || 0
-    const totalAnnuel = Number(mesAdh.data?.annuel) || 0
     const loadingAdh = mesAdh.isPending
     const errorAdh = mesAdh.isError
+    const successAdh = mesAdh.isSuccess
 
 
     const AdherantProgram = useMemo(()=>{
@@ -405,7 +504,7 @@ export default function DashboardPro(){
             updateTarif.invalidateQueries(['prix'])
             setTimeout(()=>{
                 tarif.reset()
-            }, 2500)
+            }, 4000)
         }
 
     })
@@ -428,7 +527,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 tarifUpdate.reset()
-            }, 2500)
+            }, 4000)
         }
 
     })
@@ -460,7 +559,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 tarifDelete.reset()
-            }, 2500)
+            }, 4000)
         }
 
     })
@@ -503,7 +602,6 @@ export default function DashboardPro(){
 
 
     const dataExport = useMutation({
-        // mutationKey: [gerantId],
         mutationFn : ({ gerantId }) => ExportCsv({ gerantId }),
         onSuccess: ((blob)=>{
             const url = window.URL.createObjectURL(blob)
@@ -520,7 +618,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 dataExport.reset()
-            }, 3000)
+            }, 4000)
         })
     })
 
@@ -552,7 +650,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 update_infos.reset()
-            }, 2500)
+            }, 4000)
         })
     })
     const updateLoading = update_infos.isPending
@@ -582,7 +680,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 update_infos_perso.reset()
-            }, 2500)
+            }, 4000)
         })
     })
     const persoLoading = update_infos_perso.isPending
@@ -595,7 +693,7 @@ export default function DashboardPro(){
         onSuccess : (()=>{
             setTimeout(()=>{
                 updatePassword.reset()
-            }, 2500)
+            }, 4000)
         })
     })
     const changePasswordLoading = updatePassword.isPending
@@ -628,11 +726,8 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 logoUpload.reset()
-            }, 2500)
+            }, 4000)
         })
-        // onError : (()=>{
-
-        // })
     })
     const logoLoading = logoUpload.isPending
     const logoSuccess = logoUpload.isSuccess
@@ -649,11 +744,8 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 logoEditUpload.reset()
-            }, 2500)
+            }, 4000)
         })
-        // onError : (()=>{
-
-        // })
     })
     const logoEditLoading = logoEditUpload.isPending
     const logoEditSuccess = logoEditUpload.isSuccess
@@ -672,7 +764,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 logoDelUpload.reset()
-            }, 2500)
+            }, 4000)
         }),
         onError : (()=>{
             setLogoModal(false)
@@ -724,11 +816,8 @@ export default function DashboardPro(){
 
                 setTimeout(()=>{
                     signUpload.reset()
-                }, 2500)
+                }, 4000)
             })
-            // onError : (()=>{
-
-            // })
         })
         const signLoading = signUpload.isPending
         const signSuccess = signUpload.isSuccess
@@ -745,11 +834,8 @@ export default function DashboardPro(){
 
                 setTimeout(()=>{
                     signEditUpload.reset()
-                }, 2500)
+                }, 4000)
             })
-            // onError : (()=>{
-
-            // })
         })
         const signEditLoading = signEditUpload.isPending
         const signEditSuccess = signEditUpload.isSuccess
@@ -768,7 +854,7 @@ export default function DashboardPro(){
 
                 setTimeout(()=>{
                     signDelUpload.reset()
-                }, 2500)
+                }, 4000)
             }),
             onError : (()=>{
                 setSignModal(false)
@@ -803,22 +889,20 @@ export default function DashboardPro(){
         mutationFn : DeleteAdh,
         onSuccess : (()=>{
             setModalSupAdherant(false)
-            // setModalSuccessSupAdh(true)
             setTimeout(()=>{
                 supAdh.reset()
 
-            }, 5000)
+            }, 4000)
 
             supAdhQuery.invalidateQueries(['mes-adherant'])
         }),
 
         onError : (()=>{
             setModalSupAdherant(false)
-            // setModalErrorSupAdh(true)
             setTimeout(()=>{
                 supAdh.reset()
 
-            }, 3000)
+            }, 4000)
         })
     })
 
@@ -843,7 +927,7 @@ export default function DashboardPro(){
             setTimeout(()=>{
                 updateAdh.reset()
 
-            }, 5000)
+            }, 4000)
 
             adhUpQuery.invalidateQueries(['mes-adherant'])
 
@@ -852,7 +936,7 @@ export default function DashboardPro(){
             setTimeout(()=>{
                 adhToUp.reset()
 
-            }, 3000)
+            }, 4000)
         })
     })
     const loadingUpdateAdh = updateAdh.isPending
@@ -882,7 +966,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 reabAdh.reset()
-            }, 5000)
+            }, 4000)
 
             reabQuery.invalidateQueries(['nbr_actif'])
             suspQuery.invalidateQueries(['mes-adherant'])
@@ -894,7 +978,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 reabAdh.reset()
-            }, 3000)
+            }, 4000)
         })
     })
     const reabLoading = reabAdh.isPending
@@ -922,7 +1006,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 suspAdh.reset()
-            }, 5000)
+            }, 4000)
 
             suspQuery.invalidateQueries(['nbr_actif'])
             suspQuery.invalidateQueries(['mes-adherant'])
@@ -934,7 +1018,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 suspAdh.reset()
-            }, 3000)
+            }, 4000)
         })
     })
     const suspLoading = suspAdh.isPending
@@ -958,7 +1042,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 reactAdh.reset()
-            }, 5000)
+            }, 4000)
 
             reactQuery.invalidateQueries(['nbr_actif'])
             suspQuery.invalidateQueries(['mes-adherant'])
@@ -970,7 +1054,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 reactAdh.reset()
-            }, 3000)
+            }, 4000)
         })
     })
     const reactLoading = reactAdh.isPending
@@ -1004,13 +1088,13 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 misNiveau.reset()
-            }, 3000)
+            }, 4000)
         }),
 
         onError : (()=>{
             setTimeout(()=>{
                 misNiveau.reset()
-            }, 3000)
+            }, 4000)
         })
     })
     const misNiveauLoading = misNiveau.isPending
@@ -1074,18 +1158,17 @@ export default function DashboardPro(){
             setTimeout(()=>{
                 supCoach.reset()
 
-            }, 5000)
+            }, 4000)
 
             supCoachQuery.invalidateQueries(['mes-coach'])
         }),
 
         onError : (()=>{
             setDeleteCoach(null)
-            // setModalErrorSupAdh(true)
             setTimeout(()=>{
                 supCoach.reset()
 
-            }, 3000)
+            }, 4000)
         })
     })
 
@@ -1110,13 +1193,13 @@ export default function DashboardPro(){
             modifCoachQuery.invalidateQueries(['mes-coach'])
             setTimeout(()=>{
                 modifCoach.reset()
-            }, 3000)
+            }, 4000)
         }),
 
         onError: (()=>{
             setTimeout(()=>{
                 modifCoach.reset()
-            }, 3000)
+            }, 4000)
         })
     })
 
@@ -1129,7 +1212,6 @@ export default function DashboardPro(){
     if (!coachEdit.nom?.trim()) return false;
     if (!coachEdit.prenom?.trim()) return false;
     if (!coachEdit.telephone?.trim()) return false;
-    // if (coachEdit.competence.length === 0) return false;
     return true;
 };
 
@@ -1170,7 +1252,6 @@ export default function DashboardPro(){
     function FormMensuel(e){
         e.preventDefault()
         setShowFormTarif(!showFormTarif)
-        //  setActiveTab('settings')
     }
 
     function formatDate(dates){
@@ -1182,7 +1263,6 @@ export default function DashboardPro(){
     const history = useQuery({
         queryKey : ['history'],
         queryFn : History,
-        // refetchInterval: 60000
 
     })
     const historyLoading = historyQuery.isPending
@@ -1209,10 +1289,9 @@ export default function DashboardPro(){
 
         onSuccess: (()=>{
             coachQuery.invalidateQueries(['mes-coach'])
-            // setModalCoach(false)
             setTimeout(()=>{
                 addCoach.reset()
-            }, 3000)
+            }, 4000)
             setNomCoach('')
             setPrenomCoach('')
             setTelCoach('')
@@ -1223,7 +1302,7 @@ export default function DashboardPro(){
         onError: (()=>{
             setTimeout(()=>{
                 addCoach.reset()
-            }, 3000)
+            }, 4000)
         })
     })
     const coachLoading = addCoach.isPending
@@ -1309,6 +1388,7 @@ export default function DashboardPro(){
     const dataCours = mesCours?.data?.cours?.data || []
     const coursLoading = mesCours.isPending
     const coursError = mesCours.isError
+    const coursSuccess = mesCours.isSuccess
 
     const CoursFiltres = useMemo(() => {
         if (!dataCours || !Array.isArray(dataCours)) return []
@@ -1340,22 +1420,20 @@ export default function DashboardPro(){
         mutationFn : DeleteCours,
         onSuccess : (()=>{
             setModalSupCours(false)
-            // setModalSuccessSupAdh(true)
             setTimeout(()=>{
                 supCours.reset()
 
-            }, 5000)
+            }, 4000)
 
             supCoursQuery.invalidateQueries(['mes-cours'])
         }),
 
         onError : (()=>{
             setModalSupCours(false)
-            // setModalErrorSupAdh(true)
             setTimeout(()=>{
                 supCours.reset()
 
-            }, 3000)
+            }, 4000)
         })
     })
 
@@ -1380,7 +1458,7 @@ export default function DashboardPro(){
             setTimeout(()=>{
                 updateCours.reset()
 
-            }, 5000)
+            }, 4000)
 
             coursUpQuery.invalidateQueries(['mes-cours'])
 
@@ -1389,7 +1467,7 @@ export default function DashboardPro(){
             setTimeout(()=>{
                 updateCours.reset()
 
-            }, 3000)
+            }, 4000)
         })
     })
     const loadingUpdateCours = updateCours.isPending
@@ -1417,7 +1495,7 @@ export default function DashboardPro(){
             setTimeout(()=>{
                 cours.reset()
 
-            }, 3000)
+            }, 4000)
             setNomCours('')
             setNiveaux('debutant')
         }),
@@ -1425,7 +1503,7 @@ export default function DashboardPro(){
         onError: (()=>{
             setTimeout(()=>{
                 cours.reset()
-            }, 3000)
+            }, 4000)
         })
     })
 
@@ -1447,25 +1525,15 @@ export default function DashboardPro(){
     })
 
     const loadingRecette = recette.isPending
-    const successRecette = recette.isSuccess
     const errorRecette = recette.isError
     const dataRecette = recette?.data || {}
-
-    // console.log('choix;', adherantChoice)
-    // console.log('choixID;', adherantChoiceId)
-    // console.log('jours', jours)
-    // console.log('horaire', horaire)
-    // console.log('debut', heure)
-    // console.log('fin', heureFin)
-    // console.log('coach', coachChoice)
-    // console.log('coachID', coachChoiceId)
 
     const programCoursQuery = useQueryClient()
     const programCours = useMutation({
         mutationFn: ProgrammerCours,
 
         onSuccess: (()=>{
-            // programCoursQuery.invalidateQueries([''])
+            programCoursQuery.invalidateQueries(['liste-cours'])
             setSelectAdherant(null), 
             setAdherantChoice([]), 
             setAdherantChoiceId([]),
@@ -1477,7 +1545,7 @@ export default function DashboardPro(){
             setCoachChoiceId(null)
             setTimeout(()=>{
                 programCours.reset()
-            }, 3000)
+            }, 4000)
         }),
 
         onError: (()=>{
@@ -1518,8 +1586,90 @@ export default function DashboardPro(){
     }
 
 
-    
+    const listeCours = useQuery({
+        queryKey: ['liste-cours'],
+        queryFn: CoursProgrammer
+    })
 
+    const listeCoursData = listeCours?.data?.data || []
+    const loadingCoursListe = listeCours.isPending
+    const errorCoursListe = listeCours.isError
+
+    const programListe = useMemo(()=>{
+
+        if(!listeCoursData || !Array.isArray(listeCoursData)) return []
+
+        let dataProgram = listeCoursData
+
+        if(filtreJour.trim()){
+            const s = filtreJour.toLowerCase()
+            dataProgram = dataProgram.filter(item =>
+                item.jours?.some(jour =>
+                    jour.toLowerCase() === s
+                )
+            )
+        } 
+
+        return dataProgram
+
+    }, [listeCoursData, filtreJour ])
+
+
+    const activityQuery = useQueryClient()
+    const programActivity = useMutation({
+        mutationFn: CreateActivity,
+
+        onSuccess: (()=>{
+            // activityQuery.invalidateQueries(['activity'])
+            setTimeout(()=>{
+                programActivity.reset()
+            }, 4000)
+        }),
+
+        onError: (()=>{
+            setTimeout(()=>{
+                programActivity.reset()
+            }, 4000)
+        })
+    })
+    
+    const activityLoading = programActivity.isPending
+    const activitySuccess = programActivity.isSuccess
+    const activityError = programActivity.isError
+
+    function validateFieldActivity(){
+        if(!nom_activite || !nom_activite.trim()) return false
+        if(!descriptions || !descriptions.trim()) return false
+        if(!date_activite) return false
+        if(!heure_activite) return false
+        if(!images_activte) return false
+        if(!status) return false
+
+        return true
+    }
+    // console.log("nom", nom_activite)
+    // console.log("des", descriptions)
+    // console.log("date", date_activite)
+    // console.log("heure", heure_activite)
+    // console.log("img", images_activte)
+    // console.log("status", status)
+
+    async function handleActivity() {
+        if(!validateFieldActivity()) return
+
+        const formData = new FormData()
+        // console.log("debut", formData)
+        formData.append("nom_activite", nom_activite)
+        formData.append("descriptions", descriptions)
+        formData.append("date_activite", date_activite)
+        formData.append("heure_activite", heure_activite)
+        formData.append("images_activte", images_activte)
+        formData.append("status", status)
+        //  console.log("fin", typeof(formData))
+
+        programActivity.mutate(formData)
+        
+    }
 
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
@@ -1528,10 +1678,10 @@ export default function DashboardPro(){
                 <div className="flex items-center gap-2  px-5 my-5">
                     <div className="rounded-full flex items-center justify-center border border-orange-500 bg-orange-500 w-18 h-15">
                         {infosSalle?.logo_salle ? (
-                            <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                            <ImageComponent source={infosSalle?.logo_salle} label={"logo"} style={"w-full rounded-full h-full object-cover"}/>
                         ):(
 
-                            <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>}</p>
+                            <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <ImageComponent source={logoGym} label={"logo"} style={"w-full rounded-full h-full object-cover"}/>}</p>
                         )}
 
 
@@ -1589,7 +1739,6 @@ export default function DashboardPro(){
                     >Abonnements</button>
                 </motion.div>
 
-                {/* Ajout a reveoir avec les data */}
                 <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{scale: 0.95}}
@@ -1625,7 +1774,6 @@ export default function DashboardPro(){
                     >Finances</button>
                 </motion.div>
 
-                {/* Fin ajout */}
 
                 <motion.div
                     whileHover={{ scale: 1.02 }}
@@ -1640,7 +1788,6 @@ export default function DashboardPro(){
                 </motion.div>
 
 
-            {/* {'A gerer en fonction de la date de labonnement'} */}
                 <div className="absolute mx-5 py-3 px-5 transition-colors duration-200 bottom-5 mx-auto w-full flex flex-col gap-2">
 
                     <motion.button
@@ -1664,9 +1811,9 @@ export default function DashboardPro(){
             {activeTab === 'dashboard' && (
                 <>
                     <div className="absolute top-0 right-0 opacity-40 h-200 overflow-hidden w-200">
-                        <img src={coverhero} alt="logo" className="h-full w-full" />
+                        <ImageComponent source={coverhero} label={"logo"} className="h-full w-full" />
                     </div>
-                    <div className="col-span-4 relative px-8 py-3 my-5 overflow-y-auto">
+                    <div className="col-span-4 relative px-8 py-3 my-5 ">
 
                         <div className="flex items-center mb-10 justify-between border-b-1 pb-5 border-gray-200">
                             <div className="flex flex-col gap-2 text-lg">
@@ -1715,7 +1862,6 @@ export default function DashboardPro(){
 
                                 <div className="relative">
                                     <motion.button
-                                        // type="button"
                                         whileTap={{scale : 0.95}}
                                         onClick={handleNotif}
                                         className=""
@@ -1723,9 +1869,16 @@ export default function DashboardPro(){
                                         <Bell className="h-7 w-7"/>
                                     </motion.button>
 
-                                    <div className="absolute -top-3 text-sm -right-2 bg-orange-600 text-white font-bold h-6 w-6 flex items-center justify-center rounded-full">
-                                        <p>+9</p>
-                                    </div>
+                                    {totalAbExpirer > 0  && (
+                                        <div className="absolute -top-3 text-sm -right-2 flex items-center justify-center">
+                                            <Info className="h-6 w-6 " fill="rgba(0,100,255,0.8)" stroke="white" />
+                                        </div>
+                                    )}
+                                    {totalExpire > 0  && (
+                                        <div className="absolute -top-3 text-sm -right-2 flex items-center justify-center">
+                                            <Info className="h-6 w-6 " fill="rgba(0,100,255,0.8)" stroke="white" />
+                                        </div>
+                                    )}
 
                                     {notifModal && (
                                         <motion.div
@@ -1734,10 +1887,33 @@ export default function DashboardPro(){
                                             transition={{duration: 0.5}}
                                             className="absolute -bottom-31 bg-white -right-22 text-sm w-50 flex flex-col shadow-[0_0_3px_rgba(0,0,0,0.8)]">
                                             <div className=" p-2 bg-orange-50 hover:bg-gray-50 transition-colors duration-200 cursor-pointer font-semibold">
-                                                <p>{totalAbExpirer} abonnements expirés</p>
+                                                {loadingAbExpirer ? (
+                                                    <p className="h-5 w-40 bg-gray-300 animate-pulse"></p>
+                                                ):totalAbExpirer >= 1 ? (
+                                                        <p className="text-sm font-semibold">{totalAbExpirer >= 10 ? `${totalAbExpirer}` : `0${totalAbExpirer}`} abonnement{totalAbExpirer > 1 ? 's' : ''} expiré{totalAbExpirer > 1 ? 's' : ''}</p>
+                                                    ):(
+                                                        <p className="text-sm font-semibold">Aucun abonnement expiré</p>
+                                                    )
+                                                }
+
+                                                {errorAbExpirer && (
+                                                    <p className="text-sm text-red-500">Erreur de recuperation de données</p>
+                                                )}
+                                                
                                             </div>
                                             <div className=" p-2 bg-gray-50">
-                                                <p>{totalExpire} renouvellement à venir</p>
+                                                {loadingExpire ? (
+                                                    <p className="h-5 w-40 bg-gray-300 animate-pulse"></p>
+                                                ):totalExpire >= 1 ? (
+                                                        <p className="text-sm font-semibold">{totalExpire >= 10 ? `${totalExpire}` : `0${totalExpire}`} renouvellement{totalAbExpirer > 1 ? 's' : ''} à vénir</p>
+                                                    ):(
+                                                        <p className="text-sm font-semibold">Aucun renouvellement</p>
+                                                    )
+                                                }
+
+                                                {errorExpire && (
+                                                    <p className="text-sm text-red-500">Erreur de recuperation de données</p>
+                                                )}
                                             </div>
                                             <hr className="w-45 text-gray-300  mt-2 mx-auto"/>
                                             <button
@@ -1752,228 +1928,344 @@ export default function DashboardPro(){
 
                                 <div className="rounded-full h-10 w-15 border bg-orange-500 border-orange-500 flex items-center justify-center ">
                                     {infosSalle?.logo_salle ? (
-                                        <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
+                                        <ImageComponent source={infosSalle?.logo_salle} label={"logo"} style={"w-full rounded-full h-full object-cover"}/>
                                     ):(
 
-                                        <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>}</p>
+                                        <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <ImageComponent source={logoGym} label={"logo"} className="w-full rounded-full h-full object-cover"/>}</p>
                                     )}
                                 </div>
                             </div>
                         </div>
-
-                        <div className="flex items-center justify-between gap-8 ">
-                            <motion.div
-                                whileHover={{scale: 1.08}}
-                                className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.8)] rounded-lg w-full flex flex-col gap-2 p-4">
-                                <div className="">
-                                    <p className="text-gray-400 font-bold text-[18px]">Adhérants</p>
-                                </div>
-                                <div>
-                                    <p className="font-bold text-3xl">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}` || 0} / 1000</p>
-                                </div>
-                            </motion.div>
-                            <motion.div
-                                whileHover={{scale: 1.08}}
-                                className="bg-white shadow-[0_0_5px_rgba(0,255,0,0.8)] w-full flex flex-col gap-2 p-4 rounded-lg">
-                                <div>
-                                    <p className="text-gray-400 font-bold text-[18px]">Adhérants Actifs</p>
-                                </div>
-                                <div>
-                                    <p className="font-bold text-3xl text-green-500">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}` || 0}</p>
-                                </div>
-                            </motion.div>
-                            <motion.div
-                                whileHover={{scale: 1.08}}
-                                className="bg-white shadow-[0_0_5px_rgba(255,0,0,0.8)] w-full flex flex-col gap-2 p-4 rounded-lg">
-                                <div>
-                                    <p className="text-gray-400 font-bold text-[18px]">Dépenses du Mois</p>
-                                </div>
-                                <div>
-                                    <p className="font-bold text-3xl text-red-600">XOF 1000</p>
-                                </div>
-                            </motion.div>
-                            <motion.div
-                                whileHover={{scale: 1.08}}
-                                className="bg-white rounded-lg shadow-[0_0_5px_rgba(251,255,0,0.8)] w-full flex flex-col gap-2 p-4">
-                                <div>
-                                    <p className="text-gray-400 font-bold text-[18px]">Récettes du Mois</p>
-                                </div>
-                                <div>
-                                    <p className="font-bold text-3xl text-yellow-500">XOF {dataRecette?.MontantCeMois || '-'}</p>
-                                </div>
-                            </motion.div>
-                        </div>
-
-                        <div className="my-10 grid grid-cols-4 justify-between gap-8">
-                            <div className="shadow-[0_0_5px_rgba(0,0,0,0.5)] p-4 col-span-3 bg-white rounded-lg w-full">
-                                <div className="flex items-center justify-between w-full">
-                                    <h3 className="font-bold">Aperçu financier</h3>
-                                    <div className="flex items-center justify-center gap-2 border rounded-full border-gray-400 py-1 px-5">
-                                        <motion.button
-                                            className="text-sm rounded-lg py-1 px-3 font-semibold "
-                                        >
-                                            Semaine
-                                        </motion.button>
-                                        <motion.button
-                                            className="text-sm rounded-lg py-1 px-3 bg-blue-500 text-white font-semibold  "
-                                        >
-                                            Mois
-                                        </motion.button>
-                                        <motion.button
-                                            className="text-sm rounded-lg py-1 px-3 font-semibold "
-                                        >
-                                            Année
-                                        </motion.button>
-                                    </div>
-                                </div>
-                                <div className="flex relative my-3">
-                                    <p className="text-2xl font-bold">XOF 50000</p>
-                                    <p className="text-green-500 font-semibold absolute bottom-1 left-32 text-sm">+5,2% vs mois dernier</p>
-                                </div>
-
-                                <div className="flex items-center justify-center h-100">
-                                    <p className="text-gray-400">Graphique</p>
-                                </div>
-                            </div>
-
-
-                            <div className="flex flex-col gap-8 w-full">
-                                <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
-                                    <h3 className="font-bold">Gestion des Abonnements</h3>
-                                    <div className="flex items-center justify-center gap-8">
-                                        <div className="flex flex-col items-center">
-                                            <p className="text-yellow-500 text-xl font-bold">{totalExpire >= 10 ? `${totalExpire}` : `0${totalExpire}`}</p>
-                                            <p className="text-gray-400 text-sm font-semibold">Suspendu{totalExpire > 1? 's' : ''}</p>
-                                        </div>
-                                        <div className="flex flex-col items-center">
-                                            <p className="text-green-500 text-xl font-bold">8</p>
-                                            <p className="text-gray-400 text-sm font-semibold">Réactivés</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
-                                    <h3 className="font-bold">Alertes Intelligentes</h3>
+                        
+                        <div className="grid grid-cols-4 h-205 p-1 overflow-y-auto scrollbar-hide">
+                            <div className="col-span-4 flex items-center justify-between gap-8 ">
+                                <motion.div
+                                    whileHover={{scale: 1.08}}
+                                    className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.8)] h-27 rounded-lg w-full flex flex-col gap-2 p-4">
+                                    
                                     <div className="">
-                                        <div className="flex gap-2 items-center">
-                                            <div className="flex items-center rounded-full justify-center p-1 bg-yellow-100">
-                                                <Calendar className="h-5 w-5 text-yellow-500"/>
-                                            </div>
-                                            <p className="text-sm font-semibold">{totalExpire >= 10 ? `${totalExpire}` : `0${totalExpire}`} abonnement{totalExpire > 1 ? 's' : ''} expire{totalExpire > 1 ? 'nt' : ''} cette semaine</p>
+                                        <p className="text-gray-400 font-bold text-[18px]">Adhérants</p>
+                                    </div>
+                                    {loadingNbrAdherant ? (
+                                        <div>
+                                            <p className="w-40 h-8 bg-gray-200 animate-pulse"></p>
                                         </div>
-                                        <div className="flex gap-2 items-center">
-                                            <div className="flex items-center rounded-full justify-center p-1 bg-red-100">
-                                                <CalendarOff className="h-5 w-5 text-red-500"/>
-                                            </div>
-                                            {/* <p className="text-sm font-semibold">{totalAbExpirer > 0 ? {totalAbExpirer} : 'Aucun'} abonnement{totalAbExpirer > 0 ? 's' : ''} expiré{totalAbExpirer > 0 ? 's':''}</p> */}
-                                            {totalAbExpirer >= 1 ? (
-                                                <p className="text-sm font-semibold">{totalAbExpirer >= 10 ? `${totalAbExpirer}` : `0${totalAbExpirer}`} abonnement{totalAbExpirer > 1 ? 's' : ''} expiré{totalAbExpirer > 1 ? 's' : ''}</p>
-                                            ):(
-                                                <p className="text-sm font-semibold">Aucun abonnement expiré</p>
-                                            )}
+                                    ):(
+                                        <div>
+                                            <p className="font-bold text-3xl">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}` || 0} / 1000</p>
                                         </div>
+                                    )}
+
+                                    {errorNbrAdherant && (
+                                        <div>
+                                            <p className="text-red-500 text-sm">Erreur lors de la récupération du nombre d'adhérents</p>
+                                        </div>
+                                    )}
+                                </motion.div>
+                                <motion.div
+                                    whileHover={{scale: 1.08}}
+                                    className="bg-white shadow-[0_0_5px_rgba(0,255,0,0.8)] h-27 w-full flex flex-col gap-2 p-4 rounded-lg">
+                                    <div>
+                                        <p className="text-gray-400 font-bold text-[18px]">Adhérants Actifs</p>
+                                    </div>
+                                    {loadingNbrActif ? (
+                                        <div>
+                                            <p className="w-40 h-8 bg-gray-200 animate-pulse"></p>
+                                        </div>
+                                    ):(
+                                        <div>
+                                            <p className="font-bold text-3xl text-green-500">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}` || 0}</p>
+                                        </div>
+                                    )}
+
+                                    {errorNbrActif && (
+                                        <div>
+                                            <p className="text-red-500 text-sm">{nbrActif.error.message}</p>
+                                        </div>
+                                    )}
+                                </motion.div>
+                                <motion.div
+                                    whileHover={{scale: 1.08}}
+                                    className="bg-white shadow-[0_0_5px_rgba(255,0,0,0.8)] h-27 w-full flex flex-col gap-2 p-4 rounded-lg">
+                                    <div>
+                                        <p className="text-gray-400 font-bold text-[18px]">Dépenses du Mois</p>
+                                    </div>
+
+                                    <div>
+                                        <p className="font-bold text-3xl text-red-600">XOF 1000</p>
+                                    </div>
+                                </motion.div>
+                                <motion.div
+                                    whileHover={{scale: 1.08}}
+                                    className="bg-white rounded-lg shadow-[0_0_5px_rgba(251,255,0,0.8)] h-27 w-full flex flex-col gap-2 p-4">
+                                    <div>
+                                        <p className="text-gray-400 font-bold text-[18px]">Récettes du Mois</p>
+                                    </div>
+                                    {loadingRecette ? (
+                                        <div>
+                                            <p className="w-40 h-8 bg-gray-200 animate-pulse"></p>
+                                        </div>
+                                    ):(
+                                        <div>
+                                            <p className="font-bold text-3xl text-yellow-500">XOF {dataRecette?.MontantCeMois || '-'}</p>
+                                        </div>
+                                    )}
+
+                                    {errorRecette && (
+                                        <div>
+                                            <p className="text-red-500 text-sm">{recette.error.message}</p>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </div>
+
+                            <div className="col-span-4 my-10 grid grid-cols-4 justify-between gap-8">
+                                <div className="shadow-[0_0_5px_rgba(0,0,0,0.5)] p-4 col-span-3 bg-white rounded-lg w-full">
+                                    <div className="flex items-center justify-between w-full">
+                                        <h3 className="font-bold">Aperçu financier</h3>
+                                        <div className="flex items-center justify-center gap-2 border rounded-full border-gray-400 py-1 px-5">
+                                            <motion.button
+                                                className="text-sm rounded-lg py-1 px-3 font-semibold "
+                                            >
+                                                Semaine
+                                            </motion.button>
+                                            <motion.button
+                                                className="text-sm rounded-lg py-1 px-3 bg-blue-500 text-white font-semibold  "
+                                            >
+                                                Mois
+                                            </motion.button>
+                                            <motion.button
+                                                className="text-sm rounded-lg py-1 px-3 font-semibold "
+                                            >
+                                                Année
+                                            </motion.button>
+                                        </div>
+                                    </div>
+                                    <div className="flex relative my-3">
+                                        <p className="text-2xl font-bold">XOF 50000</p>
+                                        <p className="text-green-500 font-semibold absolute bottom-1 left-32 text-sm">+5,2% vs mois dernier</p>
+                                    </div>
+
+                                    <div className="flex items-center justify-center h-100">
+                                        <p className="text-gray-400">Graphique</p>
                                     </div>
                                 </div>
 
-                                <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
-                                    <h3 className="font-bold">Coachs affectés à la salle</h3>
-                                    {/* <p className="text-yellow-500 text-xl text-center font-bold">10</p> */}
-                                    <div className="flex items-center justify-center gap-8">
-                                        <div className="flex flex-col items-center">
-                                            <p className="text-green-500 text-xl font-bold">
-                                                {mes_coach.length === 0 ?(
-                                                    0
-                                                ):(
-                                                    mes_coach.length
-                                                )}
-                                            </p>
-                                            <p className="text-gray-400 text-sm font-semibold">Enregistrement{mes_coach.length <= 1 ? '' : 's'}</p>
-                                        </div>
 
+                                <div className="flex flex-col gap-4 w-full">
+                                    <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
+                                        <h3 className="font-bold">Gestion des Abonnements</h3>
+                                        <div className="flex items-center justify-center gap-8">
+                                            <div className="flex flex-col items-center">
+                                                {loadingExpire ? (
+                                                    <p className="h-7 w-7 bg-gray-300 animate-pulse"></p>
+                                                ):(
+                                                    <p className="text-yellow-500 text-xl font-bold">{totalExpire > 9 ? `${totalExpire}` : `0${totalExpire}`}</p>
+                                                )}
+
+                                                {errorExpire && (
+                                                    <div className="flex items-center gap-1 p-1">
+                                                        <AlertTriangleIcon className="h-5 w-5" fill="red" stroke="white" />
+                                                        <p className="text-xs text-red-500 font-semibold">Erreur</p>
+                                                    </div>
+                                                )}
+                                                <p className="text-gray-400 text-sm font-semibold">Expires{totalExpire > 1? 's' : ''} bientôt</p>
+                                            </div>
+                                            <div className="flex flex-col items-center">
+                                                <p className="text-green-500 text-xl font-bold">8</p>
+                                                <p className="text-gray-400 text-sm font-semibold">Réactivés</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
+                                        <h3 className="font-bold">Alertes Intelligentes</h3>
+                                        <div className="">
+                                            <div className="flex gap-2 items-center">
+                                                <div className="flex items-center rounded-full justify-center p-1 bg-yellow-100">
+                                                    <Calendar className="h-5 w-5 text-yellow-500"/>
+                                                </div>
+                                                {loadingExpire ? (
+                                                    <p className="h-5 w-50 bg-gray-300 animate-pulse"></p>
+                                                ):totalExpire >= 1 ? (
+                                                    <p className="text-sm font-semibold">{totalExpire >= 10 ? `${totalExpire}` : `0${totalExpire}`} abonnement{totalExpire > 1 ? 's' : ''} expire{totalExpire > 1 ? 'nt' : ''} cette semaine</p>
+                                                    ):(
+                                                        <p className="text-sm font-semibold">Aucun abonnement expire cette semaine</p>
+                                                    )
+                                                }
+                                                {errorExpire && (
+                                                    <p className="text-sm text-red-500">Erreur de recuperation de données</p>
+                                                )}
+                                            </div>
+                                            <div className="flex gap-2 items-center">
+                                                <div className="flex items-center rounded-full justify-center p-1 bg-red-100">
+                                                    <CalendarOff className="h-5 w-5 text-red-500"/>
+                                                </div>
+                                                {loadingAbExpirer ? (
+                                                    <p className="h-5 w-50 bg-gray-300 animate-pulse"></p>
+                                                ):totalAbExpirer >= 1 ? (
+                                                        <p className="text-sm font-semibold">{totalAbExpirer >= 10 ? `${totalAbExpirer}` : `0${totalAbExpirer}`} abonnement{totalAbExpirer > 1 ? 's' : ''} expiré{totalAbExpirer > 1 ? 's' : ''}</p>
+                                                    ):(
+                                                        <p className="text-sm font-semibold">Aucun abonnement expiré</p>
+                                                    )
+                                                }
+
+                                                {errorAbExpirer && (
+                                                    <p className="text-sm text-red-500">Erreur de recuperation de données</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
+                                        <h3 className="font-bold">Coachs affectés à la salle</h3>
+                                        <div className="flex items-center justify-center gap-8">
+                                            <div className="flex flex-col items-center">
+                                                {mesCoachLoad ? (
+                                                    <p className="h-7 w-7 bg-gray-300 animate-pulse"></p>
+                                                ):(
+                                                    <p className="text-green-500 text-xl font-bold">
+                                                        
+                                                        {mes_coach.length > 9 ? mes_coach.length : `0${mes_coach.length}`}
+                                                    </p>
+                                                )}
+
+                                                {mesCoachError && (
+                                                    <div className="flex items-center gap-1 p-1">
+                                                        <AlertTriangleIcon className="h-5 w-5" fill="red" stroke="white" />
+                                                        <p className="text-xs text-red-500 font-semibold">Erreur</p>
+                                                    </div>
+                                                )}
+
+                                                <p className="text-gray-400 text-sm font-semibold">Enregistrement{mes_coach.length <= 1 ? '' : 's'}</p>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
+                                        <h3 className="font-bold">Total cours programmés</h3>
+                                        <div className="flex items-center justify-center gap-8">
+                                            <div className="flex flex-col items-center">
+                                                {loadingCoursListe ? (
+                                                    <p className="h-7 w-7 bg-gray-300 animate-pulse"></p>
+                                                ):(
+                                                    <p className="text-blue-500 text-xl font-bold">
+                                                        {listeCoursData.length > 9 ? listeCoursData.length : `0${listeCoursData.length}`}
+                                                    </p>
+                                                )}
+
+                                                {errorCoursListe && (
+                                                    <div className="flex items-center gap-1 p-1">
+                                                        <AlertTriangleIcon className="h-5 w-5" fill="red" stroke="white" />
+                                                        <p className="text-xs text-red-500 font-semibold">Erreur</p>
+                                                    </div>
+                                                )}
+                                                <p className="text-gray-400 text-sm font-semibold">Cour{listeCoursData.length <= 1 ? '' : 's'}</p>
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
 
-                        <div className="bg-white sticky top-0 overflow-hidden flex flex-col gap-3 shadow-[0_0_5px_rgba(0,0,0,0.5)] w-full p-4 rounded-lg ">
-                            <h3 className="font-bold">Suivi des Abonnés</h3>
-                            <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
-                                <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
-                                    <tr >
-                                        <th className=" p-3 text-left">Nom de l'adhérant</th>
-                                        <th className=" p-3">Date de début</th>
-                                        <th className=" p-3">Date de fin</th>
-                                        <th className=" p-3">Statut</th>
-                                    </tr>
-                                </thead>
+                            <div className="col-span-4 mb-1 bg-white flex flex-col gap-3 shadow-[0_0_5px_rgba(0,0,0,0.5)] w-full p-4 rounded-lg ">
+                                <h3 className="font-bold">Suivi des Abonnés</h3>
+                                <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                                    <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                        <tr >
+                                            <th className=" p-3 text-left">Nom de l'adhérant</th>
+                                            <th className=" p-3">Date de début</th>
+                                            <th className=" p-3">Date de fin</th>
+                                            <th className=" p-3">Statut</th>
+                                        </tr>
+                                    </thead>
 
-                                    <tbody className="">
-                                        {loadingAdh ? (
-                                            <tr>
-                                                <td colSpan={5} className="py-6 text-center">
-                                                    <Loader2 className="mx-auto animate-spin" />
+                                        <tbody className="">
+                                            {loadingAdh ? (
+                                                [1,2,3,4,5,6,7,8,9,10].map(item =>(
+
+                                                    <tr key={item} className="text-sm p-2 border-b border-gray-200">
+
+                                                        <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                            <span className=" h-5 w-5 rounded-full bg-gray-200 animate-pulse flex items-center p-2"></span>
+                                                            <p className="h-5 w-20 animate-pulse bg-gray-200"></p>
+                                                        </td>
+                                                        <td className=" px-3 py-5"><p className="h-5 animate-pulse mx-auto w-50 bg-gray-200"></p></td>
+                                                        <td className=" px-3 py-5"><p className="h-5 animate-pulse w-50 mx-auto bg-gray-200"></p></td>
+                                                        <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
+                                                    </tr>
+                                                ))
+                                            ): adherentsFiltres.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={4} className={`${search.trim() ? '' : 'h-140'} py-6 text-center text-sm text-gray-500`}>
+                                                        {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
+                                                    </td>
+                                                </tr>
+                                            ): adherentsFiltres.map(item => (
+                                                <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+
+                                                    <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                    <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
+                                                    {`${item.name} ${item.prenom}` || item.username }
+
+                                                    </td>
+                                                    <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
+                                                    <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
+                                                    <td className=" px-3 flex items-center justify-center">
+                                                        {item.dernier_abonnement?.date_suspension !== null ?(
+                                                            <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl`}>
+                                                                suspendu
+                                                            </span>
+                                                        ):(
+                                                            <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200  animate-pulse'} font-semibold py-1 px-2 rounded-xl`}>
+                                                                {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
+                                                            </span>
+                                                        )}
+                                                    </td>
+
+                                                </tr>
+                                            ))}
+
+                                        </tbody>
+
+                                        {errorAdh && (
+                                            <tr className="">
+                                                <td colSpan={4} className="py-6 h-140 text-center  text-red-600">
+                                                    <p className="flex items-center justify-center gap-2 ">
+                                                    <XCircle className="animate-spin text-red-600" />
+                                                    {mesAdh.error.message}
+                                                    </p>
                                                 </td>
                                             </tr>
-                                        ): adherentsFiltres.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={5} className="py-6 text-center text-sm text-gray-500">
-                                                    {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
-                                                </td>
-                                            </tr>
-                                        ): adherentsFiltres.map(item => (
-                                            <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                        )}
 
-                                                <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                                <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                                {`${item.name} ${item.prenom}` || item.username }
+                                </table>
+                                <div className="flex  p-4 items-center justify-between">
+                                        <div>
+                                            <div className="text-sm text-gray-400">
+                                                Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+                                            </div>
+                                        </div>
 
-                                                </td>
-                                                <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
-                                                <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
-                                                <td className=" px-3 flex items-center justify-center">
-                                                    {item.dernier_abonnement?.date_suspension !== null ?(
-                                                        <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl`}>
-                                                            suspendu
-                                                        </span>
-                                                    ):(
-                                                        <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200  animate-pulse'} font-semibold py-1 px-2 rounded-xl`}>
-                                                            {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
-                                                        </span>
-                                                    )}
-                                                </td>
+                                        <div className="flex text-sm items-center gap-2">
+                                            <motion.button
+                                            disabled={page === 1}
+                                            onClick={()=>{setPage(p => p - 1)}}
+                                                whileTap={{scale: 0.95}}
+                                                className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                            >Précedent</motion.button>
 
-                                            </tr>
-                                        ))}
-
-                                    </tbody>
-
-
-
-                            </table>
-                            <div className="flex  p-4 items-center justify-between">
-                                    <div>
-                                        <div className="text-sm text-gray-400">
-                                            Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+                                            <motion.button
+                                            disabled={page === mesAdh.data?.adherents?.last_page}
+                                            onClick={()=>{setPage(p => p + 1)}}
+                                            whileTap={{scale: 0.95}}
+                                                className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                            > Suivant</motion.button>
                                         </div>
                                     </div>
 
-                                    <div className="flex text-sm items-center gap-2">
-                                        <motion.button
-                                        disabled={page === 1}
-                                        onClick={()=>{setPage(p => p - 1)}}
-                                            whileTap={{scale: 0.95}}
-                                            className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                        >Précedent</motion.button>
-
-                                        <motion.button
-                                        disabled={page === mesAdh.data?.adherents?.last_page}
-                                        onClick={()=>{setPage(p => p + 1)}}
-                                        whileTap={{scale: 0.95}}
-                                            className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                        > Suivant</motion.button>
-                                    </div>
-                                </div>
-
+                            </div>
                         </div>
                     </div>
                 </>
@@ -1981,10 +2273,10 @@ export default function DashboardPro(){
 
             {activeTab === 'adherant' && (
                 <>
-                    <div className="absolute opacity-40 right-0 w-200">
-                        <img src={abonnement} alt="logo-cours" />
+                    <div className="absolute opacity-40 right-0 w-200 overflow-hidden">
+                        <ImageComponent source={abonnement} label={"logo-cours"} style={''} />
                     </div>
-                    <div className="relative col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                    <div className="relative col-span-4 px-8 py-3 my-5">
 
                         <div className="flex flex-col gap-2" >
                             <h1 className="font-bold text-3xl">Gestion des Adhérants</h1>
@@ -2009,7 +2301,7 @@ export default function DashboardPro(){
                                     whileTap={{scale: 0.95}}
                                     disabled={dataExportLoading || daysRemaining <= 0}
                                     onClick={handleExport}
-                                className={`flex font-bold  text-sm items-center ${daysRemaining <= 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400 cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
+                                className={`flex font-bold  text-sm items-center ${daysRemaining <= 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
                                     {dataExportLoading  ? (
                                         <Loader2 className="animate-spin h-5 w-5"/>
                                     ):(
@@ -2024,134 +2316,111 @@ export default function DashboardPro(){
                                 <motion.button
                                     whileTap={{scale: 0.95}}
                                     onClick={()=>{setShowAdd(true), setActiveTab('')}}
-                                    // disabled={daysRemaining <= 0}
                                     disabled={daysRemaining <= 0}
-                                className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
+                                className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
                                     <Plus className="h-5 w-5 "/>
                                     Ajouter un adhérant
                                 </motion.button>
                             </div>
                         </div>
+                        
+                        <div className={`grid grid-cols-4 bg-white relative h-190 overflow-y-auto scrollbar-hide p-1 `}>
+                            <div className=" col-span-4 bg-white mb-10 rounded-lg ">
+                                <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                                    <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                        <tr >
+                                            <th className=" p-3 text-left">Nom complet</th>
+                                            <th className=" p-3">Adresse e-mail</th>
+                                            <th className=" p-3">Telephone</th>
+                                            <th className=" p-3">Forfait</th>
+                                            <th className=" p-3">Montant</th>
+                                            <th className=" p-3">Statut</th>
+                                            <th className=" p-3">Actions</th>
+                                        </tr>
+                                    </thead>
 
-                        {/* A revoir avec les vraies donnees */}
-                        <div className="bg-white my-8 rounded-lg ">
-                            <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
-                                <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
-                                    <tr >
-                                        <th className=" p-3 text-left">Nom complet</th>
-                                        <th className=" p-3">Adresse e-mail</th>
-                                        <th className=" p-3">Telephone</th>
-                                        <th className=" p-3">Forfait</th>
-                                        <th className=" p-3">Montant</th>
-                                        <th className=" p-3">Statut</th>
-                                        {/* <th className=" p-3">Fin d'abonnement</th> */}
-                                        <th className=" p-3">Actions</th>
-                                    </tr>
-                                </thead>
+                                    <tbody className="">
+                                        {loadingAdh ? (
+                                            [1,2,3,4,5,6,7,8,9,10].map(item =>(
 
-                                <tbody className="">
-                                    {loadingAdh ? (
-                                        [1,2,3,4,5,6,7,8,9].map(item =>(
-
-                                            <tr key={item} className="text-sm p-2 border-b border-gray-200">
-
-                                                <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                                    <span className=" h-5 w-5 rounded-full bg-gray-200 animate-pulse flex items-center p-2"></span>
-                                                    <p className="h-5 w-20 animate-pulse bg-gray-200"></p>
-                                                    
-
-                                                </td>
-                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse mx-auto w-20 bg-gray-200"></p></td>
-                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
-                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
-                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
-                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
-                                                
-
-                                                <td className="flex justify-center py-5 items-center gap-2 px-3">
-                                                    <p className="h-5 w-5 animate-pulse bg-gray-200"></p>
-                                                    <p className="h-5 w-5 animate-pulse bg-gray-200"></p>
-                                                    <p className="h-5 w-5 animate-pulse bg-gray-200"></p>
+                                                <SkeletonAdh key={item}/>
+                                            ))
+                                        ): adherentsFiltres.length === 0 ? (
+                                            <tr className="h-170">
+                                                <td colSpan={7} className={`py-6 text-center text-sm text-gray-500`}>
+                                                    {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Pas encore d'adhérents inscrits"}
                                                 </td>
                                             </tr>
-                                        ))
-                                    ): adherentsFiltres.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={7} className={`${search.trim() ? '' : 'h-140'} py-6 text-center text-sm text-gray-500`}>
-                                                {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Pas encore d'adhérents inscrits"}
-                                            </td>
-                                        </tr>
-                                    ): adherentsFiltres.map(item => (
-                                        <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                        ): adherentsFiltres.map(item => (
+                                            <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
 
-                                            <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                            <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                            {`${item.name} ${item.prenom}` || item.username }
+                                                <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
+                                                {`${item.name} ${item.prenom}` || item.username }
 
-                                            </td>
-                                            <td className=" px-3 py-5">{item.email || '-'}</td>
-                                            <td className=" px-3 py-5">{item.telephone || '-'}</td>
-                                            <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.plan : '-'}</td>
-                                            <td className=" px-3 py-5">{item.dernier_abonnement !== null ? `${item.dernier_abonnement.montant} XOF` : '-'}</td>
-                                            {item.dernier_abonnement !== null ? (
-                                                <td className=" px-3 ">
-                                                    <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
-                                                        {item.dernier_abonnement.actif ? 'actif' : 'expiré'}
-                                                    </span>
                                                 </td>
-                                            ):(
-                                                <td className=" px-3 ">
-                                                    <span className="bg-red-200 font-semibold py-1 px-2 rounded-xl">
-                                                    expiré
-                                                    </span>
-                                                </td>
-                                            )}
-                                            {/* <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td> */}
-                                            <td className="flex justify-center py-5 items-center gap-2 px-3">
-                                                <motion.button
-                                                    type="button"
-                                                    onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}}
+                                                <td className=" px-3 py-5">{item.email || '-'}</td>
+                                                <td className=" px-3 py-5">{item.telephone || '-'}</td>
+                                                <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.plan : '-'}</td>
+                                                <td className=" px-3 py-5">{item.dernier_abonnement !== null ? `${item.dernier_abonnement.montant} XOF` : '-'}</td>
+                                                {item.dernier_abonnement !== null ? (
+                                                    <td className=" px-3 ">
+                                                        <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
+                                                            {item.dernier_abonnement.actif ? 'actif' : 'expiré'}
+                                                        </span>
+                                                    </td>
+                                                ):(
+                                                    <td className=" px-3 ">
+                                                        <span className="bg-red-200 font-semibold py-1 px-2 rounded-xl">
+                                                        expiré
+                                                        </span>
+                                                    </td>
+                                                )}
+                                                <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                                    <motion.button
+                                                        type="button"
+                                                        onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}}
+                                                            whileTap={{scale: 0.95}}
+                                                        className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm `}>
+                                                        <Eye className="text-gray-600 h-4 w-4"/>
+                                                    </motion.button>
+                                                    <motion.button
+                                                        type="button"
+                                                        disabled={daysRemaining <= 0}
+                                                        onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                    className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm `}>
-                                                    <Eye className="text-gray-600 h-4 w-4"/>
-                                                </motion.button>
-                                                <motion.button
-                                                    type="button"
-                                                    disabled={daysRemaining <= 0}
-                                                    onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}}
-                                                    whileTap={{scale: 0.95}}
-                                                    className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
-                                                    <Pencil className="text-white h-4 w-4"/>
-                                                </motion.button>
-                                                <motion.button
-                                                    type="button"
-                                                    disabled={daysRemaining <= 0}
-                                                    onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item)}}
-                                                    whileTap={{scale: 0.95}}
-                                                    className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
-                                                >
-                                                    <Trash className="h-4 w-4 text-white" />
-                                                </motion.button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                        className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
+                                                        <Pencil className="text-white h-4 w-4"/>
+                                                    </motion.button>
+                                                    <motion.button
+                                                        type="button"
+                                                        disabled={daysRemaining <= 0}
+                                                        onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item)}}
+                                                        whileTap={{scale: 0.95}}
+                                                        className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
+                                                    >
+                                                        <Trash className="h-4 w-4 text-white" />
+                                                    </motion.button>
+                                                </td>
+                                            </tr>
+                                        ))}
 
-                                    {errorAdh && (
-                                        <tr className="">
-                                            <td colSpan={7} className="py-6 h-140 text-center  text-red-600">
-                                                <p className="flex items-center justify-center gap-2 ">
-                                                <XCircle className="animate-spin text-red-600" />
-                                                {mesAdh.error.message}
-                                                </p>
-                                            </td>
-                                        </tr>
-                                    )}
+                                        {errorAdh && (
+                                            <tr className="">
+                                                <td colSpan={7} className="py-6 h-170 text-center  text-red-600">
+                                                    <p className="flex items-center justify-center gap-2 ">
+                                                    <XCircle className="animate-spin text-red-600" />
+                                                    {mesAdh.error.message}
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        )}
 
-                                </tbody>
-
-
-                            </table>
-                            <div className="flex  p-4 items-center justify-between">
+                                    </tbody>
+                                </table>
+                            </div>
+                            {successAdh  && (
+                                <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} absolute -bottom-17 w-full py-3 px-10 bg-white items-center justify-between`}>
                                     <div>
                                         <div className="text-sm text-gray-400">
                                             Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
@@ -2174,7 +2443,8 @@ export default function DashboardPro(){
                                         > Suivant</motion.button>
                                     </div>
                                 </div>
-
+                            )}
+                            
                         </div>
 
                     </div>
@@ -2183,17 +2453,17 @@ export default function DashboardPro(){
 
             {activeTab === 'abonnement' && (
                 <>
-                    <div className="absolute opacity-40 right-0 w-200">
-                        <img src={adhh} alt="logo-cours" />
+                    <div className="absolute opacity-40 right-0 w-200 overflow-hidden">
+                        <ImageComponent source={adhh} label={"logo-cours"} style={''} />
                     </div>
-                    <div className="relative col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                    <div className="relative col-span-4 px-8 py-3 my-5">
 
                         <div className="flex flex-col gap-2">
                             <h1 className="font-bold text-3xl flex items-center">
                                 Gestion Abonnements :
                                 <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">{nbrAdherantsActif} actif{nbrAdherantsActif > 1 ? 's' : ''}</span>
-                                <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full">{totalAbExpirer} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
-                                <span className="text-yellow-600 bg-yellow-100 text-sm py-1 px-3 rounded-full mx-3">{totalExpire} suspendu{totalExpire > 1 ? 's' : ''}</span>
+                                <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full">{totalAbExpirer > 9 ? totalAbExpirer : `0${totalAbExpirer}`} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
+                                <span className="text-yellow-600 bg-yellow-100 text-sm py-1 px-3 rounded-full mx-3">{totalExpire > 9 ? totalExpire : `0${totalExpire}`} expire{totalExpire > 1 ? 's' : ''} bientôt</span>
                             </h1>
                             <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
                         </div>
@@ -2214,6 +2484,7 @@ export default function DashboardPro(){
                             <div className="flex items-center gap-2">
                             <motion.button
                                 whileTap={{scale: 0.95}}
+                                disabled={loadingAdh || errorAdh}
                                 onClick={()=>{setAbonnementTab('tous')}}
                                 className={`${abonnementTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
 
@@ -2249,121 +2520,113 @@ export default function DashboardPro(){
                             </div>
                         </div>
 
-                        {/* A revoir avec les vraies donnees */}
-                        <div className="bg-white my-8 rounded-lg ">
-                            <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
-                                <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
-                                    <tr >
-                                        <th className=" p-3 text-left">Nom de l'adhérant</th>
-                                        <th className=" p-3">Date de début</th>
-                                        <th className=" p-3">Date de fin</th>
-                                        <th className=" p-3">Statut</th>
-                                        <th className=" p-3">Actions</th>
-                                    </tr>
-                                </thead>
+                        <div className={`grid grid-cols-4 bg-white relative h-190 overflow-y-auto scrollbar-hide p-1 `}>
+                            <div className="col-span-4 bg-white mb-10 rounded-lg ">
+                                <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                                    <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                        <tr >
+                                            <th className=" p-3 text-left">Nom de l'adhérant</th>
+                                            <th className=" p-3">Date de début</th>
+                                            <th className=" p-3">Date de fin</th>
+                                            <th className=" p-3">Statut</th>
+                                            <th className=" p-3">Actions</th>
+                                        </tr>
+                                    </thead>
 
-                                    <tbody className="">
-                                        {loadingAdh ? (
-                                            [1,2,3,4,5,6,7,8,9].map(item =>(
+                                        <tbody className="">
+                                            {loadingAdh ? (
+                                                [1,2,3,4,5,6,7,8,9,10].map(item =>(
 
-                                                <tr key={item} className="text-sm p-2 border-b border-gray-200">
-
-                                                    <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                                        <span className=" h-5 w-5 rounded-full bg-gray-200 animate-pulse flex items-center p-2"></span>
-                                                        <p className="h-5 w-20 animate-pulse bg-gray-200"></p>
-                                                    </td>
-                                                    <td className=" px-3 py-5"><p className="h-5 animate-pulse mx-auto w-20 bg-gray-200"></p></td>
-                                                    <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
-                                                    <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
-                                                    
-
-                                                    <td className=" py-5 px-3">
-                                                        <p className="h-5 w-20 mx-auto animate-pulse bg-gray-200"></p>
+                                                    <SkeletonAbonnement key={item}/>
+                                                ))
+                                            ): adherentsFiltres.length === 0 ? (
+                                                <tr className=" h-170 ">
+                                                    <td colSpan={5} className={`py-6 text-center text-sm text-gray-500`}>
+                                                        <p className="flex items-center justify-center">
+                                                        {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
+                                                        </p>
                                                     </td>
                                                 </tr>
-                                            ))
-                                        ): adherentsFiltres.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={5} className={`${search.trim() ? '' : 'h-140'} py-6 text-center text-sm text-gray-500`}>
-                                                    {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
-                                                </td>
-                                            </tr>
-                                        ): adherentsFiltres.map(item => (
-                                            <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                            ): adherentsFiltres.map(item => (
+                                                <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
 
-                                                <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                                <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                                {`${item.name} ${item.prenom}` || item.username }
+                                                    <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                    <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
+                                                    {`${item.name} ${item.prenom}` || item.username }
 
-                                                </td>
-                                                <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
-                                                <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
-                                                <td className=" px-3 flex items-center justify-center">
-                                                    {item.dernier_abonnement?.date_suspension !== null ?(
-                                                        <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl`}>
-                                                            suspendu
-                                                        </span>
-                                                    ):(
-                                                        <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200  animate-pulse'} font-semibold py-1 px-2 rounded-xl`}>
-                                                            {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
-                                                        </span>
-                                                    )}
-                                                </td>
-
-                                                <td className=" py-5 items-center gap-2 px-3">
-
-                                                    {!item.dernier_abonnement?.actif ? (
-                                                        <div className="">
-                                                        {item.dernier_abonnement?.date_suspension === null ?(
-                                                            <motion.button
-                                                                type="button"
-                                                                onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
-                                                                whileTap={{scale: 0.95}}
-                                                                disabled={daysRemaining <= 0}
-                                                                className={`border ${daysRemaining <= 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
-                                                                Reabonner
-                                                            </motion.button>
+                                                    </td>
+                                                    <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
+                                                    <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
+                                                    <td className=" px-3 flex items-center justify-center">
+                                                        {item.dernier_abonnement?.date_suspension !== null ?(
+                                                            <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl`}>
+                                                                suspendu
+                                                            </span>
                                                         ):(
+                                                            <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200  animate-pulse'} font-semibold py-1 px-2 rounded-xl`}>
+                                                                {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
+                                                            </span>
+                                                        )}
+                                                    </td>
+
+                                                    <td className=" py-5 items-center gap-2 px-3">
+
+                                                        {!item.dernier_abonnement?.actif ? (
+                                                            <div className="">
+                                                            {item.dernier_abonnement?.date_suspension === null ?(
+                                                                <motion.button
+                                                                    type="button"
+                                                                    onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
+                                                                    whileTap={{scale: 0.95}}
+                                                                    disabled={daysRemaining <= 0}
+                                                                    className={`border ${daysRemaining <= 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
+                                                                    Reabonner
+                                                                </motion.button>
+                                                            ):(
+                                                                <motion.button
+                                                                    type="button"
+                                                                    disabled={daysRemaining <= 0}
+                                                                    onClick={()=>{setReactiverModal(true), setReact(item)}}
+                                                                    className={`border  border-green-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-green-500`}>
+                                                                    Réactiver
+                                                                </motion.button>
+                                                            )}
+                                                            </div>
+                                                        ): (
                                                             <motion.button
                                                                 type="button"
                                                                 disabled={daysRemaining <= 0}
-                                                                onClick={()=>{setReactiverModal(true), setReact(item)}}
-                                                                className={`border  border-green-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-green-500`}>
-                                                                Réactiver
+                                                                onClick={()=>{setSuspendreModal(true), setSuspen(item)}}
+                                                                className={` border  border-red-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-red-500`}>
+                                                                Suspendre
                                                             </motion.button>
                                                         )}
-                                                        </div>
-                                                    ): (
-                                                        <motion.button
-                                                            type="button"
-                                                            disabled={daysRemaining <= 0}
-                                                            onClick={()=>{setSuspendreModal(true), setSuspen(item)}}
-                                                            className={` border  border-red-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-red-500`}>
-                                                            Suspendre
-                                                        </motion.button>
-                                                    )}
 
-                                                </td>
-                                            </tr>
-                                        ))}
+                                                    </td>
+                                                </tr>
+                                            ))}
 
-                                        {errorAdh && (
-                                            <tr className="">
-                                                <td colSpan={5} className="py-6 h-140 text-center  text-red-600">
-                                                    <p className="flex items-center justify-center gap-2 ">
-                                                    <XCircle className="animate-spin text-red-600" />
-                                                    {mesAdh.error.message}
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        )}
+                                            {errorAdh && (
+                                                <tr className="">
+                                                    <td colSpan={5} className="py-6 h-170 text-center  text-red-600">
+                                                        <p className="flex items-center justify-center gap-2 ">
+                                                        <XCircle className="animate-spin text-red-600" />
+                                                        {mesAdh.error.message}
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            )}
 
-                                    </tbody>
+                                        </tbody>
 
+                                    
 
+                                </table>
+                                
+                            </div>
 
-                            </table>
-                            <div className="flex  p-4 items-center justify-between">
+                            {successAdh && (
+                                <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} absolute -bottom-17 w-full py-3 px-10 bg-white items-center justify-between`}>
                                     <div>
                                         <div className="text-sm text-gray-400">
                                             Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
@@ -2386,7 +2649,7 @@ export default function DashboardPro(){
                                         > Suivant</motion.button>
                                     </div>
                                 </div>
-
+                            )}
                         </div>
                     </div>
                 </>
@@ -2395,11 +2658,11 @@ export default function DashboardPro(){
             {activeTab === 'coach' &&(
                 <>
                     {mes_coach.length > 0 && (
-                        <div className="absolute right-0 opacity-40  w-200">
-                            <img src={coach} alt="logo" className="h-full w-full" />
+                        <div className="absolute right-0 opacity-40 overflow-hidden w-200">
+                            <ImageComponent source={coach} label={"logo"} style={"h-full w-full"} />
                         </div>
                     )}
-                    <div className="relative col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                    <div className="relative col-span-4 px-8 py-3 my-5">
 
                         <div className="flex items-center justify-between">
                             <div className="flex flex-col gap-2">
@@ -2417,7 +2680,7 @@ export default function DashboardPro(){
                             <motion.button
                                 whileTap={{scale: 0.95}}
                                 onClick={handleAddCoach}
-                                className="flex items-center text-sm text-white hover:text-black bg-orange-600 transition-colors duration-200 py-2 px-5 font-bold  border border-orange-600 hover:bg-transparent rounded-lg gap-3"
+                                className="flex items-center text-sm text-white hover:text-black bg-orange-600 transition-colors duration-200 py-2 px-5 font-bold  border-2 border-orange-600 hover:bg-transparent rounded-lg gap-3"
                             >
                                 <UserPlus className="h-5 w-5  transition-colors duration-200" />
                                 <p>Ajouter un coach</p>
@@ -2436,81 +2699,41 @@ export default function DashboardPro(){
                             />
                         </div>
 
-                        <div className="flex items-center gap-3 my-8">
+                        <div className="flex items-center gap-3  my-8 p-1 ">
                             <motion.button
                                 whileTap={{scale: 0.95}}
-                                className="rounded-lg bg-orange-500 py-1 px-5 font-bold border border-orange-500"
+                                className="rounded-lg bg-orange-500 py-1  px-5 font-bold border border-orange-500"
                             >
                                 Tous
                             </motion.button>
-                            {mes_coach?.map(item =>(
-                                <div key={item.id}>
-                                    <Swiper
-                                        slidesPerView="auto"
-                                        spaceBetween={10}
-                                        className="w-30"
-                                        >
+                        
+
+                            <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide">
+                            
+                                {mes_coach?.map(item =>(
+                                    <div key={item.id} className=" flex items-center gap-3">
                                         {[...new Set(item.competence)].map((comp, index) => (
-                                            <SwiperSlide key={index} className="w-auto">
                                             <motion.button
                                                 key={index}
                                                 whileTap={{ scale: 0.95 }}
-                                                className="rounded-lg bg-white py-1 px-5 border border-gray-300"
+                                                className="rounded-lg bg-white py-2 px-5 border border-gray-300"
                                             >
                                                 <p className="text-gray-500 font-bold">{comp}</p>
                                             </motion.button>
-                                    </SwiperSlide>
-                                    ))}
-                                    </Swiper>
+                                        ))}
 
-                                </div>
-                                
-                            ))}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
  
 
-                        <div className="grid grid-cols-6 gap-8">
+                        <div className={`grid grid-cols-6 gap-8 ${filterCoach.length === 12 ? 'overflow-y-auto h-170 scrollbar-hide mb-10' : ''}  p-1 ` }>
 
                            {mesCoachLoad ? ( 
                                 [1,2,3,4,5,6,7,8,9,10,11, 12].map(item => (
-                                    <div
-                                        key={item}
-                                        className="relative shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 flex flex-col items-center justify-center"
-                                    >
-                                        <div className="border-b bg-gray-200 border-gray-300 w-full h-50 flex items-center justify-center">
-
-                                        </div>
-                                        <div className="h-15 border-b bg-gray-200  border-gray-300 w-full flex flex-col gap-3 p-2">
-                                            <div className="flex items-center gap-2 font-bold">
-                                                <p className="w-15 h-4 bg-gray-400 animate-pulse"></p>
-                                                <p className="w-15 h-4 bg-gray-400 animate-pulse"></p>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <p className="w-30 h-4 bg-gray-400 animate-pulse"></p>
-                                                <p
-                                                    className="w-10 h-4 bg-gray-400 animate-pulse"
-                                                ></p>
-                                            </div>
-                                        </div>
-
-                                        <div className="h-5 bg-gray-200 w-full flex items-center px-2 py-4">
-                                            <p
-                                                className="w-full border-r border-gray-300 flex items-center justify-center"
-                                            >
-                                                <p className="w-5 h-2 rounded-full bg-gray-400 animate-pulse"></p>
-                                            </p>
-                                            <p
-                                                className="w-full  flex items-center justify-center"
-                                            >
-                                                <p className="w-5 h-2 rounded-full bg-gray-400 animate-pulse"></p>
-                                            </p>
-                                        </div>
-
-                                        <div className="absolute top-2 left-2">
-                                            <p className="rounded-full w-30 bg-gray-400 animate-pulse text-white font-bold text-xs h-6"></p>
-                                        </div>
-                                    </div>
+                                    <SkeletonCoach key={item}/>
                                 ))
                             ): filterCoach.length === 0 ? (
                                 <div
@@ -2523,7 +2746,7 @@ export default function DashboardPro(){
                                     ):(
                                         <>
                                             <div className="w-120 flex flex-col items-center">
-                                                <img src={coach} alt="" />
+                                                <ImageComponent source={coach} label={""} style={''}/>
                                                 <p>Aucun coach affecté à la salle pour le moment.</p>
                                             </div>
                                             <motion.button
@@ -2545,7 +2768,7 @@ export default function DashboardPro(){
                                         className="relative shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 flex flex-col bg-white"
                                     >
 
-                                        <div className="border-b border-gray-300 bg-orange-50 h-40 flex items-center justify-center">
+                                        <div className="border-b border-gray-300 bg-orange-50 h-50 flex items-center justify-center">
                                             <p className="text-5xl uppercase">{item.nom[0]}</p>
                                         </div>
 
@@ -2615,9 +2838,9 @@ export default function DashboardPro(){
                                                     setSelectCoach(selectCoach === item.id ? null : item.id);
                                                     setCoachEdit({
                                                         ...item,
-                                                        competence: [...item.competence]  // ← copie propre
+                                                        competence: [...item.competence] 
                                                     });
-                                                    setSkills('');  // ← vider l'input
+                                                    setSkills(''); 
                                                 }}
                                                 className="w-1/2 flex items-center justify-center border-r border-gray-300"
                                             >
@@ -2630,14 +2853,6 @@ export default function DashboardPro(){
                                                 <Trash className="h-5 w-5 text-red-600" />
                                             </motion.button>
                                         </div>
-
-                                        
-                                        
-                                        {errorSupCoach && coachSup === item.id && (
-                                            <motion.div className="absolute inset-0 bg-black/80 backdrop-blur z-20 px-2 flex items-center text-center justify-center">
-                                                <p className="bg-white text-xs py-1 text-red-600 font-bold">{supCoach.error.message}</p>
-                                            </motion.div>
-                                        )}
 
                                         {deleteCoach === item.id && (
                                             <motion.div 
@@ -2691,7 +2906,7 @@ export default function DashboardPro(){
                                     whileHover={{scale: 1.03}}
                                     whileTap={{scale: 0.95}}
                                     onClick={handleAddCoach}
-                                    className={`${search.trim() ? 'hidden' : 'block'} shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 h-65 flex flex-col gap-3 items-center bg-orange-50 justify-center`}
+                                    className={`${search.trim() ? 'hidden' : 'block'} shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 h-75 flex flex-col gap-3 items-center bg-orange-50 justify-center`}
                                 >
 
                                     <Plus className="text-gray-500 h-10 w-10"/>
@@ -2705,15 +2920,14 @@ export default function DashboardPro(){
 
             {activeTab === 'cours' &&(
                 <>
-                    <div className="absolute opacity-40 right-0 w-200">
-                        <img src={course} alt="logo-cours" />
+                    <div className="absolute opacity-40 overflow-hidden right-0 w-200">
+                        <ImageComponent source={course} label={"logo-cours"} style={''}/>
                     </div>
                 
-                    <div className=" relative col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                    <div className=" relative col-span-4 px-8 py-3 my-5">
                         <div className="flex flex-col gap-2">
                             <h1 className="font-bold text-3xl flex items-center">
                                 Catalogue des cours
-                                {/* <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">{nbrAdherantsActif} actif{totalAbExpirer > 1 ? 's' : ''}</span> */}
                             </h1>
                             <p className="text-gray-400 text-[18px]">Planifier vos cours comme vous le sentez</p>
                         </div>
@@ -2760,115 +2974,114 @@ export default function DashboardPro(){
                                     </motion.button>
                                 </div>
                             </div>
-                            <motion.button
-                                whileTap={{scale: 0.95}}
-                                onClick={()=>{setModalAddCours(true), setNiveaux('debutant')}}
-                                disabled={daysRemaining <= 0}
-                                className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
-                                <Plus className="h-5 w-5 "/>
-                                Ajouter un cours
-                            </motion.button>
+                            <div className="flex items-center gap-3">
+                                <motion.button
+                                    whileTap={{scale: 0.95}}
+                                    onClick={()=>{setSideBar(true)}}
+                                    className={`flex font-bold text-white text-sm items-center bg-blue-600 hover:text-black border-blue-600 hover:bg-transparent cursor-pointer gap-2 py-2 px-4 rounded-lg  border-2  transition-all duration-200`}>
+                                    <Eye className="h-5 w-5 "/>
+                                    Consulter les cours programmés
+                                </motion.button>
+                                <motion.button
+                                    whileTap={{scale: 0.95}}
+                                    onClick={()=>{setModalAddCours(true), setNiveaux('debutant')}}
+                                    disabled={daysRemaining <= 0}
+                                    className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                    <Plus className="h-5 w-5 "/>
+                                    Ajouter un cours
+                                </motion.button>
+                            </div>
                         </div>
 
-                        {/* A revoir avec les vraies donnees */}
-                        <div className="bg-white my-8 rounded-lg ">
-                            <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
-                                <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
-                                    <tr >
-                                        <th className=" p-3 text-left">Intitulé du cours</th>
-                                        <th className=" p-3">Niveau</th>
-                                        <th className=" p-3">Créé le</th>
-                                        <th className=" p-3">Modifié le</th>
-                                        <th className=" p-3">Actions</th>
-                                    </tr>
-                                </thead>
+                        <div className={`grid grid-cols-4 bg-white relative h-180 overflow-y-auto scrollbar-hide p-1 `}>
+                            <div className=" bg-white col-span-4 mb-10 rounded-lg  ">
+                                
 
-                                <tbody className="">
-                                    {coursLoading ? (
-                                        [1,2,3,4,5,6,7,8,9].map(item =>(
+                                <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                                    <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                        <tr >
+                                            <th className=" p-3 text-left">Intitulé du cours</th>
+                                            <th className=" p-3">Niveau</th>
+                                            <th className=" p-3">Créé le</th>
+                                            <th className=" p-3">Modifié le</th>
+                                            <th className=" p-3">Actions</th>
+                                        </tr>
+                                    </thead>
 
-                                            <tr key={item} className="text-sm p-2 border-b border-gray-200">
+                                    <tbody className="">
+                                        {coursLoading ? (
+                                            [1,2,3,4,5,6,7,8,9,10].map(item =>(
+
+                                                <SkeletonCours key={item}/>
+                                            ))
+                                        ): CoursFiltres.length === 0 ? (
+                                            <tr className="h-170">
+                                                <td colSpan={5} className={` py-6  text-center text-sm text-gray-500`}>
+                                                    <p className="flex items-center justify-center">
+                                                    {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun cours enregistré"}
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        ): CoursFiltres.map(item => (
+                                            <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
 
                                                 <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                                    <span className=" h-5 w-5 bg-gray-200 animate-pulse flex items-center p-2"></span>
-                                                    <p className="h-5 w-20 animate-pulse bg-gray-200"></p>
-                                                    
+                                                    <span className="rounded-full bg-gray-200 flex items-center p-2"><File className="h-4 w-4"/></span>
+                                                    {item?.nom_cours || 'N/A' }
 
                                                 </td>
-                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse mx-auto w-20 bg-gray-200"></p></td>
-                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
-                                                <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
+                                                <td className=" px-3 py-5">{item?.niveaux || 'N/A'}</td>
+                                                <td className=" px-3 py-5">{formatDate(item?.created_at) || 'N/A'}</td>
+                                                <td className=" px-3 py-5">{formatDate(item?.updated_at) || 'N/A'}</td>
                                                 
 
                                                 <td className="flex justify-center py-5 items-center gap-2 px-3">
-                                                    <p className="h-5 w-5 animate-pulse bg-gray-200"></p>
-                                                    <p className="h-5 w-5 animate-pulse bg-gray-200"></p>
+                                                    <motion.button
+                                                        type="button"
+                                                        disabled={daysRemaining <= 0}
+                                                        onClick={()=>{setModalProgram(true), setProgram(item)}}
+                                                        whileTap={{scale: 0.95}}
+                                                        className={`border ${daysRemaining <= 0 ? 'bg-blue-300' : 'cursor-pointer bg-blue-500 '}  border-blue-100 rounded-lg text-white font-bold p-1 px-3`}>
+                                                        Programmer
+                                                    </motion.button>
+                                                    <motion.button
+                                                        type="button"
+                                                        disabled={daysRemaining <= 0}
+                                                        onClick={()=>{setModalUpCours(true), setCoursToUp(item)}}
+                                                        whileTap={{scale: 0.95}}
+                                                        className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
+                                                        <Pencil className="text-white h-4 w-4"/>
+                                                    </motion.button>
+                                                    <motion.button
+                                                        type="button"
+                                                        disabled={daysRemaining <= 0}
+                                                        onClick={()=>{setModalSupCours(true), setCoursToDelete(item)}}
+                                                        whileTap={{scale: 0.95}}
+                                                        className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
+                                                    >
+                                                        <Trash className="h-4 w-4 text-white" />
+                                                    </motion.button>
                                                 </td>
                                             </tr>
-                                        ))
-                                    ): CoursFiltres.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={5} className={`${search.trim() ? '' : 'h-140'} py-6  text-center text-sm text-gray-500`}>
-                                                {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun cours enregistré"}
-                                            </td>
-                                        </tr>
-                                    ): CoursFiltres.map(item => (
-                                        <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                        ))}
 
-                                            <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                                <span className="rounded-full bg-gray-200 flex items-center p-2"><File className="h-4 w-4"/></span>
-                                                {item?.nom_cours || 'N/A' }
+                                        {coursError && (
+                                            <tr className="">
+                                                <td colSpan={5} className="py-6 h-170 text-center  text-red-600">
+                                                    <p className="flex items-center justify-center gap-2 ">
+                                                    <XCircle className="animate-spin text-red-600" />
+                                                    {mesCours.error.message}
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        )}
 
-                                            </td>
-                                            <td className=" px-3 py-5">{item?.niveaux || 'N/A'}</td>
-                                            <td className=" px-3 py-5">{formatDate(item?.created_at) || 'N/A'}</td>
-                                            <td className=" px-3 py-5">{formatDate(item?.updated_at) || 'N/A'}</td>
-                                            
+                                    </tbody>
+                                </table>
+                            </div>
 
-                                            <td className="flex justify-center py-5 items-center gap-2 px-3">
-                                                <motion.button
-                                                    type="button"
-                                                    disabled={daysRemaining <= 0}
-                                                    onClick={()=>{setModalProgram(true), setProgram(item)}}
-                                                    whileTap={{scale: 0.95}}
-                                                    className={`border ${daysRemaining <= 0 ? 'bg-blue-300' : 'cursor-pointer bg-blue-500 '}  border-blue-100 rounded-lg text-white font-bold p-1 px-3`}>
-                                                    Programmer
-                                                </motion.button>
-                                                <motion.button
-                                                    type="button"
-                                                    disabled={daysRemaining <= 0}
-                                                    onClick={()=>{setModalUpCours(true), setCoursToUp(item)}}
-                                                    whileTap={{scale: 0.95}}
-                                                    className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
-                                                    <Pencil className="text-white h-4 w-4"/>
-                                                </motion.button>
-                                                <motion.button
-                                                    type="button"
-                                                    disabled={daysRemaining <= 0}
-                                                    onClick={()=>{setModalSupCours(true), setCoursToDelete(item)}}
-                                                    whileTap={{scale: 0.95}}
-                                                    className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
-                                                >
-                                                    <Trash className="h-4 w-4 text-white" />
-                                                </motion.button>
-                                            </td>
-                                        </tr>
-                                    ))}
-
-                                    {coursError && (
-                                        <tr className="">
-                                            <td colSpan={5} className="py-6 h-140 text-center  text-red-600">
-                                                <p className="flex items-center justify-center gap-2 ">
-                                                <XCircle className="animate-spin text-red-600" />
-                                                {mesCours.error.message}
-                                                </p>
-                                            </td>
-                                        </tr>
-                                    )}
-
-                                </tbody>
-                            </table>
-                            <div className="flex  p-4 items-center justify-between">
+                            {coursSuccess && (
+                                <div className={`flex ${coursLoading || coursError ? 'hidden' : 'block'} absolute -bottom-17 w-full py-3 px-10 bg-white items-center justify-between`}>
                                     <div>
                                         <div className="text-sm text-gray-400">
                                             Page <span className="font-bold text-black">{mesCours.data?.cours?.current_page}</span> sur <span className="font-bold text-black">{mesCours.data?.cours?.last_page}</span>
@@ -2891,8 +3104,9 @@ export default function DashboardPro(){
                                         > Suivant</motion.button>
                                     </div>
                                 </div>
-
+                            )}
                         </div>
+                        
                     </div>
                 </>
             )}
@@ -2904,881 +3118,1216 @@ export default function DashboardPro(){
             )}
 
             {activeTab === 'settings' && (
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                <div className="relative col-span-4 px-8 py-3 my-5 ">
                     <div className="flex flex-col gap-2 ">
                         <h1 className="font-bold text-3xl">Paramètres Généraux</h1>
-                        <p className="text-gray-400 text-[18px]">Gérer les informations de votre salle, votre profil, ainsi que la tarification</p>
+                        <p className="text-gray-400 text-[18px]">Gérez vos informations de façon générale.</p>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-2">
-
-                        <div className="col-span-2">
-                            {infosLoading ? (
-                                <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 animate-pulse">
-
-                                    <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
-
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                        <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                    </div>
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                        <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                    </div>
-
-                                    <div className="flex items-center justify-between gap-5">
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                            <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                        </div>
-
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                            <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                        </div>
-                                    </div>
-
-                                    <div className="my-3">
-                                        <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
-                                    </div>
-                                </div>
-                            ):(
-                                <form onSubmit={UpdateInfos} className="bg-white border border-gray-300 rounded-lg p-4 my-5">
-                                    <span className="font-semibold text-xl">Informations de la salle</span>
-
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <label className="text-gray-400 flex gap-1">Nom de la salle
-                                            <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                        </label>
-                                        <input type="text"
-                                            value={nom_salle}
-                                            onChange={(e)=>{ setNomSalle(e.target.value),update_infos.reset()}}
-                                            disabled={!showButtonSalle}
-                                            placeholder={!showButtonSalle ? infosSalle.nom_salle : 'Entrez le nouveau nom de votre salle'}
-                                            className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                        />
-                                    </div>
-
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <label className="text-gray-400">Adresse</label>
-                                        <input type="text"
-                                            disabled
-                                            placeholder={`${infosSalle.pays_salle} ${infosSalle.region_salle}`}
-                                            className="border bg-gray-100 border-gray-300 p-1 pl-3 font-semibold rounded-lg focus:outline-none"
-                                        />
-                                    </div>
-
-                                    <div className="flex items-center justify-between gap-5">
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <label className="text-gray-400 flex gap-1">Pays
-                                                <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                            </label>
-                                            <input type="text"
-                                                value={pays_salle}
-                                                onChange={(e)=>{ setPaysSalle(e.target.value),update_infos.reset()}}
-                                                disabled={!showButtonSalle}
-                                                placeholder={!showButtonSalle ? infosSalle.pays_salle : 'Entrez le pays où se trouve la salle'}
-                                                className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                            />
-                                        </div>
-
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <label className="text-gray-400 flex gap-1">Région
-                                                <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                            </label>
-                                            <input type="text"
-                                                value={region}
-                                                onChange={(e)=> {setRegion(e.target.value), update_infos.reset()}}
-                                                disabled={!showButtonSalle}
-                                                placeholder={!showButtonSalle ? infosSalle.region_salle : 'Entrez la région'}
-                                                className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {updateError && (
-                                        <p className="my-3 text-red-600 text-sm">{update_infos.error.message}</p>
-                                    )}
-
-                                    {successUpdate && (
-                                        <p className="my-3 text-green-600 text-sm">Infos de la salle mis à jour avec succès</p>
-                                    )}
-
-                                    <p className="my-3 italic text-gray-400 text-sm">Date de création : {formatDate(infosSalle.created_at)} - Mis à jour : {formatDate(infosSalle.updated_at)}</p>
-
-                                    <div className="flex items-center gap-2" >
-                                        <div className={`${showButtonSalle ? 'hidden' : ''}`}>
-
-                                        <motion.button
-                                            type="button"
-                                            whileTap={{scale:0.95}}
-                                            onClick={()=>{setShowButtonSalle(true) }}
-                                            className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
-                                        >
-                                            Modifier
-                                        </motion.button>
-                                        </div>
-                                        {showButtonSalle && (
-                                            <div className={`${successUpdate ? setShowButtonSalle(false) : 'block'} gap-2 flex items-center`}>
-                                            <motion.button
-                                                type="button"
-                                                whileTap={{scale:0.95}}
-                                                onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPaysSalle(''), setRegion('')}}
-                                                className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
-                                            >
-                                                Annuler
-                                            </motion.button>
-                                            <motion.button
-                                                type="submit"
-                                                whileTap={{scale:0.95}}
-                                                disabled={updateLoading || !nom_salle.trim() || !pays_salle.trim() || !region.trim()}
-                                                className={`my-3 ${!nom_salle.trim() || !pays_salle.trim() || !region.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
-                                            >
-                                                {updateLoading ? (
-                                                    <Loader2 className="animate-spin"/>
-                                                ):(
-                                                    'Enregistrer'
-                                                )}
-
-                                            </motion.button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </form>
-                            )}
-                        </div>
-
-                        <div className="border border-gray-300 rounded-lg p-4 my-5">
-                            <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
-                            <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
-                            <form className="flex flex-col relative items-center gap-4">
-
-
-                                <motion.div
-                                    whileHover={{ scale: 1.08 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="rounded-full w-50 h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
-                                    onClick={() => logoInputRef.current.click()}
-                                >
-                                    {preview ? (
-                                        <div className="relative w-full h-full">
-                                            <img src={preview} className="w-full h-full object-cover" />
-                                            <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-
-                                            </div>
-                                        </div>
-                                    ) : infosSalle?.logo_salle ? (
-                                            <div className="relative w-full h-full">
-                                                <img src={infosSalle.logo_salle} className="w-full h-full object-cover" />
-                                                <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-
-                                                </div>
-                                            </div>
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                            <div className="flex flex-col items-center">
-                                            <PlusSquare size={50} />
-                                            <span className="font-bold">Ajouter votre logo</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                </motion.div>
-
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    ref={logoInputRef}
-                                    hidden
-                                    onChange={handleLogo}
-                                />
-
-                                {logoSuccess && (
-                                    <p className="text-sm text-center text-green-500">Logo enregistré avec succès</p>
-                                )}
-
-                                {logoError && (
-                                    <p className="text-sm text-center text-red-500">{logoUpload.error.message}</p>
-                                )}
-
-                                {logoEditSuccess && (
-                                    <p className="text-sm text-center text-green-500">Logo modifié avec succès</p>
-                                )}
-
-                                {logoEditError && (
-                                    <p className="text-sm text-center text-red-500">{logoEditUpload.error.message}</p>
-                                )}
-
-                                {logoDelSuccess && (
-                                    <p className="text-sm text-center text-green-500">Logo supprimé avec succès</p>
-                                )}
-
-                                {logoDelError && (
-                                    <p className="text-sm text-center text-red-500">{logoDelUpload.error.message}</p>
-                                )}
-
-                                {logo && (
-                                    <div className="flex items-center gap-2">
-
-                                        <button
-                                            type='button'
-                                            className="text-sm border py-1 px-2 my-3 text-red-500"
-                                            onClick={()=>{setPreview(null);setLogo(null)}}
-                                            disabled={logoLoading || logoEditLoading}
-                                        >
-                                            Annuler
-                                        </button>
-
-                                        <button
-                                            type="submit"
-                                            onClick={(e)=>{infosSalle?.logo_salle ? handlePostLogo(e, 'PUT') : handlePostLogo(e, 'POST')}}
-                                            disabled={logoLoading || logoEditLoading }
-                                            className="px-4 py-1 bg-blue-500 text-white rounded"
-                                        >
-                                            {logoLoading || logoEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
-
-                                        </button>
-
-
-                                    </div>
-                                )}
-
-                                {infosSalle?.logo_salle && (
-                                    <div className={`flex items-center gap-2 ${logo ? "hidden" : "block"}`}>
-
-                                        <button
-                                            type="button"
-                                            className="text-sm border py-1 px-2 my-3 text-red-500"
-                                            onClick={()=>{setLogoModal(true)}}
-                                        >
-                                            Suprimmer
-
-                                        </button>
-
-                                    </div>
-                                )}
-
-                                {logoModal && (
-                                    <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
-                                        <div className="flex items-center gap-2  animate-pulse">
-                                            <AlertTriangle className="h-8 w-8 text-red-500" />
-                                            <p className="font-semibold text-red-500">Cette action est irreversible !</p>
-
-                                        </div>
-                                        <p className="text-white font-semibold">Supprimer définitivement ?</p>
-                                        <div className="flex gap-5 items-center justify-center">
-                                            <motion.button
-                                            type="button"
-                                                whileTap={{scale : 0.95}}
-                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
-                                                onClick={()=>{setLogoModal(false)}}
-                                            >Non</motion.button>
-                                            <motion.button
-                                                type="submit"
-                                                whileTap={{scale : 0.95}}
-                                                onClick={(e)=>{handlePostLogo(e, 'DELETE')}}
-                                                disabled={logoDelLoading}
-                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
-                                            >
-                                                {logoDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
-                                            </motion.button>
-                                        </div>
-                                    </div>
-                                )}
-
-                            </form>
-                        </div>
-
-                        <div className=" border border-gray-300 rounded-lg p-4 my-5">
-                            <p className="font-semibold text-xl ">Cachet / Signature <span className="text-sm">(optionnel)</span></p>
-                            <p className="text-md mb-5 text-gray-400">Scannez votre signature pour les marquer sur vos factures</p>
-                            <form className="flex flex-col relative items-center gap-4">
-
-
-                                <motion.div
-                                    whileHover={{ scale: 1.08 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="rounded-lg w-full h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
-                                    onClick={() => signInputRef.current.click()}
-                                >
-                                    {previewSign ? (
-                                        <div className="relative w-full h-full">
-                                            <img src={previewSign} className="w-full h-full object-cover" />
-                                            <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-
-                                            </div>
-                                        </div>
-                                    ) : infosSalle?.cachet_signer ? (
-                                            <div className="relative w-full h-full">
-                                                <img src={infosSalle.cachet_signer} className="w-full h-full object-cover" />
-                                                <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-
-                                                </div>
-                                            </div>
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                            <div className="flex flex-col items-center">
-                                            <PlusSquare size={50} />
-                                            <span className="font-bold">Ajoutervotre signature/cachet</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                </motion.div>
-
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    ref={signInputRef}
-                                    hidden
-                                    onChange={handleSign}
-                                />
-
-                                {signSuccess && (
-                                    <p className="text-sm text-center text-green-500">Signature enregistré avec succès</p>
-                                )}
-
-                                {signError && (
-                                    <p className="text-sm text-center text-red-500">{signUpload.error.message}</p>
-                                )}
-
-                                {signEditSuccess && (
-                                    <p className="text-sm text-center text-green-500">Signature modifié avec succès</p>
-                                )}
-
-                                {signEditError && (
-                                    <p className="text-sm text-center text-red-500">{signEditUpload.error.message}</p>
-                                )}
-
-                                {signDelSuccess && (
-                                    <p className="text-sm text-center text-green-500">Logo supprimé avec succès</p>
-                                )}
-
-                                {signDelError && (
-                                    <p className="text-sm text-center text-red-500">{signDelUpload.error.message}</p>
-                                )}
-
-                                {sign && (
-                                    <div className="flex items-center gap-2">
-
-                                        <button
-                                            type='button'
-                                            className="text-sm border py-1 px-2 my-3 text-red-500"
-                                            onClick={()=>{setPreviewSign(null);setSign(null)}}
-                                            disabled={signLoading || signEditLoading}
-                                        >
-                                            Annuler
-                                        </button>
-
-                                        <button
-                                            type="submit"
-                                            onClick={(e)=>{infosSalle?.cachet_signer ? handlePostSign(e, 'PUT') : handlePostSign(e, 'POST')}}
-                                            disabled={signLoading || signEditLoading }
-                                            className="px-4 py-1 bg-blue-500 text-white rounded"
-                                        >
-                                            {signLoading || signEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
-
-                                        </button>
-
-
-                                    </div>
-                                )}
-
-                                {infosSalle?.cachet_signer && (
-                                    <div className={`flex items-center gap-2 ${sign ? "hidden" : "block"}`}>
-
-                                        <button
-                                            type="button"
-                                            className="text-sm border py-1 px-2 my-3 text-red-500"
-                                            onClick={()=>{setSignModal(true)}}
-                                        >
-                                            Suprimmer
-
-                                        </button>
-
-                                    </div>
-                                )}
-
-                                {signModal && (
-                                    <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
-                                        <div className="flex items-center gap-2  animate-pulse">
-                                            <AlertTriangle className="h-8 w-8 text-red-500" />
-                                            <p className="font-semibold text-red-500">Cette action est irreversible !</p>
-
-                                        </div>
-                                        <p className="text-white font-semibold">Supprimer définitivement ?</p>
-                                        <div className="flex gap-5 items-center justify-center">
-                                            <motion.button
-                                            type="button"
-                                                whileTap={{scale : 0.95}}
-                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
-                                                onClick={()=>{setSignModal(false)}}
-                                            >Non</motion.button>
-                                            <motion.button
-                                                type="submit"
-                                                whileTap={{scale : 0.95}}
-                                                onClick={(e)=>{handlePostSign(e, 'DELETE')}}
-                                                disabled={signDelLoading}
-                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
-                                            >
-                                                {signDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
-                                            </motion.button>
-                                        </div>
-                                    </div>
-                                )}
-
-                            </form>
-                        </div>
+                    <div className="flex items-center justify-start gap-5 my-2">
+                        <button 
+                            onClick={()=>{setParamstab('salle')}}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'salle' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Informations de la salle</button>
+                        <button 
+                            onClick={()=>{setParamstab('perso')}}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'perso' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Informations personnelles</button>
+                        <button 
+                            onClick={()=>{setParamstab('visuel')}}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'visuel' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Identité visuelle</button>
+                        <button 
+                            onClick={()=>{setParamstab('tarif')}}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'tarif' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Gérer vos tarifs</button>
+                        <button 
+                            onClick={()=>{setParamstab('activity')}}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'activity' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Mes activités</button>
+                        <button 
+                            onClick={()=>{setHistoryP(!historyP)}}
+                            className={`border-b rounded-lg p-2 ${historyP ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Historique de connexion</button>
+                        <button 
+                            onClick={()=>{setParamstab('support')}}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'support' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Support GymPlus</button>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-2">
-                        <div className="col-span-3">
-                            {infosLoading ? (
-                                <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 animate-pulse">
+                    <div className="grid grid-cols-4 gap-2 ">
+                        {paramsTab === 'salle' && (
+                            <>
+                                <div className="flex col-span-2 mt-15 p-4">
+                                        <div className="text-gray-500 flex flex-col gap-8">
+                                            <p>
+                                                Les informations ci-contre correspondent aux détails principaux de votre salle.
+                                                Merci de vérifier qu’elles sont correctes et à jour :
+                                            </p>
 
-                                    <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
+                                            <div className="flex flex-col gap-2">
+                                                <p>
+                                                <span className="font-bold">Nom de la salle :</span> Nom officiel de votre établissement.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Adresse :</span> Adresse complète permettant de localiser votre salle.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Pays :</span> Pays dans lequel votre salle est enregistrée.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Région :</span> Région ou province de localisation.
+                                                </p>
+                                            </div>
 
-                                    <div className="flex items-center justify-between gap-5">
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                            <div className="h-10 bg-gray-100 rounded-lg"></div>
+                                            <p>
+                                            Ces informations sont utilisées pour l’identification, la gestion administrative et l’affichage public de votre salle sur la plateforme.
+                                            </p>
+
+                                            <div className="flex flex-col gap-2">
+                                                <p>
+                                                <span className="font-bold">Date de création :</span> {formatDate(infosSalle.created_at)}
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Dernière mise à jour :</span> {formatDate(infosSalle.updated_at)}
+                                                </p>
+                                            </div>
+
+                                            <p className="text-red-500">
+                                            En cas d’erreur, veuillez procéder à la modification afin de garantir l’exactitude des données.
+                                            </p>
                                         </div>
-
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                            <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                        <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                    </div>
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                        <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                    </div>
-
-
-
-                                    <div className="my-3">
-                                        <div className="h-10 bg-gray-200 rounded w-1/3"></div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
-                                    </div>
+                                        <div className="bg-gray-300 h-120 w-[2px]"></div>
                                 </div>
-                            ):(
-                                <form onSubmit={UpdatePerso} className="bg-white border border-gray-300 rounded-lg p-4 my-5">
-                                    <span className="font-semibold text-xl">Mon Profil</span>
+                                
+                                <div className="col-span-2">
+                                    {infosLoading ? (
+                                        <div className=" p-4 mt-15 flex flex-col gap-5 animate-pulse">
 
-                                    <div className="flex items-center justify-between gap-5">
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <label className="text-gray-400 flex gap-1">Prénom
-                                                <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                            </label>
-                                            <input type="text"
-                                                value={prenomPerso}
-                                                onChange={(e)=>{ setPrenomPerso(e.target.value),update_infos_perso.reset()}}
-                                                disabled={!showButtonProfil}
-                                                placeholder={!showButtonProfil ? infosUser.prenom : 'Entrez votre prénom'}
-                                                className={`border border-gray-300 p-1 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                            />
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                            </div>
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                            </div>
+
+                                            <div className="flex items-center justify-between gap-5">
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                                </div>
+
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-10 bg-gray-200 rounded-lg w-30"></div>
+                                            </div>
                                         </div>
-
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <label className="text-gray-400 flex gap-1">Nom
-                                                <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                            </label>
-                                            <input type="text"
-                                                value={nomPerso}
-                                                onChange={(e)=> {setNomPerso(e.target.value), update_infos_perso.reset()}}
-                                                disabled={!showButtonProfil}
-                                                placeholder={!showButtonProfil ? infosUser.name : 'Entrez votre nom'}
-                                                className={`border border-gray-300 p-1 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-col gap-2 my-3 w-full">
-                                        <label className="text-gray-400 flex gap-1">Numéro de téléphone
-                                            <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                        </label>
-                                        <input type="tel"
-                                            value={telPerso}
-                                            onChange={(e)=>{ setTelPerso(e.target.value),update_infos_perso.reset()}}
-                                            disabled={!showButtonProfil}
-                                            placeholder={!showButtonProfil ? infosUser.telephone : 'Entrez votre numéro de telephone'}
-                                            className={`border border-gray-300 p-1 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                        />
-                                    </div>
-
-                                    <div className="flex flex-col gap-2 my-3 w-full">
-                                        <label className="text-gray-400">Adresse e-mail </label>
-                                        <input type="email"
-                                            disabled
-                                            placeholder={infosUser.email}
-                                            className="border bg-gray-100 border-gray-300 p-1 pl-3 font-semibold rounded-lg focus:outline-none"
-                                        />
-                                    </div>
-
-                                    <div className="flex items-center gap-2" >
-                                        <motion.button
-                                        whileTap={{scale:0.95}}
-                                        type="button"
-                                            onClick={()=>{setShowPasswordChange(!showPasswordChange)}}
-                                            disabled={showButtonProfil}
-                                            className={`${showButtonProfil ? 'bg-gray-200 text-gray-400 border-gray-200' : 'bg-tranparent border-gray-300 cursor-pointer'}  border-2 rounded-lg py-2 px-4 my-3`}
-                                        >
-                                            {showPasswordChange ? 'Annuler le changement' : 'Changer le mot de passe'}
-                                        </motion.button>
-
-                                        {showPasswordChange && (
-                                            <div className={`flex items-center gap-2 my-3 ${passwordSuccess ? setShowPasswordChange(false) : 'block'}`}>
-                                                <input type="password"
-                                                    placeholder="nouveau mot de passe"
-                                                    value={password}
-                                                    onChange={(e)=>{setPassword(e.target.value), updatePassword.reset()}}
-                                                    className="border py-2 px-4 rounded-lg focus:outline-none"
+                                    ):(
+                                        <form onSubmit={UpdateInfos} className=" p-4 mt-15 flex flex-col gap-5 text-xl">
+                                            
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <label className="text-gray-400 flex gap-1">Nom de la salle
+                                                    <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                </label>
+                                                <input type="text"
+                                                    value={nom_salle}
+                                                    onChange={(e)=>{ setNomSalle(e.target.value),update_infos.reset()}}
+                                                    disabled={!showButtonSalle}
+                                                    placeholder={!showButtonSalle ? infosSalle.nom_salle : 'Entrez le nouveau nom de votre salle'}
+                                                    className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
                                                 />
-                                                <motion.button
-                                                    type="submit"
-                                                    disabled={changePasswordLoading || !password.trim()}
-                                                    onClick={(e)=>UpdatePerso(e, 'PASSWORD')}
-                                                    whileTap={{scale:0.95}}
-                                                    className={`border ${!password.trim() ? 'bg-gray-200 border-gray-300' : 'bg-green-200 border-green-500 cursor-pointer'}  py-1 px-2 rounded-lg `}
-                                                >
-                                                    {changePasswordLoading ? (
-                                                        <Loader2 className="h-7 w-7 text-green-600 animate-spin"/>
-                                                    ):(
-                                                        <CheckCircle2 className={`h-7 w-7 ${!password.trim() ? 'text-gray-400' : 'text-green-600'}`} />
-                                                    )}
-
-                                                </motion.button>
                                             </div>
-                                        )}
-                                    </div>
 
-                                        {persoError && (
-                                            <p className="my-3 text-red-600 text-sm">{update_infos_perso.error.message}</p>
-                                        )}
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <label className="text-gray-400">Adresse</label>
+                                                <input type="text"
+                                                    disabled
+                                                    placeholder={`${infosSalle.pays_salle} ${infosSalle.region_salle}`}
+                                                    className="border bg-gray-200 text-gray-500 border-gray-300 p-2 pl-3 font-semibold rounded-lg focus:outline-none"
+                                                />
+                                            </div>
 
-                                        {persoSuccess && (
-                                            <p className="my-3 text-green-600 text-sm">Informations personnelles misent à jour avec succès</p>
-                                        )}
+                                            <div className="flex items-center justify-between gap-5">
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <label className="text-gray-400 flex gap-1">Pays
+                                                        <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                        value={pays_salle}
+                                                        onChange={(e)=>{ setPaysSalle(e.target.value),update_infos.reset()}}
+                                                        disabled={!showButtonSalle}
+                                                        placeholder={!showButtonSalle ? infosSalle.pays_salle : 'Entrez le pays où se trouve la salle'}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                    />
+                                                </div>
 
-                                        {passwordError && (
-                                            <p className="my-3 text-red-600 text-sm">{updatePassword.error.message}</p>
-                                        )}
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <label className="text-gray-400 flex gap-1">Région
+                                                        <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                        value={region}
+                                                        onChange={(e)=> {setRegion(e.target.value), update_infos.reset()}}
+                                                        disabled={!showButtonSalle}
+                                                        placeholder={!showButtonSalle ? infosSalle.region_salle : 'Entrez la région'}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                    />
+                                                </div>
+                                            </div>
 
-                                        {passwordSuccess && (
-                                            <p className="my-3 text-green-600 text-sm">Mot de passe changé avec succès</p>
-                                        )}
+                                            
 
-                                    <div className="flex items-center gap-2" >
-                                        <div className={`${showButtonProfil ? 'hidden' : ''}`}>
-                                            <motion.button
-                                                type="button"
-                                                whileTap={{scale:0.95}}
-                                                disabled={showPasswordChange}
-                                                onClick={()=>{setShowButtonProfil(true) }}
-                                                className={`my-3 ${showPasswordChange ? 'bg-gray-200  text-gray-400 border-gray-200' : 'cursor-pointer bg-gray-300 border-gray-200 text-black/80'} border font-semibold py-2 px-4 rounded-lg`}
-                                            >
-                                                Modifier
-                                            </motion.button>
-                                        </div>
-                                        {showButtonProfil && (
-                                            <div className={`${persoSuccess ? setShowButtonProfil(false) : 'block flex items-center gap-2'}`}>
+                                            <div className="flex items-center gap-2" >
+                                                <div className={`${showButtonSalle ? 'hidden' : ''}`}>
+
                                                 <motion.button
                                                     type="button"
                                                     whileTap={{scale:0.95}}
-                                                    onClick={()=>{setShowButtonProfil(false), setNomPerso(''), setPrenomPerso(''), setTelPerso('')}}
+                                                    onClick={()=>{setShowButtonSalle(true) }}
                                                     className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
                                                 >
-                                                    Annuler
+                                                    Modifier
                                                 </motion.button>
+                                                </div>
+                                                {showButtonSalle && (
+                                                    <div className={`${successUpdate ? setShowButtonSalle(false) : 'block'} gap-2 flex items-center`}>
+                                                    <motion.button
+                                                        type="button"
+                                                        whileTap={{scale:0.95}}
+                                                        onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPaysSalle(''), setRegion('')}}
+                                                        className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
+                                                    >
+                                                        Annuler
+                                                    </motion.button>
+                                                    <motion.button
+                                                        type="submit"
+                                                        whileTap={{scale:0.95}}
+                                                        disabled={updateLoading || !nom_salle.trim() || !pays_salle.trim() || !region.trim()}
+                                                        className={`my-3 ${!nom_salle.trim() || !pays_salle.trim() || !region.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
+                                                    >
+                                                        {updateLoading ? (
+                                                            <Loader2 className="animate-spin"/>
+                                                        ):(
+                                                            'Enregistrer'
+                                                        )}
+
+                                                    </motion.button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </form>
+                                    )}
+
+                                    {infoError && (
+                                        <div className=" p-4 mt-15 h-138 flex items-center gap-2 justify-center">
+                                            <XCircle className="animate-spin text-red-600 h-5 w-5"/>
+                                            <p className="text-red-600">{infos.error.message}</p>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                            </>
+                        )}
+
+                        {paramsTab === 'visuel' && (
+                            <>
+                                <div className="flex col-span-2 mt-15 p-4">
+                                    <div className="text-gray-500 flex flex-col gap-8">
+                                        <p>
+                                            Cette section vous permet de personnaliser l’image de votre salle et de renforcer votre professionnalisme.
+                                        </p>
+
+                                        <div className="flex flex-col gap-2">
+                                            <p>
+                                            <span className="font-bold">Identité de votre salle :</span> Ajoutez des éléments visuels (logo, couleurs, bannière…) afin de représenter votre marque. Une identité visuelle claire permet de vous démarquer des autres salles et de renforcer votre crédibilité auprès de vos clients.
+                                            </p>
+                                            <p>
+                                            <span className="font-bold">Cachet / Signature :</span> Importez ou scannez votre cachet ou votre signature officielle afin de l’apposer automatiquement sur vos factures et documents générés par la plateforme.
+                                                Cela apporte une touche professionnelle et officielle à vos documents.
+                                            </p>
+                                            
+                                        </div>
+
+                                        <p>
+                                            Ces éléments sont facultatifs, mais fortement recommandés pour valoriser votre image et inspirer confiance.
+                                        </p>
+                                    </div>
+                                    <div className="bg-gray-300 h-100 w-[2px]"></div>
+                                </div>
+                                <div className="col-span-2 mt-15 flex items-center gap-5">
+                                    <div className="border border-gray-300 rounded-lg p-4">
+                                        <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
+                                        <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
+                                        <form className="flex flex-col relative items-center gap-4">
+
+
+                                            <motion.div
+                                                whileHover={{ scale: 1.08 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                className="rounded-full w-50 h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
+                                                onClick={() => logoInputRef.current.click()}
+                                            >
+                                                {preview ? (
+                                                    <div className="relative w-full h-full">
+                                                        <ImageComponent source={preview} style={"w-full h-full object-cover"} label={'preview'} />
+                                                        <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+
+                                                        </div>
+                                                    </div>
+                                                ) : infosSalle?.logo_salle ? (
+                                                        <div className="relative w-full h-full">
+                                                            <ImageComponent source={infosSalle.logo_salle} className="w-full h-full object-cover" />
+                                                            <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+
+                                                            </div>
+                                                        </div>
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                        <div className="flex flex-col items-center">
+                                                        <PlusSquare size={50} />
+                                                        <span className="font-bold">Ajouter votre logo</span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                ref={logoInputRef}
+                                                hidden
+                                                onChange={handleLogo}
+                                            />
+
+                                            {logo && (
+                                                <div className="flex items-center gap-2">
+
+                                                    <button
+                                                        type='button'
+                                                        className="text-sm border py-1 px-2 my-3 text-red-500"
+                                                        onClick={()=>{setPreview(null);setLogo(null)}}
+                                                        disabled={logoLoading || logoEditLoading}
+                                                    >
+                                                        Annuler
+                                                    </button>
+
+                                                    <button
+                                                        type="submit"
+                                                        onClick={(e)=>{infosSalle?.logo_salle ? handlePostLogo(e, 'PUT') : handlePostLogo(e, 'POST')}}
+                                                        disabled={logoLoading || logoEditLoading }
+                                                        className="px-4 py-1 bg-blue-500 text-white rounded"
+                                                    >
+                                                        {logoLoading || logoEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
+
+                                                    </button>
+
+
+                                                </div>
+                                            )}
+
+                                            {infosSalle?.logo_salle && (
+                                                <div className={`flex items-center gap-2 ${logo ? "hidden" : "block"}`}>
+
+                                                    <button
+                                                        type="button"
+                                                        className="text-sm border py-1 px-2 my-3 text-red-500"
+                                                        onClick={()=>{setLogoModal(true)}}
+                                                    >
+                                                        Suprimmer
+
+                                                    </button>
+
+                                                </div>
+                                            )}
+
+                                            {logoModal && (
+                                                <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
+                                                    <div className="flex items-center gap-2  animate-pulse">
+                                                        <AlertTriangle className="h-8 w-8 text-red-500" />
+                                                        <p className="font-semibold text-red-500">Cette action est irreversible !</p>
+
+                                                    </div>
+                                                    <p className="text-white font-semibold">Supprimer définitivement ?</p>
+                                                    <div className="flex gap-5 items-center justify-center">
+                                                        <motion.button
+                                                        type="button"
+                                                            whileTap={{scale : 0.95}}
+                                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
+                                                            onClick={()=>{setLogoModal(false)}}
+                                                        >Non</motion.button>
+                                                        <motion.button
+                                                            type="submit"
+                                                            whileTap={{scale : 0.95}}
+                                                            onClick={(e)=>{handlePostLogo(e, 'DELETE')}}
+                                                            disabled={logoDelLoading}
+                                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
+                                                        >
+                                                            {logoDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
+                                                        </motion.button>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                        </form>
+                                    </div>
+
+                                    <div className=" border border-gray-300 rounded-lg p-4">
+                                        <p className="font-semibold text-xl ">Cachet / Signature <span className="text-sm">(optionnel)</span></p>
+                                        <p className="text-md mb-5 text-gray-400">Scannez votre signature pour les marquer sur vos factures</p>
+                                        <form className="flex flex-col relative items-center gap-4">
+                                            <motion.div
+                                                whileHover={{ scale: 1.08 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                className="rounded-lg w-full h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
+                                                onClick={() => signInputRef.current.click()}
+                                            >
+                                                {previewSign ? (
+                                                    <div className="relative w-full h-full">
+                                                        <ImageComponent source={previewSign} style={"w-full h-full object-cover"} label={'preview-sign'} />
+                                                        <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+
+                                                        </div>
+                                                    </div>
+                                                ) : infosSalle?.cachet_signer ? (
+                                                        <div className="relative w-full h-full">
+                                                            <ImageComponent source={infosSalle.cachet_signer} style={"w-full h-full object-cover"} label={'logo'} />
+                                                            <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+
+                                                            </div>
+                                                        </div>
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                        <div className="flex flex-col items-center">
+                                                        <PlusSquare size={50} />
+                                                        <span className="font-bold">Ajoutervotre signature/cachet</span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                ref={signInputRef}
+                                                hidden
+                                                onChange={handleSign}
+                                            />
+
+                                            {sign && (
+                                                <div className="flex items-center gap-2">
+
+                                                    <button
+                                                        type='button'
+                                                        className="text-sm border py-1 px-2 my-3 text-red-500"
+                                                        onClick={()=>{setPreviewSign(null);setSign(null)}}
+                                                        disabled={signLoading || signEditLoading}
+                                                    >
+                                                        Annuler
+                                                    </button>
+
+                                                    <button
+                                                        type="submit"
+                                                        onClick={(e)=>{infosSalle?.cachet_signer ? handlePostSign(e, 'PUT') : handlePostSign(e, 'POST')}}
+                                                        disabled={signLoading || signEditLoading }
+                                                        className="px-4 py-1 bg-blue-500 text-white rounded"
+                                                    >
+                                                        {signLoading || signEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
+
+                                                    </button>
+
+
+                                                </div>
+                                            )}
+
+                                            {infosSalle?.cachet_signer && (
+                                                <div className={`flex items-center gap-2 ${sign ? "hidden" : "block"}`}>
+
+                                                    <button
+                                                        type="button"
+                                                        className="text-sm border py-1 px-2 my-3 text-red-500"
+                                                        onClick={()=>{setSignModal(true)}}
+                                                    >
+                                                        Suprimmer
+
+                                                    </button>
+
+                                                </div>
+                                            )}
+
+                                            {signModal && (
+                                                <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
+                                                    <div className="flex items-center gap-2  animate-pulse">
+                                                        <AlertTriangle className="h-8 w-8 text-red-500" />
+                                                        <p className="font-semibold text-red-500">Cette action est irreversible !</p>
+
+                                                    </div>
+                                                    <p className="text-white font-semibold">Supprimer définitivement ?</p>
+                                                    <div className="flex gap-5 items-center justify-center">
+                                                        <motion.button
+                                                        type="button"
+                                                            whileTap={{scale : 0.95}}
+                                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
+                                                            onClick={()=>{setSignModal(false)}}
+                                                        >Non</motion.button>
+                                                        <motion.button
+                                                            type="submit"
+                                                            whileTap={{scale : 0.95}}
+                                                            onClick={(e)=>{handlePostSign(e, 'DELETE')}}
+                                                            disabled={signDelLoading}
+                                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
+                                                        >
+                                                            {signDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
+                                                        </motion.button>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                        </form>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {paramsTab === 'perso' && (
+                            <>
+                                <div className="flex gap-2 col-span-2 mt-15 p-4">
+                                        <div className="text-gray-500 flex flex-col gap-8">
+                                            <p>
+                                                Les éléments ci-contre correspondent à vos informations personnelles associées à votre compte. Merci de vous assurer qu’elles sont exactes et régulièrement mises à jour :
+                                            </p>
+
+                                            <div className="flex flex-col gap-2">
+                                                <p>
+                                                <span className="font-bold">Prénom :</span> Votre prénom tel qu’utilisé pour l’identification sur la plateforme.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Nom :</span> Votre nom de famille officiel.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Numéro de téléphone :</span> Utilisé pour la connexion, les notifications importantes et la sécurité du compte.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Adresse e-mail :</span> Sert à recevoir les communications, confirmations et à récupérer votre compte en cas d’oubli de mot de passe.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Mot de passe :</span> Option permettant de sécuriser votre compte en modifiant votre mot de passe à tout moment.
+                                                </p>
+                                            </div>
+
+                                            <p>
+                                            Ces informations sont confidentielles et contribuent à la sécurité ainsi qu’au bon fonctionnement de votre compte.
+                                            </p>
+
+                                            <p className="text-red-500">
+                                            En cas de changement, veillez à les mettre à jour rapidement.
+                                            </p>
+                                        </div>
+                                        <div className="bg-gray-300 h-138 w-[2px]"></div>
+                                </div>
+                                <div className="col-span-2">
+                                    {infosLoading ? (
+                                        <div className="p-4 mt-15 flex flex-col gap-5 animate-pulse">
+
+                                            <div className="flex items-center justify-between gap-5">
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                                </div>
+
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                            </div>
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                            </div>
+
+
+
+                                            <div className="my-3">
+                                                <div className="h-10 bg-gray-200 rounded w-1/3"></div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
+                                            </div>
+                                        </div>
+                                    ):(
+                                        <form onSubmit={UpdatePerso} className=" p-4 mt-15 flex flex-col gap-5 text-xl">
+
+                                            <div className="flex items-center justify-between gap-5">
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <label className="text-gray-400 flex gap-1">Prénom
+                                                        <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                        value={prenomPerso}
+                                                        onChange={(e)=>{ setPrenomPerso(e.target.value),update_infos_perso.reset()}}
+                                                        disabled={!showButtonProfil}
+                                                        placeholder={!showButtonProfil ? infosUser.prenom : 'Entrez votre prénom'}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <label className="text-gray-400 flex gap-1">Nom
+                                                        <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                        value={nomPerso}
+                                                        onChange={(e)=> {setNomPerso(e.target.value), update_infos_perso.reset()}}
+                                                        disabled={!showButtonProfil}
+                                                        placeholder={!showButtonProfil ? infosUser.name : 'Entrez votre nom'}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col gap-2 my-3 w-full">
+                                                <label className="text-gray-400 flex gap-1">Numéro de téléphone
+                                                    <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                </label>
+                                                <input type="tel"
+                                                    value={telPerso}
+                                                    onChange={(e)=>{ setTelPerso(e.target.value),update_infos_perso.reset()}}
+                                                    disabled={!showButtonProfil}
+                                                    placeholder={!showButtonProfil ? infosUser.telephone : 'Entrez votre numéro de telephone'}
+                                                    className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                />
+                                            </div>
+
+                                            <div className="flex flex-col gap-2 my-3 w-full">
+                                                <label className="text-gray-400">Adresse e-mail </label>
+                                                <input type="email"
+                                                    disabled
+                                                    placeholder={infosUser.email}
+                                                    className="border bg-gray-200 text-gray-500 border-gray-300 p-2 pl-3 font-semibold rounded-lg focus:outline-none"
+                                                />
+                                            </div>
+
+                                            <div className="flex items-center gap-2" >
                                                 <motion.button
-                                                    type="submit"
-                                                    // onClick={()=>{setActionProfil('PUT_PROFIL')}}
-                                                    whileTap={{scale:0.95}}
-                                                    disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim()}
-                                                    className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
+                                                whileTap={{scale:0.95}}
+                                                type="button"
+                                                    onClick={()=>{setShowPasswordChange(!showPasswordChange)}}
+                                                    disabled={showButtonProfil}
+                                                    className={`${showButtonProfil ? 'bg-gray-200 text-gray-400 border-gray-200' : 'bg-tranparent border-gray-300 cursor-pointer'}  border-2 rounded-lg py-2 px-4 my-3`}
                                                 >
-                                                    {persoLoading ? (
-                                                        <Loader2 className="h-5 w-5 animate-spin"/>
+                                                    {showPasswordChange ? 'Annuler le changement' : 'Changer le mot de passe'}
+                                                </motion.button>
+
+                                                {showPasswordChange && (
+                                                    <div className={`flex items-center gap-2 my-3 ${passwordSuccess ? setShowPasswordChange(false) : 'block'}`}>
+                                                        <input type="password"
+                                                            placeholder="nouveau mot de passe"
+                                                            value={password}
+                                                            onChange={(e)=>{setPassword(e.target.value), updatePassword.reset()}}
+                                                            className="border py-2 px-4 rounded-lg focus:outline-none"
+                                                        />
+                                                        <motion.button
+                                                            type="submit"
+                                                            disabled={changePasswordLoading || !password.trim()}
+                                                            onClick={(e)=>UpdatePerso(e, 'PASSWORD')}
+                                                            whileTap={{scale:0.95}}
+                                                            className={`border ${!password.trim() ? 'bg-gray-200 border-gray-300' : 'bg-green-200 border-green-500 cursor-pointer'}  py-2 px-2 rounded-lg `}
+                                                        >
+                                                            {changePasswordLoading ? (
+                                                                <Loader2 className="h-7 w-7 text-green-600 animate-spin"/>
+                                                            ):(
+                                                                <CheckCircle2 className={`h-7 w-7 ${!password.trim() ? 'text-gray-400' : 'text-green-600'}`} />
+                                                            )}
+
+                                                        </motion.button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2" >
+                                                <div className={`${showButtonProfil ? 'hidden' : ''}`}>
+                                                    <motion.button
+                                                        type="button"
+                                                        whileTap={{scale:0.95}}
+                                                        disabled={showPasswordChange}
+                                                        onClick={()=>{setShowButtonProfil(true) }}
+                                                        className={`my-3 ${showPasswordChange ? 'bg-gray-200  text-gray-400 border-gray-200' : 'cursor-pointer bg-gray-300 border-gray-200 text-black/80'} border font-semibold py-2 px-4 rounded-lg`}
+                                                    >
+                                                        Modifier
+                                                    </motion.button>
+                                                </div>
+                                                {showButtonProfil && (
+                                                    <div className={`${persoSuccess ? setShowButtonProfil(false) : 'block flex items-center gap-2'}`}>
+                                                        <motion.button
+                                                            type="button"
+                                                            whileTap={{scale:0.95}}
+                                                            onClick={()=>{setShowButtonProfil(false), setNomPerso(''), setPrenomPerso(''), setTelPerso('')}}
+                                                            className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
+                                                        >
+                                                            Annuler
+                                                        </motion.button>
+                                                        <motion.button
+                                                            type="submit"
+                                                            whileTap={{scale:0.95}}
+                                                            disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim()}
+                                                            className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
+                                                        >
+                                                            {persoLoading ? (
+                                                                <Loader2 className="h-5 w-5 animate-spin"/>
+                                                            ):(
+                                                                'Enregistrer'
+                                                            )}
+
+                                                        </motion.button>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                        </form>
+                                    )}
+
+                                    {infoError && (
+                                        <div className=" p-4 mt-15 h-138 flex items-center gap-2 justify-center">
+                                            <XCircle className="animate-spin text-red-600 h-5 w-5"/>
+                                            <p className="text-red-600">{infos.error.message}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
+
+                        {paramsTab === 'tarif' && (
+                            <>
+                                <div className="flex col-span-2 mt-15 p-4">
+                                    <div className="text-gray-500 flex flex-col gap-8">
+                                        <p>
+                                            Cette section vous permet de définir et personnaliser les formules tarifaires proposées par votre salle.
+                                        </p>
+                                        <p>
+                                            Vous pouvez configurer vos prix selon différentes périodes d’abonnement :
+                                        </p>
+
+                                        <div className="flex flex-col gap-2">
+                                            <p>
+                                            <span className="font-bold">Mensuel :</span> Tarif appliqué pour un abonnement d’un mois.
+                                            </p>
+                                            <p>
+                                            <span className="font-bold">Trimestriel :</span> Tarif appliqué pour un abonnement de trois mois.
+                                            </p>
+                                            <p>
+                                            <span className="font-bold">Annuel :</span> Tarif appliqué pour un abonnement d’un an.
+                                            </p>
+                                            
+                                        </div>
+
+                                        <p>
+                                            La personnalisation des tarifs vous permet d’adapter vos offres à votre stratégie commerciale et aux besoins de vos adhérents.
+                                        </p>
+                                    </div>
+                                    <div className="bg-gray-300 h-130 w-[2px]"></div>
+                                </div>
+                                <form onSubmit={sendTarif} className=" col-span-2 mt-15 text-xl">
+
+                                    <div className="flex items-center justify-end gap-2 mb-5">
+
+                                        <div className="flex items-center gap-2">
+                                            <div>
+                                                <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
+                                                    <motion.button
+                                                    type="button"
+                                                        whileTap={{scale:0.95}}
+                                                        onClick={FormMensuel}
+                                                        disabled={daysRemaining <= 0}
+                                                        className={`${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 border-orange-600'} px-5 py-3 rounded-lg shadow-lg border `}
+                                                    >
+                                                        {showFormTarif ? <X className="text-white"/> : <Plus className="text-white"/>}
+                                                    </motion.button>
+                                                </div>
+                                                <div>
+                                                    {(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                                        <motion.button
+                                                        type={`${action === "PUT" ? "submit" : "button"}`}
+                                                        disabled={action === "PUT" ? loadingTarifUp : loadingTarifDel}
+                                                        onClick={(e) =>{editMois && editAn && editTrim ? setShowModalTrash(true) : sendTarif(e, "PUT")}}
+                                                            whileTap={{scale:0.95}}
+                                                            className={`px-5 py-3 flex item-center gap-2 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
+                                                        >
+                                                            {editMois && editAn && editTrim ? (
+                                                                <>
+                                                                <span className="  text-white font-bold">Supprimer tous les enregistrements</span>
+                                                                <Trash className=" text-white"/>
+                                                                </>
+                                                            ): loadingTarifUp 
+                                                                ? <>
+                                                                    <span className="  text-green-600">En cours...</span>
+                                                                    <Loader2 className="text-green-600 animate-spin"/> 
+                                                                    </>
+                                                                : <>
+                                                                    <span className="  text-green-600 font-bold">Enregister les modifications</span>
+                                                                    <CheckCircle2 className="text-green-600"/>
+                                                                </>
+
+                                                            }
+                                                        </motion.button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {showFormTarif && (
+                                                <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
+                                                <motion.button
+                                                type="submit"
+                                                    whileTap={{scale:0.95}}
+                                                    disabled={loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim()}
+                                                    className={`px-5 py-3 rounded-lg shadow-lg border ${loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim() ? 'bg-gray-300 border-gray-400' : 'bg-green-200 border-green-600'}`}
+                                                >
+                                                    {loadingTarif ? (
+                                                        <Loader2 className="text-green-600 animate-spin"/>
                                                     ):(
-                                                        'Enregistrer'
+                                                        <Check className="text-green-600"/>
+                                                    )}
+                                                </motion.button>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-5">
+
+                                        
+                                        <div className="border border-gray-400 p-2 ">
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-bold">Mensuel</span>
+                                                <hr className=" w-140 text-gray-400 "/>
+
+                                                <Calendar className="text-gray-400 h-7 w-7"/>
+                                            </div>
+
+                                            {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                                <div className="flex gap-2 my-5 items-center justify-between">
+                                                    
+                                                    {(successTarif || prix_mensuel) ? (
+                                                        <>
+                                                            <input
+                                                                type="tel"
+                                                                value={mensuel}
+                                                                onChange={(e)=>{setMensuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
+                                                                className={`border w-full ${editMois ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
+                                                                placeholder={editMois ? `${prix_mensuel} XOF` : 'Saisissez un nouveau tarif mensuel'}
+                                                                disabled={editMois}
+                                                            />
+                                                            <div >
+                                                                <motion.button
+                                                                    type="button"
+                                                                    onClick={()=>{setEditMois(!editMois), setMensuel('')}}
+                                                                    whileTap={{scale:0.95}}
+                                                                    className="border p-3 rounded-lg bg-orange-600 border-orange-600"
+                                                                >
+                                                                    {editMois ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                </motion.button>
+                                                            </div>
+                                                        </>
+                                                    ):(
+
+                                                        <input
+                                                            type="tel"
+                                                            value={mensuel}
+                                                            onChange={(e)=>{setMensuel(e.target.value)}}
+                                                            className="border w-full  border-gray-400 pl-3 focus:outline-none p-2"
+                                                            placeholder="Saisissez le tarif par mois"
+                                                        />
                                                     )}
 
-                                                </motion.button>
+
+
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="border border-gray-400 p-2 ">
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-bold">Trimestriel</span>
+                                                <hr className=" w-135 text-gray-400 "/>
+
+                                                <Calendar className="text-gray-400 h-7 w-7"/>
                                             </div>
-                                        )}
-                                    </div>
 
+                                            {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                                <div className="flex gap-2 my-5 items-center justify-between">
+                                                    
+                                                    {(successTarif || prix_trimestriel) ? (
+                                                        <>
+                                                            <input
+                                                                type="tel"
+                                                                value={trimestriel}
+                                                                onChange={(e)=>{setTrimestriel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
+                                                                className={`border w-full ${editTrim ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
+                                                                placeholder={editTrim ? `${prix_trimestriel} XOF` : 'Saisissez un nouveau tarif trimestriel'}
+                                                                disabled={editTrim}
+                                                            />
+                                                            <div >
+                                                                <motion.button
+                                                                    type="button"
+                                                                    onClick={()=>{setEditTrim(!editTrim), setTrimestriel('')}}
+                                                                    whileTap={{scale:0.95}}
+                                                                    className="border p-3 rounded-lg bg-orange-600 border-orange-600"
+                                                                >
+                                                                    {editTrim ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                </motion.button>
+                                                            </div>
+                                                        </>
+                                                    ):(
+
+                                                        <input
+                                                            type="tel"
+                                                            value={trimestriel}
+                                                            onChange={(e)=>{setTrimestriel(e.target.value)}}
+                                                            className="border w-full  border-gray-400 pl-3 focus:outline-none p-2"
+                                                            placeholder="Saisissez le tarif par mois"
+                                                        />
+                                                    )}
+
+
+
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="border border-gray-400 p-2 ">
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-bold">Annuel</span>
+                                                <hr className=" w-144 text-gray-400 "/>
+
+                                                <Calendar className="text-gray-400 h-7 w-7"/>
+                                            </div>
+
+                                            {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                                <div className="flex gap-2 my-5 items-center justify-between">
+                                                    
+                                                    {(successTarif || prix_annuel) ? (
+                                                        <>
+                                                            <input
+                                                                type="tel"
+                                                                value={annuel}
+                                                                onChange={(e)=>{setAnnuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
+                                                                className={`border w-full ${editAn ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
+                                                                placeholder={editAn ? `${prix_annuel} XOF` : 'Saisissez un nouveau tarif annuel'}
+                                                                disabled={editAn}
+                                                            />
+                                                            <div >
+                                                                <motion.button
+                                                                    type="button"
+                                                                    onClick={()=>{setEditAn(!editAn), setAnnuel('')}}
+                                                                    whileTap={{scale:0.95}}
+                                                                    className="border p-3 rounded-lg bg-orange-600 border-orange-600"
+                                                                >
+                                                                    {editAn ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                </motion.button>
+                                                            </div>
+                                                        </>
+                                                    ):(
+
+                                                        <input
+                                                            type="tel"
+                                                            value={annuel}
+                                                            onChange={(e)=>{setAnnuel(e.target.value)}}
+                                                            className="border w-full  border-gray-400 pl-3 focus:outline-none p-2"
+                                                            placeholder="Saisissez le tarif par mois"
+                                                        />
+                                                    )}
+
+
+
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </form>
-                            )}
-                        </div>
+                            </>
+                        )}
 
-                        <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 overflow-y-auto h-113">
-                            <p className="font-semibold text-xl">Historique de connexion</p>
-                            {historyLoading ? (
-                                <Loader2 className="animate-spin flex items-center justify-center"/>
-                            ): historyError ?(
-                                <p className="text-red-500 text-sm flex items-center justify-center">{dataHistory.error.message}</p>
-                            ):totalHistory === 0 ?(
-                                <p>Pas d'historique de connexion </p>
-                            ):dataHistory.map((item, index) => (
-                                <div key={index} className="my-3">
-                                    <p className="text-sm bg-orange-100">Date : {item?.date || 'N/A'}, il y'a {item?.depuis || 'N/A'}</p>
+                        {historyP && (
+                            <motion.div
+                                initial={{opacity: 0, y:0}}
+                                animate={{ opacity: 1, y:5}}
+                                transition={{duration:0.4}}
+                                className="absolute z-20 top-34 right-65 bg-white shadow-lg border border-gray-300 rounded-lg px-4 py-1 overflow-y-auto h-100">
+                                
+                                {historyLoading ? (
+                                    <Loader2 className="animate-spin flex items-center justify-center"/>
+                                ): historyError ?(
+                                    <p className="text-red-500 text-sm flex items-center justify-center">{dataHistory.error.message}</p>
+                                ):totalHistory === 0 ?(
+                                    <p>Pas d'historique de connexion </p>
+                                ):dataHistory.map((item, index) => (
+                                    <div key={index} className="my-3">
+                                        <p className="text-sm bg-orange-100">Date : {item?.date || 'N/A'}, il y'a {item?.depuis || 'N/A'}</p>
+                                    </div>
+                                ))}
+                            </motion.div>
+                        )}
+
+                        {paramsTab === 'support' && (
+                            <div className="col-span-4 h-200 flex items-center justify-center">
+                                <div className="flex relative flex-col items-center">
+                                    <div className="absolute z-10 inset-0 text-[75px] font-bold text-orange-500 opacity-40 flex items-center justify-center">
+                                        <p>gymplus2025.gym@gmail.com</p>
+                                    </div>
+                                    <ImageComponent source={support} style={"w-200"} label={''} />
+                                    <p><span className="italic text-gray-500 text-xl">Service ouvert 24h/7j</span></p>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                            </div>
+                        )}
 
-                    <div className="p-4 ">
-                    {/* gerer le tarification, à voir apres une route api pour l'edition et la suppressio */}
-                        <form onSubmit={sendTarif} className="">
 
-                            <div className="flex items-center justify-between">
-                                <div className="flex flex-col gap-2 my-3">
-                                    <span className="font-semibold text-xl">Gérer les tarifications</span>
-                                    <span className="  text-gray-400">Personnalisez les tarifs de votre salle par mois, par an et par trimestre</span>
-                                    {successTarif && (
-                                        <span className="  text-green-500">Tarif ajouté avec succès</span>
-                                    )}
-                                    {errorTarif && (
-                                        <span className="  text-red-500">{tarif.error.message}</span>
-                                    )}
-                                    {successTarifUp && (
-                                        <span className="  text-green-500">Tarif modifié avec succès</span>
-                                    )}
-                                    {errorTarifUp && (
-                                        <span className="  text-red-500">{tarifUpdate.error.message}</span>
-                                    )}
-                                    {successTarifDel && (
-                                        <span className="  text-green-500">Tarif supprimé avec succès</span>
-                                    )}
-                                    {errorTarifDel && (
-                                        <span className="  text-red-500">{tarifDelete.error.message}</span>
-                                    )}
-                                </div>
+                        {paramsTab === 'activity' && (
+                            <>
+                                <div className=" mt-10 p-4 bg-white overflow-y-auto h-200 sticky top-0 scrollbar-hide shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg flex flex-col gap-8">
+                                    <div className="flex items-center gap-2">
+                                        <NotebookPen  className="h-7 w-7" fill="rgba(255,100,0,0.8)" stroke="white"/>
+                                        <p className="text-2xl font-bold">Créer une Activité</p>
+                                    </div>
 
-                                <div className="flex items-center gap-2">
-                                    <div>
-                                        <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
-                                            <motion.button
-                                            type="button"
-                                                whileTap={{scale:0.95}}
-                                                onClick={FormMensuel}
-                                                disabled={daysRemaining <= 0}
-                                                className={`${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 border-orange-600'} px-5 py-3 rounded-lg shadow-lg border `}
+                                    <div className="flex flex-col gap-4">
+
+                                        <div className="flex flex-col gap-2">
+                                            <label>Nom de l'activité <span className="text-red-500 font-bold">*</span></label>
+                                            <Input type={'text'} placeholder={'Ex: Yoga Flow Matinal'} value={nom_activite}
+                                                onChange={(e)=>{setNomActivite(e.target.value)}}
+                                                className={'p-4 w-full block rounded-lg bg-gray-100 focus:outline-none'}
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-2">
+                                            <label>Description courte <span className="text-red-500 font-bold">*</span></label>
+                                            <textarea type="text" cols="30" rows="5"
+                                            value={descriptions}
+                                            onChange={(e)=>{setDescription(e.target.value)}} 
+                                                placeholder="Décrivez l'activité en quelques mots... " 
+                                                className="w-full block rounded-lg bg-gray-100 focus:outline-none p-4"    
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center justify-between gap-2">
+
+                                            <div className="flex flex-col w-full gap-2">
+                                                <label>Date <span className="text-red-500 font-bold">*</span></label>
+                                                <Input type='date' value={date_activite} onChange={(e)=>{setDateActivite(e.target.value)}} 
+                                                    className="p-4 w-full rounded-lg bg-gray-100 focus:outline-none"
+                                                />
+                                            </div>
+
+                                            <div className="flex flex-col w-full gap-2">
+                                                <label>Heure <span className="text-red-500 font-bold">*</span></label>
+                                                <Input type='time' value={heure_activite} onChange={(e)=>{setHeureActivite(e.target.value)}} 
+                                                    className="p-4 w-full rounded-lg bg-gray-100 focus:outline-none"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col w-full gap-2">
+                                            <label>Image de l'activité <span className="text-red-500 font-bold">*</span></label>
+                                            
+                                             <div
+                                                className="w-full rounded-lg h-50 border-2 border-dotted border-gray-400 overflow-hidden bg-gray-100 cursor-pointer"
+                                                onClick={() => activityInputRef.current.click()}
                                             >
-                                                {showFormTarif ? <X className="text-white"/> : <Plus className="text-white"/>}
-                                            </motion.button>
-                                        </div>
-                                        {/* Sinon on affiche ça */}
-                                        <div>
-                                            {(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
-                                                <motion.button
-                                                // type="submit"
-                                                type={`${action === "PUT" ? "submit" : "button"}`}
-                                                disabled={action === "PUT" ? loadingTarifUp : loadingTarifDel}
-                                                // onClick={(e) =>{editMois && editAn && editTrim ? sendTarif(e, "DELETE") : sendTarif(e, "PUT")}}
-                                                onClick={(e) =>{editMois && editAn && editTrim ? setShowModalTrash(true) : sendTarif(e, "PUT")}}
-                                                    whileTap={{scale:0.95}}
-                                                    className={`px-5 py-3 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
-                                                >
-                                                    {editMois && editAn && editTrim ? (
-                                                     <Trash className=" text-white"/>
-                                                    ): loadingTarifUp ? <Loader2 className="text-green-600 animate-spin"/> : <Check className="text-green-600"/>
+                                                {previewActivity ? (
+                                                    <div className="relative w-full h-full">
+                                                        <ImageComponent source={previewActivity} style={"w-full h-full object-cover"} label={'preview'} />
+                                                        <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
 
-                                                    }
-                                                </motion.button>
-                                            )}
-                                        </div>
-                                    </div>
-                                    {showFormTarif && (
-                                        <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
-                                        <motion.button
-                                        type="submit"
-                                            whileTap={{scale:0.95}}
-                                            disabled={loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim()}
-                                            className={`px-5 py-3 rounded-lg shadow-lg border ${loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim() ? 'bg-gray-300 border-gray-400' : 'bg-green-200 border-green-600'}`}
-                                        >
-                                            {loadingTarif ? (
-                                                <Loader2 className="text-green-600 animate-spin"/>
-                                            ):(
-                                                <Check className="text-green-600"/>
-                                            )}
-                                        </motion.button>
-                                        </div>
-                                    )}
-                                </div>
-
-                            </div>
-                            <div className="grid grid-cols-3 gap-2">
-
-                                {/* Mois */}
-                                <div className="border border-gray-400 p-2 ">
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-bold">Mensuel</span>
-                                        <hr className=" w-80 text-gray-400 "/>
-
-                                        <Calendar className="text-gray-400"/>
-                                    </div>
-
-                                    {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
-                                        <div className="flex gap-2 my-5 items-center justify-between">
-                                            {/* Si ajout réssui... */}
-                                            {(successTarif || prix_mensuel) ? (
-                                                <>
-                                                    <input
-                                                        type="tel"
-                                                        value={mensuel}
-                                                        onChange={(e)=>{setMensuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
-                                                        className={`border w-full ${editMois ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
-                                                        placeholder={editMois ? prix_mensuel : 'Saisissez un nouveau tarif mensuel'}
-                                                        disabled={editMois}
-                                                    />
-                                                    <div >
-                                                        <motion.button
-                                                            type="button"
-                                                            onClick={()=>{setEditMois(!editMois), setMensuel('')}}
-                                                            whileTap={{scale:0.95}}
-                                                            className="border p-1 bg-orange-600 border-orange-600"
-                                                        >
-                                                            {editMois ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
-                                                        </motion.button>
+                                                        </div>
                                                     </div>
-                                                </>
-                                            ):(
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                        <div className="flex flex-col gap-2 items-center">
+                                                            <UploadCloud size={40}  />
+                                                            <span className="text-sm">Cliquez pour parcourir</span>
+                                                            <span className="text-xs text-gray-400">jpg, png, jpeg | max:5MB</span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
 
-                                                <input
-                                                    type="tel"
-                                                    value={mensuel}
-                                                    onChange={(e)=>{setMensuel(e.target.value)}}
-                                                    className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
-                                                    placeholder="Saisissez le tarif par mois"
-                                                />
-                                            )}
-
-
-
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                ref={activityInputRef}
+                                                hidden
+                                                onChange={handleImgActivity}
+                                            />
                                         </div>
-                                    )}
-                                </div>
 
-                                    {/* Trimestre */}
-                                <div className="border border-gray-400 p-2 ">
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-bold">Trimestriel</span>
-                                        <hr className=" w-80 text-gray-400 "/>
-
-                                        <Calendar className="text-gray-400"/>
                                     </div>
 
-                                    {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
-                                        <div className="flex gap-2 my-5 items-center justify-between">
-                                            {/* Si ajout réssui... */}
-                                            {(successTarif || prix_trimestriel) ? (
-                                                <>
-                                                    <input
-                                                        type="tel"
-                                                        value={trimestriel}
-                                                        onChange={(e)=>{setTrimestriel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
-                                                        className={`border w-full ${editTrim ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
-                                                        placeholder={editTrim ? prix_trimestriel : 'Saisissez un nouveau tarif trimestriel'}
-                                                        disabled={editTrim}
-                                                    />
-                                                    <div >
-                                                        <motion.button
-                                                            type="button"
-                                                            onClick={()=>{setEditTrim(!editTrim), setTrimestriel('')}}
-                                                            whileTap={{scale:0.95}}
-                                                            className="border p-1 bg-orange-600 border-orange-600"
-                                                        >
-                                                            {editTrim ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
-                                                        </motion.button>
-                                                    </div>
-                                                </>
-                                            ):(
-
-                                                <input
-                                                    type="tel"
-                                                    value={trimestriel}
-                                                    onChange={(e)=>{setTrimestriel(e.target.value)}}
-                                                    className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
-                                                    placeholder="Saisissez le tarif par mois"
-                                                />
-                                            )}
-
-
-
+                                    <div className="flex flex-col gap-2">
+                                        <label>Statut <span className="text-red-500 font-bold">*</span></label>
+                                        <div className="flex items-center w-full justify-between  bg-gray-100 rounded-lg">
+                                            <button 
+                                                onClick={()=>{setStatus('publie')}}
+                                                className={`text-sm ${status === 'publie' ? 'text-white bg-blue-500' : ''}  cursor-pointer transition-all duration-200  rounded-lg w-full px-4 py-2`}>
+                                                publier maintenant
+                                            </button>
+                                            <button 
+                                                onClick={()=>{setStatus('attente')}}
+                                                className={` ${status === 'attente' ? 'text-white bg-blue-500' : ''} text-sm rounded-lg w-full px-4 py-2 cursor-pointer transition-all duration-200 `}>
+                                                mettre en attente
+                                            </button>
                                         </div>
-                                    )}
-                                </div>
-
-                                        {/* Annuel */}
-                                <div className="border border-gray-400 p-2 ">
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-bold">Annuel</span>
-                                        <hr className=" w-80 text-gray-400 "/>
-
-                                        <Calendar className="text-gray-400"/>
                                     </div>
 
-                                    {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
-                                        <div className="flex gap-2 my-5 items-center justify-between">
-                                            {/* Si ajout réssui... */}
-                                            {(successTarif || prix_annuel) ? (
-                                                <>
-                                                    <input
-                                                        type="tel"
-                                                        value={annuel}
-                                                        onChange={(e)=>{setAnnuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
-                                                        className={`border w-full ${editAn ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
-                                                        placeholder={editAn ? prix_annuel : 'Saisissez un nouveau tarif annuel'}
-                                                        disabled={editAn}
-                                                    />
-                                                    <div >
-                                                        <motion.button
-                                                            type="button"
-                                                            onClick={()=>{setEditAn(!editAn), setAnnuel('')}}
-                                                            whileTap={{scale:0.95}}
-                                                            className="border p-1 bg-orange-600 border-orange-600"
-                                                        >
-                                                            {editAn ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
-                                                        </motion.button>
-                                                    </div>
-                                                </>
-                                            ):(
 
-                                                <input
-                                                    type="tel"
-                                                    value={annuel}
-                                                    onChange={(e)=>{setAnnuel(e.target.value)}}
-                                                    className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
-                                                    placeholder="Saisissez le tarif par mois"
-                                                />
-                                            )}
+                                    <button
+                                        onClick={handleActivity}
+                                        disabled={activityLoading || !validateFieldActivity()}
+                                        className={`w-full p-4 font-bold text-white ${!validateFieldActivity() ? 'bg-orange-300' : 'bg-orange-500 hover:bg-orange-600 '} flex items-center gap-2 justify-center rounded-lg`}
+                                    >
+                                        {activityLoading ? (
+                                            <Loader2 className="h-6 w-6 animate-spin text-white"/>
+                                        ):(
+                                            <>
+                                            <Save className="h-6 w-6" fill="white" stroke="orange" />
+                                            <p>Enregistrer l'activité</p>
+                                            </>
+                                        )}
+                                    </button>
 
-
-
-                                        </div>
-                                    )}
                                 </div>
-                            </div>
-                        </form>
-                    </div>
 
-                    <div className="p-4">
-                        <div>
-                            <p className="text-xl font-semibold">Support</p>
-                            <p><span className="font-semibold">Adresse e-mail :</span> gymplus2025.gym@gmail.com</p>
-                        </div>
+                                <div className="flex flex-col gap-8 col-span-3 mt-10 p-4 h-200">
+                                    <div className="bg-white w-full flex items-center gap-2 shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg p-4">
+                                        <p>Filtrer par statut :</p>
+                                        <div className="flex items-center gap-4">
+                                            <button
+                                                className="py-1 px-8 bg-orange-500 text-white transition-all duration-200 rounded-lg font-semibold"
+                                            >
+                                                Tous
+                                            </button>
+                                            <button
+                                                className="py-1 px-8 bg-gray-100 border-gray-200 rounded-lg font-semibold transition-all duration-200"
+                                            >
+                                                Publié
+                                            </button>
+                                            <button
+                                                className="py-1 px-8 bg-gray-100 border-gray-200 rounded-lg font-semibold transition-all duration-200"
+                                            >
+                                                En attente
+                                            </button>
+                                            <button
+                                                className="py-1 px-8 bg-gray-100 border-gray-200 rounded-lg font-semibold transition-all duration-200"
+                                            >
+                                                Annulés
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="overflow-y-auto grid grid-cols-2 gap-8 p-1 scrollbar-hide">
+                                        {/* {[1,2,3,4].map(item => (
+                                            <div key={item} className=" rounded-lg bg-gray-200">
+
+                                                <div className="h-60 w-full relative">
+                                                    <div className="w-full h-full bg-gray-300 animate-pulse"></div>
+                                                    <p className="absolute rounded-full top-5 left-5 bg-gray-400/50 h-8 w-20 animate-pulse"></p>
+                                                </div>
+
+                                                <div className="p-8 flex flex-col gap-5">
+
+                                                    <div className="w-full flex items-center justify-between">
+                                                        <p className="h-8 w-40 bg-gray-300 animate-pulse"></p>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
+                                                            <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
+                                                            <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
+                                                            <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex flex-col gap-1">
+                                                        <p className="h-6 w-100 animate-pulse bg-gray-300"></p>
+                                                        <p className="h-6 w-95 animate-pulse bg-gray-300"></p>
+                                                    </div>
+
+                                                    <hr className="text-gray-300 w-full h-1 animate-pulse"/>
+
+                                                    <div className="flex items-center justify-between w-full">
+                                                        <p className="h-8 w-30 animate-pulse bg-gray-300"></p>
+                                                        <p className="h-8 w-30 animate-pulse bg-gray-300"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))} */}
+
+                                        <div className="shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg bg-white">
+
+                                            <div className="h-60 w-full relative">
+                                                <ImageComponent source={coverhero} style={"w-full h-full object-cover"} label={'img-activity'} />
+                                                <p className="absolute rounded-full top-5 left-5 bg-white py-1 px-4 uppercase font-bold">publié</p>
+                                            </div>
+
+                                            <div className="p-8 flex flex-col gap-5">
+
+                                                <div className="w-full flex items-center justify-between">
+                                                    <p className="font-bold text-xl">Yoga Flwo debutant</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <button>
+                                                            <Eye className="h-6 w-6"/>
+                                                        </button>
+                                                        <button>
+                                                            <Pencil className="h-5 w-5" />
+                                                        </button>
+                                                        <button>
+                                                            <Trash2 className="h-5 w-5"/>
+                                                        </button>
+                                                        <button>
+                                                            <ArrowDownUpIcon className="h-5 w-5"/>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ullam eos commodi, laborum accusamus ...
+                                                </div>
+
+                                                <hr className="text-gray-300 w-full h-1"/>
+
+                                                <div className="flex items-center justify-between w-full">
+                                                    <div className=" flex items-center gap-2">
+                                                        <Calendar1 className="h-6 w-6 text-blue-600"/>
+                                                        <p className="font-bold text-[18px]">{new Date().toLocaleDateString('fr-FR')}</p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Timer className="h-7 w-7 text-blue-600"/>
+                                                        <p className="font-bold text-[18px]">{new Date().toLocaleTimeString()}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* <div className="flex col-span-2 items-center justify-center mx-auto h-165 w-165 flex-col gap-2">
+                                            <ImageComponent source={coverhero} style={"w-full h-full"} label={"logo"}/>
+                                            <p>Aucune activité pour le moment</p>
+                                        </div> */}
+
+                                        {/* <div className="col-span-2 items-center justify-center mx-auto h-165 w-165 flex items-center gap-2">
+                                            <XCircle className="h-5 w-5 text-red-600 animate-spin"/>
+                                            <p className="text-red-600 font-bold">Erreur lors de la récupération des données</p>
+                                        </div> */}
+                                        
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
                     </div>
                 </div>
             )}
@@ -3807,41 +4356,19 @@ export default function DashboardPro(){
             )}
 
             {modalLogout && (
-                <div className="absolute inset-0 bg-black/80 backdrop-blur flex items-center justify-center">
-                    <motion.div
-                        initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                    className="bg-white shadow-[0px_0px_30px_rgba(255,0,0,0.5)] rounded-sm p-3 ">
-                        <div className="font-bold text-red-600 flex items-center gap-2 text-xl uppercase">
-                            <AlertOctagon className="text-red-600 h-8 w-8" />
-                            Êtes-vous sûr ?
-                        </div>
-
-                        <div className="my-5">
-                            <p className="text-[16px] text-black/80">Vous êtes sur le point de vous
-                                déconnecter. <br />Si cela est volontaire, veuillez le confirmer.
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-2 justify-end py-3 ">
-                            <motion.button
-                                whileTap={{scale:0.95}}
-                                onClick={()=>setModalLogout(false)}
-                                className="px-2 py-1 transition-colors duration-200 border border-gray-400/50 bg-gray-400/50 font-semibold"
-
-                            >Non
-                            </motion.button>
-                            <motion.button
-                                whileTap={{scale:0.95}}
-                                onClick={logout}
-                                className="px-2 py-1 transition-colors duration-200 border text-white bg-red-600 border-red-600 font-semibold"
-                            >
-                                Oui
-                            </motion.button>
-                        </div>
-                    </motion.div>
-                </div>
+                <ModalLogout 
+                    question={'Se déconnecter ?'}
+                    reject={() => setModalLogout(false)}
+                    confirm={logout}
+                    children={
+                        <>
+                            <p>Cette action est irréversible. Vous</p>
+                            <p>êtes sur le point de vous </p> 
+                            <p>déconnecter. Si cela est volontaire,</p>
+                            <p>veuillez le confirmer.</p>
+                        </>
+                    }
+                />
             )}
 
             {showAdd && (
@@ -3859,160 +4386,132 @@ export default function DashboardPro(){
 
                     <div className="my-10">
 
-                            <form onSubmit={handleAdd} className="grid grid-cols-4 gap-5 rounded-lg  px-8 py-5">
+                        <form onSubmit={handleAdd} className="grid grid-cols-4 gap-5 rounded-lg  px-8 py-5">
 
-                                <div className="col-span-4 w-full flex gap-10 justify-between">
-                                    {/* info perso */}
-                                    <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
-                                        <div className="flex items-center gap-2 text-xl font-bold mb-5">
-                                            <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
-                                            Informations personnelles de l'adhérant
-                                        </div>
-                                        <div className="flex-col flex gap-2 mb-5">
-                                            <label className="font-bold text-lg">Nom <span className="text-red-600">*</span></label>
-                                            <Input
-                                                type={'text'}
-                                                value={nom}
-                                                onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
-                                                className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
-                                                placeholder={'Nom de l\'adhérant'}
-                                                disabled={false}
-                                                hidden={false}
-                                                pattern={null}
-                                                ref={null}
-                                                checked={null}
-                                            />
-                                        </div>
-
-                                        <div className="flex-col flex gap-2 mb-5">
-                                            <label className="font-bold text-lg">Prénom <span className="text-red-600">*</span></label>
-                                            <Input
-                                                type={'text'}
-                                                value={prenom}
-                                                onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
-                                                className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                                placeholder={'Prenom de l\'adhérant'}
-                                                disabled={false}
-                                                hidden={false}
-                                                pattern={null}
-                                                ref={null}
-                                                checked={null}
-                                            />
-                                        </div>
-                                        <div className="flex-col flex gap-2 mb-5">
-                                            <label className="font-bold text-lg">Adresse e-mail <span className="text-red-600">*</span></label>
-                                            <Input
-                                                type={'email'}
-                                                value={email}
-                                                onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
-                                                className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                                placeholder={'Email de l\'adhérant'}
-                                                disabled={false}
-                                                hidden={false}
-                                                pattern={null}
-                                                ref={null}
-                                                checked={null}
-                                            />
-                                        </div>
-
-                                        <div className="flex-col flex gap-2 mb-5">
-                                            <label className="font-bold text-lg">Numéro de téléphone <span className="text-red-600">*</span></label>
-                                            <Input
-                                                type={'tel'}
-                                                value={tel}
-                                                onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
-                                                className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                                placeholder={'Numéro de l\'adhérant'}
-                                                disabled={false}
-                                                hidden={false}
-                                                pattern={null}
-                                                ref={null}
-                                                checked={null}
-                                            />
-                                        </div>
+                            <div className="col-span-4 w-full flex gap-10 justify-between">
+                                
+                                <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
+                                    <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                                        <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                        Informations personnelles de l'adhérant
+                                    </div>
+                                    <div className="flex-col flex gap-2 mb-5">
+                                        <label className="font-bold text-lg">Nom <span className="text-red-600">*</span></label>
+                                        <Input
+                                            type={'text'}
+                                            value={nom}
+                                            onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
+                                            className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                            placeholder={'Nom de l\'adhérant'}
+                                        />
                                     </div>
 
-                                    {/* Aboonement */}
-                                    <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
-                                        <div className="flex items-center gap-2 text-xl font-bold mb-5">
-                                            <Plus className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
-                                            Type d'abonnement
-                                        </div>
+                                    <div className="flex-col flex gap-2 mb-5">
+                                        <label className="font-bold text-lg">Prénom <span className="text-red-600">*</span></label>
+                                        <Input
+                                            type={'text'}
+                                            value={prenom}
+                                            onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
+                                            className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                            placeholder={'Prenom de l\'adhérant'}
+                                        />
+                                    </div>
+                                    <div className="flex-col flex gap-2 mb-5">
+                                        <label className="font-bold text-lg">Adresse e-mail <span className="text-red-600">*</span></label>
+                                        <Input
+                                            type={'email'}
+                                            value={email}
+                                            onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
+                                            className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                            placeholder={'Email de l\'adhérant'}
+                                        />
+                                    </div>
 
-                                        <div className="flex-col flex gap-2 mb-5 ">
-                                            <label className="font-bold text-lg">Abonnement <span className="text-red-600">*</span></label>
+                                    <div className="flex-col flex gap-2 mb-5">
+                                        <label className="font-bold text-lg">Numéro de téléphone <span className="text-red-600">*</span></label>
+                                        <Input
+                                            type={'tel'}
+                                            value={tel}
+                                            onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
+                                            className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                            placeholder={'Numéro de l\'adhérant'}
+                                        />
+                                    </div>
+                                </div>
+
+                                
+                                <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
+                                    <div className="flex items-center gap-2 text-xl font-bold mb-5">
+                                        <Plus className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                        Type d'abonnement
+                                    </div>
+
+                                    <div className="flex-col flex gap-2 mb-5 ">
+                                        <label className="font-bold text-lg">Abonnement <span className="text-red-600">*</span></label>
 
 
-                                            <select
-                                                value={plan}
-                                                onChange={(e) => {
-                                                    const value = e.target.value
-                                                    setPlan(value)
-                                                    setShowPrix(!!value)
-                                                    addAdh.reset()
-                                                }}
+                                        <select
+                                            value={plan}
+                                            onChange={(e) => {
+                                                const value = e.target.value
+                                                setPlan(value)
+                                                setShowPrix(!!value)
+                                                addAdh.reset()
+                                            }}
+                                            className="border-3 border-orange-500 p-2 border-dotted text-md"
+                                            >
+                                            <option value="">-- Choisir --</option>
+                                            <option value="mensuel">Mensuel</option>
+                                            <option value="trimestriel">Trimestriel</option>
+                                            <option value="annuel">Annuel</option>
+                                        </select>
+
+                                    </div>
+
+                                    <div>
+
+
+                                        {showPrix && (
+                                        <div className="flex-col flex gap-2 ">
+                                            {loading ? (
+                                            <Loader2 className="h-5 w-5 animate-spin" />
+                                            ) : (
+                                            <>
+                                                <label className="font-bold text-lg">Prix <span className="text-red-600">*</span></label>
+                                                <select
+                                                value={montant}
+                                                onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
                                                 className="border-3 border-orange-500 p-2 border-dotted text-md"
                                                 >
                                                 <option value="">-- Choisir --</option>
-                                                <option value="mensuel">Mensuel</option>
-                                                <option value="trimestriel">Trimestriel</option>
-                                                <option value="annuel">Annuel</option>
-                                            </select>
-
-                                        </div>
-
-                                        <div>
-
-
-                                            {showPrix && (
-                                            <div className="flex-col flex gap-2 ">
-                                                {loading ? (
-                                                <Loader2 className="h-5 w-5 animate-spin" />
-                                                ) : (
-                                                <>
-                                                    <label className="font-bold text-lg">Prix <span className="text-red-600">*</span></label>
-                                                    <select
-                                                    value={montant}
-                                                    onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
-                                                    className="border-3 border-orange-500 p-2 border-dotted text-md"
-                                                    >
-                                                    <option value="">-- Choisir --</option>
-                                                        {plan === "mensuel" && (
-                                                            <option value={prix_mensuel}>
-                                                                {prix_mensuel}
-                                                            </option>)}
-                                                        {plan === "trimestriel" && (
-                                                            <option value={prix_trimestriel}>
-                                                                {prix_trimestriel}
-                                                            </option>)}
-                                                        {plan === "annuel" && (
-                                                            <option value={prix_annuel}>
-                                                                {prix_annuel}
-                                                            </option>)}
-                                                    </select>
-                                                </>
-                                                )}
-                                            </div>
+                                                    {plan === "mensuel" && (
+                                                        <option value={prix_mensuel}>
+                                                            {prix_mensuel}
+                                                        </option>)}
+                                                    {plan === "trimestriel" && (
+                                                        <option value={prix_trimestriel}>
+                                                            {prix_trimestriel}
+                                                        </option>)}
+                                                    {plan === "annuel" && (
+                                                        <option value={prix_annuel}>
+                                                            {prix_annuel}
+                                                        </option>)}
+                                                </select>
+                                            </>
                                             )}
-
-
                                         </div>
+                                        )}
+
+
                                     </div>
                                 </div>
+                            </div>
 
-
-
-                                <div className="flex items-center my-3  col-span-4 w-full px-8">
-                                    {errorAdherant && (
-                                        <span className="text-red-600 text-lg  flex item-center gap-2"><XCircle className="h-5 w-5 text-red-600"/>{addAdh.error.message}</span>
-                                    )}
-                                    {successAdherant && (
-                                        <span className="text-green-600 text-lg flex item-center gap-2"><CheckCircle className="h-5 w-5 text-green-600"/>Enregistrement effectué avec succèss</span>
-                                    )}
+                            <div className="flex items-center justify-between h-30 w-full mt-15 col-span-4">
+                                <div className="flex flex-col items-center col-span-4 w-full">
+                                    
                                 </div>
-
-
-                               <div className="flex justify-end items-center gap-2 w-full col-span-4">
+                                <div className="flex justify-end items-center gap-2 w-full">
                                     <motion.button
                                         onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
                                         whileTap={{scale: 0.95}}
@@ -4035,182 +4534,110 @@ export default function DashboardPro(){
                                         )}
                                     </motion.button>
                                 </div>
+                            </div>
 
+                        </form>
 
-                            </form>
-
-                        </div>
+                    </div>
                 </div>
 
 
             )}
 
             {showModalTrash && (
-                <div className="absolute inset-0 bg-black/80 backdrop-blur flex items-center justify-center">
-                    <div className="bg-white shadow-[0px_0px_30px_rgba(255,0,0,0.5)] rounded-sm p-3 ">
-                        <div className="font-bold text-red-600 flex items-center gap-2 text-2xl uppercase">
-                            <AlertOctagon className="text-red-600 h-10 w-10" />
-                            Attention !
-                        </div>
-
-                        <div className="my-5">
-                            <p className="text-[16px] text-black/80">Vous êtes sur le point de supprimer la
-                                configuration de <br />tous vos tarifs (mensuel,
-                                trimestriel, annuel).
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-2 justify-end py-3 ">
-                            <motion.button
-                                type="button"
-                                whileTap={{scale: 0.95}}
-                                className="px-2 py-1 transition-colors duration-200 border border-gray-400/50 bg-gray-400/50 font-semibold"
-                                onClick={()=>{setShowModalTrash(false)}}
-                            >Annuler
-                            </motion.button>
-                            <motion.button
-                                onClick={(e)=>{sendTarif(e, "DELETE")}}
-                                whileTap={{scale: 0.95}}
-                                className="px-2 py-1 transition-colors duration-200 border text-white bg-red-600 border-red-600 font-semibold"
-                            >
-                                {loadingTarifDel ?  <Loader2 className=" text-white animate-spin"/> : 'Confirmer'}
-                            </motion.button>
-                        </div>
-                    </div>
-                </div>
+                <ModalComponent 
+                    question={'Supprimer les tarifs ?'}
+                    reject={() => setShowModalTrash(false)}
+                    confirm={(e)=>{sendTarif(e, "DELETE")}}
+                    loading={loadingTarifDel}
+                    children={
+                        <>
+                            <p>Cette action est irréversible. Tous</p>
+                            <p>les tarifs de votre salle à savoir</p> 
+                            <p>'mensuel, trimestriel et annuel'</p>
+                            <p>seront définitivement effacées.</p>
+                        </>
+                    }
+                />
             )}
 
             {modalSupAdherant && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
-                    <motion.div
-                    initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                    className="bg-white py-3 px-4">
-                        <div className=" text-red-500 mb-5 font-bold text-xl flex items-center gap-2">
-                            <AlertTriangle size={40} />
-                            <p>Voulez-vous vraiment supprimer <br />l'adhérant <span className="text-black">{adhToDelete.name} {adhToDelete.prenom}</span> ?</p>
-                        </div>
-                        <div className="flex items-center justify-end gap-3">
-                            <button
-                                type="button"
-                                onClick={()=>{setModalSupAdherant(false)}}
-                                className="border py-1 px-3 text-sm font-semibold"
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                type="submit"
-                                onClick={(e)=>{handleDeleteAdh(e, adhToDelete)}}
-                                disabled={loadingSupAdh}
-                                className="border py-1 px-3 text-sm bg-red-500 text-white font-semibold hover:bg-transparent hover:text-black transition-colors duration-200"
-                            >
-                                {loadingSupAdh ? <Loader2 className="animate-spin h-5 w-5 text-red"/> : 'Supprimer'}
-                            </button>
-                        </div>
-                    </motion.div>
-                </div>
+                <ModalComponent 
+                    question={'Supprimer cet adhérant ?'}
+                    reject={() => setModalSupAdherant(false)}
+                    confirm={(e)=>{handleDeleteAdh(e, adhToDelete?.id)}}
+                    loading={loadingSupAdh}
+                    children={
+                        <>
+                           <p>Cette action est irréversible. Toutes</p>
+                            <p>les données de l'adhérant </p> 
+                            <p>'{adhToDelete?.name} {adhToDelete?.prenom}'</p>
+                            <p>seront définitivement effacées.</p>
+                        </>
+                    }
+                />
             )}
 
             {modalSupCours && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
-                    <motion.div
-                    initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                    className="bg-white py-3 px-4">
-                        <div className=" text-red-500 mb-5 font-bold text-xl flex items-center gap-2">
-                            <AlertTriangle size={40} />
-                            <p>Voulez-vous vraiment supprimer <br />ce cours <span className="text-black">{coursToDelete.nom_cours}</span> ?</p>
-                        </div>
-                        <div className="flex items-center justify-end gap-3">
-                            <button
-                                type="button"
-                                onClick={()=>{setModalSupCours(false)}}
-                                className="border py-1 px-3 text-sm font-semibold"
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                type="submit"
-                                onClick={(e)=>{handleDeleteCours(e, coursToDelete.id)}}
-                                disabled={loadingSupCours}
-                                className="border py-1 px-3 text-sm bg-red-500 text-white font-semibold hover:bg-transparent hover:text-black transition-colors duration-200"
-                            >
-                                {loadingSupCours ? <Loader2 className="animate-spin h-5 w-5 text-red"/> : 'Supprimer'}
-                            </button>
-                        </div>
-                    </motion.div>
-                </div>
+                 <ModalComponent 
+                    question={'Supprimer cet cours ?'}
+                    reject={() => setModalSupCours(false)}
+                    confirm={(e)=>{handleDeleteCours(e, coursToDelete.id)}}
+                    loading={loadingSupCours}
+                    children={
+                        <>
+                           <p>Cette action est irréversible. Toutes</p>
+                            <p>les données de ce cours </p> 
+                            <p>'{coursToDelete.nom_cours}'</p>
+                            <p>seront définitivement effacées.</p>
+                        </>
+                    }
+                />
             )}
 
-            {suspendreModal &&(
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
-                    <motion.div
-                        initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                    className="bg-white py-3 px-4">
-                        <div className="text-red-500 mb-5 font-bold text-xl flex items-center gap-2">
-                            <AlertTriangle size={40} />
-                            <p>Voulez-vous vraiment suspendre <br />l'adherant <span className="text-black">{suspen?.name} {suspen?.prenom}</span> ?</p>
-                        </div>
-                        <div className="flex items-center justify-end gap-3">
-                            <button
-                                type="button"
-                                onClick={()=>{setSuspendreModal(false)}}
-                                className="border py-1 px-3 text-sm font-semibold"
-                            >
-                                Non
-                            </button>
-                            <button
-                                type="submit"
-                                onClick={(e)=>{handleSuspendre(e, suspen)}}
-                                disabled={suspLoading}
-                                className="border py-1 px-3 text-sm bg-red-500 text-white font-semibold hover:bg-transparent hover:text-black transition-colors duration-200"
-                            >
-                                {suspLoading ? <Loader2 className="animate-spin h-5 w-5 text-red"/> : 'Oui'}
-                            </button>
-                        </div>
-                    </motion.div>
-                </div>
+            {suspendreModal && (
+                <ModalComponent 
+                    question={'Suspendre cet adhérant ?'}
+                    reject={() => setSuspendreModal(false)}
+                    confirm={(e)=> handleSuspendre(e, suspen)}
+                    confirmLabel={'Oui'}
+                    rejectLabel={'Non'}
+                    loading={suspLoading}
+                    children={
+                        <>
+                            <p>Une fois suspendue, vous pouvez</p>
+                            <p>le réactiver si son abonnement</p>
+                            <p>est toujours actif. Suspendre </p>
+                            <p>{suspen?.name} {suspen?.prenom} ?</p>
+                        </>
+                    }
+                />
+                
             )}
 
             {reactiverModal &&(
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
-                    <motion.div
-                    initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                    className="bg-white py-3 px-4">
-                        <div className="text-green-500 mb-5 font-bold text-xl flex items-center gap-2">
-
-                            <p>Annuler la suspension de <br />l'adherant <span className="text-black">{react?.name} {react?.prenom}</span> ?</p>
-                        </div>
-                        <div className="flex items-center justify-end gap-3">
-                            <button
-                                type="button"
-                                onClick={()=>{setReactiverModal(false)}}
-                                className="border py-1 px-3 text-sm font-semibold"
-                            >
-                                Non
-                            </button>
-                            <button
-                                type="submit"
-                                onClick={(e)=>{handleReactiver(e, react)}}
-                                disabled={reactLoading}
-                                className="border py-1 px-3 text-sm bg-green-500 text-white font-semibold hover:bg-transparent hover:text-black transition-colors duration-200"
-                            >
-                                {reactLoading ? <Loader2 className="animate-spin h-5 w-5 text-red"/> : 'Oui'}
-                            </button>
-                        </div>
-                    </motion.div>
-                </div>
+                <ModalComponent 
+                    question={'Réactiver cet adhérant ?'}
+                    reject={() => setReactiverModal(false)}
+                    confirm={(e)=> handleReactiver(e, react)}
+                    confirmLabel={'Oui'}
+                    rejectLabel={'Non'}
+                    loading={reactLoading}
+                    children={
+                        <>
+                            <p>Vous êtes sur le point d'annuler</p>
+                            <p>la suspension de l'adherant</p>
+                            <p>{react?.name} {react?.prenom}.</p>
+                            <p>Confirmez-vous la réactivation ? </p>
+                        </>
+                    }
+                />
+               
             )}
 
             {modalUpAdherant && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    {/* <p>{adhToUp.name}</p> */}
+                   
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
@@ -4229,12 +4656,6 @@ export default function DashboardPro(){
                                         value={adhToUp?.name}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, name: e.target.value }), updateAdh.reset()}}
                                         className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={null}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
                                     />
                                 </div>
 
@@ -4245,12 +4666,6 @@ export default function DashboardPro(){
                                         value={adhToUp?.prenom}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, prenom: e.target.value }), updateAdh.reset()}}
                                         className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={null}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
                                     />
                                 </div>
                                 <div className="flex-col flex gap-2 mb-5">
@@ -4260,12 +4675,6 @@ export default function DashboardPro(){
                                         value={adhToUp?.email}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, email: e.target.value }), updateAdh.reset()}}
                                         className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={null}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
                                     />
                                 </div>
 
@@ -4276,18 +4685,8 @@ export default function DashboardPro(){
                                         value={adhToUp?.telephone}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, telephone: e.target.value }), updateAdh.reset()}}
                                         className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={null}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
                                     />
                                 </div>
-
-                                {errorUpdateAdh && (
-                                    <p className="text-red-500 text-sm">{updateAdh.error.message}</p>
-                                )}
                             </div>
 
                             <div className=" flex justify-end items-center gap-2">
@@ -4319,7 +4718,7 @@ export default function DashboardPro(){
 
             {modalAddCours && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    {/* <p>{adhToUp.name}</p> */}
+                    
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.15}}
@@ -4339,11 +4738,6 @@ export default function DashboardPro(){
                                         onChange={(e)=>{setNomCours(e.target.value)}}
                                         className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
                                         placeholder={'saisissez le nom du cours'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
                                     />
                                 </div>
 
@@ -4367,13 +4761,6 @@ export default function DashboardPro(){
                                     </div>
                                 </div>
                             </div>
-                             {successAddCours && (
-                                <p className="text-green-500 flex gap-1 font-bold text-sm"><CheckCircle2 className="h-5 w-5 text-green-500"/>Cours ajouté avec succès</p>
-                            )}
-
-                            {errorAddCours && (
-                                <p className="text-red-500 flex gap-1 font-bold text-sm"><XCircle className="h-5 w-5 text-red-500"/>{cours.error.message}</p>
-                            )}
 
 
                             <div className=" flex justify-end items-center gap-2">
@@ -4404,7 +4791,7 @@ export default function DashboardPro(){
 
             {modalUpCours && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    {/* <p>{adhToUp.name}</p> */}
+                    
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.15}}
@@ -4413,7 +4800,6 @@ export default function DashboardPro(){
                         <div className=" bg-white flex flex-col gap-5 justify-between py-5 px-8 h-90 w-100 rounded-lg shadow-lg">
                             <div className="">
                                 <div className="flex items-center gap-1 text-xl font-bold opacity-50 mb-5">
-                                    {/* <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/> */}
                                     Modifier le cours
                                 </div>
                                 <div className="flex-col flex gap-2 mb-5">
@@ -4423,12 +4809,6 @@ export default function DashboardPro(){
                                         value={coursToUp?.nom_cours}
                                         onChange={(e)=>{setCoursToUp({ ...coursToUp, nom_cours: e.target.value }), updateCours.reset()}}
                                         className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={null}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
                                     />
                                 </div>
 
@@ -4485,7 +4865,7 @@ export default function DashboardPro(){
 
             {reabonnerModal && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    {/* <p>{adhToUp.name}</p> */}
+                    
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
@@ -4504,41 +4884,23 @@ export default function DashboardPro(){
                                         value={reabonner?.email}
                                         onChange={(e)=>{setReabonner({ ...reabonner, email: e.target.value }), reabAdh.reset()}}
                                         className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={null}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
                                     />
                                 </div>
 
-                                {/* <div className="grid grid-cols-2 gap-10"> */}
-                                    <div className="flex-col flex gap-2 ">
-                                        <label className="font-bold">Abonnement</label>
+                                <div className="flex-col flex gap-2 ">
+                                    <label className="font-bold">Abonnement</label>
+                                    <select
+                                        value={reabonner?.plan}
+                                        onChange={(e)=>{setReabonner({ ...reabonner, plan: e.target.value }), reabAdh.reset()}}
 
-
-                                        <select
-                                            value={reabonner?.plan}
-                                            onChange={(e)=>{setReabonner({ ...reabonner, plan: e.target.value }), reabAdh.reset()}}
-
-                                            className="border-4 border-gray-300 p-2 border-dotted text-sm"
-                                            >
-                                            <option value="">-- Choisir --</option>
-                                            <option value="mensuel">Mensuel</option>
-                                            <option value="trimestriel">Trimestriel</option>
-                                            <option value="annuel">Annuel</option>
-                                        </select>
-
-
-
-                                    </div>
-
-
-
-                                {reabError && (
-                                    <p className="text-red-500 text-sm">{reabAdh.error.message}</p>
-                                )}
+                                        className="border-4 border-gray-300 p-2 border-dotted text-sm"
+                                        >
+                                        <option value="">-- Choisir --</option>
+                                        <option value="mensuel">Mensuel</option>
+                                        <option value="trimestriel">Trimestriel</option>
+                                        <option value="annuel">Annuel</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div className=" flex justify-end items-center gap-2">
@@ -4568,73 +4930,11 @@ export default function DashboardPro(){
                 </div>
             )}
 
-            {(successSupAdh || modifCoachSuccess || successSupCoach || successSupCours || reactSuccess || suspSuccess || successUpdateAdh || successUpdateCours || reabSuccess) && (
-                <div className="absolute z-30 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <div className="w-150 h-300">
-                    <img src={checkvideo} alt="gif"
-                        className="w-full h-auto object-cover"
-                    />
-                    </div>
-                </div>
-            )}
-
-            {errorSupAdh && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <motion.div
-                        initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                    className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
-                        <XCircle className="text-red-500 h-10 w-10" />
-                        <p className="text-xl">{supAdh.error.message}</p>
-                    </motion.div>
-                </div>
-            )}
-
-            {errorSupCours && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <motion.div
-                        initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                    className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
-                        <XCircle className="text-red-500 h-10 w-10" />
-                        <p className="text-xl">{supCours.error.message}</p>
-                    </motion.div>
-                </div>
-            )}
-
-            {suspError && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <motion.div
-                        initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                    className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
-                        <XCircle className="text-red-500 h-10 w-10" />
-                        <p className="text-xl">{suspAdh.error.message}</p>
-                    </motion.div>
-                </div>
-            )}
-
-            {reactError && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <motion.div
-                    initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                    className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
-                        <XCircle className="text-red-500 h-10 w-10" />
-                        <p className="text-xl">{reactAdh.error.message}</p>
-                    </motion.div>
-                </div>
-            )}
-
             {detailAdherant && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur items-center h-screen justify-center flex ">
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
+                        animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
                         className=" relative flex flex-col gap-5 p-8 w-100  bg-white">
                         <h1 className="text-xl font-bold">Détails de l'adhérant</h1>
@@ -4725,19 +5025,6 @@ export default function DashboardPro(){
                 </div>
             )}
 
-            {dataExportError && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <motion.div
-                    initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                    className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
-                        <XCircle className="text-red-500 h-10 w-10" />
-                        <p className="text-xl">{dataExport.error.message}</p>
-                    </motion.div>
-                </div>
-            )}
-
             {modalCoach && (
                 <div className="absolute z-30 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
                    
@@ -4746,7 +5033,7 @@ export default function DashboardPro(){
                         animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
                     >
-                        <div className=" bg-white flex flex-col gap-8 justify-between py-5 px-8 w-128 rounded-lg shadow-lg">
+                        <div className=" bg-white/90 flex flex-col gap-8 justify-between py-5 px-8 w-128 rounded-lg shadow-lg">
                             <div className="">
                                 <div className="flex flex flex-col gap-1 opacity-50 text-xl font-bold mb-5">
                                     Ajouter un nouveau coach
@@ -4761,11 +5048,6 @@ export default function DashboardPro(){
                                             onChange={(e)=>{setNomCoach(e.target.value)}}
                                             className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
                                             placeholder={'saisissez son nom'}
-                                            disabled={false}
-                                            hidden={false}
-                                            pattern={null}
-                                            ref={null}
-                                            checked={null}
                                         />
                                     </div>
                                     <div className="flex-col flex gap-2 mb-5">
@@ -4776,28 +5058,18 @@ export default function DashboardPro(){
                                             onChange={(e)=>{setPrenomCoach(e.target.value)}}
                                             className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
                                             placeholder={'saisissez son prenom'}
-                                            disabled={false}
-                                            hidden={false}
-                                            pattern={null}
-                                            ref={null}
-                                            checked={null}
                                         />
                                     </div>
                                 </div>
                                 
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Téléphone </label>
+                                    <label className="font-bold text-lg">Téléphone <span className="text-red-500 text-xs">(maximum 8 chiffres)</span> </label>
                                     <Input
                                         type={'text'}
                                         value={telCoach}
                                         onChange={(e)=>{setTelCoach(e.target.value)}}
                                         className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
                                         placeholder={'saisissez son numéro de telephone'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
                                     />
                                 </div>
 
@@ -4809,11 +5081,6 @@ export default function DashboardPro(){
                                         onChange={(e)=>{setSkills(e.target.value)}}
                                         className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
                                         placeholder={'saisissez sa ou ses sompétence(s)...'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
                                     />
 
                                     <motion.button
@@ -4842,14 +5109,6 @@ export default function DashboardPro(){
                                             
                                         ))}
                                     </div>
-                                )}
-
-                                {coachSuccess && (
-                                    <p className="text-green-500 flex gap-1 font-bold text-sm"><CheckCircle2 className="h-5 w-5 text-green-500"/>Coach ajouté avec succès</p>
-                                )}
-
-                                {coachError && (
-                                    <p className="text-red-500 flex gap-1 font-bold text-sm"><XCircle className="h-5 w-5 text-red-500"/>{addCoach.error.message}</p>
                                 )}
 
                             </div>
@@ -4882,162 +5141,109 @@ export default function DashboardPro(){
 
             {selectCoach && (
                 <div className="absolute z-30 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                   
                     <motion.div
-                        initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.15}}
-                        transition={{duration:0.4}}
+                        initial={{ opacity: 0, scale: 0.75 }}
+                        animate={{ opacity: 1, scale: 1.15 }}
+                        transition={{ duration: 0.4 }}
+                        className=" bg-white/90 flex flex-col gap-8 justify-between py-5 px-8 w-128 rounded-lg shadow-lg"
                     >
-
-                        <div className=" bg-white flex flex-col gap-8 justify-between py-5 px-8 w-128 rounded-lg shadow-lg">
-                            <div className="">
-                                <div className="flex items-center gap-2 text-xl opacity-50 font-bold mb-5">
-                                    {/* <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/> */}
-                                    Modifer le coach 
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="flex-col flex gap-2 mb-5">
-                                        <label className="font-bold text-lg">Nom </label>
-                                        <Input
-                                            type={'text'}
-                                            value={coachEdit?.nom}
-                                            onChange={(e)=>{setCoachEdit({...coachEdit, nom: e.target.value})}}
-                                            className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
-                                            placeholder={'saisissez son nom'}
-                                            disabled={false}
-                                            hidden={false}
-                                            pattern={null}
-                                            ref={null}
-                                            checked={null}
-                                        />
-                                    </div>
-                                    <div className="flex-col flex gap-2 mb-5">
-                                        <label className="font-bold text-lg">Prénom </label>
-                                        <Input
-                                            type={'text'}
-                                            value={coachEdit?.prenom}
-                                            onChange={(e)=>{setCoachEdit({...coachEdit, prenom: e.target.value})}}
-                                            className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                            placeholder={'saisissez son prenom'}
-                                            disabled={false}
-                                            hidden={false}
-                                            pattern={null}
-                                            ref={null}
-                                            checked={null}
-                                        />
-                                    </div>
-                                </div>
-                                
+                        <div className="">
+                            <div className="flex items-center gap-2 text-xl opacity-50 font-bold mb-5">
+                                Modifier le coach 
+                            </div>
+                            <div className="flex items-center gap-4">
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Téléphone </label>
+                                    <label className="font-bold text-lg">Nom </label>
                                     <Input
                                         type={'text'}
-                                        value={coachEdit?.telephone}
-                                        onChange={(e)=>{setCoachEdit({...coachEdit, telephone:e.target.value})}}
-                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={'saisissez son numéro de telephone'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
+                                        value={coachEdit?.nom}
+                                        onChange={(e)=>{setCoachEdit({...coachEdit, nom: e.target.value})}}
+                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                        placeholder={'saisissez son nom'}
                                     />
                                 </div>
-
-                                {/* <div className="relative flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Spécialité(s) </label>
+                                <div className="flex-col flex gap-2 mb-5">
+                                    <label className="font-bold text-lg">Prénom </label>
                                     <Input
                                         type={'text'}
-                                        value={skills}
-                                        // onChange={(e)=>{setCoachEdit({...coachEdit, competence:e.target.value})}}
-                                        onChange={(e)=>{setSkills(e.target.value)}}
+                                        value={coachEdit?.prenom}
+                                        onChange={(e)=>{setCoachEdit({...coachEdit, prenom: e.target.value})}}
                                         className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                        placeholder={'saisissez sa ou ses sompétence(s)...'}
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
+                                        placeholder={'saisissez son prenom'}
                                     />
-
-                                    <motion.button
-                                        type="button"
-                                        onClick={handleAddSkillC}
-                                        whileTap={{scale: 0.95}}
-                                        className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
-                                    >
-                                        <SquarePlus />
-                                    </motion.button>
-                                </div> */}
-
-                                <div className="relative flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Spécialité(s)</label>
-                                    <Input
-                                        type="text"
-                                        value={skills}
-                                        onChange={(e) => setSkills(e.target.value)}
-                                        className="border focus:outline-none border-orange-500 text-md p-2 rounded-lg"
-                                        placeholder="saisissez sa ou ses compétence(s)..."
-                                        disabled={false}
-                                        hidden={false}
-                                        pattern={null}
-                                        ref={null}
-                                        checked={null}
-                                    />
-                                    <motion.button
-                                        type="button"
-                                        onClick={handleAddSkillC}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
-                                    >
-                                        <SquarePlus />
-                                    </motion.button>
                                 </div>
-                                
-                                {coachEdit?.competence.length > 0 && (
-                                    <div className="grid grid-cols-3  gap-3 ">
-                                        {coachEdit?.competence.map((item,index) =>(
-                                            
-                                            <p key={index}  className=" relative text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
-                                                {item}
-                                                <button
-                                                    onClick={()=>{removeSkillsC(index)}}
-                                                    className="absolute -top-1 -right-1 border bg-red-600 rounded-full"
-                                                >
-                                                    <X className="h-3 w-3 text-white" />
-                                                </button>
-                                            </p>
-                                            
-                                        ))}
-                                    </div>
-                                )} 
-                                {modifCoachError && (
-                                    <p className="text-red-500 flex gap-1 font-bold text-sm">{modifCoach.error.message}</p>
+                            </div>
+                            
+                            <div className="flex-col flex gap-2 mb-5">
+                                <label className="font-bold text-lg">Téléphone <span className="text-red-500 text-xs">(maximum 8 chiffres)</span> </label>
+                                <Input
+                                    type={'text'}
+                                    value={coachEdit?.telephone}
+                                    onChange={(e)=>{setCoachEdit({...coachEdit, telephone:e.target.value})}}
+                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                    placeholder={'saisissez son numéro de telephone'}
+                                />
+                            </div>
+
+                            <div className="relative flex-col flex gap-2 mb-5">
+                                <label className="font-bold text-lg">Spécialité(s)</label>
+                                <Input
+                                    type="text"
+                                    value={skills}
+                                    onChange={(e) => setSkills(e.target.value)}
+                                    className="border focus:outline-none border-orange-500 text-md p-2 rounded-lg"
+                                    placeholder="saisissez sa ou ses compétence(s)..."
+                                />
+                                <motion.button
+                                    type="button"
+                                    onClick={handleAddSkillC}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
+                                >
+                                    <SquarePlus />
+                                </motion.button>
+                            </div>
+                            
+                            {coachEdit?.competence.length > 0 && (
+                                <div className="grid grid-cols-3  gap-3 ">
+                                    {coachEdit?.competence.map((item,index) =>(
+                                        
+                                        <p key={index}  className=" relative text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
+                                            {item}
+                                            <button
+                                                onClick={()=>{removeSkillsC(index)}}
+                                                className="absolute -top-1 -right-1 border bg-red-600 rounded-full"
+                                            >
+                                                <X className="h-3 w-3 text-white" />
+                                            </button>
+                                        </p>
+                                        
+                                    ))}
+                                </div>
+                            )} 
+                            
+                        </div>
+
+                        <div className=" flex justify-end items-center gap-2">
+                            <button
+                            type="button"
+                                onClick={()=>{setSelectCoach(null), setCoachEdit(null), setSkills('')}}
+                                className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={(e)=>{handleModifCoach(e)}}
+                                disabled={modifCoachLoading || !validationModif()}
+                                className={`border py-1 px-3 ${!validationModif() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'}   text-white font-semibold  transition-colors duration-200`}
+                            >
+                                {modifCoachLoading ?(
+                                    <Loader2 className="animate-spin"/>
+                                ):(
+                                    'Modifier'
                                 )}
-                                
-                            </div>
 
-                            <div className=" flex justify-end items-center gap-2">
-                                <button
-                                type="button"
-                                    onClick={()=>{setSelectCoach(null), setCoachEdit(null), setSkills('')}}
-                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
-                                >
-                                    Annuler
-                                </button>
-                                <button
-                                    onClick={(e)=>{handleModifCoach(e)}}
-                                    disabled={modifCoachLoading || !validationModif()}
-                                    className={`border py-1 px-3 ${!validationModif() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'}   text-white font-semibold  transition-colors duration-200`}
-                                >
-                                    {modifCoachLoading ?(
-                                        <Loader2 className="animate-spin"/>
-                                    ):(
-                                        'Modifier'
-                                    )}
-
-                                </button>
-                            </div>
+                            </button>
                         </div>
                     </motion.div>
                 </div>
@@ -5045,7 +5251,7 @@ export default function DashboardPro(){
 
             {modalProgram && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    {/* <p>{adhToUp.name}</p> */}
+                    
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.15}}
@@ -5138,17 +5344,30 @@ export default function DashboardPro(){
                                                     <p className="text-gray-400 text-sm">Aucun adhérant inscrit dans votre salle</p>
                                                 </div>
                                             ):AdherantProgram.map(item => (
-                                                <div
+                                                <button
                                                     key={item.id}
+                                                    disabled={adherantChoice.includes(item)}
                                                     onClick={()=>{
-                                                        setAdherantChoiceId([...adherantChoiceId, item.id])
-                                                        setAdherantChoice([...adherantChoice, item])
-                                                        setModalSelect(false)
+                                                        if(adherantChoice.includes(item)){
+                                                            alert('deja la')
+                                                            return
+                                                        } else {
+                                                            setAdherantChoiceId([...adherantChoiceId, item.id])
+                                                            setAdherantChoice([...adherantChoice, item])
+                                                            setModalSelect(false)
+                                                        }
                                                     }}
-                                                    className="p-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
+                                                    className={`p-2 flex ${adherantChoice.includes(item) ? 'bg-gray-100 text-gray-400' : 'cursor-pointer hover:bg-white'} flex-col w-full text-left  transition-all border-b border-gray-400`}
                                                 >
-                                                    {item?.name || 'N/A'} {item?.prenom || 'N/A'}
-                                                </div>
+                                                    <p className="flex items-center justify-between">
+                                                        <span>{item?.name || 'N/A'} {item?.prenom || 'N/A'}</span>
+
+                                                        {adherantChoice.includes(item) && (
+                                                            <span className="text-xs italic text-gray-400">Déjà sélectionné</span>
+                                                        )}
+                                                    </p>
+
+                                                </button>
                                             ))}
 
                                             {AdherantProgram.length >= 0 && (
@@ -5342,14 +5561,8 @@ export default function DashboardPro(){
                                 </div>
                             </div>
 
-
                             <div className=" flex justify-between items-center">
-                                {programSuccess && (
-                                    <p className="text-green-500 flex gap-1 font-bold text-sm w-full"><CheckCircle2 className="h-5 w-5 text-green-500"/>Programmation réussie </p>
-                                )}
-                                {programError && (
-                                    <p className="text-red-500 flex gap-1 font-bold text-sm"><XCircle className="h-5 w-5 text-red-500"/>{programCours.error.message}</p>
-                                )}
+                                
                                 <div className="flex items-center justify-end w-full gap-2">
                                     <button
                                     type="button"
@@ -5406,6 +5619,200 @@ export default function DashboardPro(){
                     </motion.div>
                 </div>
             )}
+
+            {sideBar && (
+                <div className="absolute grid grid-cols-4 inset-0 bg-black/50 ">
+                    
+                    <div className="">
+                    </div>
+                    <div className="">
+                    </div>
+                    <motion.div 
+                        
+                        initial={{opacity: 0, x: 150}}
+                        animate={{opacity: 1, x: 0}}
+                        transition={{duration: 0.4}}
+                        className="bg-gray-100 col-span-2 px-8 py-3"
+                    >
+                        <button 
+                            className="flex mt-5 mb-10 items-center gap-2 border border-gray-400 p-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-transparent transition-all duration-200"
+                            onClick={()=>{setSideBar(!sideBar), setFiltreJour('')}}
+                        >
+                            <X className="h-5 w-5"/>
+                            <p className="">Fermer</p>
+                        </button>
+
+                        <div className="mb-5 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <h1 className="font-bold text-3xl ">Cours programmé{programListe.length > 1 ? 's' : ''}</h1>
+                                {programListe.length >= 1 && (
+                                    <p className="text-gay-400 text-3xl">({programListe.length > 9 ? programListe.length : `0${programListe.length}`})</p>
+                                )}
+                            </div>
+                            {programListe && (
+                                <select onChange={(e)=>{setFiltreJour(e.target.value)}} className="border p-2 rounded-lg border-gray-400 text-xl">
+                                    <option value="">Tous</option>
+                                    <option value="lundi">Lundi</option>
+                                    <option value="mardi">Mardi</option>
+                                    <option value="mercredi">Mercredi</option>
+                                    <option value="jeudi">Jeudi</option>
+                                    <option value="vendredi">Vendredi</option>
+                                    <option value="samedi">Samedi</option>
+                                    <option value="dimanche">Dimanche</option>
+                                </select>
+                            )}
+                        </div>
+                        
+
+                        <div className=" flex flex-col gap-5 h-205 overflow-y-auto scrollbar-hide">
+                            
+
+                            <div className="grid grid-cols-2 gap-5">
+
+                                {loadingCoursListe ? (
+                                    [1,2,3,4].map(item => (
+                                        <div key={item} className="flex flex-col gap-5 border border-gray-200 p-4 rounded-lg bg-white">
+                                            <div className="flex items-center justify-between ">
+                                                <p className="w-20 h-6 animate-pulse bg-gray-300"></p>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <p className="w-6 h-6 animate-pulse bg-gray-300"></p>
+                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
+                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
+                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
+                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <p className="w-6 h-6 animate-pulse bg-gray-300"></p>
+                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
+                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
+                                            </div>
+
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="w-6 h-6 animate-pulse bg-gray-300"></p>
+                                                    <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
+                                                </div>
+                                                <div className="flex items-center gap-2 overflow-y-auto">
+                                                    <p className="w-20 h-10 animate-pulse bg-gray-300"></p>
+                                                    <p className="w-20 h-10 animate-pulse bg-gray-300"></p>
+                                                    <p className="w-20 h-10 animate-pulse bg-gray-300"></p>
+                                                    <p className="w-20 h-10 animate-pulse bg-gray-300"></p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center justify-center my-5">
+                                                <p className="w-75 h-6 animate-pulse bg-gray-300"></p>
+                                            </div>
+                                        </div>
+                                    ))
+                                ):programListe.length === 0 ? (
+                                    <div className="flex flex-col col-span-2 h-170 items-center justify-center">
+                                        {filtreJour.trim() ? (
+                                            <p className="text-gray-400 text-xl">Pas de cours programmé pour le {filtreJour}</p>
+                                        ):(
+                                            <>
+                                            <ImageComponent source={calendarc} label={""} style={"object-cover w-160 "}/>
+                                            <p className="text-gray-400 text-xl">Vous n'avez pas encore programmé de cours</p>
+                                            </>
+                                        )}
+                                        
+                                    </div>
+                                ): programListe.map((item,index) => (
+                                    <motion.div
+                                        whileHover={{scale: 0.96}}
+                                    key={index} className="flex flex-col gap-5 border border-orange-500 p-4 rounded-lg bg-white">
+                                        <div className="flex items-center gap-2 ">
+                                            <p>Intitulé :</p>
+                                            <p className="text-xl uppercase font-semibold">{item?.cours?.[0] || 'N/A'}</p>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            <Calendar className="h-5 w-5 text-gray-400"/>
+                                            {item?.jours.map((jour,index) => (
+                                                <p key={index} className="font-semibold">
+                                                    {jour}.
+                                                </p>
+                                            ))}
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            <Clock className="h-5 w-5 text-gray-400"/>
+                                            <div className="flex items-center gap-2">
+                                                {item?.horaire?.[0] && (
+                                                <p className="font-semibold">{item?.horaire?.[0] || 'N/A'}</p>
+                                                )}
+                                                {item?.horaire?.[1] && (
+                                                    <p>-</p>
+                                                )}
+                                                {item?.horaire?.[1] && (
+                                                <p className="font-semibold">{item?.horaire?.[1] || 'N/A'}</p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center gap-2">
+                                                <Users2 className="h-5 w-5 text-gray-400"/>
+                                                <p>Participants : </p>
+                                            </div>
+                                            <div className={`flex items-center gap-2 ${item?.adherent.length > 4 ? 'overflow-y-auto scrollbar-hide ' : ''} text-sm`}>
+                                                {item?.adherent.map(adherant => (
+                                                    <p key={adherant.id} className="font-semibold border px-3 text-center uppercase border-orange-500 text-orange-600">{adherant?.nom || 'N/A'} {adherant?.prenom || 'N/A'}</p>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-center text-sm gap-2 my-5">
+                                            <p>Ce cours est est associé au coach </p>
+                                            <p className="font-semibold uppercase">{item?.coach?.coach?.nom || 'N/A'} {item?.coach?.coach?.prenom || 'N/A'}</p>
+                                        </div>
+                                    </motion.div>
+                                   ))
+                                }
+
+                                {errorCoursListe && (
+                                    <div className="flex col-span-2 h-200 gap-2 items-center justify-center">
+                                        <XCircle className="h-5 w-5 animate-spin text-red-500"/>
+                                        <p className="text-red-500">{listeCours.error.message}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            <ResponseCoach coachSuccess={coachSuccess} successSupCoach={successSupCoach} modifCoachSuccess={modifCoachSuccess} />
+            <ResponseAdherant successAdherant={successAdherant} successUpdateAdh={successUpdateAdh} successSupAdh={successSupAdh}/>
+            <ResponseAbonnement reabSuccess={reabSuccess} reactSuccess={reactSuccess} suspSuccess={suspSuccess} />
+            <ResponseCours successAddCours={successAddCours} successSupCours={successSupCours} successUpdateCours={successUpdateCours} programSuccess={programSuccess} />
+            <ResponseLogo logoDelSuccess={logoDelSuccess} logoEditSuccess={logoEditSuccess} logoSuccess={logoSuccess} />
+            <ResponseCachet signDelSuccess={signDelSuccess} signEditSuccess={signEditSuccess} signSuccess={signSuccess} />
+            <ResponseTarif successTarif={successTarif} successTarifDel={successTarifDel} successTarifUp={successTarifUp} />
+            <ResponseInfoPerso persoSuccess={persoSuccess} passwordSuccess={passwordSuccess} />
+            <ResponseInfoSalle successUpdate={successUpdate} />
+            <ResponseActivity activitySuccess={activitySuccess} />
+            
+            <ResponseError 
+                coachError={coachError}
+                errorTarif={errorTarif}
+                errorTarifUp={errorTarifUp}
+                errorTarifDel={errorTarifDel}
+                persoError={persoError}
+                passwordError={passwordError} errorSupCoach={errorSupCoach}
+                signDelError={signDelError} signEditError={signEditError} signError={signError}
+                logoDelError={logoDelError} logoEditError={logoEditError} logoError={logoError}
+                updateError={updateError} errorAdherant={errorAdherant} errorUpdateAdh={errorUpdateAdh}
+                errorAddCours={errorAddCours} reabError={reabError} dataExportError={dataExportError}
+                reactError={reactError} programError={programError} modifCoachError={modifCoachError}
+                suspError={suspError} errorSupCours={errorSupCours} errorSupAdh={errorSupAdh}
+                activityError={activityError}
+
+            />
+           
         </div>
     )
 }

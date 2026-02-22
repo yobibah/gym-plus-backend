@@ -187,7 +187,7 @@ export default function PaiementProcess(){
 
                         {error && (
                             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                <p className="text-red-600 text-sm">{paiement.error.message}</p>
+                                <p className="text-red-600 text-sm">Erreur! Réessayer</p>
                             </div>
                         )}
 

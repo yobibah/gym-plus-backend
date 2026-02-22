@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import {fetchDataPlan} from '../api/fetchPlan'
 import DashboardStandard from "./standard/DashboardStandard";
+// import DashboardPro from "./pro/DashboardPro";
 import DashboardPro from "./pro/DashboardPro";
 import logo from '../assets/images/coverhero.png'
 

@@ -1,12 +1,14 @@
 import React, {useState} from "react";
 import coverhero from '../../assets/images/coverhero.png'
-import ContactImage from "../../components/ui/image"
+import ImageComponent from "../../components/ui/image"
 import Input from "../../components/ui/input";
 import authimage from '../../assets/images/Reset-password-pana.png'
 import { motion } from "framer-motion";
 import { KeyIcon, Loader2, MailIcon } from "lucide-react";
 import { postResetPassword } from "../../api/auth/postResetPassword";
 import { useMutation } from "@tanstack/react-query";
+import ToastSuccess from "../../components/ui/ToastSuccess";
+import ToastError from "../../components/ui/ToastError";
 
 export default function ResetPassword(){
 
@@ -16,7 +18,16 @@ export default function ResetPassword(){
         mutationFn : postResetPassword,
         onSuccess : ()=>{
             setEmail('')
-        }
+            setTimeout(()=>{
+                resetPass.reset()
+            }, 4000)
+        },
+
+        onError: (()=>{
+            setTimeout(()=>{
+                resetPass.reset()
+            }, 4000)
+        })
     })
 
     const loading = resetPass.isPending
@@ -35,13 +46,13 @@ export default function ResetPassword(){
             </div>
 
             <div className="absolute z-20 inset-y-0 w-full items-center flex justify-center">
-                <ContactImage source={coverhero} label={'illustration'} style={" w-200 h-200"} />
+                <ImageComponent source={coverhero} label={'illustration'} style={" w-200 h-200"} />
             </div>
             
             <div className="w-full flex items-center justify-center relative min-h-screen z-40">
                 
                 <div className="hidden md:hidden lg:block 2xl:block xl:block sm:hidden rounded-tl-lg shadow-lg shadow-orange-500 rounded-bl-lg bg-orange-500">
-                    <ContactImage source={authimage} label={'illustration'} style={" w-150 h-150"} />
+                    <ImageComponent source={authimage} label={'illustration'} style={" w-150 h-150"} />
                 </div>
 
                 <form onSubmit={handleReset} className="shadow-black/50 rounded-tr-lg rounded-br-lg shadow-lg bg-black/50 backdrop-blur flex w-150 flex-col justify-center gap-10 md:px-10 h-150">
@@ -49,10 +60,6 @@ export default function ResetPassword(){
                     <span className="text-base italic ml-2">Le logiciel tout en un</span>
                     </p> 
 
-                    {error && (<span className="text-base font-bold text-center text-red-500 italic ml-2">{resetPass.error.message}</span>  
-                    )}
-                    {success && (<span className="text-base font-bold text-center text-green-500 italic ml-2">Un lien de reinitialisation a été envoyé sur votre adresse e-mail</span>  
-                    )} 
                     <div className=" px-10 flex flex-col gap-5">
                         <div>
                             <p className="text-2xl font-semibold text-white">Adresse e-mail</p>
@@ -94,6 +101,17 @@ export default function ResetPassword(){
 
 
             </div>
+
+
+            {error && (
+                
+                    <ToastError message={'Une erreur est survenue! Veuillez réessayer'}/>
+                
+            )}
+            {success && (
+                    <ToastSuccess message={'Un lien de reinitialisation a été envoyé sur votre adresse e-mail'}/>
+                
+            )}
         </>
     )
 }

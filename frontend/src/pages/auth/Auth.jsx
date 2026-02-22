@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import coverhero from '../../assets/images/coverhero.png'
-import ContactImage from "../../components/ui/image";
+import ImageComponent from "../../components/ui/image";
 import { Eye, EyeOff, Lock, User, KeyIcon, Loader2 } from "lucide-react";
 import Input from "../../components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
@@ -9,6 +9,8 @@ import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import { useMutation } from "@tanstack/react-query";
 import { postLogin } from "../../api/auth/postLogin";
+import ToastError from "../../components/ui/ToastError";
+import ToastSuccess from "../../components/ui/ToastSuccess";
 
 
 export default function Auth (){
@@ -25,10 +27,19 @@ export default function Auth (){
         onSuccess: (data) => {
             Cookies.set("token", data.token, { expires: 365 });
 
+                setTimeout(()=>{
+                    login.reset()
+                }, 2500)
             setTimeout(() => {
                 navigate("/dashboard", {replace : true});
-            }, 2500);
+            }, 3000);
         },
+
+        onError: (()=>{
+            setTimeout(()=>{
+                login.reset()
+            }, 4000)
+        })
     });
 
     const loading = login.isPending
@@ -49,7 +60,7 @@ export default function Auth (){
             </div>
 
             <div className="absolute z-20 inset-y-0 w-full items-center flex justify-center">
-                <ContactImage source={coverhero} label={'illustration'} style={" w-200 h-200"} />
+                <ImageComponent source={coverhero} label={'illustration'} style={" w-200 h-200"} />
             </div>
 
 
@@ -57,7 +68,7 @@ export default function Auth (){
             <div className="w-full flex items-center justify-center relative min-h-screen z-40">
                 
                 <div className="hidden md:hidden lg:block 2xl:block xl:block sm:hidden rounded-tl-lg shadow-lg shadow-orange-500 rounded-bl-lg bg-orange-500">
-                    <ContactImage source={authimage} label={'illustration'} style={" w-150 h-150"} />
+                    <ImageComponent source={authimage} label={'illustration'} style={" w-150 h-150"} />
                 </div>
 
                 <form onSubmit={handleConnect} className="shadow-black/50 rounded-tr-lg rounded-br-lg shadow-lg bg-black/50 backdrop-blur flex w-150 flex-col justify-center gap-5 h-150">
@@ -65,10 +76,6 @@ export default function Auth (){
                     <span className="text-base italic ml-2">Le logiciel tout en un</span>
                     </p>  
 
-                    {error && (<span className="text-base font-bold text-center text-red-500 italic ml-2">{login.error.message}</span>  
-                    )}
-                    {success && (<span className="text-base font-bold text-green-500 flex items-center justify-center italic ml-2 ">Connexions réussie, redirection... <Loader2 className="h-5 w-5 animate-spin text-green-500"/></span>  
-                    )} 
                     <div className="flex flex-col gap-5 px-10">
                         <div>
                             <p className="text-2xl font-semibold text-white mb-2">Identifiant</p>
@@ -143,6 +150,13 @@ export default function Auth (){
 
 
             </div>
+
+            {error && (
+                    <ToastError message={'Une erreur est survenue! Veuillez réessayer'}/>
+            )}
+            {success && (
+                    <ToastSuccess message={'Connexion réussie! Rédirection...'}/>
+            )}
         </>
     )
 }

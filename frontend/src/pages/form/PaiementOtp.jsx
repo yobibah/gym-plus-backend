@@ -7,6 +7,8 @@ import { getToken } from "../../hooks/getToken";
 import { usePayment } from "../../contexts/PaymentContext";
 import { Loader2 } from "lucide-react";
 import { PaymentOtp } from "../../api/subscribe/PaiementOtp";
+import ToastError from "../../components/ui/ToastError";
+import ToastSuccess from "../../components/ui/ToastSuccess";
 
 export default function PaiementOtp(){
     
@@ -56,12 +58,21 @@ export default function PaiementOtp(){
             localStorage.removeItem('status_salle')
             localStorage.removeItem('choix_forfait')
             localStorage.removeItem('step1')
-
+            
+            setTimeout(()=>{
+                paiementOtp.reset()
+            },2500)
             setTimeout(()=>{
                 navigate(`/statut?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
-            }, 2500)
+            }, 3000)
 
-        }
+        },
+
+        onError: (()=>{
+            setTimeout(()=>{
+                paiementOtp.reset()
+            },4000)
+        })
     })
 
     const loading = paiementOtp.isPending
@@ -95,18 +106,7 @@ export default function PaiementOtp(){
                             <p className="text-gray-600">le champ ci-dessous pour valider le paiement</p>
                         </div>
                         <form className="flex flex-col gap-2 px-40">
-                            {error && (
-                                <div className="p-2 bg-red-50 border border-red-200 rounded-lg">
-                                    <p className="text-red-600 text-sm">{paiementOtp.error.message}</p>
-                                </div>
-                            )}
-
-                            {success && (
-                                <div className=" flex items-center p-2 bg-green-50 border border-green-200 rounded-lg">
-                                    <p className="text-green-600 text-sm">Paiement réussi! Redirection...</p>
-                                    <Loader2 className="animate-spin h-5 w-5" />
-                                </div>
-                            )}
+                            
                             <input 
                                 type="tel" 
                                 placeholder="code otp"
@@ -130,6 +130,18 @@ export default function PaiementOtp(){
                     
                 </div>
             </div>
+
+            {error && (
+                
+                <ToastError message={'Une erreur est survenue! Veuillez réessayer'}/>
+               
+            )}
+
+            {success && (
+                
+                <ToastSuccess message={'Paiement réussi! Rédirection...'}/>
+               
+            )}
         </>
     )
 }

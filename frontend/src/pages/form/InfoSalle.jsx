@@ -9,6 +9,8 @@ import { infosSalle } from "../../api/subscribe/infosSalle";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getToken } from "../../hooks/getToken";
 import { ListPays } from "../../api/ListPays";
+import ToastError from "../../components/ui/ToastError";
+import ToastSuccess from "../../components/ui/ToastSuccess";
 
 
 
@@ -19,11 +21,6 @@ export default function InfoSalle(){
     const [pays, setPays] = useState(null)
     const [region, setRegion] = useState('')
     const [modalForfait, setModalForfait] = useState(false)
-    // console.log('pays', pays)
-    // const data = {
-    //     list : [
-    //     ]
-    // }
     
     const {forfait,montant, setForfait, setMontant} = usePayment()
 
@@ -94,9 +91,17 @@ export default function InfoSalle(){
         onSuccess : ()=>{
             localStorage.setItem('status_salle', 'salle_info_remplie')
             setTimeout(()=>{
-                navigate(`/paiement-process?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
+                infos.reset()
             }, 2500)
-        }
+            setTimeout(()=>{
+                navigate(`/paiement-process?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
+            }, 3000)
+        },
+        onError: (()=>{
+            setTimeout(()=>{
+                infos.reset()
+            }, 4000)
+        })
     })
 
     const loading = infos.isPending
@@ -224,16 +229,6 @@ export default function InfoSalle(){
                             />
                         </div>
                     </div>
-                    {error && (
-                    <span className="mb-2 flex justify-center items-center gap-1 text-red-500 text-sm italic">
-                        <XCircle className="h-4 w-4"/>{infos.error.message}</span>
-                    )}
-                    {success && (
-                        <span className="mt-2 mb-2 justify-center flex items-center gap-1 text-green-500 text-sm italic">
-                        <CheckCircle className="h-4 w-4"/>Informations de la salle validées !</span>
-                    )}
-
-                        
 
                     <div className="bg-orange-50  flex justify-end px-8 py-5">
                         <motion.button
@@ -241,7 +236,7 @@ export default function InfoSalle(){
                             disabled={loading || !nomSalle.trim() || !ville.trim() || !pays.trim() || !region.trim() }
                             className={`${
                                 !nomSalle.trim() || !ville.trim() || !pays.trim() || !region.trim() ? 'bg-orange-200 border border-orange-200' : 'hover:bg-white hover:text-black bg-orange-600 border-1 border-orange-600'} 
-                                text-xs font-bold text-white flex gap-1 items-center py-2 px-4 rounded-lg
+                                text-xs font-bold text-white flex gap-1 w-50 justify-center items-center py-2 px-4 rounded-lg
                                 `}
                         >
                             {loading ? (
@@ -261,6 +256,17 @@ export default function InfoSalle(){
                 </form>
             </div>
         </div>
+
+        {success && (
+            <ToastSuccess message={'Salle enregistrée avec succès'}/>
+            
+        )}
+        {error && (
+            <ToastError message={'Une erreur est survenue! Veuillez réessayer'}/>
+           
+        )}
+
+
         </>
     )
 }

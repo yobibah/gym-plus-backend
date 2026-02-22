@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import contactimg from '../assets/images/contactimg.png'
-import ContactImage from "./ui/image";
+import ImageComponent from "./ui/image";
 import { motion } from "framer-motion";
 import { Mail, Pencil, Loader2 } from "lucide-react";
 import Input from "./ui/input";
@@ -52,7 +52,7 @@ export default function Contact(){
                     className="lg:relative 2xl:relative xl:relative md:hidden hidden 2xl:flex items-center md:flex items-center xl:flex items-center lg:flex items-center xl:h-100 lg:h-100 justify-center"
                 >
                         
-                            <ContactImage 
+                            <ImageComponent 
                                 source={contactimg} 
                                 label={"illustration 3D"} 
                                 style={"w-full  h-auto xl:absolute lg:absolute xl:-right-20 xl:-top-15 2xl:-right-50 2xl:-top-40 lg:-right-20 lg:-top-10 -right-50 -top-40"}
