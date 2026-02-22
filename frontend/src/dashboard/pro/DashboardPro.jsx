@@ -78,6 +78,7 @@ import SkeletonCoach from "../../components/ui/SkeletonCoach";
 import { CreateActivity } from "../../api/dashboard/pro/params/createActivity";
 import ResponseActivity from "../../utils/activity/response.api";
 import { getActivity } from "../../api/dashboard/pro/params/getActivity";
+import { documentUrl } from "../../../env";
 
 
 export default function DashboardPro(){
@@ -4322,7 +4323,7 @@ export default function DashboardPro(){
                                              <div key={item.id} className="shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg bg-white">
 
                                                 <div className="h-60 w-full relative">
-                                                    <ImageComponent source={item?.images_activte} style={"w-full h-full object-cover"} label={'img-activity'} />
+                                                    <ImageComponent source={`${documentUrl}${item?.images_activte}`} style={"w-full h-full object-cover"} label={'img-activity'} />
                                                     <p className="absolute rounded-full top-5 left-5 bg-white py-1 px-4 uppercase font-bold">{item?.status || 'N/A'}</p>
                                                 </div>
 
