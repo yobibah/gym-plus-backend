@@ -34,6 +34,7 @@ import { addCachet } from "../../api/dashboard/standard/parametres/addCachet";
 import { DeleteCachet } from "../../api/dashboard/standard/parametres/deleteCachet";
 import { UpdateCachet } from "../../api/dashboard/standard/parametres/changeCachet";
 import coverhero from '../../assets/images/coverhero.png'
+import nodata from '../../assets/images/nodata.png'
 import { Suspendre } from "../../api/dashboard/standard/abonnements/suspendre";
 import { Reactiver } from "../../api/dashboard/pro/abonnements/reactiver";
 import { ExportCsv } from "../../api/dashboard/pro/adherants/export";
@@ -76,6 +77,7 @@ import SkeletonAbonnement from "../../components/ui/SkeletonAbonnemet";
 import SkeletonCoach from "../../components/ui/SkeletonCoach";
 import { CreateActivity } from "../../api/dashboard/pro/params/createActivity";
 import ResponseActivity from "../../utils/activity/response.api";
+import { getActivity } from "../../api/dashboard/pro/params/getActivity";
 
 
 export default function DashboardPro(){
@@ -196,6 +198,8 @@ export default function DashboardPro(){
     const [date_activite, setDateActivite] = useState('')
     const [heure_activite, setHeureActivite] = useState('')
     const [status, setStatus] = useState(null)
+
+    const [activityTab, setActivityTab] = useState('tous')
 
     const navigate = useNavigate()
     const token = getToken()
@@ -334,6 +338,7 @@ export default function DashboardPro(){
 
         if(paramsTab === 'activity'){
             setParamstab('activity')
+            setActivityTab('tous')
             setStatus('publie')
             if(historyP){
                 setHistoryP(false)
@@ -1120,7 +1125,8 @@ export default function DashboardPro(){
             queryClient.removeQueries(['mes-infos']),
             queryClient.removeQueries(['history']),
             queryClient.removeQueries(['mes-coach']),
-            queryClient.removeQueries(['mes-cours'])
+            queryClient.removeQueries(['mes-cours']),
+            queryClient.removeQueries(['mes-activites'])
 
         )
 
@@ -1614,13 +1620,47 @@ export default function DashboardPro(){
 
     }, [listeCoursData, filtreJour ])
 
+    const mesActivites = useQuery({
+        queryKey: ['mes-activites'],
+        queryFn: getActivity
+    })
+
+    const loadingActivity = mesActivites.isPending
+    const errorgActivity = mesActivites.isError
+    const dataActivity = mesActivites?.data || []
+
+    const filteredActiviy = useMemo(()=>{
+        if(!dataActivity || !Array.isArray(dataActivity)) return []
+
+        let data = dataActivity
+
+        if(activityTab === "publie"){
+            data = data.filter(item => item?.status === "publie")
+        }
+        if(activityTab === "attente"){
+            data = data.filter(item => item?.status === "attente")
+        }
+        if(activityTab === "annule"){
+            data = data.filter(item => item?.status === "annule")
+        }
+
+        return data
+    },[dataActivity, activityTab] )
+
 
     const activityQuery = useQueryClient()
     const programActivity = useMutation({
         mutationFn: CreateActivity,
 
         onSuccess: (()=>{
-            // activityQuery.invalidateQueries(['activity'])
+            activityQuery.invalidateQueries(['mes-activites'])
+            setNomActivite('')
+            setDescription('')
+            setDateActivite('')
+            setHeureActivite('')
+            setStatus('publie')
+            setImg(null)
+            setPreviewActivity(null)
             setTimeout(()=>{
                 programActivity.reset()
             }, 4000)
@@ -1647,12 +1687,7 @@ export default function DashboardPro(){
 
         return true
     }
-    // console.log("nom", nom_activite)
-    // console.log("des", descriptions)
-    // console.log("date", date_activite)
-    // console.log("heure", heure_activite)
-    // console.log("img", images_activte)
-    // console.log("status", status)
+
 
     async function handleActivity() {
         if(!validateFieldActivity()) return
@@ -4091,10 +4126,13 @@ export default function DashboardPro(){
 
                         {paramsTab === 'activity' && (
                             <>
-                                <div className=" mt-10 p-4 bg-white overflow-y-auto h-200 sticky top-0 scrollbar-hide shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg flex flex-col gap-8">
-                                    <div className="flex items-center gap-2">
-                                        <NotebookPen  className="h-7 w-7" fill="rgba(255,100,0,0.8)" stroke="white"/>
-                                        <p className="text-2xl font-bold">Créer une Activité</p>
+                                <div className=" mt-10 p-4 bg-white overflow-y-auto h-200 sticky top-0 scrollbar-hide shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg flex flex-col gap-5">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2">
+                                            <NotebookPen  className="h-7 w-7" fill="rgba(255,100,0,0.8)" stroke="white"/>
+                                            <p className="text-2xl font-bold">Créer une Activité</p>
+                                        </div>
+                                        <p className="text-sm text-gray-400 ">Une fois l'activité publiée, vos adhérants seront notifiés via leur adresse e-mail</p>
                                     </div>
 
                                     <div className="flex flex-col gap-4">
@@ -4108,7 +4146,7 @@ export default function DashboardPro(){
                                         </div>
 
                                         <div className="flex flex-col gap-2">
-                                            <label>Description courte <span className="text-red-500 font-bold">*</span></label>
+                                            <label>Description <span className="text-red-500 font-bold">*</span></label>
                                             <textarea type="text" cols="30" rows="5"
                                             value={descriptions}
                                             onChange={(e)=>{setDescription(e.target.value)}} 
@@ -4189,8 +4227,8 @@ export default function DashboardPro(){
 
                                     <button
                                         onClick={handleActivity}
-                                        disabled={activityLoading || !validateFieldActivity()}
-                                        className={`w-full p-4 font-bold text-white ${!validateFieldActivity() ? 'bg-orange-300' : 'bg-orange-500 hover:bg-orange-600 '} flex items-center gap-2 justify-center rounded-lg`}
+                                        disabled={activityLoading || !validateFieldActivity() || daysRemaining <= 0}
+                                        className={`w-full p-4 font-bold text-white ${!validateFieldActivity() || daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 hover:bg-orange-600 '} flex items-center gap-2 justify-center rounded-lg`}
                                     >
                                         {activityLoading ? (
                                             <Loader2 className="h-6 w-6 animate-spin text-white"/>
@@ -4204,124 +4242,147 @@ export default function DashboardPro(){
 
                                 </div>
 
-                                <div className="flex flex-col gap-8 col-span-3 mt-10 p-4 h-200">
+                                <div className="flex flex-col gap-8 px-4 col-span-3 mt-10 h-200">
                                     <div className="bg-white w-full flex items-center gap-2 shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg p-4">
                                         <p>Filtrer par statut :</p>
                                         <div className="flex items-center gap-4">
-                                            <button
-                                                className="py-1 px-8 bg-orange-500 text-white transition-all duration-200 rounded-lg font-semibold"
+                                            <motion.button
+                                            whileTap={{scale: 0.95}}
+                                                onClick={(e)=>{setActivityTab('tous')}}
+                                                className={`py-1 px-8 ${activityTab === 'tous' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
                                             >
                                                 Tous
-                                            </button>
-                                            <button
-                                                className="py-1 px-8 bg-gray-100 border-gray-200 rounded-lg font-semibold transition-all duration-200"
+                                            </motion.button>
+                                            <motion.button
+                                            whileTap={{scale: 0.95}}
+                                                onClick={(e)=>{setActivityTab('publie')}}
+                                                className={`py-1 px-8 ${activityTab === 'publie' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
                                             >
                                                 Publié
-                                            </button>
-                                            <button
-                                                className="py-1 px-8 bg-gray-100 border-gray-200 rounded-lg font-semibold transition-all duration-200"
+                                            </motion.button>
+                                            <motion.button
+                                            whileTap={{scale: 0.95}}
+                                                onClick={(e)=>{setActivityTab('attente')}}
+                                                className={`py-1 px-8 ${activityTab === 'attente' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
                                             >
                                                 En attente
-                                            </button>
-                                            <button
-                                                className="py-1 px-8 bg-gray-100 border-gray-200 rounded-lg font-semibold transition-all duration-200"
+                                            </motion.button>
+                                            <motion.button
+                                            whileTap={{scale: 0.95}}
+                                                onClick={(e)=>{setActivityTab('annule')}}
+                                                className={`py-1 px-8 ${activityTab === 'annule' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
                                             >
                                                 Annulés
-                                            </button>
+                                            </motion.button>
                                         </div>
                                     </div>
 
                                     <div className="overflow-y-auto grid grid-cols-2 gap-8 p-1 scrollbar-hide">
-                                        {/* {[1,2,3,4].map(item => (
-                                            <div key={item} className=" rounded-lg bg-gray-200">
+                                        {loadingActivity ? (
+                                            [1,2,3,4].map(item => (
+                                                <div key={item} className=" rounded-lg bg-gray-200">
+
+                                                    <div className="h-60 w-full relative">
+                                                        <div className="w-full h-full bg-gray-300 animate-pulse"></div>
+                                                        <p className="absolute rounded-full top-5 left-5 bg-gray-400/50 h-8 w-20 animate-pulse"></p>
+                                                    </div>
+
+                                                    <div className="p-8 flex flex-col gap-5">
+
+                                                        <div className="w-full flex items-center justify-between">
+                                                            <p className="h-8 w-40 bg-gray-300 animate-pulse"></p>
+                                                            <div className="flex items-center gap-2">
+                                                                <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
+                                                                <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
+                                                                <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
+                                                                <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex flex-col gap-1">
+                                                            <p className="h-6 w-100 animate-pulse bg-gray-300"></p>
+                                                            <p className="h-6 w-95 animate-pulse bg-gray-300"></p>
+                                                        </div>
+
+                                                        <hr className="text-gray-300 w-full h-1 animate-pulse"/>
+
+                                                        <div className="flex items-center justify-between w-full">
+                                                            <p className="h-8 w-30 animate-pulse bg-gray-300"></p>
+                                                            <p className="h-8 w-30 animate-pulse bg-gray-300"></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ): filteredActiviy.length === 0 ? (
+                                            <div className="flex relative col-span-2 items-center justify-center mx-auto h-165 w-165 flex-col gap-2">
+                                                <ImageComponent source={nodata} style={"w-full h-full"} label={"logo"}/>
+                                                <div className="absolute bottom-20 text-xl text-gray-400 flex items-center justify-center">Aucune activité pour le moment</div>
+                                            </div>
+                                        ): filteredActiviy.map(item => (
+                                             <div key={item.id} className="shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg bg-white">
 
                                                 <div className="h-60 w-full relative">
-                                                    <div className="w-full h-full bg-gray-300 animate-pulse"></div>
-                                                    <p className="absolute rounded-full top-5 left-5 bg-gray-400/50 h-8 w-20 animate-pulse"></p>
+                                                    <ImageComponent source={item?.images_activte} style={"w-full h-full object-cover"} label={'img-activity'} />
+                                                    <p className="absolute rounded-full top-5 left-5 bg-white py-1 px-4 uppercase font-bold">{item?.status || 'N/A'}</p>
                                                 </div>
 
                                                 <div className="p-8 flex flex-col gap-5">
 
                                                     <div className="w-full flex items-center justify-between">
-                                                        <p className="h-8 w-40 bg-gray-300 animate-pulse"></p>
+                                                        <p className="font-bold text-xl">
+
+                                                            {item?.nom_activite.length > 22 
+                                                            ? item?.nom_activite.slice(0, 22) + "..." 
+                                                            : item?.nom_activite || 'N/A'}
+
+                                                        </p>
                                                         <div className="flex items-center gap-2">
-                                                            <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
-                                                            <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
-                                                            <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
-                                                            <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
+                                                            <button>
+                                                                <Eye className="h-6 w-6"/>
+                                                            </button>
+                                                            <button>
+                                                                <Pencil className="h-5 w-5" />
+                                                            </button>
+                                                            <button>
+                                                                <Trash2 className="h-5 w-5"/>
+                                                            </button>
+                                                            <button>
+                                                                <ArrowDownUpIcon className="h-5 w-5"/>
+                                                            </button>
                                                         </div>
                                                     </div>
 
-                                                    <div className="flex flex-col gap-1">
-                                                        <p className="h-6 w-100 animate-pulse bg-gray-300"></p>
-                                                        <p className="h-6 w-95 animate-pulse bg-gray-300"></p>
+                                                    <div>
+
+                                                        {item?.descriptions.length > 87 
+                                                        ? item?.descriptions.slice(0, 87) + "..." 
+                                                        : item?.descriptions || 'N/A'}
+
                                                     </div>
 
-                                                    <hr className="text-gray-300 w-full h-1 animate-pulse"/>
+                                                    <hr className="text-gray-300 w-full h-1"/>
 
                                                     <div className="flex items-center justify-between w-full">
-                                                        <p className="h-8 w-30 animate-pulse bg-gray-300"></p>
-                                                        <p className="h-8 w-30 animate-pulse bg-gray-300"></p>
+                                                        <div className=" flex items-center gap-2">
+                                                            <Calendar1 className="h-6 w-6 text-blue-600"/>
+                                                            <p className="font-bold text-[18px]">{formatDate(item?.date_activite) || 'N/A'}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <Timer className="h-7 w-7 text-blue-600"/>
+                                                            <p className="font-bold text-[18px]">{item?.heure_activite || 'N/A'}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        ))} */}
+                                        ))}
 
-                                        <div className="shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg bg-white">
-
-                                            <div className="h-60 w-full relative">
-                                                <ImageComponent source={coverhero} style={"w-full h-full object-cover"} label={'img-activity'} />
-                                                <p className="absolute rounded-full top-5 left-5 bg-white py-1 px-4 uppercase font-bold">publié</p>
+                                        
+                                        {errorgActivity && (
+                                            <div className="col-span-2 items-center justify-center mx-auto h-165 w-165 flex items-center gap-2">
+                                                <XCircle className="h-5 w-5 text-red-600 animate-spin"/>
+                                                <p className="text-red-600 font-bold">Erreur lors de la récupération de vos activités</p>
                                             </div>
-
-                                            <div className="p-8 flex flex-col gap-5">
-
-                                                <div className="w-full flex items-center justify-between">
-                                                    <p className="font-bold text-xl">Yoga Flwo debutant</p>
-                                                    <div className="flex items-center gap-2">
-                                                        <button>
-                                                            <Eye className="h-6 w-6"/>
-                                                        </button>
-                                                        <button>
-                                                            <Pencil className="h-5 w-5" />
-                                                        </button>
-                                                        <button>
-                                                            <Trash2 className="h-5 w-5"/>
-                                                        </button>
-                                                        <button>
-                                                            <ArrowDownUpIcon className="h-5 w-5"/>
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ullam eos commodi, laborum accusamus ...
-                                                </div>
-
-                                                <hr className="text-gray-300 w-full h-1"/>
-
-                                                <div className="flex items-center justify-between w-full">
-                                                    <div className=" flex items-center gap-2">
-                                                        <Calendar1 className="h-6 w-6 text-blue-600"/>
-                                                        <p className="font-bold text-[18px]">{new Date().toLocaleDateString('fr-FR')}</p>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <Timer className="h-7 w-7 text-blue-600"/>
-                                                        <p className="font-bold text-[18px]">{new Date().toLocaleTimeString()}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* <div className="flex col-span-2 items-center justify-center mx-auto h-165 w-165 flex-col gap-2">
-                                            <ImageComponent source={coverhero} style={"w-full h-full"} label={"logo"}/>
-                                            <p>Aucune activité pour le moment</p>
-                                        </div> */}
-
-                                        {/* <div className="col-span-2 items-center justify-center mx-auto h-165 w-165 flex items-center gap-2">
-                                            <XCircle className="h-5 w-5 text-red-600 animate-spin"/>
-                                            <p className="text-red-600 font-bold">Erreur lors de la récupération des données</p>
-                                        </div> */}
+                                        )}
                                         
                                     </div>
                                 </div>
