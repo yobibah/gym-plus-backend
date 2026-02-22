@@ -9,11 +9,10 @@ export async function CreateActivity({formData}){
         const response = await fetch(`${apiUrl}info-activite`,{
             method : "POST",
             headers : {
-                "Content-Type" : "application/json",
                 "Accept-Type" : "application/json",
                 "Authorization" : `Bearer ${token}`
             },
-            body : JSON.stringify(formData)
+            body : formData
         })
 
         const data = await response.json()

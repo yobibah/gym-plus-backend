@@ -1667,7 +1667,7 @@ export default function DashboardPro(){
         formData.append("status", status)
         //  console.log("fin", typeof(formData))
 
-        programActivity.mutate(formData)
+        programActivity.mutate({formData})
         
     }
 

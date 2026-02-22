@@ -9,7 +9,7 @@ export async function addCachet({formData}) {
     const response = await fetch(`${apiUrl}ajouter-cachet`,{
         method : "POST",
         headers : {
-            "Accept" : "application/jsob",
+            "Accept" : "application/json",
             "Authorization" : `Bearer ${token}`
         },
         body : formData

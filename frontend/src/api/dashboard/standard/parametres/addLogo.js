@@ -9,7 +9,7 @@ export async function addLogo({formData}) {
     const response = await fetch(`${apiUrl}ajouter-logo`,{
         method : "POST",
         headers : {
-            "Accept" : "application/jsob",
+            "Accept" : "application/json",
             "Authorization" : `Bearer ${token}`
         },
         body : formData
