@@ -22,7 +22,9 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\Auth as FacadesAuth;
 use PhpParser\Node\Expr\Cast\String_;
+
 
 class AuthController extends Controller
 {
@@ -391,6 +393,57 @@ public function sendLink(Request $request)
         ]);
     }
     }
+
+    // public function LoginWithToken(string $token){
+    //     if (!mpty($token)){
+    //          $token=trim($token);
+    //     }
+
+    //     try{
+    //         $gerant = User::where('remember_token',$token)->whereHas('Roles',fn($q)=>$q->name='Gerant')->firts();
+
+    //         if (!$gerant){
+    //             return ;
+    //         }
+
+    //         if (!$gerant->paiment()){
+    //             return ;
+    //         }
+
+    //                 $data = [
+
+    //             'id' => $gerant->id,
+    //             'name' => $gerant->name,
+    //             'prenom' => $gerant->prenom,
+    //             'email' => $gerant->email,
+    //             'abonnement' => $paiement ? $paiement : 'Aucun abonnement en cours de validite veuillez vous reabonner'
+    //         ];
+
+    //         Cache::forget('historique_'.$gerant->id);
+
+    //         historique::create([
+    //             "date_connexion"=>Carbon::now(),
+    //             "gerant_id"=>$gerant->id,
+    //         ]);
+
+    //         return response()->json([
+    //             'data'=>$data
+    //         ],200);
+
+
+
+
+    //     }
+    //     catch(Exception $e){
+    //         return response()->json([
+    //             'message'=>'token expirer essais de te connecter'
+    //         ],500);
+    //     }
+
+     
+
+
+    // }
 
    
 }

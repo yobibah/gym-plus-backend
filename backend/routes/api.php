@@ -16,6 +16,7 @@ use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\YengaPayController;
 use App\Http\Controllers\ActivitesController;
 use App\Http\Controllers\AbonnementController;
+use App\Http\Controllers\AiAgent;
 
 Route::post('/login', [AuthController::class, 'Login']);
 Route::post('/infos-perso', [AuthController::class, 'Register']);
@@ -53,6 +54,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //acitive 
     Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
     Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
+    Route::get('/mes-activites', [ActivitesController::class, 'MesActivites']);
     // definitions des prix
 
 
@@ -107,6 +109,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
       Route::post('/programmer-cours ',[ProgramerCoursController::class,'ProgrammerCours']);
 
       Route::get('/cours-programmer-listes',[ProgramerCoursController::class,'MesCoursProgrammer']);
+      route::get('/finance',[AiAgent::class,'RapportFinancierBasique']);
     });
 
     Route::get('/mon-historique', [HomeController::class, 'ConnexionHistorique']);

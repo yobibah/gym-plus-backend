@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\depenses;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Carbon\Month;
 use Carbon\Carbon;
 use App\Models\abonnement;

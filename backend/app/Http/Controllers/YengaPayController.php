@@ -27,9 +27,7 @@ class YengaPayController extends Controller
         25000 => 'pro',
         40000 => 'premimum'
     ];
-    public function __construct(public SenfenicoService $senfenico)
-    {
-    }
+    public function __construct(public SenfenicoService $senfenico) {}
 
     public function RetournerPaiement(string $ref)
     {
@@ -216,17 +214,30 @@ class YengaPayController extends Controller
         try {
             $fin = $request->fin ?? 1;
 
-            switch ($forfait) {
-
+            switch ($this->forfait) {
             }
             $hasAbonnement = $current->paiements()
-    ->whereBetween('fin', [Carbon::now(), Carbon::now()->addDays(7)])
-    ->where('status','reussi')
-    ->exists();
+                ->whereBetween('fin', [Carbon::now(), Carbon::now()->addDays(7)])
+                ->where('status', 'reussi')
+                ->exists();
 
-            if ($hasAbonnement) {
+            // $hasAbonnement = $current->paiements()
+            //     ->whereBetween('fin', [Carbon::now(), Carbon::now()->addDays(7)])
+            //     ->where('status', 'reussi')
+            //     ->exists();
+
+            $paiementAttente = $current->paiements()->where('status', 'attente')->latest('fin')
+                ->exists();
+            if ($paiementAttente) {
                 return response()->json([
-                    'message' => 'Vous avez déjà un abonnement en cours'
+                    'message' => 'Vous avez un abonnement en cours',
+                    'info' => 'Si vous souhaitez renouveler, veuillez attendre la fin de votre abonnement actuel.'
+                ], 403);
+            }
+
+            if (!$hasAbonnement) {
+                return response()->json([
+                    'message' => 'abonnement en cours ou une erreur est survenue'
                 ], 409);
             }
 
@@ -265,24 +276,20 @@ class YengaPayController extends Controller
                     'message' => $message,
                     'reference' => $ref
                 ]);
-
             } else {
                 return response()->json([
-                    'message' => ' erreur lier au paiement . veuillez contacter le support pour plus de detail'
+                    'message' => ' erreur lier au paiement ou verifier l\'operateur choisi'
                 ], 409);
             }
-
-
         } catch (Exception $e) {
             return response()->json([
                 'error' => $e->getTraceAsString(),
 
             ]);
         }
-
-
-
     }
+
+    public function AnnulerPaiement() {}
 
     public function chargeOtp(Request $request)
     {
@@ -357,8 +364,6 @@ class YengaPayController extends Controller
 
 
                 return response()->json(['message' => 'paiement reussi merci de profiter de nos services'], 200);
-
-
             } else {
                 $paiement->update([
                     'status' => 'echoue',
@@ -369,16 +374,12 @@ class YengaPayController extends Controller
                     Cache::get('reference_' . $current->id)
 
                 ], 500);
-
             }
-
         } catch (Exception $e) {
             return response()->json([
                 'error' => $e->getTrace()
             ], 500);
-
         }
-
     }
 
 
@@ -416,8 +417,6 @@ class YengaPayController extends Controller
         }
 
         return response()->json(['message' => 'Webhook reccus'], 200);
-
-
     }
 
 
@@ -457,15 +456,11 @@ class YengaPayController extends Controller
 
                 ], 201);
             }
-
         } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
             ]);
-
         }
-
-
     }
 
 
@@ -490,12 +485,7 @@ class YengaPayController extends Controller
                     'message' => 'une erreur est survenue'
                 ]);
             }
-
-
-
         } catch (Exception $e) {
-
         }
     }
-
 }

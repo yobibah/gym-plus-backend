@@ -37,7 +37,7 @@ class ActiveGerantPaiement extends Command
                             'fin' => Carbon::today()->addMonths(1)
                         ]);
                         $attente->save();
-                        $reussi->status = 'echoue';
+                        $reussi->status = 'expirer';
                         $reussi->save();
                         $this->info('votre abonnement a ete reactiver ');
                     }

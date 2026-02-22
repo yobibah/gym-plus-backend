@@ -226,39 +226,39 @@ foreach ($abonnementpas as $adh) {
     public function testSms(Request $request){
 
         $user = $request->user();
-        $valdator = Validator::make($request->all(),[
-            'numero'=> 'required|string|min:8',
-             'montant'=>'required',
+        // $valdator = Validator::make($request->all(),[
+        //     'numero'=> 'required|string|min:8',
+        //      'montant'=>'required',
             
-        ]);
+        // ]);
 
-        if ($valdator->fails()){
-            return response()->json([
-                'message'=>$valdator->errors()
-            ]);
-        }
+        // if ($valdator->fails()){
+        //     return response()->json([
+        //         'message'=>$valdator->errors()
+        //     ]);
+        // }
        
-        $data = [
+        // $data = [
             
-            'phone'=>$request->numero,
-            'amount'=>$request->montant,
-            'reference'=>Hash::make(rand(1,999)).'@'.$request->numero,
-            'return_url'=>'',
-            'callback_url'=>''
-        ];
+        //     'phone'=>$request->numero,
+        //     'amount'=>$request->montant,
+        //     'reference'=>Hash::make(rand(1,999)).'@'.$request->numero,
+        //     'return_url'=>'',
+        //     'callback_url'=>''
+        // ];
 
-        $sms = new SenfenicoService();
-    // //     $transID = $user->dernierPaiement->transId;
-    // //    $ms= $sms ->fetch( (string)$transID);
+    //     $sms = new SenfenicoService();
+    // // //     $transID = $user->dernierPaiement->transId;
+    // // //    $ms= $sms ->fetch( (string)$transID);
 
-      return  $sms ->Transferer($data);
+    //   return  $sms ->Transferer($data);
 
 //     $yenga = new YengaPayService();
 //   return   $yenga->createPayment($data);
 
-// return response()->json([
-//     'attente'=>$user->DernierPaiementReussi
-// ]);
+return response()->json([
+    'attente'=>$user->DernierPaiemenftReussi
+]);
      
     
         
