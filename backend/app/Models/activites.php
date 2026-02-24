@@ -31,4 +31,9 @@ class activites extends Model
     public function Gerant(){
         return $this->belongsTo(User::class,'gerant_id');
     }
+
+    public function getImageUrlAttribute()
+{
+    return asset('storage/documents/' . $this->images_activte);
+}
 }

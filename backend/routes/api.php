@@ -55,6 +55,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/info-activite', [ActivitesController::class, 'createActivity']);
     Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
     Route::get('/mes-activites', [ActivitesController::class, 'MesActivites']);
+    Route::put('/update-activite', [ActivitesController::class, 'UpdateActivite']);
+    Route::post('/send-activite-to-user', [ActivitesController::class, 'SendToAdherent']);
     // definitions des prix
 
 
@@ -90,7 +92,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
       });
       Route::post('/test-sms', [HomeController::class, 'testSms']);
 
-  
+
       Route::delete('/delete-cours', [CoursController::class, 'DeleteCours']);
       Route::put('/update-cours', [CoursController::class, 'UpdateCours']);
       Route::post('/ajouter-cours', [CoursController::class, 'AjouterCours']);
@@ -103,13 +105,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
       Route::post('/ajouter-coach', [CoachController::class, 'AjouterCoach']);
       Route::delete('/delete-coach', [CoachController::class, 'DeleteCoach']);
       Route::put('/update-coach', [CoachController::class, 'UpdateCoach']);
-      Route::get('/skills',[CoachController::class,'Skills']);
-      Route::delete('/delete-skills',[CoachController::class,'DeleteSkills']);
-      Route::post('/add-skills',[CoachController::class,'AddSkills']);
-      Route::post('/programmer-cours ',[ProgramerCoursController::class,'ProgrammerCours']);
+      Route::get('/skills', [CoachController::class, 'Skills']);
+      Route::delete('/delete-skills', [CoachController::class, 'DeleteSkills']);
+      Route::post('/add-skills', [CoachController::class, 'AddSkills']);
+      Route::post('/programmer-cours ', [ProgramerCoursController::class, 'ProgrammerCours']);
 
-      Route::get('/cours-programmer-listes',[ProgramerCoursController::class,'MesCoursProgrammer']);
-      route::get('/finance',[AiAgent::class,'RapportFinancierBasique']);
+      Route::get('/cours-programmer-listes', [ProgramerCoursController::class, 'MesCoursProgrammer']);
+      route::get('/finance', [AiAgent::class, 'RapportFinancierBasique']);
     });
 
     Route::get('/mon-historique', [HomeController::class, 'ConnexionHistorique']);
@@ -122,11 +124,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
 //pour gerant
-
-
-
-
-
-
-
-

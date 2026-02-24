@@ -2,45 +2,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ActivityMail;
 use App\Models\activites;
 use App\Services\Activity;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Excel;
 
 class ActivitesController extends Controller
 {
     //
     // public function __construct(public Activity $activite){}
 
-        public function MesActivites(Request $request){
+    public function MesActivites(Request $request)
+    {
         $user = $request->user();
 
-        try{
+        try {
 
-        $activites = activites::where('gerant_id',$user->id)->get();
-        if ($activites->isEmpty()) {
-            return response()->json([
-                'message' => 'vous n\'avez aucune activite pour le moment'
-            ], 200);
-        }
-        return response()->json($activites);    
-
-        }
-        catch(\Exception $e){
+            $activites = activites::where('gerant_id', $user->id)->get();
+            if ($activites->isEmpty()) {
+                return response()->json([
+                    'message' => 'vous n\'avez aucune activite pour le moment'
+                ], 200);
+            }
+            return response()->json($activites);
+        } catch (\Exception $e) {
             Log::error($e->getMessage());
             return response()->json([
                 'message' => $e->getMessage(),
             ], 500);
-            
         }
     }
     protected function Activity(array $data)
     {
 
         $activites = activites::create(
-            $data);
+            $data
+        );
         if (!$activites) {
             return [
                 'status' => true,
@@ -62,7 +67,7 @@ class ActivitesController extends Controller
     {
         $user = $request->user();
 
-        Log::info('donne recus des activites '.$request->formData);
+        Log::info('donne recus des activites ' . $request->formData);
 
         try {
 
@@ -131,11 +136,23 @@ class ActivitesController extends Controller
             if ($user->dernierPaiementReussi->plan === 'premium') {
                 // creer plusieurs fois
                 $res = self::Activity($data);
+
                 if ($res['status'] && $res['code'] == 500) {
                     return response()->json([
                         'message' => 'Oups !! une erreur est survenue lors de la creation'
                     ], $res['code']);
                 }
+
+                if ($res['data']->status == 'publie') {
+                    // rechercher les adherents 
+                    $salle = $user->salle;
+                    $adh = $salle->adherentsActif();
+
+                    foreach ($adh as $ad) {
+                        Mail::to($ad->email)->queue(new ActivityMail($salle, $res['data']));
+                    }
+                }
+
                 return response()->json([
                     'message' => 'une activite a ete cree vos adherant seront notifie'
                 ], $res['code']);
@@ -152,6 +169,16 @@ class ActivitesController extends Controller
                     ], $res['code']);
                 }
 
+                if ($res['data']->status == 'publie') {
+                    // rechercher les adherents 
+                    $salle = $user->salle;
+                    $adh = $salle->adherentsActif();
+
+                    foreach ($adh as $ad) {
+                        Mail::to($ad->email)->queue(new ActivityMail($salle, $res['data']));
+                    }
+                }
+
                 return response()->json([
                     'message' => 'une activite a ete cree ',
                     $user->dernierPaiementReussi->plan === 'pro' ? ' vos adherant seront notifie ' : ''
@@ -161,7 +188,7 @@ class ActivitesController extends Controller
                     'message' => 'vous avez atteint votre limite. vous n\'etes plus autoriser a creer des activite passer a la version pro'
                 ], 401);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error($e->getMessage());
 
             return response()->json([
@@ -189,12 +216,16 @@ class ActivitesController extends Controller
             }
 
             $activite = activites::find($request->id);
+            $oldImages = $activite->images_activte;
+            if ($oldImages && Storage::disk('public')->exists('documents/' . $oldImages)) {
+                Storage::disk('public')->delete('documents/' . $oldImages);
+            }
             if ($activite->delete()) {
                 $activite->status = 'attente';
                 $activite->save();
                 // appeler la methode delete dans \services\activity pour envois un mail pour notifier l'annulation et le repport
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
             ]);
@@ -209,5 +240,126 @@ class ActivitesController extends Controller
         }
     }
 
-    public function update(Request $request) {}
+    public function UpdateActivite(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            "id" => 'required',
+            "nom_activite" => 'nullable|string',
+
+            "descriptions" => 'nullable|string',
+
+            "images_activte" => 'nullable|image',
+
+            "date_activite" => 'nullable',
+
+            "heure_activite" => 'nullable',
+
+            "status" => 'nullable|in:attente,publie,annule',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'une erreur est survenue'
+            ], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+
+
+            $activite = activites::find($request->id);
+            if (!$activite || $activite->gerant_id != $user->id) {
+                return response()->json([
+                    'message' => 'Oups !! activite indisponible'
+                ]);
+            }
+            $oldImages = $activite->images_activte;
+
+
+
+            if ($request->hasFile('images_activte')) {
+
+                if ($oldImages && Storage::disk('public')->exists('documents/' . $oldImages)) {
+                    Storage::disk('public')->delete('documents/' . $oldImages);
+                }
+                $images_activte = $user->id . 'images_activte' . time() . '.' . $request->file('images_activte')->extension();
+
+                if ($images_activte) {
+                    $request->file('images_activte')->storeAs('documents', $images_activte, 'public');
+                }
+            }
+
+            $activite->update([
+                "nom_activite" => $request->nom_activite ?? $activite->nom_activite,
+
+                "descriptions" => $request->descriptions ?? $activite->descriptions,
+
+                "images_activte" => $images_activte ?? $oldImages,
+
+                "date_activite" => $request->date_activite ?? $activite->date_activite,
+
+                "heure_activite" => $request->heure_activite ?? $activite->heure_activite,
+
+                "status" => $request->status ?? $activite->status,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'activiter creer avec succes'
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("update activite errorrs" . $e->getTraceAsString());
+
+            return response()->json([
+                'message' => 'Oups !! une erreur est survenue',
+                'ms' => $e->getTraceAsString()
+            ], 500);
+        }
+    }
+
+
+    public function SendToAdherent(Request $request)
+    {
+        $user = $request->user();
+        $validator = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Oups !! donnees manquantes veuillez ressayer'
+            ]);
+        }
+        try {
+        
+
+            $salle = $user->salle;
+            $adh = $salle->adherentsActif();
+            $activite = activites::find((int)$request->id);
+            if (!$activite || $activite->gerant_id != $user->id) {
+                return response()->json([
+                    'message' => 'Oups !! une erreur est survenue'
+                ], 409);
+            }
+
+            if ($activite->status == 'publie') {
+                // rechercher les adherents 
+                // Log::info($salle);
+                // Log::info($activite);
+
+                foreach ($adh as $ad) {
+                    Mail::to($ad->email)->queue(new ActivityMail($salle, $activite));
+                }
+            }
+        } catch (Exception $e) {
+            Log::error('activite publication exception ' . $e->getMessage());
+            return response()->json([
+                'message' => 'erreur liee au serveur ! Veuillez reessayer'
+            ], 500);
+        }
+    }
 }
