@@ -14,7 +14,9 @@ class ActiviteRessource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
         return [
+            'id'=>$this->id,
             'ispast' => $this->Ispast(),
 
             "nom_activite" => $this->nom_activite,
