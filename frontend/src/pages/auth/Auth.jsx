@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import coverhero from '../../assets/images/coverhero.png'
 import ImageComponent from "../../components/ui/image";
-import { Eye, EyeOff, Lock, User, KeyIcon, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Lock, User, KeyIcon, Loader2, CheckCircle2 } from "lucide-react";
 import Input from "../../components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import authimage from '../../assets/images/Login.png'
@@ -152,10 +152,14 @@ export default function Auth (){
             </div>
 
             {error && (
-                    <ToastError message={'Une erreur est survenue! Veuillez réessayer'}/>
+                    <ToastError title={'Erreur survenue !'} message={'Une erreur est survenue, vérifier vos informationset réesssayez à nouveau.'}/>
             )}
             {success && (
-                    <ToastSuccess message={'Connexion réussie! Rédirection...'}/>
+                    <ToastSuccess title={'Connexion réussie !'} message={
+                        <>
+                        Rédirection... <Loader2 className="h-5 w-5 animate-spin"/>
+                        </>
+                    }/>
             )}
         </>
     )

@@ -11,7 +11,6 @@ import InfosLogin from './pages/form/InfosLogin.jsx'
 import ChangePassword from './pages/auth/ChangePassword.jsx'
 import InfoSalle from './pages/form/InfoSalle.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
-import DashboardStandard from './dashboard/standard/DashboardStandard.jsx'
 import PaiementOtp from './pages/form/PaiementOtp.jsx'
 import PaiementProcess from './pages/form/PaiementProcess.jsx'
 import Statut from './pages/form/Statut.jsx'
@@ -30,7 +29,6 @@ function App() {
     <Route path='/paiement-otp' element={<PaiementOtp/>}/> 
     <Route path='/statut' element={<Statut/>}/> 
     <Route path='/dashboard' element={<Dashboard/>}/>
-    <Route path='/dashboard-standard' element={<DashboardStandard/>}/> 
     <Route path='*' element={<NotFound/>}/> 
    </Routes>
   )

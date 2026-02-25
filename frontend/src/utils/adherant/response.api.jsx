@@ -5,13 +5,13 @@ export default function ResponseAdherant({ successAdherant, successUpdateAdh, su
     return (
         <>
             {successSupAdh && (
-                <ToastSuccess message={'Adhérant suprimmé avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Adhérant suprimmé avec succès'}/>
             )}
             {successUpdateAdh && (
-                <ToastSuccess message={'Adhérant mis à jour avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Adhérant mis à jour avec succès'}/>
             )}
             {successAdherant && (
-                <ToastSuccess message={'Adhérant ajouté avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Adhérant ajouté avec succès'}/>
             )}
         </>
     );

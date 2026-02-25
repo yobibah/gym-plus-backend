@@ -46,8 +46,8 @@ export default function Suscribe(){
                 viewport={{once: true, amount: 0.3}}
             >
                 <CardTarif 
-                    className={"p-6 shadow-lg z-20 bg-white rounded-lg hover:border-2 hover:border-orange-600 transition-all"}
-                    title={"standard"}
+                    className={"p-6 shadow-lg z-20 bg-white rounded-lg hover:shadow-[0_0_18px_rgba(255,100,0,1)] transition-all"}
+                    title={"Standard"}
                     titleClass={"font-bold text-xl mb-2"}
                     text={"Idéal pour les petites salles et les studios qui débutent"}
                     textClass={"text-gray-600 text-sm mb-4"}
@@ -82,10 +82,10 @@ export default function Suscribe(){
             >
 
                 <CardTarif 
-                    className={"p-6 relative shadow-lg z-20 bg-white rounded-lg border-2 border-orange-600 transform md:scale-105"}
+                    className={"p-6 relative z-20 bg-white rounded-lg border-2 border-orange-600 shadow-[0_0_18px_rgba(255,100,0,1)] transform md:scale-105"}
                     popular={"le plus populaire"}
                     popClass={"absolute -top-0 -right-0 text-xs text-center uppercase p-2 px-4 font-bold bg-orange-600 text-white rounded-bl-lg "}
-                    title={"pro"}
+                    title={"Pro"}
                     titleClass={"font-bold text-xl mb-2"}
                     text={"Pour les salles en croissance qui veulent plus d'outils."}
                     textClass={"text-gray-600 text-sm mb-4"}
@@ -122,8 +122,8 @@ export default function Suscribe(){
             >
 
                 <CardTarif 
-                    className={"p-6 shadow-lg z-20 bg-white rounded-lg hover:border-2 hover:border-orange-600 transition-all"}
-                    title={"premium"}
+                    className={"p-6 shadow-lg z-20 bg-white rounded-lg hover:shadow-[0_0_18px_rgba(255,100,0,1)] transition-all"}
+                    title={"Premium"}
                     titleClass={"font-bold text-xl mb-2"}
                     text={"Pour les grandes salles et réseaux de gyms."}
                     textClass={"text-gray-600 text-sm mb-4"}

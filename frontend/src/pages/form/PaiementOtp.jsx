@@ -132,14 +132,16 @@ export default function PaiementOtp(){
             </div>
 
             {error && (
-                
-                <ToastError message={'Une erreur est survenue! Veuillez réessayer'}/>
-               
+                <ToastError title={'Erreur survenue !'} message={'Une erreur est survenue, vérifier vos informationset réesssayez à nouveau.'}/>
             )}
 
             {success && (
                 
-                <ToastSuccess message={'Paiement réussi! Rédirection...'}/>
+                <ToastSuccess title={'Paiement réussi!'} message={
+                    <>
+                    Rédirection... <Loader2 className="h-5 w-5 animate-spin"/>
+                    </>
+                }/>
                
             )}
         </>

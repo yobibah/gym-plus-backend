@@ -258,12 +258,11 @@ export default function InfoSalle(){
         </div>
 
         {success && (
-            <ToastSuccess message={'Salle enregistrée avec succès'}/>
+            <ToastSuccess title={'Succès !'} message={'Salle enregistrée avec succès'}/>
             
         )}
         {error && (
-            <ToastError message={'Une erreur est survenue! Veuillez réessayer'}/>
-           
+            <ToastError title={'Erreur survenue !'} message={'Une erreur est survenue, vérifier vos informationset réesssayez à nouveau.'}/>
         )}
 
 

@@ -105,11 +105,11 @@ export default function ResetPassword(){
 
             {error && (
                 
-                    <ToastError message={'Une erreur est survenue! Veuillez réessayer'}/>
+                <ToastError title={'Erreur survenue !'} message={'Une erreur est survenue, vérifier vos informationset réesssayez à nouveau.'}/>
                 
             )}
             {success && (
-                    <ToastSuccess message={'Un lien de reinitialisation a été envoyé sur votre adresse e-mail'}/>
+                    <ToastSuccess title={'Lien envoyé !'} message={'Un lien de reinitialisation a été envoyé sur votre adresse e-mail'}/>
                 
             )}
         </>

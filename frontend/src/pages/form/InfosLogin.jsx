@@ -359,17 +359,17 @@ export default function InfosLogin(){
             </div>
 
             {errorInfos && (
-                <ToastError message={'Une erreur est survenue! Veuillez réessayer'}/>
+                <ToastError title={'Erreur survenue !'} message={'Une erreur est survenue, vérifier vos informationset réesssayez à nouveau.'}/>
             )}
             {successInfos && (
-                <ToastSuccess message={'Infos enregistrées avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Infos enregistrées avec succès'}/>
             )}
 
             {errorCode && (
-                <ToastError message={'Une erreur est survenue! Veuillez réessayer'}/>
+                <ToastError title={'Erreur survenue !'} message={'Une erreur est survenue, vérifier vos informationset réesssayez à nouveau.'}/>
             )}
             {successCode && (
-                <ToastSuccess message={'Inscription réussie'}/>
+                <ToastSuccess title={'Inscription réussie !'} message={'Votre compte GymPlus a été créé avec succès.'}/>
             )}
 
         </>

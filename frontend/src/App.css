@@ -19,8 +19,8 @@
   -ms-overflow-style: none;
 }
 
-/* .typing{
-  width: 8ch;
+.typing{
+  width: 23ch;
   text-wrap: nowrap;
   overflow: hidden;
   animation: typing 2s steps(30) infinite alternate-reverse
@@ -30,4 +30,4 @@
   from{
     width: 0ch;
   }
-} */
+}

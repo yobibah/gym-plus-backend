@@ -1,5 +1,5 @@
 import React from "react";
-import Header from "../components/Header";
+// import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
 import Features from "../components/Features";
@@ -9,7 +9,7 @@ import Contact from "../components/Contact";
 export default function Home() {
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       
       <Hero />
 
