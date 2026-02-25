@@ -1664,7 +1664,7 @@ export default function DashboardPro(){
 
     const loadingActivity = mesActivites.isPending
     const errorgActivity = mesActivites.isError
-    const dataActivity = mesActivites?.data || []
+    const dataActivity = mesActivites?.data?.activites || []
 
     const filteredActiviy = useMemo(()=>{
         if(!dataActivity || !Array.isArray(dataActivity)) return []
