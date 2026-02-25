@@ -56,12 +56,12 @@
                             <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px; font-size:14px;">
                                 <tr>
                                     <td style="padding:8px 0;">
-                                        📅 <strong>Date :</strong> {{ $activite->date_activite }}
+                                        <i class="bi bi-calendar-day"></i> <strong>Date :</strong> {{ $activite->date_activite }}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="padding:8px 0;">
-                                        ⏰ <strong>Heure :</strong> {{ $activite->heure_activite }}
+                                        <i class="bi bi-stopwatch"></i> <strong>Heure :</strong> {{ $activite->heure_activite }}
                                     </td>
                                 </tr>
                             </table>

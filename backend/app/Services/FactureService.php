@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Mail\SendFacture;
 use Exception;
 use App\Models\User;
 use App\Models\Salle;
 use App\Models\facture;
 use App\Models\Abonnement;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class FactureService
@@ -26,6 +28,8 @@ class FactureService
 
         $fileName = 'factures/facture_' . uniqid() . '.pdf';
 
+  
+
  
         if (!Storage::disk('minio')->put($fileName, $pdf->output(), 'public')) {
             throw new Exception("Impossible d'enregistrer la facture");
@@ -33,12 +37,14 @@ class FactureService
         
 
 
-        facture::create([
+      $facture =  facture::create([
             'adherant_id'      => $adherant->id,
             'salle_id'         => $salle->id,
             'abonnement_id'    => $abonnement->id,
             'Numero_facure'   => 'FAC-' . now()->timestamp,
             'facture_url'      => Storage::disk('minio')->url($fileName),
         ]);
+
+        return $facture->facture_url;
     }
 }

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ActiviteRessource;
 use App\Mail\ActivityMail;
 use App\Models\activites;
 use App\Services\Activity;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -27,13 +29,18 @@ class ActivitesController extends Controller
         try {
 
             $activites = activites::where('gerant_id', $user->id)->get();
-            if ($activites->isEmpty()) {
+            if (!$activites) {
                 return response()->json([
                     'message' => 'vous n\'avez aucune activite pour le moment'
                 ], 200);
             }
-            return response()->json($activites);
-        } catch (\Exception $e) {
+
+            // $activites = ActiviteRessource::collection($activites)
+
+            return response()->json([
+                'activites'=>ActiviteRessource::collection($activites)
+            ]);
+        } catch (Exception $e) {
             Log::error($e->getMessage());
             return response()->json([
                 'message' => $e->getMessage(),
@@ -127,8 +134,8 @@ class ActivitesController extends Controller
             //virifier la duree de vide......
 
             $limit = [
-                'standard' => 10,
-                'pro' => 100,
+                'standard' => 4,
+                'pro' => 8,
             ];
 
             $countActivity = activites::where('gerant_id', $user->id)->count();
@@ -335,7 +342,6 @@ class ActivitesController extends Controller
             ]);
         }
         try {
-        
 
             $salle = $user->salle;
             $adh = $salle->adherentsActif();
@@ -343,6 +349,11 @@ class ActivitesController extends Controller
             if (!$activite || $activite->gerant_id != $user->id) {
                 return response()->json([
                     'message' => 'Oups !! une erreur est survenue'
+                ], 409);
+            }
+            if ($activite->Ispast()) {
+                return response()->json([
+                    'message' => 'votre activite est passe. Impossible d\'envoyer a vos utilisateur'
                 ], 409);
             }
 
@@ -355,6 +366,9 @@ class ActivitesController extends Controller
                     Mail::to($ad->email)->queue(new ActivityMail($salle, $activite));
                 }
             }
+            return response()->json([
+                'mesage' => 'mail envoyer...'
+            ]);
         } catch (Exception $e) {
             Log::error('activite publication exception ' . $e->getMessage());
             return response()->json([

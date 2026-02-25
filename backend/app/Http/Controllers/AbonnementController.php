@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Log;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\abonnement;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Mail\ReabonnementMail;
+use App\Mail\SendFacture;
 use Illuminate\Support\Carbon;
 use App\Models\reabonnemen_trace;
+use App\Services\FactureService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
@@ -99,17 +101,25 @@ class AbonnementController extends Controller
             // $abonnement_passer->save();
 
             //$transID = Str::random(4) . '#' . Carbon::today() . '@' . rand(111, 999);
-            $abonnement = $abonnement_passer->update([
-
-                'debut' => Carbon::now(),
-                'fin' => Carbon::today()->addMonths($fin),
-                'montant' => $montant,
-                'plan' => $request->plan,
-                'actif' => 1
-            ]);
+    $abonnement_passer->update([
+    'debut' => Carbon::now(),
+    'fin' => Carbon::today()->addMonths($fin),
+    'montant' => $montant,
+    'plan' => $request->plan,
+    'actif' => 1
+]);
+$abonnement = $abonnement_passer;
 
             // mail le user que son abonnement a ete mise a jours
-            Mail::to($adherant->email)->queue(new ReabonnementMail($adherant, $salle));
+            Mail::to($adherant->email)->queue(new ReabonnementMail($adherant, salle: $salle));
+                  if ($current->isPro ()|| $current->isPremium()) {
+                $facture = new FactureService();
+                $salle = $current->salle;
+     
+            $fac=  $facture->Generer($salle, $adherant, $abonnement);
+
+             Mail::to($adherant->email)->queue(new SendFacture($adherant,  $salle,$fac));
+            }
             DB::commit();
             return response()->json([
                 'message' => 'abonnement mise a jours'
@@ -118,7 +128,7 @@ class AbonnementController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error($e->getMessage());
+            Log::error($e->getTrace());
             return response()->json([
                 'message' => $e->getMessage(),
                 'line' => $e->getTrace(),

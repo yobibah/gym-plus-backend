@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\historique;
 use App\Services\PaysApiService;
-use Auth;
+
+use Illuminate\Support\Facades\Auth;
 use Exception;
 use App\Models\User;
 use App\Services\Otp;
 use App\Models\gerant;
 use App\Mail\demandeDemo;
+use App\Mail\MdpModifier;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -322,6 +324,12 @@ public function sendLink(Request $request)
             }
         );
         if ($status === Password::PASSWORD_RESET) {
+            // notifier le gerant que ses informations ont ete modifies
+            $user = User::where('email', strtolower($request->email))
+            ->whereHas('roles', fn ($q) => $q->where('name', 'Gerant'))
+            ->first();
+
+             Mail::to($user->email)->queue(new MdpModifier($user) );
             return response()->json([
                 'message' => 'mots de passe reinitiliser avec succes'
             ], 200);

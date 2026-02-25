@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>Facture d'abonnement</title>
@@ -48,14 +49,16 @@
         h1 {
             font-size: 22px;
             margin: 0;
-            color: #1d4ed8; /* bleu pour titre principal */
+            color: #1d4ed8;
+            /* bleu pour titre principal */
         }
 
         h2 {
             font-size: 16px;
             padding-bottom: 5px;
             margin-bottom: 10px;
-            border-bottom: 2px solid #1d4ed8; /* bleu */
+            border-bottom: 2px solid #1d4ed8;
+            /* bleu */
         }
 
         .section {
@@ -77,24 +80,28 @@
             margin-top: 10px;
         }
 
-        table th, table td {
+        table th,
+        table td {
             border: 1px solid #d1d5db;
             padding: 8px;
             text-align: left;
         }
 
         table th {
-            background-color: #1d4ed8; /* bleu en-tête */
+            background-color: #1d4ed8;
+            /* bleu en-tête */
             color: #ffffff;
         }
 
         table tr:nth-child(even) {
-            background-color: #f3f4f6; /* gris clair pour lignes alternées */
+            background-color: #f3f4f6;
+            /* gris clair pour lignes alternées */
         }
 
         .total {
             font-weight: bold;
-            background-color: #10b981; /* vert vif */
+            background-color: #10b981;
+            /* vert vif */
             color: #ffffff;
         }
 
@@ -133,10 +140,13 @@
     <div class="header">
         <div class="header-left">
             <div class="logo">
-                @if($salle->logo_salle)
-                    <img src="{{ public_path($salle->logo_salle) }}" alt="Logo salle">
+                @if(!empty($salle->logo_salle))
+                <img
+                    src="{{ trim($salle->logo_salle) }}"
+                    alt="Logo salle"
+                    class="img-fluid">
                 @else
-                    LOGO
+                LOGO
                 @endif
             </div>
         </div>
@@ -203,10 +213,11 @@
 
         <div class="signature">
             <div class="signature-box">
-               Cachet et Signature
+                Cachet et Signature
             </div>
         </div>
     </div>
 
 </body>
+
 </html>

@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
+
 use Exception;
 use App\Models\User;
 use App\Models\salle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Log;
-
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 class AdminController extends Controller
 {
     //
