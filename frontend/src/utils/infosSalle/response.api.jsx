@@ -5,7 +5,7 @@ export default function ResponseInfoSalle({ successUpdate }) {
     return (
         <>
             {successUpdate && (
-                <ToastSuccess message={'Mise à jour réussie'}/>
+                <ToastSuccess title={'Succès !'} message={'Mise à jour réussie'}/>
             )}
         </>
     );

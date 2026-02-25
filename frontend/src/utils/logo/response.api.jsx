@@ -5,13 +5,13 @@ export default function ResponseLogo({ logoDelSuccess, logoEditSuccess, logoSucc
     return (
         <>
             {logoSuccess && (
-                <ToastSuccess message={'Logo ajouté avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Logo ajouté avec succès'}/>
             )}
             {logoEditSuccess && (
-                <ToastSuccess message={'Logo mis à jour avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Logo mis à jour avec succès'}/>
             )}
             {logoDelSuccess && (
-                <ToastSuccess message={'Logo supprimé avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Logo supprimé avec succès'}/>
             )}
         </>
     );

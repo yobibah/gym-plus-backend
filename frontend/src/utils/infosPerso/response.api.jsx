@@ -5,10 +5,10 @@ export default function ResponseInfoPerso({ persoSuccess, passwordSuccess }) {
     return (
         <>
              {persoSuccess && (
-                <ToastSuccess message={'Mise à jour réussie'}/>
+                <ToastSuccess title={'Succès !'} message={'Mise à jour réussie'}/>
             )}
             {passwordSuccess && (
-                <ToastSuccess message={'Mot de passe mis à jour avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Mot de passe mis à jour avec succès'}/>
             )}
         </>
     );

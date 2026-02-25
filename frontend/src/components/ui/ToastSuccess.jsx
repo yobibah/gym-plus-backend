@@ -2,16 +2,18 @@ import React from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 
-export default function ToastSuccess({message}){
+export default function ToastSuccess({message, title}){
     return(
         <motion.div
-            initial = {{opacity: 0, x: 80}}
+            initial = {{opacity: 0, x: 100}}
             animate = {{opacity: 1, x: 0}}
-            transition={{duration: 0.2}}
-            className="bg-white shadow-[0_0_30px_rgba(0,255,0,0.5)] border border-green-500 rounded-lg z-50 px-5  flex items-center justify-center gap-2 text-center absolute bottom-10 right-5  h-12 "
+            transition={{duration: 0.4}}
+            className="shadow-lg p-4 w-100 bg-orange-100  z-50  flex flex-col gap-2 absolute bottom-10 right-5 "
         >
-            <CheckCircle2 className="h-8 w-8 " fill="green" stroke="white"/>
-            <p className="text-xl text-green-700 font-bold">{message}</p>
+            <p className="text-xl text-green-500 font-bold">{title}</p>
+            <p className="text-gray-700 flex items-center">
+                    {message}
+                </p>
 
         </motion.div>
     )

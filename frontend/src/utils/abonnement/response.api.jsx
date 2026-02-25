@@ -5,13 +5,13 @@ export default function ResponseAbonnement({ reabSuccess, reactSuccess, suspSucc
     return (
         <>
            {reactSuccess && (
-                <ToastSuccess message={'Abonnement réactivé avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Abonnement réactivé avec succès'}/>
             )}
             {reabSuccess && (
-                <ToastSuccess message={'Abonnement renouvélé avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Abonnement renouvélé avec succès'}/>
             )}
             {suspSuccess && (
-                <ToastSuccess message={'Adhérant suspendu avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Adhérant suspendu avec succès'}/>
             )}
         </>
     );

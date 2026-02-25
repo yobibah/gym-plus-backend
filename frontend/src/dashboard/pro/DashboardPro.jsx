@@ -1,4 +1,4 @@
-import { AlertOctagon, AlertTriangle, AlertTriangleIcon, ArrowDownUpIcon, ArrowLeft, ArrowRight, Bell, Calendar, Calendar1, CalendarOff, Check, CheckCircle, CheckCircle2, Circle, Clock, Download, Euro, Eye, File, Info, LayoutDashboard, Loader2, LogOut, NotebookPen, Pencil, Plus, PlusSquare, Save, Search, Settings, SquarePlus, Star, Timer, Trash, Trash2, UploadCloud, User, UserCog, UserPlus, Users, Users2, WalletCards, X, XCircle } from "lucide-react";
+import { AlertOctagon, AlertTriangle, AlertTriangleIcon, ArrowDownUpIcon, ArrowLeft, ArrowRight, Bell, Calendar1, CalendarOff, Check, CheckCircle, CheckCircle2, Circle, Clock, Download, Euro, Eye, File, Info, LayoutDashboard, Loader2, LogOut, NotebookPen, Pencil, Plus, PlusSquare, Save, Search, Settings, SquarePlus, Star, Timer, Trash, Trash2, UploadCloud, User, UserCog, UserPlus, Users, Users2, WalletCards, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -51,13 +51,10 @@ import course from '../../assets/images/cours.png'
 import adhh from '../../assets/images/adhh.png'
 import calendarc from '../../assets/images/calendarc.png'
 import support from '../../assets/images/support.png'
-import settings from '../../assets/images/settings.png'
 import abonnement from '../../assets/images/abonnement.png'
 import { Recette } from "../../api/dashboard/pro/tableau/recette";
 import { ProgrammerCours } from "../../api/dashboard/pro/cours/programmerCours";
 import { CoursProgrammer } from "../../api/dashboard/pro/cours/coursProgrammer";
-import ToastSuccess from "../../components/ui/ToastSuccess";
-import ToastError from "../../components/ui/ToastError";
 import ResponseCoach from "../../utils/coach/response.api";
 import ResponseAdherant from "../../utils/adherant/response.api";
 import ResponseAbonnement from "../../utils/abonnement/response.api";
@@ -79,7 +76,12 @@ import { CreateActivity } from "../../api/dashboard/pro/params/createActivity";
 import ResponseActivity from "../../utils/activity/response.api";
 import { getActivity } from "../../api/dashboard/pro/params/getActivity";
 import { documentUrl } from "../../../env";
-
+import { DeleteActivity } from "../../api/dashboard/pro/params/deleteActivity";
+import SkeletonActivity from "../../components/ui/SkeletonActivity";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import { UpdateActivity } from "../../api/dashboard/pro/params/updateActivity";
+import { SendActivity } from "../../api/dashboard/pro/params/sendActivity";
 
 export default function DashboardPro(){
 
@@ -166,9 +168,6 @@ export default function DashboardPro(){
     const [pageCours, setPageCours] = useState(1)
     const [modalAddCours, setModalAddCours] = useState(false)
 
-    // const date = new Date
-    // const dateActuel = date.toLocaleDateString('fr-FR')
-    // const heureActuel = date.toLocaleTimeString('fr-FR')
     const dateChoice = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
     const [jours, setJours] = useState([])
     const [horaire, setHoraire] = useState([])
@@ -200,7 +199,20 @@ export default function DashboardPro(){
     const [heure_activite, setHeureActivite] = useState('')
     const [status, setStatus] = useState(null)
 
+    const [modalSupActivity, setModalSupActivity] = useState(false)
+    const [activityToDelete, setActivityToDelete] = useState(null)
+    const [activityToUp, setActivityToUp] = useState(null)
+    const [modalUpActivity, setModalUpActivity] = useState(false)
+
     const [activityTab, setActivityTab] = useState('tous')
+    const [detailActivity,setDetailActivity] = useState(false)
+    const [modalImage,setModalImage] = useState(false)
+    const [showImage,setShowImage] = useState(null)
+    const [previewActivityUp, setPreviewActivityUp] = useState(null)
+    const activityUpInputRef =useRef(null)
+
+    const [selectedActivity, setSelectedActivity] = useState(null)
+
 
     const navigate = useNavigate()
     const token = getToken()
@@ -228,6 +240,19 @@ export default function DashboardPro(){
         setImg(imgSelection)
         
         setPreviewActivity(URL.createObjectURL(imgSelection))
+    }
+
+    function handleImgActivityUp(e){
+        const imgSelection = e.target.files[0]
+
+        if(!imgSelection) return
+
+        setActivityToUp(prev => ({
+            ...prev,
+            imageFile: imgSelection 
+        }))
+        
+        setPreviewActivityUp(URL.createObjectURL(imgSelection))
     }
 
 
@@ -364,7 +389,8 @@ export default function DashboardPro(){
 
     const nbrAdh = useQuery({
         queryKey : ['nbr_adherant'],
-        queryFn : FetchNombreAdherant
+        queryFn : FetchNombreAdherant,
+        staleTime: 1000 * 60 * 30
     })
     const nbrAdherants = Number(nbrAdh.data?.nbr_adherant)
     const loadingNbrAdherant = nbrAdh.isPending
@@ -373,7 +399,8 @@ export default function DashboardPro(){
 
     const nbrActif = useQuery({
         queryKey : ['nbr_actif'],
-        queryFn : FetchNombreActif
+        queryFn : FetchNombreActif,
+        staleTime: 1000 * 60 * 30
     })
     const nbrAdherantsActif = Number(nbrActif.data?.nbr_actif)
     const loadingNbrActif = nbrActif.isPending
@@ -406,6 +433,7 @@ export default function DashboardPro(){
 
             queryClient.invalidateQueries(['nbr_adherant'])
             queryClient.invalidateQueries(['nbr_actif'])
+            queryClient.invalidateQueries(['mes-adherant'])
 
              setTimeout(()=>{
                 addAdh.reset()
@@ -448,7 +476,8 @@ export default function DashboardPro(){
     const mesAdh = useQuery({
         queryKey : ['mes-adherant', page],
         queryFn : mesAdherants,
-        keepPreviousData: true
+        keepPreviousData: true,
+        staleTime: 1000 * 60 * 30
     })
     const dataAdh = mesAdh.data?.adherents?.data || []
     const loadingAdh = mesAdh.isPending
@@ -598,7 +627,8 @@ export default function DashboardPro(){
 
     const infos = useQuery({
         queryKey : ['mes-infos'],
-        queryFn : MesInfos
+        queryFn : MesInfos,
+        staleTime: 1000 * 60 * 30
     })
     const infosSalle = infos?.data?.user?.salle
     const infosUser = infos?.data?.user
@@ -1136,7 +1166,8 @@ export default function DashboardPro(){
 
     const mesCoach = useQuery({
         queryKey: ['mes-coach'],
-        queryFn: NombreCoach
+        queryFn: NombreCoach,
+        staleTime: 1000 * 60 * 30
     })
     const mesCoachLoad = mesCoach.isPending
     const mesCoachError = mesCoach.isError
@@ -1270,6 +1301,7 @@ export default function DashboardPro(){
     const history = useQuery({
         queryKey : ['history'],
         queryFn : History,
+        staleTime: 1000 * 60 * 30
 
     })
     const historyLoading = historyQuery.isPending
@@ -1389,7 +1421,8 @@ export default function DashboardPro(){
     const mesCours = useQuery({
         queryKey : ['mes-cours', page],
         queryFn : MesCours,
-        keepPreviousData: true
+        keepPreviousData: true,
+        staleTime: 1000 * 60 * 30
     })
 
     const dataCours = mesCours?.data?.cours?.data || []
@@ -1528,7 +1561,8 @@ export default function DashboardPro(){
 
     const recette = useQuery({
         queryKey: ['recette'],
-        queryFn: Recette
+        queryFn: Recette,
+        staleTime: 1000 * 60 * 30
     })
 
     const loadingRecette = recette.isPending
@@ -1595,7 +1629,8 @@ export default function DashboardPro(){
 
     const listeCours = useQuery({
         queryKey: ['liste-cours'],
-        queryFn: CoursProgrammer
+        queryFn: CoursProgrammer,
+        staleTime: 1000 * 60 * 30
     })
 
     const listeCoursData = listeCours?.data?.data || []
@@ -1623,7 +1658,8 @@ export default function DashboardPro(){
 
     const mesActivites = useQuery({
         queryKey: ['mes-activites'],
-        queryFn: getActivity
+        queryFn: getActivity,
+        staleTime: 1000 * 60 * 30
     })
 
     const loadingActivity = mesActivites.isPending
@@ -1694,18 +1730,125 @@ export default function DashboardPro(){
         if(!validateFieldActivity()) return
 
         const formData = new FormData()
-        // console.log("debut", formData)
         formData.append("nom_activite", nom_activite)
         formData.append("descriptions", descriptions)
         formData.append("date_activite", date_activite)
         formData.append("heure_activite", heure_activite)
         formData.append("images_activte", images_activte)
         formData.append("status", status)
-        //  console.log("fin", typeof(formData))
 
         programActivity.mutate({formData})
         
     }
+
+    const delActivityQuery = useQueryClient()
+    const delActivity = useMutation({
+        mutationFn : DeleteActivity,
+        onSuccess : (()=>{
+            delActivityQuery.invalidateQueries(['mes-activites'])
+            setModalSupActivity(false)
+            setTimeout(()=>{
+                delActivity.reset()
+
+            }, 4000)
+
+        }),
+
+        onError : (()=>{
+            setModalSupActivity(false)
+            setTimeout(()=>{
+                delActivity.reset()
+
+            }, 4000)
+        })
+    })
+
+    const loadingSupActivity = delActivity.isPending
+    const errorSupActivity = delActivity.isError
+    const activityDelSuccess = delActivity.isSuccess
+
+    async function handleDeleteActivity(e,id){
+        e.preventDefault()
+        if (!id) return
+        delActivity.mutate({id})
+    }
+
+
+    const activityUpQuery = useQueryClient()
+    const updateActivity = useMutation({
+        mutationFn: UpdateActivity,
+
+        onSuccess: (()=>{
+            setModalUpActivity(false)
+
+            setTimeout(()=>{
+                updateActivity.reset()
+
+            }, 4000)
+
+            activityUpQuery.invalidateQueries(['mes-activites'])
+
+        }),
+        onError: (()=>{
+            setTimeout(()=>{
+                updateActivity.reset()
+
+            }, 4000)
+        })
+    })
+    const loadingUpdateActivity = updateActivity.isPending
+    const errorUpdateActivity = updateActivity.isError
+    const activityUpdateSuccess = updateActivity.isSuccess
+
+
+    async function handleUpdateActivity(e, id){
+        e.preventDefault()
+        if(!id) return
+        const formData = new FormData()
+
+        formData.append("id", activityToUp?.id)
+        formData.append("nom_activite", activityToUp?.nom_activite)
+        formData.append("descriptions", activityToUp?.descriptions)
+        formData.append("date_activite", activityToUp?.date_activite)
+        formData.append("heure_activite", activityToUp?.heure_activite)
+        formData.append("status", activityToUp?.status)
+        if(activityToUp.imageFile){
+            formData.append("images_activte", activityToUp.imageFile)
+        }
+        updateActivity.mutate({formData})
+    }
+
+
+    const sendActivi = useMutation({
+        mutationFn: SendActivity,
+        onSuccess: (()=>{
+            setTimeout(()=>{
+                sendActivi.reset()
+            }, 4000)
+            
+        }),
+
+        onError: (()=>{
+            setTimeout(()=>{
+                sendActivi.reset()
+            }, 4000)
+            
+        }),
+        
+    })
+
+    const sendLoading = sendActivi.isPending
+    const sendError = sendActivi.isError
+    const sendSuccess = sendActivi.isSuccess
+
+    async function handleSendActivity(e, id) {
+        e.preventDefault()
+        if(!id) return
+        sendActivi.mutate({id})
+        
+    }
+
+
 
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
@@ -1792,7 +1935,7 @@ export default function DashboardPro(){
                     className={`${activeTab === 'cours' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                     onClick={()=>{setActiveTab('cours')}}
                 >
-                     <Calendar className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
+                     <Calendar1 className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
                     <button className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
 
                     >Planning de cours</button>
@@ -1976,7 +2119,7 @@ export default function DashboardPro(){
                         <div className="grid grid-cols-4 h-205 p-1 overflow-y-auto scrollbar-hide">
                             <div className="col-span-4 flex items-center justify-between gap-8 ">
                                 <motion.div
-                                    whileHover={{scale: 1.08}}
+                                    whileHover={{scale: 1.02}}
                                     className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.8)] h-27 rounded-lg w-full flex flex-col gap-2 p-4">
                                     
                                     <div className="">
@@ -1999,7 +2142,7 @@ export default function DashboardPro(){
                                     )}
                                 </motion.div>
                                 <motion.div
-                                    whileHover={{scale: 1.08}}
+                                    whileHover={{scale: 1.02}}
                                     className="bg-white shadow-[0_0_5px_rgba(0,255,0,0.8)] h-27 w-full flex flex-col gap-2 p-4 rounded-lg">
                                     <div>
                                         <p className="text-gray-400 font-bold text-[18px]">Adhérants Actifs</p>
@@ -2021,7 +2164,7 @@ export default function DashboardPro(){
                                     )}
                                 </motion.div>
                                 <motion.div
-                                    whileHover={{scale: 1.08}}
+                                    whileHover={{scale: 1.02}}
                                     className="bg-white shadow-[0_0_5px_rgba(255,0,0,0.8)] h-27 w-full flex flex-col gap-2 p-4 rounded-lg">
                                     <div>
                                         <p className="text-gray-400 font-bold text-[18px]">Dépenses du Mois</p>
@@ -2032,7 +2175,7 @@ export default function DashboardPro(){
                                     </div>
                                 </motion.div>
                                 <motion.div
-                                    whileHover={{scale: 1.08}}
+                                    whileHover={{scale: 1.02}}
                                     className="bg-white rounded-lg shadow-[0_0_5px_rgba(251,255,0,0.8)] h-27 w-full flex flex-col gap-2 p-4">
                                     <div>
                                         <p className="text-gray-400 font-bold text-[18px]">Récettes du Mois</p>
@@ -2118,7 +2261,7 @@ export default function DashboardPro(){
                                         <div className="">
                                             <div className="flex gap-2 items-center">
                                                 <div className="flex items-center rounded-full justify-center p-1 bg-yellow-100">
-                                                    <Calendar className="h-5 w-5 text-yellow-500"/>
+                                                    <Calendar1 className="h-5 w-5 text-yellow-500"/>
                                                 </div>
                                                 {loadingExpire ? (
                                                     <p className="h-5 w-50 bg-gray-300 animate-pulse"></p>
@@ -3945,7 +4088,7 @@ export default function DashboardPro(){
                                                 <span className="font-bold">Mensuel</span>
                                                 <hr className=" w-140 text-gray-400 "/>
 
-                                                <Calendar className="text-gray-400 h-7 w-7"/>
+                                                <Calendar1 className="text-gray-400 h-7 w-7"/>
                                             </div>
 
                                             {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
@@ -3994,7 +4137,7 @@ export default function DashboardPro(){
                                                 <span className="font-bold">Trimestriel</span>
                                                 <hr className=" w-135 text-gray-400 "/>
 
-                                                <Calendar className="text-gray-400 h-7 w-7"/>
+                                                <Calendar1 className="text-gray-400 h-7 w-7"/>
                                             </div>
 
                                             {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
@@ -4043,7 +4186,7 @@ export default function DashboardPro(){
                                                 <span className="font-bold">Annuel</span>
                                                 <hr className=" w-144 text-gray-400 "/>
 
-                                                <Calendar className="text-gray-400 h-7 w-7"/>
+                                                <Calendar1 className="text-gray-400 h-7 w-7"/>
                                             </div>
 
                                             {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
@@ -4235,7 +4378,7 @@ export default function DashboardPro(){
                                             <Loader2 className="h-6 w-6 animate-spin text-white"/>
                                         ):(
                                             <>
-                                            <Save className="h-6 w-6" fill="white" stroke="orange" />
+                                            <Save className="h-6 w-6"/>
                                             <p>Enregistrer l'activité</p>
                                             </>
                                         )}
@@ -4245,7 +4388,7 @@ export default function DashboardPro(){
 
                                 <div className="flex flex-col gap-8 px-4 col-span-3 mt-10 h-200">
                                     <div className="bg-white w-full flex items-center gap-2 shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg p-4">
-                                        <p>Filtrer par statut :</p>
+                                        <p className="text-xl">Filtrer par statut :</p>
                                         <div className="flex items-center gap-4">
                                             <motion.button
                                             whileTap={{scale: 0.95}}
@@ -4281,38 +4424,7 @@ export default function DashboardPro(){
                                     <div className="overflow-y-auto grid grid-cols-2 gap-8 p-1 scrollbar-hide">
                                         {loadingActivity ? (
                                             [1,2,3,4].map(item => (
-                                                <div key={item} className=" rounded-lg bg-gray-200">
-
-                                                    <div className="h-60 w-full relative">
-                                                        <div className="w-full h-full bg-gray-300 animate-pulse"></div>
-                                                        <p className="absolute rounded-full top-5 left-5 bg-gray-400/50 h-8 w-20 animate-pulse"></p>
-                                                    </div>
-
-                                                    <div className="p-8 flex flex-col gap-5">
-
-                                                        <div className="w-full flex items-center justify-between">
-                                                            <p className="h-8 w-40 bg-gray-300 animate-pulse"></p>
-                                                            <div className="flex items-center gap-2">
-                                                                <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
-                                                                <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
-                                                                <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
-                                                                <p className="h-6 w-6 animate-pulse bg-gray-300"></p>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="flex flex-col gap-1">
-                                                            <p className="h-6 w-100 animate-pulse bg-gray-300"></p>
-                                                            <p className="h-6 w-95 animate-pulse bg-gray-300"></p>
-                                                        </div>
-
-                                                        <hr className="text-gray-300 w-full h-1 animate-pulse"/>
-
-                                                        <div className="flex items-center justify-between w-full">
-                                                            <p className="h-8 w-30 animate-pulse bg-gray-300"></p>
-                                                            <p className="h-8 w-30 animate-pulse bg-gray-300"></p>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                <SkeletonActivity key={item}/>
                                             ))
                                         ): filteredActiviy.length === 0 ? (
                                             <div className="flex relative col-span-2 items-center justify-center mx-auto h-165 w-165 flex-col gap-2">
@@ -4320,12 +4432,32 @@ export default function DashboardPro(){
                                                 <div className="absolute bottom-20 text-xl text-gray-400 flex items-center justify-center">Aucune activité pour le moment</div>
                                             </div>
                                         ): filteredActiviy.map(item => (
-                                             <div key={item.id} className="shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg bg-white">
+                                             <div key={item.id} className=" relative shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg bg-white">
 
-                                                <div className="h-60 w-full relative">
-                                                    <ImageComponent source={`${documentUrl}${item?.images_activte}`} style={"w-full h-full object-cover"} label={'img-activity'} />
+                                                <motion.div 
+                                                    onClick={()=>{setModalImage(true),setShowImage(item)}}
+                                                    className="h-60 w-full relative">
+                                                    <ImageComponent source={`${documentUrl}${item?.images_activte}`} style={"w-full h-full object-cover cursor-pointer"} label={'img-activity'} />
                                                     <p className="absolute rounded-full top-5 left-5 bg-white py-1 px-4 uppercase font-bold">{item?.status || 'N/A'}</p>
-                                                </div>
+                                                    
+                                                </motion.div>
+
+                                                {item?.status === 'publie' && (
+                                                    <motion.button
+                                                        whileTap={{scale: 0.95}}
+                                                        onClick={(e)=>{handleSendActivity(e, item.id)}}
+                                                        className="absolute hover:scale-105 transition-transform rounded-full top-5 right-5 bg-orange-600 text-white py-1 px-4 uppercase font-bold"
+                                                    >
+                                                        {sendLoading ? (
+                                                            <div className="flex items-center">
+                                                                <p>Envoie en cours...</p>
+                                                                <Loader2 className="text-white h-5 w-5"/>
+                                                            </div>
+                                                        ):(
+                                                            'Envoyez aux adhérants'
+                                                        )}
+                                                    </motion.button>
+                                                )}
 
                                                 <div className="p-8 flex flex-col gap-5">
 
@@ -4338,25 +4470,35 @@ export default function DashboardPro(){
 
                                                         </p>
                                                         <div className="flex items-center gap-2">
-                                                            <button>
-                                                                <Eye className="h-6 w-6"/>
+                                                            <button
+                                                                onClick={()=>{setDetailActivity(true), setActivityToDelete(item)}}
+                                                            >
+                                                                <Eye className="h-6 w-6 hover:text-gray-500 transition-colors duration-200"/>
                                                             </button>
-                                                            <button>
-                                                                <Pencil className="h-5 w-5" />
+                                                            <button
+                                                                disabled={daysRemaining <= 0}
+                                                                onClick={()=>{setModalUpActivity(true), setActivityToUp(item)}}
+                                                            >
+                                                                <Pencil className="h-5 w-5 hover:text-blue-500 transition-colors duration-200" />
                                                             </button>
-                                                            <button>
-                                                                <Trash2 className="h-5 w-5"/>
+                                                            <button
+                                                                disabled={daysRemaining <= 0}
+                                                                onClick={()=>{setModalSupActivity(true), setActivityToDelete(item)}}
+                                                            >
+                                                                <Trash2 className="h-5 w-5 hover:text-red-500 transition-colors duration-200"/>
                                                             </button>
-                                                            <button>
-                                                                <ArrowDownUpIcon className="h-5 w-5"/>
+                                                            <button
+                                                                disabled={daysRemaining <= 0}
+                                                            >
+                                                                <ArrowDownUpIcon className="h-5 w-5 hover:text-gray-500 transition-colors duration-200"/>
                                                             </button>
                                                         </div>
                                                     </div>
 
                                                     <div>
 
-                                                        {item?.descriptions.length > 87 
-                                                        ? item?.descriptions.slice(0, 87) + "..." 
+                                                        {item?.descriptions.length > 50 
+                                                        ? item?.descriptions.slice(0, 50) + "..." 
                                                         : item?.descriptions || 'N/A'}
 
                                                     </div>
@@ -4394,6 +4536,27 @@ export default function DashboardPro(){
                 </div>
             )}
 
+
+            {modalImage && (
+                <motion.div 
+                    
+                    className="bg-black/50 absolute inset-0 flex items-center justify-center">
+                    
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1}}
+                        transition={{duration:0.3}}
+                    >
+                        
+                        <ImageComponent source={`${documentUrl}${showImage?.images_activte}`} label={'image'} style={'w-200 h-200 object-cover'}/>
+                    </motion.div>
+                    <button 
+                            className="absolute top-10 right-20 text-gray-300 hover:text-gray-400 transition-all duration-200"
+                            onClick={()=>{setModalImage(false)}}>
+                            <XCircle className="h-10 w-10 "/>
+                        </button>
+                </motion.div>
+            )}
 
             {misNiveauSuccess && (
                 <motion.div
@@ -4634,6 +4797,26 @@ export default function DashboardPro(){
                            <p>Cette action est irréversible. Toutes</p>
                             <p>les données de l'adhérant </p> 
                             <p>'{adhToDelete?.name} {adhToDelete?.prenom}'</p>
+                            <p>seront définitivement effacées.</p>
+                        </>
+                    }
+                />
+            )}
+
+            {modalSupActivity && (
+                <ModalComponent 
+                    question={'Supprimer cette activité ?'}
+                    reject={() => setModalSupActivity(false)}
+                    confirm={(e)=>{handleDeleteActivity(e,activityToDelete?.id)}}
+                    loading={loadingSupActivity}
+                    children={
+                        <>
+                           <p>Cette action est irréversible. Toutes</p>
+                            <p>les données de l'activité </p> 
+                            <p>'{activityToDelete?.nom_activite.length > 34 
+                                ? activityToDelete?.nom_activite.slice(0, 22) + "..." 
+                                : activityToDelete?.nom_activite || 'N/A'}'
+                            </p>
                             <p>seront définitivement effacées.</p>
                         </>
                     }
@@ -5546,7 +5729,7 @@ export default function DashboardPro(){
                             </div>
 
                             <div className="w-full flex flex-col gap-3">
-                                <p className="text-gray-500 flex items-center gap-2"><Calendar className="h-5 w-5"/>Quels jours ?</p>
+                                <p className="text-gray-500 flex items-center gap-2"><Calendar1 className="h-5 w-5"/>Quels jours ?</p>
                                 <div className="grid grid-cols-4  gap-2">
                                     {dateChoice.map((date,index) => (
                                         <button
@@ -5792,7 +5975,7 @@ export default function DashboardPro(){
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            <Calendar className="h-5 w-5 text-gray-400"/>
+                                            <Calendar1 className="h-5 w-5 text-gray-400"/>
                                             {item?.jours.map((jour,index) => (
                                                 <p key={index} className="font-semibold">
                                                     {jour}.
@@ -5847,6 +6030,188 @@ export default function DashboardPro(){
                 </div>
             )}
 
+            {detailActivity && (
+                <div className="absolute grid grid-cols-4 inset-0 bg-black/50 ">
+                    
+                    <div className="">
+                    </div>
+                    <div className="">
+                    </div>
+                    <div className="">
+                    </div>
+                    <motion.div 
+                        
+                        initial={{opacity: 0, x: 150}}
+                        animate={{opacity: 1, x: 0}}
+                        transition={{duration: 0.3}}
+                        className="bg-gray-100 px-8 py-3"
+                    >
+                        <button 
+                            className="flex mt-5 mb-10 items-center gap-2 border border-gray-400 p-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-transparent transition-all duration-200"
+                            onClick={()=>{setDetailActivity(!detailActivity)}}
+                        >
+                            <X className="h-5 w-5"/>
+                            <p className="">Fermer</p>
+                        </button>
+
+                        <div className="flex items-center mb-5">
+                            <h1 className="font-bold text-2xl ">{activityToDelete?.nom_activite || 'N/A'}</h1>
+                        </div>
+                        
+
+                        <div className=" flex flex-col gap-5 h-205 overflow-y-auto scrollbar-hide">
+                            
+                            <ImageComponent source={`${documentUrl}${activityToDelete?.images_activte}`} label={'image'} style={'w-full h-90 object-cover'}/>
+                            <p className="text-gray-500">{activityToDelete?.descriptions || 'N/A'}</p>
+                            
+                            <div className="flex items-center justify-center">
+                                <Calendar value={new Date(activityToDelete.date_activite )} className={'p-2'}/>
+                            </div>
+                            <div className="flex items-center gap-2 justify-center">
+                                <Timer className="h-6 w-6 text-gray-400" />
+                            <p className="text-center text-xl text-gray-400">Heure : {activityToDelete?.heure_activite || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                    </motion.div>
+                </div>
+            )}
+
+            {modalUpActivity && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                   
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                        className="bg-white p-6 rounded-lg flex flex-col gap-5 relative"
+                    >
+                            <div className="flex items-center gap-2">
+                                <NotebookPen  className="h-7 w-7" fill="rgba(255,100,0,0.8)" stroke="white"/>
+                                <p className="text-2xl font-bold">Modification de l'activité</p>
+                            </div>
+
+                        <div className="flex flex-col gap-4">
+                            <div className="flex gap-2">
+                                <div className="flex flex-col gap-2">
+                                    <label>Nom de l'activité <span className="text-red-500 font-bold">*</span></label>
+                                    <Input type={'text'} placeholder={'Ex: Yoga Flow Matinal'}
+                                        value={activityToUp?.nom_activite}
+                                        onChange={(e)=>{setActivityToUp({...activityToUp, nom_activite: e.target.value})}}
+                                        className={'p-4 w-full block rounded-lg bg-gray-100 focus:outline-none'}
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label>Description <span className="text-red-500 font-bold">*</span></label>
+                                    <textarea type="text" cols="30" rows="5"
+                                        value={activityToUp?.descriptions}
+                                        onChange={(e)=>{setActivityToUp({...activityToUp, descriptions: e.target.value})}} 
+                                        placeholder="Décrivez l'activité en quelques mots... " 
+                                        className="w-full block rounded-lg bg-gray-100 focus:outline-none p-4"    
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2">
+
+                                <div className="flex flex-col w-full gap-2">
+                                    <label>Date <span className="text-red-500 font-bold">*</span></label>
+                                    <Input type='date' 
+                                        value={activityToUp?.date_activite}
+                                        onChange={(e)=>{setActivityToUp({...activityToUp, date_activite: e.target.value})}}
+                                        className="p-4 w-full rounded-lg bg-gray-100 focus:outline-none"
+                                    />
+                                </div>
+
+                                <div className="flex flex-col w-full gap-2">
+                                    <label>Heure <span className="text-red-500 font-bold">*</span></label>
+                                    <Input type='time' 
+                                        value={activityToUp?.heure_activite}
+                                        onChange={(e)=>{setActivityToUp({...activityToUp, heure_activite: e.target.value})}} 
+                                        className="p-4 w-full rounded-lg bg-gray-100 focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col w-full gap-2">
+                                <label>Image de l'activité <span className="text-red-500 font-bold">*</span></label>
+                                
+                                    <div
+                                    className="w-full rounded-lg h-50 border-2 border-dotted border-gray-400 overflow-hidden bg-gray-100 cursor-pointer"
+                                    onClick={() => activityUpInputRef.current.click()}
+                                >
+                                    {previewActivityUp ? (
+                                        <div className="relative w-full h-full">
+                                            <ImageComponent source={previewActivityUp} style={"w-full h-full object-cover"} label={'preview'} />
+                                            <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="relative w-full h-full">
+                                            <ImageComponent source={`${documentUrl}${activityToUp?.images_activte}`} style={"w-full h-full object-cover"} label={'img'} />
+                                            <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    ref={activityUpInputRef}
+                                    hidden
+                                    onChange={handleImgActivityUp}
+                                />
+                            </div>
+
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label>Statut <span className="text-red-500 font-bold">*</span></label>
+                            <div className="flex items-center w-full justify-between  bg-gray-100 rounded-lg">
+                                <button 
+                                    onClick={(e)=>{setStatus('publie'), setActivityToUp({...activityToUp, status: 'publie'})}}
+                                    className={`text-sm ${activityToUp?.status === 'publie' ? 'text-white bg-blue-500' : ''}  cursor-pointer transition-all duration-200  rounded-lg w-full px-4 py-2`}>
+                                    publier maintenant
+                                </button>
+                                <button 
+                                    onClick={(e)=>{setStatus('attente'), setActivityToUp({...activityToUp, status: 'attente'})}}
+                                    className={` ${activityToUp?.status === 'attente' ? 'text-white bg-blue-500' : ''} text-sm rounded-lg w-full px-4 py-2 cursor-pointer transition-all duration-200 `}>
+                                    mettre en attente
+                                </button>
+                            </div>
+                        </div>
+
+
+                        <button
+                            onClick={(e)=>{handleUpdateActivity(e, activityToUp?.id)}}
+                            disabled={loadingUpdateActivity}
+                            className={`w-full p-4 font-bold text-whit bg-orange-500 hover:bg-orange-600 flex items-center gap-2 justify-center rounded-lg`}
+                        >
+                            {loadingUpdateActivity ? (
+                                <Loader2 className="h-6 w-6 animate-spin text-white"/>
+                            ):(
+                                <>
+                                    <Save className="h-6 w-6"/>
+                                    <p>Mettre à jour l'activité</p>
+                                </>
+                            )}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={()=>{setModalUpActivity(false), setActivityToUp(null)}}
+                            className="absolute top-3 right-3"
+                        >
+                            <X className="h-8 w-8 text-gray-400"/>
+                        </button>
+                    </motion.div>
+                </div>
+            )}
+
             <ResponseCoach coachSuccess={coachSuccess} successSupCoach={successSupCoach} modifCoachSuccess={modifCoachSuccess} />
             <ResponseAdherant successAdherant={successAdherant} successUpdateAdh={successUpdateAdh} successSupAdh={successSupAdh}/>
             <ResponseAbonnement reabSuccess={reabSuccess} reactSuccess={reactSuccess} suspSuccess={suspSuccess} />
@@ -5856,14 +6221,14 @@ export default function DashboardPro(){
             <ResponseTarif successTarif={successTarif} successTarifDel={successTarifDel} successTarifUp={successTarifUp} />
             <ResponseInfoPerso persoSuccess={persoSuccess} passwordSuccess={passwordSuccess} />
             <ResponseInfoSalle successUpdate={successUpdate} />
-            <ResponseActivity activitySuccess={activitySuccess} />
+            <ResponseActivity activitySuccess={activitySuccess} activityDelSuccess={activityDelSuccess} activityUpdateSuccess={activityUpdateSuccess} sendSuccess={sendSuccess} />
             
             <ResponseError 
                 coachError={coachError}
                 errorTarif={errorTarif}
                 errorTarifUp={errorTarifUp}
                 errorTarifDel={errorTarifDel}
-                persoError={persoError}
+                persoError={persoError} 
                 passwordError={passwordError} errorSupCoach={errorSupCoach}
                 signDelError={signDelError} signEditError={signEditError} signError={signError}
                 logoDelError={logoDelError} logoEditError={logoEditError} logoError={logoError}
@@ -5871,7 +6236,7 @@ export default function DashboardPro(){
                 errorAddCours={errorAddCours} reabError={reabError} dataExportError={dataExportError}
                 reactError={reactError} programError={programError} modifCoachError={modifCoachError}
                 suspError={suspError} errorSupCours={errorSupCours} errorSupAdh={errorSupAdh}
-                activityError={activityError}
+                activityError={activityError} errorSupActivity={errorSupActivity} errorUpdateActivity={errorUpdateActivity} sendError={sendError}
 
             />
            

@@ -5,16 +5,16 @@ export default function ResponseCours({ successAddCours, successSupCours, succes
     return (
         <>
             {successSupCours && (
-                <ToastSuccess message={'Cours suprimmé avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Cours suprimmé avec succès'}/>
             )}
             {successUpdateCours && (
-                <ToastSuccess message={'Cours mis à jour avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Cours mis à jour avec succès'}/>
             )}
             {programSuccess && (
-                <ToastSuccess message={'Cours programmé avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Cours programmé avec succès'}/>
             )}
             {successAddCours && (
-                <ToastSuccess message={'Cours ajouté avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Cours ajouté avec succès'}/>
             )}
         </>
     );

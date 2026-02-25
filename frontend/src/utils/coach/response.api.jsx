@@ -5,13 +5,13 @@ export default function ResponseCoach({ coachSuccess, successSupCoach, modifCoac
     return (
         <>
             {coachSuccess && (
-                <ToastSuccess message="Coach ajouté avec succès" />
+                <ToastSuccess title={'Succès !'} message="Coach ajouté avec succès" />
             )}
             {successSupCoach && (
-                <ToastSuccess message={'Coach supprimé avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Coach supprimé avec succès'}/>
             )}
             {modifCoachSuccess && (
-                <ToastSuccess message={'Coach mis à jour avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Coach mis à jour avec succès'}/>
             )}
         </>
     );

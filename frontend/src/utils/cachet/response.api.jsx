@@ -5,13 +5,13 @@ export default function ResponseCachet({ signDelSuccess, signEditSuccess, signSu
     return (
         <>
             {signSuccess && (
-                <ToastSuccess message={'Emprunt ajouté avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Emprunt ajouté avec succès'}/>
             )}
             {signEditSuccess && (
-                <ToastSuccess message={'Emprunt mis à jour avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Emprunt mis à jour avec succès'}/>
             )}
             {signDelSuccess && (
-                <ToastSuccess message={'Emprunt supprimé avec succès'}/>
+                <ToastSuccess title={'Succès !'} message={'Emprunt supprimé avec succès'}/>
             )}
         </>
     );

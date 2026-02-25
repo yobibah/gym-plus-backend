@@ -34,7 +34,7 @@ export default function Features(){
                 viewport={{ once: true, amount: 0.3 }}
             >
                 <Card 
-                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-lg shadow-orange-600 transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
+                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-[0_0_18px_rgba(255,100,0,1)] transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
                     iconClass="h-12 w-12 rounded-full bg-orange-600 mb-4 mx-auto text-white p-2 hover:bg-white hover:text-black border-2 border-orange-600 transition-all"
                     titleClass="text-lg md:text-xl text-center font-bold"
                     textClass="text-sm mt-3 text-center text-gray-600"
@@ -51,7 +51,7 @@ export default function Features(){
                 viewport={{ once: true, amount: 0.3 }}
             >
                 <Card 
-                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-lg shadow-orange-600 transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
+                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-[0_0_18px_rgba(255,100,0,1)] transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
                     iconClass="h-12 w-12 rounded-full bg-orange-600 mb-4 mx-auto text-white p-2 hover:bg-white hover:text-black border-2 border-orange-600 transition-all"
                     titleClass="text-lg md:text-xl text-center font-bold"
                     textClass="text-sm mt-3 text-center text-gray-600"
@@ -69,7 +69,7 @@ export default function Features(){
             >
 
                 <Card 
-                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-lg shadow-orange-600 transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
+                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-[0_0_18px_rgba(255,100,0,1)] transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
                     iconClass="h-12 w-12 rounded-full bg-orange-600 mb-4 mx-auto text-white p-2 hover:bg-white hover:text-black border-2 border-orange-600 transition-all"
                     titleClass="text-lg md:text-xl text-center font-bold"
                     textClass="text-sm mt-3 text-center text-gray-600"
@@ -87,7 +87,7 @@ export default function Features(){
             >
 
                 <Card 
-                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-lg shadow-orange-600 transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
+                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-[0_0_18px_rgba(255,100,0,1)] transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
                     iconClass="h-12 w-12 rounded-full bg-orange-600 mb-4 mx-auto text-white p-2 hover:bg-white hover:text-black border-2 border-orange-600 transition-all"
                     titleClass="text-lg md:text-xl text-center font-bold"
                     textClass="text-sm mt-3 text-center text-gray-600"
@@ -105,7 +105,7 @@ export default function Features(){
             >
 
                 <Card 
-                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-lg shadow-orange-600 transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
+                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-[0_0_18px_rgba(255,100,0,1)] transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
                     iconClass="h-12 w-12 rounded-full bg-orange-600 mb-4 mx-auto text-white p-2 hover:bg-white hover:text-black border-2 border-orange-600 transition-all"
                     titleClass="text-lg md:text-xl text-center font-bold"
                     textClass="text-sm mt-3 text-center text-gray-600"
@@ -123,7 +123,7 @@ export default function Features(){
             >
 
                 <Card 
-                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-lg shadow-orange-600 transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
+                    className="flex flex-col rounded-lg w-full min-h-64 items-center hover:shadow-[0_0_18px_rgba(255,100,0,1)] transition-all duration-200 justify-center p-6 hover:border-none border-2 border-orange-600"
                     iconClass="h-12 w-12 rounded-full bg-orange-600 mb-4 mx-auto text-white p-2 hover:bg-white hover:text-black border-2 border-orange-600 transition-all"
                     titleClass="text-lg md:text-xl text-center font-bold"
                     textClass="text-sm mt-3 text-center text-gray-600"
