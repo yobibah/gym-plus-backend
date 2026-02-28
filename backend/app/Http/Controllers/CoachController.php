@@ -27,6 +27,12 @@ class CoachController extends Controller
 
         $user = $request->user();
 
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
+
         $validator = Validator::make($request->all(), [
             'nom' => 'required|string',
             'prenom' => 'required|string',
@@ -110,12 +116,16 @@ class CoachController extends Controller
             'coach' => CoachRessource::collection($coach),
 
         ]);
-
     }
 
     public function DeleteCoach(Request $request)
     {
         $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
         $validator = Validator::make($request->all(), [
             'id' => 'required'
         ]);
@@ -145,7 +155,6 @@ class CoachController extends Controller
             return response()->json([
                 'message' => 'coach supprimer avec succes'
             ], 200);
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -153,12 +162,19 @@ class CoachController extends Controller
                 'message' => 'une erreu est survenue',
                 'trace' => $e->getMessage() . ' ' . $e->getTraceAsString()
             ], 500);
-
         }
     }
 
     public function UpdateCoach(Request $request)
     {
+        $user = $request->user();
+        // if (!$user->IsActif()) {
+        //     return response()->json(data: [
+        //         'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+        //     ]);
+        // }
+
+         Cache::forget('coach_'.$user->id);
         $validator = Validator::make($request->all(), [
             'id' => 'required',
             'nom' => 'nullable|string',
@@ -174,7 +190,7 @@ class CoachController extends Controller
             ]);
         }
 
-        $user = $request->user();
+
 
         try {
             $coach = coach::find($request->id);
@@ -196,20 +212,20 @@ class CoachController extends Controller
             ]);
 
 
-            if (is_array($request->competence)) {
-                $skills = $request->competence;
-                foreach ($skills as $skill) {
-                    skills::create([
-                        'coach_id' => $coach->id,
-                        'comptence' => $skill
-                    ]);
-                }
-            } else {
-                skills::create([
-                    'coach_id' => $coach->id,
-                    'comptence' => $request->competence
-                ]);
-            }
+            // if (is_array($request->competence)) {
+            //     $skills = $request->competence;
+            //     foreach ($skills as $skill) {
+            //         skills::create([
+            //             'coach_id' => $coach->id,
+            //             'comptence' => $skill
+            //         ]);
+            //     }
+            // } else {
+            //     skills::create([
+            //         'coach_id' => $coach->id,
+            //         'comptence' => $request->competence
+            //     ]);
+            // }
             DB::commit();
 
 
@@ -220,7 +236,6 @@ class CoachController extends Controller
 
 
             ], 200);
-
         } catch (Exception $e) {
         }
     }
@@ -245,7 +260,6 @@ class CoachController extends Controller
             return response()->json([
                 'message' => 'remplir tous les champs'
             ], 400);
-
         }
 
         try {
@@ -257,9 +271,7 @@ class CoachController extends Controller
 
 
         } catch (Exception $e) {
-
         }
-
     }
 
 
@@ -281,7 +293,6 @@ class CoachController extends Controller
                 'success' => true,
                 'data' => $skills
             ]);
-
         } catch (\Throwable $e) {
 
             return response()->json([
@@ -294,6 +305,12 @@ class CoachController extends Controller
     public function DeleteSkills(Request $request)
     {
         $user = $request->user();
+        $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
 
         $validator = Validator::make($request->all(), [
             'competence_id' => "required",
@@ -308,7 +325,7 @@ class CoachController extends Controller
 
         DB::beginTransaction();
         try {
-            Cache::forget('coach_' . $user->id);
+            Cache::forget('coach_'.$user->id);
 
             $skills = skills::findOrFail($request->competence_id);
 
@@ -326,7 +343,6 @@ class CoachController extends Controller
             return response()->json([
                 'message' => 'competence supprimer'
             ], 200);
-
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -338,6 +354,12 @@ class CoachController extends Controller
     public function AddSkills(Request $request)
     {
         $user = $request->user();
+        $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
 
         $validator = Validator::make($request->all(), [
             'coach_id' => 'required',
@@ -387,8 +409,6 @@ class CoachController extends Controller
             return response()->json([
                 'message' => 'Oups !! une erreur est survenue'
             ], 500);
-
         }
     }
-
 }

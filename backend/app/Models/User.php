@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use PhpOffice\PhpSpreadsheet\Calculation\Logical\Boolean;
 use Str;
 
 class User extends Authenticatable
@@ -116,9 +117,9 @@ class User extends Authenticatable
         return $this->hasMany(paiement::class, 'gerant_id', 'id');
     }
     // public function paiements()
-// {
-//     return $this->hasMany(paiement::class, 'gerant_id');
-// }
+    // {
+    //     return $this->hasMany(paiement::class, 'gerant_id');
+    // }
 
     public function document(): HasMany
     {
@@ -129,7 +130,6 @@ class User extends Authenticatable
     public function historique()
     {
         return $this->hasMany(historique::class, 'gerant_id');
-
     }
 
     public function historique_Mdp()
@@ -152,7 +152,7 @@ class User extends Authenticatable
     public function dernierAbonnement()
     {
         return $this->hasOne(abonnement::class, 'adherant_id')
-            
+
 
             ->latestOfMany('fin');
     }
@@ -169,8 +169,8 @@ class User extends Authenticatable
     public function DernierPaiement(): HasOne
     {
         return $this->hasOne(paiement::class, 'gerant_id')
-        ->whereIn('status',['reussi','expirer'])
-        ->latest();
+            ->whereIn('status', ['reussi', 'expirer'])
+            ->latest();
     }
 
     public function DernierPaiementAttente(): HasOne
@@ -185,12 +185,12 @@ class User extends Authenticatable
             ->where('status', 'reussi')
             ->latest();
     }
-//     public function dernierPaiementReussi(): HasOne
-// {
-//     return $this->hasOne(paiement::class, 'gerant_id')
-//         ->where('status', 'reussi')
-//         ->latestOfMany('fin');
-// }
+    //     public function dernierPaiementReussi(): HasOne
+    // {
+    //     return $this->hasOne(paiement::class, 'gerant_id')
+    //         ->where('status', 'reussi')
+    //         ->latestOfMany('fin');
+    // }
 
     public function Activites()
     {
@@ -243,13 +243,12 @@ class User extends Authenticatable
 
     public function isPro(): bool
     {
- return $this->dernierPaiementReussi?->plan === 'pro';
-
+        return $this->dernierPaiementReussi?->plan === 'pro';
     }
-public function isPremium(): bool
-{
-    return $this->dernierPaiementReussi?->plan === 'premium';
-}
+    public function isPremium(): bool
+    {
+        return $this->dernierPaiementReussi?->plan === 'premium';
+    }
 
     public function getNameAttribute($value)
     {
@@ -271,8 +270,8 @@ public function isPremium(): bool
     }
 
     //    public function DernierPaiementExpirerReussi(){
-//        return paiement::where('gerant_id',$this->id)->where('status','reussi')->
-//    }
+    //        return paiement::where('gerant_id',$this->id)->where('status','reussi')->
+    //    }
 
 
     public function AbonnemntBientotExpirer()
@@ -283,6 +282,11 @@ public function isPremium(): bool
                 now()->addDays(7)->endOfDay()
             ])
             ->latestOfMany('fin');
-
     }
+
+    public function IsActif(): bool
+    {
+        return $this->dernierPaiementReussi?->status === 'reussi';
+    }
+    
 }

@@ -31,6 +31,11 @@ class AbonnementController extends Controller
                 'message' => 'vous n\'etes pas autorise'
             ]);
         }
+        if ($current->dernierAbonnementReussi->status =='expirer'){
+            return response()->json([
+                'message'=>'abonnement expirer veuillez vous abonner pour continuer'
+            ],401);
+        }
 
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer',

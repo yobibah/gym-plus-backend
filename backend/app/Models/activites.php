@@ -43,4 +43,8 @@ class activites extends Model
     {
         return Carbon::parse($this->date_activite)->isPast();
     }
+
+    
+
+
 }

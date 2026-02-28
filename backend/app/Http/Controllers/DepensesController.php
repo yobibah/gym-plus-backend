@@ -23,6 +23,12 @@ class DepensesController extends Controller
     public function ajouterDepense(Request $request)
     {
         $user = $request->user();
+        $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
 
         if (!$user->hasrole('Gerant')) {
             return response()->json([
@@ -81,9 +87,7 @@ class DepensesController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ], 500);
-
         }
-
     }
 
     public function MesDepenses(Request $request)
@@ -167,45 +171,52 @@ class DepensesController extends Controller
                 ->whereYear('debut', Carbon::now()->subYear()->year)
                 ->get();
 
+            $result = [
+                [
+                    'periode' => 'mois_actuel',
+                    'total_abonnements' => $dataN->count(),
+                    'montant_total' => $dataN->sum('montant'),
+                    // 'abonnements' => $dataN->values()
+                ],
+                [
+                    'periode' => '3_derniers_mois',
+                    'total_abonnements' => $troisMois->count(),
+                    'montant_total' => $troisMois->sum('montant'),
+                    // 'abonnements' => $troisMois->values()
+                ],
+                [
+                    'periode' => 'mois_precedent',
+                    'total_abonnements' => $moiD->count(),
+                    'montant_total' => $moiD->sum('montant'),
+                    // 'abonnements' => $moiD->values()
+                ],
+                [
+                    'periode' => 'annee_precedente',
+                    'total_abonnements' => $anD->count(),
+                    'montant_total' => $anD->sum('montant'),
+                    // 'abonnements' => $anD->values()
+                ]
+            ];
+
             DB::commit();
 
-            return response()->json([
-                // 'ceMoi' => $dataN,
-                'nbrecmoi' => $dataN->count() ?? 0,
-                'MontantCeMois' => $dataN->sum(fn($item) => $item->montant),
-                // 'troismois' => $troisMois,
-                'nbrtroismois' => $troisMois->count() ?? 0,
-                'MontantTroiMmois' => $troisMois->sum(fn($item) => $item->montant),
-                // 'moisDernier' => $moiD,
-                'nbrmoisDernier' => $moiD->count() ?? 0,
-                'montantMoisDernier' => $moiD->sum(fn($item) => $item->montant),
-                // 'annerDernierre' => $anD,
-                'nbrannerDernierre' => $anD->count() ?? 0,
-                'MontantAnnerDerniere' => $anD->sum(fn($item) => $item->montant),
-            ], 200);
+            return 
+               json_encode( $result);
+           
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ], 500);
-
         }
     }
 
 
     // utiliser composer require rap2hpoutre/fast-excel
     //pour exporter en csv
-    public function rapportFinancier(Request $request)
-    {
+    public function rapportFinancier(Request $request) {}
 
 
-
-    }
-
-
-    public function Rappportavancer()
-    {
-
-    }
+    public function Rappportavancer() {}
 }

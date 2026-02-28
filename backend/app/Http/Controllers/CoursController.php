@@ -23,6 +23,12 @@ class CoursController extends Controller
     {
         $user = $request->user();
 
+        $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
         $validator = Validator::make($request->all(), [
             'cours' => 'required|string',
             'niveaux' => 'required|in:debutant,intermediaire,all'
@@ -33,8 +39,7 @@ class CoursController extends Controller
                 ['message' => 'veuillez remplir les champs'],
                 400
             );
-        }
-        ;
+        };
 
 
         try {
@@ -53,8 +58,6 @@ class CoursController extends Controller
             return response()->json([
                 'message' => 'cours cree avec succes'
             ], 201);
-
-
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -66,7 +69,12 @@ class CoursController extends Controller
     public function UpdateCours(Request $request)
     {
         $user = $request->user();
-
+        $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer',
             'cours' => 'nullable|string',
@@ -103,7 +111,6 @@ class CoursController extends Controller
             return response()->json([
                 'message' => 'Ce cours vient d\'être modifié'
             ], 200);
-
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -116,6 +123,12 @@ class CoursController extends Controller
     public function DeleteCours(Request $request)
     {
         $user = $request->user();
+        $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
         $validator = Validator::make($request->all(), [
             'id' => 'required',
         ]);
@@ -125,8 +138,7 @@ class CoursController extends Controller
                 ['message' => 'veuillez remplir les champs'],
                 400
             );
-        }
-        ;
+        };
 
         try {
             DB::beginTransaction();
@@ -147,18 +159,13 @@ class CoursController extends Controller
             return response()->json([
                 'message' => 'cet coours viens d\'etre retirer de la liste des cours'
             ], 200);
-
-
         } catch (Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'message' => 'une erreur est survenue veuillez ressayer'
             ], 500);
-
         }
-
-
     }
 
 
@@ -168,7 +175,7 @@ class CoursController extends Controller
         $salle = $user->salle;
 
         $cours = cours::where('salle_id', $salle->id)->paginate(10);
-        
+
 
         if (!$cours) {
             return response()->json([
@@ -180,6 +187,4 @@ class CoursController extends Controller
             'cours' => $cours
         ]);
     }
-
-
 }

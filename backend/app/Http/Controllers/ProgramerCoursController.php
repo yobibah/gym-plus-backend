@@ -18,6 +18,12 @@ class ProgramerCoursController extends Controller
     public function ProgrammerCours(Request $request)
     {
         $user = $request->user();
+  
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
 
         $validator = Validator::make($request->all(), [
             'ahderent_id' => 'required|array',
@@ -85,7 +91,6 @@ class ProgramerCoursController extends Controller
             return response()->json([
                 'message' => 'Cours programmé avec succès'
             ], 200);
-
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -119,9 +124,5 @@ class ProgramerCoursController extends Controller
                 'message' => 'une ereur est survenue'
             ], 500);
         }
-
-
-
-
     }
 }

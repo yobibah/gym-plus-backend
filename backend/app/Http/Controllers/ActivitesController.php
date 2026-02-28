@@ -38,7 +38,7 @@ class ActivitesController extends Controller
             // $activites = ActiviteRessource::collection($activites)
 
             return response()->json([
-                'activites'=>ActiviteRessource::collection($activites)
+                'activites' => ActiviteRessource::collection($activites)
             ]);
         } catch (Exception $e) {
             Log::error($e->getMessage());
@@ -73,6 +73,11 @@ class ActivitesController extends Controller
     public function createActivity(Request $request)
     {
         $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
 
         Log::info('donne recus des activites ' . $request->formData);
 
@@ -208,6 +213,11 @@ class ActivitesController extends Controller
     public function DeletedActivity(Request $request)
     {
         $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
         if (!$user->hasRole('Gerant'))
             return response()
                 ->json(['message' => 'vous n\'etes pas autorise'], 401);
@@ -232,6 +242,9 @@ class ActivitesController extends Controller
                 $activite->save();
                 // appeler la methode delete dans \services\activity pour envois un mail pour notifier l'annulation et le repport
             }
+            return response()->json([
+                'message'=> ' activite supprimer avec success'
+            ]);
         } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -250,6 +263,12 @@ class ActivitesController extends Controller
     public function UpdateActivite(Request $request)
     {
         $user = $request->user();
+
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
 
         $validator = Validator::make($request->all(), [
             "id" => 'required',
@@ -332,6 +351,11 @@ class ActivitesController extends Controller
     public function SendToAdherent(Request $request)
     {
         $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
         $validator = Validator::make($request->all(), [
             'id' => 'required'
         ]);

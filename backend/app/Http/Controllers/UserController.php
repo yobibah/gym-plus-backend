@@ -77,69 +77,69 @@ class UserController extends Controller
     }
 
     //     private function AddAbonnement(array $data, $gerant = null)
-//     {
-//         try {
-//             //ajouter email dans le table abonnement
-//             $exists = abonnement::where('adherant_id', $data['adherant']['id'])->orWhere('email', $data['adherant']['email'])->where('fin' >= Carbon::now())->exists();
-//             if ($exists) {
-//                 return [
-//                     'message' => 'abonnement en cours de validite',
-//                     'error' => false,
-//                     'code' => 200
-//                 ];
-//             }
+    //     {
+    //         try {
+    //             //ajouter email dans le table abonnement
+    //             $exists = abonnement::where('adherant_id', $data['adherant']['id'])->orWhere('email', $data['adherant']['email'])->where('fin' >= Carbon::now())->exists();
+    //             if ($exists) {
+    //                 return [
+    //                     'message' => 'abonnement en cours de validite',
+    //                     'error' => false,
+    //                     'code' => 200
+    //                 ];
+    //             }
 
     //             $transID = Str::random(4) . '#' . Carbon::today() . '@' . rand(111, 999);
-//             // $fin= $data['fin'];
-//             // Log::info('la fin'. $fin);
-//             // switch ($fin){
-//             //     case 30 :
-//             //         $plan = "mensuel";
-//             //       break;
-//             //     case 60:
-//             //         $plan = "trimestriel";
-//             //         break;
-//             //     case 360:
-//             //         $plan = "annuel";
+    //             // $fin= $data['fin'];
+    //             // Log::info('la fin'. $fin);
+    //             // switch ($fin){
+    //             //     case 30 :
+    //             //         $plan = "mensuel";
+    //             //       break;
+    //             //     case 60:
+    //             //         $plan = "trimestriel";
+    //             //         break;
+    //             //     case 360:
+    //             //         $plan = "annuel";
 
     //             // }
 
     //             // Vérifier que l'utilisateur est bien un gérant
-// // if (!$gerant->hasRole('Gerant')) {
-// //     return[
-// //         'message' => "Vous n'êtes pas autorisé"
-// //     ], 401);
-// // }
+    // // if (!$gerant->hasRole('Gerant')) {
+    // //     return[
+    // //         'message' => "Vous n'êtes pas autorisé"
+    // //     ], 401);
+    // // }
 
     //             // Le gérant doit avoir UNE salle ACTIVE
-//             $salle = $gerant->salles()->where('active', true)->first();
+    //             $salle = $gerant->salles()->where('active', true)->first();
 
     //             if (!$salle) {
-//                 return [
-//                     'error' => true,  
-//                     'code' => 404,
-//                     'message' => "Vous devez d'abord créer et valider votre salle avant d'ajouter un abonnement."
-//                 ];
-//             }
+    //                 return [
+    //                     'error' => true,  
+    //                     'code' => 404,
+    //                     'message' => "Vous devez d'abord créer et valider votre salle avant d'ajouter un abonnement."
+    //                 ];
+    //             }
 
 
     //             $abonnement = abonnement::create([
-//                 'adherant_id' => $data['adherant']['id'],
-//                 'email' => $data['adherant']['email'],
-//                 'debut' => Carbon::now(),
-//                 'fin' => Carbon::now()->addMonths(1),
-//                 'date_ajout' => Carbon::now(),
-//                 'transID' => $transID,
-//                 'montant'=>45000,
-//                 'plan' => 'mensuel',
-//                 'salle_id' => $salle->id,
-//             ]);
+    //                 'adherant_id' => $data['adherant']['id'],
+    //                 'email' => $data['adherant']['email'],
+    //                 'debut' => Carbon::now(),
+    //                 'fin' => Carbon::now()->addMonths(1),
+    //                 'date_ajout' => Carbon::now(),
+    //                 'transID' => $transID,
+    //                 'montant'=>45000,
+    //                 'plan' => 'mensuel',
+    //                 'salle_id' => $salle->id,
+    //             ]);
 
     //             return [
-//                 'abonnement' => $abonnement,
-//                 'error' => false,
-//                 'code' => 201,
-//                 'message' => 'votre abonnement a ete approuve avec success'
+    //                 'abonnement' => $abonnement,
+    //                 'error' => false,
+    //                 'code' => 201,
+    //                 'message' => 'votre abonnement a ete approuve avec success'
 
     //             ];
 
@@ -148,11 +148,11 @@ class UserController extends Controller
     //             return [
 
     //                 'error' => true,
-//                 'code' => 500,
-//                 'message' => 'une erreur est survenue lors de l\'abonnement'
+    //                 'code' => 500,
+    //                 'message' => 'une erreur est survenue lors de l\'abonnement'
 
     //             ];
-//         }
+    //         }
 
 
     //     }
@@ -165,6 +165,12 @@ class UserController extends Controller
         //           premium                   illimite
 
         $gerant = $request->user();
+
+        if (!$gerant->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
         if (!$gerant->hasrole('Gerant')) {
             return response()->json([
                 'message' => 'vous n\'avez pas l\'autirisaton'
@@ -261,17 +267,14 @@ class UserController extends Controller
                 return response()->json([
                     'message' => 'vous avez atteint la limite autorise. Veuillez passer au plan supererieur'
                 ]);
-
             }
 
             //vider  le cache
 
-            collect(['adherentActif_'.$gerant->id, 'adherentExpirer_'.$gerant->id, 'bientotExpirer_'.$gerant->id, 'abonnementpas_'.$gerant->id, 'abonemment_'.$gerant->id])->each(fn($key) => Cache::forget($key));
+            collect(['adherentActif_' . $gerant->id, 'adherentExpirer_' . $gerant->id, 'bientotExpirer_' . $gerant->id, 'abonnementpas_' . $gerant->id, 'abonemment_' . $gerant->id])->each(fn($key) => Cache::forget($key));
             // ici ajouter  des adherants 
 
-            $res = $this->AddUsers($request->all(), $gerant);
-
-            ;
+            $res = $this->AddUsers($request->all(), $gerant);;
             if ($res['error']) {
                 return response()->json([
                     'message' => $res['message']
@@ -346,7 +349,7 @@ class UserController extends Controller
 
             // gerer la facture d'abonnement si le gerant est premium ou pro
 
-            if ($gerant->isPro ()|| $gerant->isPremium()) {
+            if ($gerant->isPro() || $gerant->isPremium()) {
                 $facture = new FactureService();
                 $facture->Generer($gerant->salle, $adherant, $abonnement);
             }
@@ -357,8 +360,6 @@ class UserController extends Controller
                 'adherant' => $res['user'],
                 'abonnement' => $abonnement
             ]);
-
-
         } catch (Exception $th) {
             Log::info($th->getMessage(), $th->getTrace());
             return response()->json([
@@ -367,10 +368,6 @@ class UserController extends Controller
                 'line' => $th->getLine()
             ], 500);
         }
-
-
-
-
     }
 
 
@@ -378,23 +375,20 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        try{
-        $plan = $user->dernierPaiement->plan;
-        $abonnement = $user->dernierPaiement;
-        return response()->json([
-            'plan' => $plan,
-            'abonnement' => $abonnement
+        try {
+            $plan = $user->dernierPaiement->plan;
+            $abonnement = $user->dernierPaiement;
+            return response()->json([
+                'plan' => $plan,
+                'abonnement' => $abonnement
 
-        ],200);
-    }
-
-        catch(Exception $e){
+            ], 200);
+        } catch (Exception $e) {
 
             return response()->json([
-                'mesage'=>$e->getMessage()
+                'mesage' => $e->getMessage()
             ]);
         }
-
     }
 
 
@@ -443,8 +437,6 @@ class UserController extends Controller
                 ], 500);
             }
         }
-
-
     }
 
     public function SallePrix(Request $request)
@@ -473,7 +465,6 @@ class UserController extends Controller
                 'line' => $th->getLine(),
             ], 500);
         }
-
     }
 
     public function deleteprix(Request $request)
@@ -502,7 +493,6 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'les prix de votre salle ont ete supprimes'
             ]);
-
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -510,7 +500,6 @@ class UserController extends Controller
                 'trace' => $e->getTrace()
             ], 500);
         }
-
     }
 
     public function UpdatePrix(Request $request)
@@ -551,7 +540,6 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'modification reussi'
             ], 201);
-
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -564,6 +552,12 @@ class UserController extends Controller
     public function UpdateUser(Request $request)
     {
         $user = $request->user();
+
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
         if (!$user->hasrole('Gerant')) {
             return response()->json([
                 'message' => 'non autorise'
@@ -601,7 +595,6 @@ class UserController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTrace()
             ], 500);
-
         }
     }
 
@@ -642,14 +635,16 @@ class UserController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTrace()
             ], 500);
-
-
         }
-
     }
     public function NotifierAherant(Request $request)
     {
         $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
         if (!$user->hasrole('Gerant')) {
             return response()->json([
                 'message' => 'vos droit sont restreint'
@@ -668,13 +663,9 @@ class UserController extends Controller
             $adh = User::find($request->id);
             $salle = $user->salle;
             if ($salle->adherant_id === $request->id && $adh->hasRole('Adherant')) {
-
             }
-
         } catch (Exception $th) {
-
         }
-
     }
 
 
@@ -714,13 +705,11 @@ class UserController extends Controller
                 'image' => 'logo ajouter avec succes',
                 'url' => $user->logo
             ]);
-
         } catch (Exception $th) {
             return response()->json([
                 'message' => 'une erreur est survenue'
             ]);
         }
-
     }
 
 
@@ -779,7 +768,6 @@ class UserController extends Controller
                 'message' => 'logo modifié avec succès',
                 'logo' => $salle->logo_salle
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'erreur lors de la modification du logo'
@@ -814,9 +802,6 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'votre logo a ete supprimer'
             ], 200);
-
-
-
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -882,6 +867,11 @@ class UserController extends Controller
     public function DeleteAdherent(Request $request)
     {
         $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
 
         $validator = Validator::make($request->all(), [
             'id' => 'required|numeric',
@@ -928,6 +918,11 @@ class UserController extends Controller
     {
 
         $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
         $validator = Validator::make($request->all(), [
             'id' => 'required',
             'nom' => 'required|string',
@@ -977,9 +972,7 @@ class UserController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-
         }
-
     }
 
 
@@ -1019,13 +1012,11 @@ class UserController extends Controller
                 'image' => 'cachet ajouter avec succes',
                 'url' => $user->logo
             ]);
-
         } catch (Exception $th) {
             return response()->json([
                 'message' => 'une erreur est survenue'
             ]);
         }
-
     }
 
 
@@ -1055,9 +1046,6 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'votre logo a ete supprimer'
             ], 200);
-
-
-
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -1121,7 +1109,6 @@ class UserController extends Controller
                 'message' => 'logo modifié avec succès',
                 'logo' => $salle->cachet_signer
             ], 200);
-
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'erreur lors de la modification du logo'
@@ -1207,7 +1194,6 @@ class UserController extends Controller
                 'message2' => 'vous pouvez prendre de nouveaux adherents',
                 'montant' => $montant
             ], 200);
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -1220,12 +1206,8 @@ class UserController extends Controller
     }
 
 
-    public function RelanceManuel(Request $request){
+  // juste reserver au premium
+    public function AddFacebook() {}
 
-    }
-
-
-    public function Annonce(Request $request){
-
-    }
+    public function FacebookCallback() {}
 }

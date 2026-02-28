@@ -21,41 +21,41 @@ class ActiveGerantPaiement extends Command
 
 
         foreach ($users as $user) {
-      
+
             $attente = $user->DernierPaiementAttente;
             $reussi = $user->DernierPaiementReussi;
             if ($attente && $reussi) {
-                // mettre a jour les donnees 
-                $fin = $reussi->fin;
+                // dois etre renommer dabord
+                if ($attente->moyen_paiment && $attente->moyen_paiment != 'N/A') {
 
-                if (Carbon::parse($fin)->isPast()) {
-                    // retrouver les memes utilisateurs pour modifier leurs donnees
-                    if ($reussi->gerant_id == $attente->gerant_id) {
-                        $attente->update([
-                            'status' => 'reussi',
-                            'debut' => Carbon::today(),
-                            'fin' => Carbon::today()->addMonths(1)
-                        ]);
-                        $attente->save();
-                        $reussi->status = 'expirer';
-                        $reussi->save();
-                        $this->info('votre abonnement a ete reactiver ');
-                    }
-                    /// laisser un mail au gerant pour lui faire part que son abonnement a ete ajuster en raison de son reabonmment
-                    else{
-                        
-                        $this->info('condition non remplis pour');
-                    }
 
+                    // mettre a jour les donnees 
+                    $fin = $reussi->fin;
+
+                    if (Carbon::parse($fin)->isPast()) {
+                        // retrouver les memes utilisateurs pour modifier leurs donnees
+                        if ($reussi->gerant_id == $attente->gerant_id) {
+                            $attente->update([
+                                'status' => 'reussi',
+                                'debut' => Carbon::today(),
+                                'fin' => Carbon::today()->addMonths(1)
+                            ]);
+                            $attente->save();
+                            $reussi->status = 'expirer';
+                            $reussi->save();
+                            $this->info('votre abonnement a ete reactiver ');
+                        }
+                        /// laisser un mail au gerant pour lui faire part que son abonnement a ete ajuster en raison de son reabonmment
+                        else {
+
+                            $this->info('condition non remplis pour');
+                        }
+                    }
                 }
-
+                else{
+                     $this->info('paiements suspect');
+                }
             }
-            
-
-
-
         }
     }
-
-
 }

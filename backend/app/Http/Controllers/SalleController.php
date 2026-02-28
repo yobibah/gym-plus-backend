@@ -22,6 +22,12 @@ class SalleController extends Controller
    public function AjouterSalle(Request $request)
 {
     $current = $request->user();
+           
+//            if (!$current->IsActif()) {
+//     return response()->json([
+//         'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+//     ], 401);
+// }
 
     $validator = Validator::make($request->all(), [
         'nomSalle'      => 'required|string|max:255',
@@ -113,6 +119,7 @@ class SalleController extends Controller
 
 public function updateSalle(Request $request){
     $user = $request->user();
+    
     if(!$user->hasrole('Gerant')){
         return response()->json([
             'message'=> 'non autoriser'
