@@ -71,14 +71,41 @@ INSTRUCTIONS D’ANALYSE :
 
 FORMAT DE RÉPONSE OBLIGATOIRE :
 
-Rapport structuré avec les sections suivantes :
 
-1️⃣ Résumé Exécutif  
-2️⃣ Analyse des Revenus  
-3️⃣ Analyse des Dépenses  
-4️⃣ Rentabilité  
-5️⃣ Points d’Attention  
-6️⃣ Recommandations Stratégiques  
+Tu dois répondre STRICTEMENT au format JSON valide.
+
+Structure attendue :
+
+{
+  "resume_executif": "texte ici",
+  "analyse_revenus": "texte ici",
+  "analyse_depenses": "texte ici",
+  "rentabilite": "texte ici",
+  "points_attention": [
+    "point 1",
+    "point 2",
+    "point 3"
+  ],
+  "recommandations_strategiques": {
+    "immediates": [
+      "action 1",
+      "action 2"
+    ],
+    "moyen_terme": [
+      "action 1",
+      "action 2"
+    ],
+    "analyse_donnees": [
+      "action 1"
+    ]
+  },
+  "conclusion": "texte ici"
+}
+
+Ne retourne aucun texte hors JSON.
+Ne mets pas de markdown.
+Ne mets pas de commentaires.
+JSON uniquement.
 
 STYLE :
 - Clair
@@ -88,8 +115,7 @@ STYLE :
 - Utilise des chiffres précis issus des données
 - Sois factuel et objectif
 
-Ne répète pas les données brutes en JSON.
-Analyse-les et transforme-les en rapport exploitable.
+
 
 PROMPT;
     }

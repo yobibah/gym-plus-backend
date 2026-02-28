@@ -288,5 +288,6 @@ class User extends Authenticatable
     {
         return $this->dernierPaiementReussi?->status === 'reussi';
     }
+
     
 }
