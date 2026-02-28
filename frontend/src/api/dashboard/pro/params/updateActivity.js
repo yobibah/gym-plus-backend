@@ -7,9 +7,8 @@ export async function UpdateActivity({formData}){
         const token = getToken()
         
         const response = await fetch(`${apiUrl}update-activite`,{
-            method : "PUT",
+            method : "POST",
             headers : {
-                "Accept" : "application/json",
                 "Authorization" : `Bearer ${token}`
             },
             body : formData

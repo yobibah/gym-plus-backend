@@ -82,6 +82,8 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { UpdateActivity } from "../../api/dashboard/pro/params/updateActivity";
 import { SendActivity } from "../../api/dashboard/pro/params/sendActivity";
+import SkeletonListeProgram from "../../components/ui/SkeletonListeProgram";
+import ResponseExportData from "../../utils/exportData/response.api";
 
 export default function DashboardPro(){
 
@@ -649,6 +651,10 @@ export default function DashboardPro(){
             document.body.removeChild(a);
 
             URL.revokeObjectURL(url);
+
+            setTimeout(()=>{
+                dataExport.reset()
+            }, 4000)
         }),
         onError : (()=>{
 
@@ -1681,6 +1687,10 @@ export default function DashboardPro(){
             data = data.filter(item => item?.status === "annule")
         }
 
+        if(activityTab === "passe"){
+            data = data.filter(item => item?.ispast === true)
+        }
+
         return data
     },[dataActivity, activityTab] )
 
@@ -1745,12 +1755,13 @@ export default function DashboardPro(){
     const delActivity = useMutation({
         mutationFn : DeleteActivity,
         onSuccess : (()=>{
-            delActivityQuery.invalidateQueries(['mes-activites'])
+            setActivityToDelete(null)
             setModalSupActivity(false)
             setTimeout(()=>{
                 delActivity.reset()
 
             }, 4000)
+            delActivityQuery.invalidateQueries(['mes-activites'])
 
         }),
 
@@ -1780,7 +1791,8 @@ export default function DashboardPro(){
 
         onSuccess: (()=>{
             setModalUpActivity(false)
-
+            setActivityToUp(null)
+            setPreviewActivityUp(null)
             setTimeout(()=>{
                 updateActivity.reset()
 
@@ -1803,9 +1815,11 @@ export default function DashboardPro(){
 
     async function handleUpdateActivity(e, id){
         e.preventDefault()
+        
         if(!id) return
         const formData = new FormData()
 
+        formData.append('_method', 'PUT')
         formData.append("id", activityToUp?.id)
         formData.append("nom_activite", activityToUp?.nom_activite)
         formData.append("descriptions", activityToUp?.descriptions)
@@ -1847,7 +1861,7 @@ export default function DashboardPro(){
         sendActivi.mutate({id})
         
     }
-
+    
 
 
     return(
@@ -2480,7 +2494,7 @@ export default function DashboardPro(){
                                     whileTap={{scale: 0.95}}
                                     disabled={dataExportLoading || daysRemaining <= 0}
                                     onClick={handleExport}
-                                className={`flex font-bold  text-sm items-center ${daysRemaining <= 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                    className={`flex font-bold justify-center  text-sm items-center ${daysRemaining <= 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
                                     {dataExportLoading  ? (
                                         <Loader2 className="animate-spin h-5 w-5"/>
                                     ):(
@@ -4276,7 +4290,7 @@ export default function DashboardPro(){
                                             <NotebookPen  className="h-7 w-7" fill="rgba(255,100,0,0.8)" stroke="white"/>
                                             <p className="text-2xl font-bold">Créer une Activité</p>
                                         </div>
-                                        <p className="text-sm text-gray-400 ">Une fois l'activité publiée, vos adhérants seront notifiés via leur adresse e-mail</p>
+                                        <p className="text-sm text-gray-400 ">Une fois l'activité publiée, vous pouvez l'envoyer directement à vos adhérants. Ils seront notifiés via leur adresse e-email.</p>
                                     </div>
 
                                     <div className="flex flex-col gap-4">
@@ -4317,18 +4331,30 @@ export default function DashboardPro(){
                                         </div>
 
                                         <div className="flex flex-col w-full gap-2">
-                                            <label>Image de l'activité <span className="text-red-500 font-bold">*</span></label>
+                                            <div className="flex items-center justify-between">
+                                                <label>Image de l'activité <span className="text-red-500 font-bold">*</span></label>
+                                                {previewActivity && (
+                                                    <button className="text-xs bg-red-600 text-white px-1 rounded-sm font-bold top-2 right-2"
+                                                        type="button"
+                                                        onClick={()=>{setPreviewActivity(null)}}
+                                                    >
+                                                        supprimer
+                                                    </button>
+                                                )}
+                                            </div>
+                                            
                                             
                                              <div
-                                                className="w-full rounded-lg h-50 border-2 border-dotted border-gray-400 overflow-hidden bg-gray-100 cursor-pointer"
+                                                className="w-full relative rounded-lg h-50 border-2 border-dotted border-gray-400 overflow-hidden bg-gray-100 cursor-pointer"
                                                 onClick={() => activityInputRef.current.click()}
                                             >
                                                 {previewActivity ? (
                                                     <div className="relative w-full h-full">
                                                         <ImageComponent source={previewActivity} style={"w-full h-full object-cover"} label={'preview'} />
-                                                        <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-
+                                                        <div className="absolute w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+                                                            
                                                         </div>
+                                                        
                                                     </div>
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -4339,6 +4365,8 @@ export default function DashboardPro(){
                                                         </div>
                                                     </div>
                                                 )}
+
+                                                
                                             </div>
 
                                             <input
@@ -4387,36 +4415,43 @@ export default function DashboardPro(){
                                 </div>
 
                                 <div className="flex flex-col gap-8 px-4 col-span-3 mt-10 h-200">
-                                    <div className="bg-white w-full flex items-center gap-2 shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg p-4">
+                                    <div className="bg-white w-full flex items-center justify-between shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg p-4">
                                         <p className="text-xl">Filtrer par statut :</p>
                                         <div className="flex items-center gap-4">
                                             <motion.button
                                             whileTap={{scale: 0.95}}
                                                 onClick={(e)=>{setActivityTab('tous')}}
-                                                className={`py-1 px-8 ${activityTab === 'tous' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
+                                                className={`py-1 px-4 ${activityTab === 'tous' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
                                             >
                                                 Tous
                                             </motion.button>
                                             <motion.button
                                             whileTap={{scale: 0.95}}
                                                 onClick={(e)=>{setActivityTab('publie')}}
-                                                className={`py-1 px-8 ${activityTab === 'publie' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
+                                                className={`py-1 px-4 ${activityTab === 'publie' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
                                             >
-                                                Publié
+                                                Publiées
                                             </motion.button>
                                             <motion.button
                                             whileTap={{scale: 0.95}}
                                                 onClick={(e)=>{setActivityTab('attente')}}
-                                                className={`py-1 px-8 ${activityTab === 'attente' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
+                                                className={`py-1 px-4 ${activityTab === 'attente' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
                                             >
                                                 En attente
                                             </motion.button>
                                             <motion.button
                                             whileTap={{scale: 0.95}}
                                                 onClick={(e)=>{setActivityTab('annule')}}
-                                                className={`py-1 px-8 ${activityTab === 'annule' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
+                                                className={`py-1 px-4 ${activityTab === 'annule' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
                                             >
-                                                Annulés
+                                                Annulées
+                                            </motion.button>
+                                            <motion.button
+                                            whileTap={{scale: 0.95}}
+                                                onClick={(e)=>{setActivityTab('passe')}}
+                                                className={`py-1 px-4 ${activityTab === 'passe' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
+                                            >
+                                                Passées
                                             </motion.button>
                                         </div>
                                     </div>
@@ -4438,15 +4473,22 @@ export default function DashboardPro(){
                                                     onClick={()=>{setModalImage(true),setShowImage(item)}}
                                                     className="h-60 w-full relative">
                                                     <ImageComponent source={`${documentUrl}${item?.images_activte}`} style={"w-full h-full object-cover cursor-pointer"} label={'img-activity'} />
-                                                    <p className="absolute rounded-full top-5 left-5 bg-white py-1 px-4 uppercase font-bold">{item?.status || 'N/A'}</p>
+                                                    <p className="absolute rounded-full top-5 left-5 bg-white py-1 px-4 uppercase font-bold">
+                                                        {item?.ispast ? (
+                                                            'passée'
+                                                        ):(
+                                                            item?.status || 'N/A'
+                                                        )}
+                                                    </p>
                                                     
                                                 </motion.div>
 
                                                 {item?.status === 'publie' && (
                                                     <motion.button
                                                         whileTap={{scale: 0.95}}
+                                                        disabled={item?.ispast || daysRemaining <= 0}
                                                         onClick={(e)=>{handleSendActivity(e, item.id)}}
-                                                        className="absolute hover:scale-105 transition-transform rounded-full top-5 right-5 bg-orange-600 text-white py-1 px-4 uppercase font-bold"
+                                                        className={`absolute ${(item?.ispast || daysRemaining <= 0) ? 'bg-orange-300' : 'hover:scale-105 transition-transform bg-orange-600' }  rounded-full top-5 right-5  text-white py-1 px-4 uppercase font-bold`}
                                                     >
                                                         {sendLoading ? (
                                                             <div className="flex items-center">
@@ -4471,19 +4513,28 @@ export default function DashboardPro(){
                                                         </p>
                                                         <div className="flex items-center gap-2">
                                                             <button
-                                                                onClick={()=>{setDetailActivity(true), setActivityToDelete(item)}}
+                                                                onClick={()=>{
+                                                                    setDetailActivity(true)
+                                                                    setActivityToDelete(item)
+                                                                }}
                                                             >
                                                                 <Eye className="h-6 w-6 hover:text-gray-500 transition-colors duration-200"/>
                                                             </button>
                                                             <button
                                                                 disabled={daysRemaining <= 0}
-                                                                onClick={()=>{setModalUpActivity(true), setActivityToUp(item)}}
+                                                                onClick={()=>{
+                                                                    setModalUpActivity(true)
+                                                                    setActivityToUp(item)
+                                                                }}
                                                             >
                                                                 <Pencil className="h-5 w-5 hover:text-blue-500 transition-colors duration-200" />
                                                             </button>
                                                             <button
                                                                 disabled={daysRemaining <= 0}
-                                                                onClick={()=>{setModalSupActivity(true), setActivityToDelete(item)}}
+                                                                onClick={()=>{
+                                                                    setModalSupActivity(true)
+                                                                    setActivityToDelete(item)
+                                                                }}
                                                             >
                                                                 <Trash2 className="h-5 w-5 hover:text-red-500 transition-colors duration-200"/>
                                                             </button>
@@ -4546,9 +4597,11 @@ export default function DashboardPro(){
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1}}
                         transition={{duration:0.3}}
+                        className="w-200 h-200"
+
                     >
                         
-                        <ImageComponent source={`${documentUrl}${showImage?.images_activte}`} label={'image'} style={'w-200 h-200 object-cover'}/>
+                        <ImageComponent source={`${documentUrl}${showImage?.images_activte}`} label={'image'} style={'w-full h-full '}/>
                     </motion.div>
                     <button 
                             className="absolute top-10 right-20 text-gray-300 hover:text-gray-400 transition-all duration-200"
@@ -5916,42 +5969,7 @@ export default function DashboardPro(){
 
                                 {loadingCoursListe ? (
                                     [1,2,3,4].map(item => (
-                                        <div key={item} className="flex flex-col gap-5 border border-gray-200 p-4 rounded-lg bg-white">
-                                            <div className="flex items-center justify-between ">
-                                                <p className="w-20 h-6 animate-pulse bg-gray-300"></p>
-                                            </div>
-
-                                            <div className="flex items-center gap-2">
-                                                <p className="w-6 h-6 animate-pulse bg-gray-300"></p>
-                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
-                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
-                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
-                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
-                                            </div>
-
-                                            <div className="flex items-center gap-2">
-                                                <p className="w-6 h-6 animate-pulse bg-gray-300"></p>
-                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
-                                                <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
-                                            </div>
-
-                                            <div className="flex flex-col gap-2">
-                                                <div className="flex items-center gap-2">
-                                                    <p className="w-6 h-6 animate-pulse bg-gray-300"></p>
-                                                    <p className="w-15 h-6 animate-pulse bg-gray-300"></p>
-                                                </div>
-                                                <div className="flex items-center gap-2 overflow-y-auto">
-                                                    <p className="w-20 h-10 animate-pulse bg-gray-300"></p>
-                                                    <p className="w-20 h-10 animate-pulse bg-gray-300"></p>
-                                                    <p className="w-20 h-10 animate-pulse bg-gray-300"></p>
-                                                    <p className="w-20 h-10 animate-pulse bg-gray-300"></p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center justify-center my-5">
-                                                <p className="w-75 h-6 animate-pulse bg-gray-300"></p>
-                                            </div>
-                                        </div>
+                                        <SkeletonListeProgram key={item}/>
                                     ))
                                 ):programListe.length === 0 ? (
                                     <div className="flex flex-col col-span-2 h-170 items-center justify-center">
@@ -5967,7 +5985,6 @@ export default function DashboardPro(){
                                     </div>
                                 ): programListe.map((item,index) => (
                                     <motion.div
-                                        whileHover={{scale: 0.96}}
                                     key={index} className="flex flex-col gap-5 border border-orange-500 p-4 rounded-lg bg-white">
                                         <div className="flex items-center gap-2 ">
                                             <p>Intitulé :</p>
@@ -5975,12 +5992,14 @@ export default function DashboardPro(){
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            <Calendar1 className="h-5 w-5 text-gray-400"/>
-                                            {item?.jours.map((jour,index) => (
-                                                <p key={index} className="font-semibold">
-                                                    {jour}.
-                                                </p>
-                                            ))}
+                                            <Calendar1 className={`${item?.jours.length > 5 ? 'h-7 w-7' : 'h-5 w-5' }  text-gray-400`}/>
+                                            <div className={`flex items-center gap-2 ${item?.jours.length > 5 ? 'overflow-y-auto scrollbar-hide ' : ''}`}>
+                                                {item?.jours.map((jour,index) => (
+                                                    <p key={index} className="font-semibold">
+                                                        {jour}.
+                                                    </p>
+                                                ))}
+                                            </div>
                                         </div>
 
                                         <div className="flex items-center gap-2">
@@ -6061,7 +6080,7 @@ export default function DashboardPro(){
 
                         <div className=" flex flex-col gap-5 h-205 overflow-y-auto scrollbar-hide">
                             
-                            <ImageComponent source={`${documentUrl}${activityToDelete?.images_activte}`} label={'image'} style={'w-full h-90 object-cover'}/>
+                            <ImageComponent source={`${documentUrl}${activityToDelete?.images_activte}`} label={'image'} style={'w-full h-full'}/>
                             <p className="text-gray-500">{activityToDelete?.descriptions || 'N/A'}</p>
                             
                             <div className="flex items-center justify-center">
@@ -6088,7 +6107,7 @@ export default function DashboardPro(){
                     >
                             <div className="flex items-center gap-2">
                                 <NotebookPen  className="h-7 w-7" fill="rgba(255,100,0,0.8)" stroke="white"/>
-                                <p className="text-2xl font-bold">Modification de l'activité</p>
+                                <p className="text-2xl font-bold">Modification de l'activité {activityToUp?.id || 'na'}</p>
                             </div>
 
                         <div className="flex flex-col gap-4">
@@ -6189,14 +6208,14 @@ export default function DashboardPro(){
                         <button
                             onClick={(e)=>{handleUpdateActivity(e, activityToUp?.id)}}
                             disabled={loadingUpdateActivity}
-                            className={`w-full p-4 font-bold text-whit bg-orange-500 hover:bg-orange-600 flex items-center gap-2 justify-center rounded-lg`}
+                            className={`w-full p-4 font-bold text-whit bg-orange-600 hover:bg-orange-500 transition-all duration-200 flex items-center gap-2 justify-center rounded-lg`}
                         >
                             {loadingUpdateActivity ? (
                                 <Loader2 className="h-6 w-6 animate-spin text-white"/>
                             ):(
                                 <>
-                                    <Save className="h-6 w-6"/>
-                                    <p>Mettre à jour l'activité</p>
+                                    <Save className="h-6 w-6 text-white"/>
+                                    <p className="text-white">Mettre à jour l'activité</p>
                                 </>
                             )}
                         </button>
@@ -6221,6 +6240,7 @@ export default function DashboardPro(){
             <ResponseTarif successTarif={successTarif} successTarifDel={successTarifDel} successTarifUp={successTarifUp} />
             <ResponseInfoPerso persoSuccess={persoSuccess} passwordSuccess={passwordSuccess} />
             <ResponseInfoSalle successUpdate={successUpdate} />
+            <ResponseExportData dataExportSuccess={dataExportSuccess} />
             <ResponseActivity activitySuccess={activitySuccess} activityDelSuccess={activityDelSuccess} activityUpdateSuccess={activityUpdateSuccess} sendSuccess={sendSuccess} />
             
             <ResponseError 
