@@ -32,7 +32,7 @@ class PaiementController extends Controller
     try {
         $fin = $request->fin ?? 1;
 
-        switch ($request->forfait){
+        switch ($request->forfait){ 
             
         }
 
