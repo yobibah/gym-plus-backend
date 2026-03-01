@@ -84,6 +84,7 @@ import { UpdateActivity } from "../../api/dashboard/pro/params/updateActivity";
 import { SendActivity } from "../../api/dashboard/pro/params/sendActivity";
 import SkeletonListeProgram from "../../components/ui/SkeletonListeProgram";
 import ResponseExportData from "../../utils/exportData/response.api";
+import { LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line } from "recharts";
 
 export default function DashboardPro(){
 
@@ -213,7 +214,7 @@ export default function DashboardPro(){
     const [previewActivityUp, setPreviewActivityUp] = useState(null)
     const activityUpInputRef =useRef(null)
 
-    const [selectedActivity, setSelectedActivity] = useState(null)
+    const [apercu, setApercu] = useState('mois_actuel')
 
 
     const navigate = useNavigate()
@@ -1573,7 +1574,44 @@ export default function DashboardPro(){
 
     const loadingRecette = recette.isPending
     const errorRecette = recette.isError
-    const dataRecette = recette?.data || {}
+    const dataRecette = recette?.data || []
+
+    const recetteMois = dataRecette?.[0]?.montant_total
+    const recetteMoisDernier = dataRecette?.[2]?.montant_total
+    const recette3MoisDernier = dataRecette?.[1]?.montant_total
+    const recetteAnneDernier = dataRecette?.[0]?.montant_total
+
+    function pourcentageMois(){
+        if(recetteMoisDernier === 0 || recette3MoisDernier === 0 || recetteAnneDernier === 0 ){
+            return 0
+        } else{
+            const percentRecetteMois = ((recetteMois - recetteMoisDernier) / recetteMoisDernier) * 100
+            const percentRecette3Mois = ((recetteMois - recette3MoisDernier) / recette3MoisDernier) * 100
+            const percentRecetteAn = ((recetteMois - recetteAnneDernier) / recetteAnneDernier) * 100
+
+            if(apercu === 'mois_actuel'){
+                percetMonth = percentRecetteMois.toFixed(2)
+            }
+
+            if(apercu === 'mois_dernier'){
+                percetMonth = percentRecette3Mois.toFixed(2)
+            }
+
+            if(apercu === 'annee_passe'){
+                percetMonth = percentRecetteAn.toFixed(2)
+            }
+
+            return Number(percetMonth)
+        }
+    }
+
+    useEffect(()=>{
+        pourcentageMois()
+    }, [status])
+    
+    
+    
+    
 
     const programCoursQuery = useQueryClient()
     const programCours = useMutation({
@@ -2173,7 +2211,7 @@ export default function DashboardPro(){
 
                                     {errorNbrActif && (
                                         <div>
-                                            <p className="text-red-500 text-sm">{nbrActif.error.message}</p>
+                                            <p className="text-red-500 text-sm">Erreur lors de la récupération du nombre d'adhérents</p>
                                         </div>
                                     )}
                                 </motion.div>
@@ -2181,12 +2219,24 @@ export default function DashboardPro(){
                                     whileHover={{scale: 1.02}}
                                     className="bg-white shadow-[0_0_5px_rgba(255,0,0,0.8)] h-27 w-full flex flex-col gap-2 p-4 rounded-lg">
                                     <div>
-                                        <p className="text-gray-400 font-bold text-[18px]">Dépenses du Mois</p>
+                                        <p className="text-gray-400 font-bold text-[18px]">Récettes mois précédent</p>
                                     </div>
 
-                                    <div>
-                                        <p className="font-bold text-3xl text-red-600">XOF 1000</p>
-                                    </div>
+                                    {loadingRecette ? (
+                                        <div>
+                                            <p className="w-40 h-8 bg-gray-200 animate-pulse"></p>
+                                        </div>
+                                    ):(
+                                        <div>
+                                            <p className="font-bold text-3xl text-red-500">XOF {dataRecette?.[0]?.mois_precedent || 0}</p>
+                                        </div>
+                                    )}
+
+                                    {errorRecette && (
+                                        <div>
+                                            <p className="text-red-500 text-sm">Erreur lors de la récupération des recettes</p>
+                                        </div>
+                                    )}
                                 </motion.div>
                                 <motion.div
                                     whileHover={{scale: 1.02}}
@@ -2200,13 +2250,13 @@ export default function DashboardPro(){
                                         </div>
                                     ):(
                                         <div>
-                                            <p className="font-bold text-3xl text-yellow-500">XOF {dataRecette?.MontantCeMois || '-'}</p>
+                                            <p className="font-bold text-3xl text-yellow-500">XOF {dataRecette?.[0]?.montant_total || 0}</p>
                                         </div>
                                     )}
 
                                     {errorRecette && (
                                         <div>
-                                            <p className="text-red-500 text-sm">{recette.error.message}</p>
+                                            <p className="text-red-500 text-sm">Erreur lors de la récupération des recettes</p>
                                         </div>
                                     )}
                                 </motion.div>
@@ -2218,29 +2268,61 @@ export default function DashboardPro(){
                                         <h3 className="font-bold">Aperçu financier</h3>
                                         <div className="flex items-center justify-center gap-2 border rounded-full border-gray-400 py-1 px-5">
                                             <motion.button
-                                                className="text-sm rounded-lg py-1 px-3 font-semibold "
+                                            whileTap={{scale: 0.95}}
+                                                onClick={()=>{setApercu('mois_dernier')}}
+                                                className={`text-sm rounded-lg py-1 px-3 ${apercu === 'mois_dernier' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
                                             >
-                                                Semaine
+                                                3 derniers mois
                                             </motion.button>
                                             <motion.button
-                                                className="text-sm rounded-lg py-1 px-3 bg-blue-500 text-white font-semibold  "
+                                                whileTap={{scale: 0.95}}
+                                                onClick={()=>{setApercu('mois_actuel')}}
+                                                className={`text-sm rounded-lg py-1 px-3 ${apercu === 'mois_actuel' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
                                             >
-                                                Mois
+                                                Mois actuel
                                             </motion.button>
                                             <motion.button
-                                                className="text-sm rounded-lg py-1 px-3 font-semibold "
+                                            whileTap={{scale: 0.95}}
+                                                onClick={()=>{setApercu('annee_passe')}}
+                                                className={`text-sm rounded-lg py-1 px-3 ${apercu === 'annee_passe' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
                                             >
-                                                Année
+                                                Année passée
                                             </motion.button>
                                         </div>
                                     </div>
-                                    <div className="flex relative my-3">
-                                        <p className="text-2xl font-bold">XOF 50000</p>
-                                        <p className="text-green-500 font-semibold absolute bottom-1 left-32 text-sm">+5,2% vs mois dernier</p>
+                                    <div className=" my-3">
+                                        <p className="text-2xl font-bold">XOF {dataRecette?.[0]?.montant_total}
+                                            <span className="text-green-500 font-semibold ml-2 text-orange-500 text-sm">
+                                                {pourcentageMois()} 
+                                                
+                                                {apercu === 'mois_dernier' ? (
+                                                    '% vs  les trois(3) derniers mois'
+                                                ):apercu === 'annee_passe' ? (
+                                                    '% vs  l\'année passée'
+                                                ):(
+                                                    '% vs le mois précédent'
+                                                )}
+                                            </span>
+                                        </p>
+                                        
                                     </div>
 
                                     <div className="flex items-center justify-center h-100">
-                                        <p className="text-gray-400">Graphique</p>
+                                        {(dataRecette?.[0]?.montant_total === 0 &&
+                                            dataRecette?.[1]?.montant_total === 0 &&
+                                            dataRecette?.[2]?.montant_total === 0 &&
+                                            dataRecette?.[3]?.montant_total === 0) ? (
+                                            <p className="text-gray-400">Aucune recette enregistré pour le moment</p>
+                                        ):(
+                                            <LineChart style={{ width: '100%', aspectRatio: 2.4, maxWidth: 1000, margin: 'auto' }} responsive data={dataRecette}>
+                                                <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
+                                                <XAxis dataKey="periode" />
+                                                <YAxis width="auto" />
+                                                <Tooltip />
+                                                <Line type="monotone" dataKey="montant_total" stroke="rgba(255,100,0,1)" />
+                                                
+                                            </LineChart>
+                                        )}
                                     </div>
                                 </div>
 
@@ -2317,8 +2399,11 @@ export default function DashboardPro(){
                                                     <p className="h-7 w-7 bg-gray-300 animate-pulse"></p>
                                                 ):(
                                                     <p className="text-green-500 text-xl font-bold">
-                                                        
-                                                        {mes_coach.length > 9 ? mes_coach.length : `0${mes_coach.length}`}
+                                                        {mes_coach.length === 0 ? (
+                                                            'Aucun'
+                                                        ):(
+                                                            mes_coach.length > 9 ? mes_coach.length : `0${mes_coach.length}`
+                                                        )}
                                                     </p>
                                                 )}
 
@@ -2343,7 +2428,11 @@ export default function DashboardPro(){
                                                     <p className="h-7 w-7 bg-gray-300 animate-pulse"></p>
                                                 ):(
                                                     <p className="text-blue-500 text-xl font-bold">
-                                                        {listeCoursData.length > 9 ? listeCoursData.length : `0${listeCoursData.length}`}
+                                                        {listeCoursData.length === 0 ? (
+                                                            'Aucun'
+                                                        ):(
+                                                            listeCoursData.length > 9 ? listeCoursData.length : `0${listeCoursData.length}`
+                                                        )}
                                                     </p>
                                                 )}
 
@@ -2353,7 +2442,7 @@ export default function DashboardPro(){
                                                         <p className="text-xs text-red-500 font-semibold">Erreur</p>
                                                     </div>
                                                 )}
-                                                <p className="text-gray-400 text-sm font-semibold">Cour{listeCoursData.length <= 1 ? '' : 's'}</p>
+                                                <p className="text-gray-400 text-sm font-semibold">Cours</p>
                                             </div>
 
                                         </div>
@@ -2654,8 +2743,12 @@ export default function DashboardPro(){
                         <div className="flex flex-col gap-2">
                             <h1 className="font-bold text-3xl flex items-center">
                                 Gestion Abonnements :
-                                <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">{nbrAdherantsActif} actif{nbrAdherantsActif > 1 ? 's' : ''}</span>
-                                <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full">{totalAbExpirer > 9 ? totalAbExpirer : `0${totalAbExpirer}`} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
+                                <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">
+                                    {nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}`} actif{nbrAdherantsActif > 1 ? 's' : ''}
+                                </span>
+                                <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full">
+                                    {totalAbExpirer > 9 ? totalAbExpirer : `0${totalAbExpirer}`} expiré{totalAbExpirer > 1 ? 's' : ''}
+                                </span>
                                 <span className="text-yellow-600 bg-yellow-100 text-sm py-1 px-3 rounded-full mx-3">{totalExpire > 9 ? totalExpire : `0${totalExpire}`} expire{totalExpire > 1 ? 's' : ''} bientôt</span>
                             </h1>
                             <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
