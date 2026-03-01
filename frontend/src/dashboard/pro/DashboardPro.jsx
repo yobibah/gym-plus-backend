@@ -1590,18 +1590,21 @@ export default function DashboardPro(){
             const percentRecetteAn = ((recetteMois - recetteAnneDernier) / recetteAnneDernier) * 100
 
             if(apercu === 'mois_actuel'){
-                percetMonth = percentRecetteMois.toFixed(2)
+                const percetMonth = percentRecetteMois.toFixed(2)
+                return Number(percetMonth)
             }
 
             if(apercu === 'mois_dernier'){
-                percetMonth = percentRecette3Mois.toFixed(2)
+                const percetMonth = percentRecette3Mois.toFixed(2)
+                return Number(percetMonth)
             }
 
             if(apercu === 'annee_passe'){
-                percetMonth = percentRecetteAn.toFixed(2)
+                const percetMonth = percentRecetteAn.toFixed(2)
+                return Number(percetMonth)
             }
 
-            return Number(percetMonth)
+            return 0
         }
     }
 
