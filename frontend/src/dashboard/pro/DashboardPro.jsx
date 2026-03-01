@@ -1610,7 +1610,7 @@ export default function DashboardPro(){
 
     useEffect(()=>{
         pourcentageMois()
-    }, [status])
+    }, [apercu])
     
     
     
