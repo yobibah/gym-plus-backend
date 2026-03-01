@@ -380,7 +380,8 @@ class UserController extends Controller
             $abonnement = $user->dernierPaiement;
             return response()->json([
                 'plan' => $plan,
-                'abonnement' => $abonnement
+                'abonnement' => $abonnement,
+                'user'=>$user
 
             ], 200);
         } catch (Exception $e) {

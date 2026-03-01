@@ -235,11 +235,11 @@ class YengaPayController extends Controller
                 ], 403);
             }
 
-            if (!$hasAbonnement) {
-                return response()->json([
-                    'message' => 'abonnement en cours ou une erreur est survenue'
-                ], 409);
-            }
+            // if (!$hasAbonnement) {
+            //     return response()->json([
+            //         'message' => 'abonnement en cours ou une erreur est survenue'
+            //     ], 409);
+            // }
 
             $paiement = paiement::create([
                 'debut' => Carbon::now(),
