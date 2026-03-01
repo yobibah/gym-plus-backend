@@ -34,14 +34,15 @@ class ActiviteExpirer extends Command
       
 
         foreach($act as $ac){
-            if ($ac && $ac->ispast){
+            if ($ac && $ac->Ispast()){
                 $ac->update([
-                    'status'=>'expirer'
+                    'status'=>'passe'
                 ]);
                 $this->count++;
             }
         }
 
+        $this->info($this->count. ' activites sont passees');
 
     }
 }

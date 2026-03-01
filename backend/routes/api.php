@@ -3,6 +3,7 @@
 use App\Http\Controllers\CoursController;
 use App\Http\Controllers\ProgramerCoursController;
 use App\Exports\UserExport;
+use App\Models\activites;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -56,6 +57,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/delete-activite', [ActivitesController::class, 'DeletedActivity']);
     Route::get('/mes-activites', [ActivitesController::class, 'MesActivites']);
     Route::put('/update-activite', [ActivitesController::class, 'UpdateActivite']);
+    Route::post('/switch-status',[ActivitesController::class,'switchStatus']);
     Route::post('/send-activite-to-user', [ActivitesController::class, 'SendToAdherent']);
     // definitions des prix
 

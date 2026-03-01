@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
 use PhpParser\Node\Expr\Cast\String_;
-
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -54,7 +54,8 @@ class AuthController extends Controller
                 'message' => 'veuillez saisir tous les champs demandés'
             ], 400);
         }
-
+        DB::beginTransaction();
+  try {
 
         $gerantExiste = User::where('email', strtolower($request->email))
             ->whereHas('roles', fn($q) => $q->where('name', 'Gerant'))
@@ -83,7 +84,7 @@ class AuthController extends Controller
 
 
 
-        try {
+      
 
             $otp = new Otp($gerant);
             $otp->sendOtp();
@@ -94,6 +95,7 @@ class AuthController extends Controller
             $gerant->remember_token = $token;
             $gerant->save();
 
+            DB::commit();
 
             return response()->json([
                 'message1' => 'votre compte a été bien créé',
@@ -108,6 +110,7 @@ class AuthController extends Controller
             ], 201);
 
         } catch (Exception $th) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Erreur lors de la création du compte.',
                 'error' => $th->getMessage()

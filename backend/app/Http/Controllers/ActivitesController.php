@@ -21,6 +21,7 @@ class ActivitesController extends Controller
 {
     //
     // public function __construct(public Activity $activite){}
+    private array $states=['publie', 'attente', 'annule'];
 
     public function MesActivites(Request $request)
     {
@@ -400,4 +401,72 @@ class ActivitesController extends Controller
             ], 500);
         }
     }
+
+
+
+public function switchStatus(Request $request)
+{
+    $user = $request->user();
+
+    $validator = Validator::make($request->all(), [
+        'id' => 'required|integer'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Identifiant non fourni'
+        ], 400);
+    }
+
+    DB::beginTransaction();
+
+    try {
+
+        $activite = Activites::find($request->id);
+
+        if (!$activite || $activite->gerant_id != $user->id) {
+            return response()->json([
+                'message' => 'Une erreur est survenue'
+            ], 409);
+        }
+        if ($activite->Ispast()){
+            return response()->json([
+                'message'=> 'veuillez mettre a jour l\'activite avant de pouvoir modifier les Etats'
+            ],409);
+        }
+        // recup la position du status
+        $currentIndex = array_search($activite->status, $this->states);
+
+        if ($currentIndex === false) {
+            return response()->json([
+                'message' => 'Status invalide'
+            ], 400);
+        }
+
+        // Passer au status suivant+++
+        $nextIndex = ($currentIndex + 1) % count($this->states);
+
+    
+        $activite->update([
+            'status'=>$this->states[$nextIndex]
+        ]);
+       
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Status mis à jour',
+            'status' => $activite->status
+        ],200);
+
+    } catch (Exception $e) {
+
+        DB::rollBack();
+
+        return response()->json([
+            'message' => 'Oups !! une erreur est survenue',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 }

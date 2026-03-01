@@ -236,7 +236,7 @@ class UserController extends Controller
             ], 409);
         }
 
-
+     
         try {
 
             //verifier si le paiement est actif avant de continuer
