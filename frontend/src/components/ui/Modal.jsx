@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function ModalLogout({reject, confirm, children, question}){
     return(
-        <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/50 backdrop-blur flex z-20 items-center justify-center">
             <motion.div
                 initial={{opacity:0, scale:0.75}}
                 animate={{opacity:1, scale:1.15}}

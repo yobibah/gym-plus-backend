@@ -1,4 +1,4 @@
-import { AlertOctagon, AlertTriangle, AlertTriangleIcon, ArrowDownUpIcon, ArrowLeft, ArrowRight, Bell, Calendar1, CalendarOff, Check, CheckCircle, CheckCircle2, Circle, Clock, Download, Euro, Eye, File, Info, LayoutDashboard, Loader2, LogOut, NotebookPen, Pencil, Plus, PlusSquare, Save, Search, Settings, SquarePlus, Star, Timer, Trash, Trash2, UploadCloud, User, UserCog, UserPlus, Users, Users2, WalletCards, X, XCircle } from "lucide-react";
+import { AlertOctagon, AlertTriangle, AlertTriangleIcon, ArrowDownUpIcon, ArrowLeft, ArrowRight, Bell, Calendar1, CalendarOff, Check, CheckCircle, CheckCircle2, Circle, Clock, Download, Edit, Euro, Eye, File, Info, LayoutDashboard, Loader2, LogOut, NotebookPen, Pencil, Plus, PlusSquare, Save, Search, Settings, SquarePlus, Star, Timer, Trash, Trash2, UploadCloud, User, UserCog, UserPlus, Users, Users2, WalletCards, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -85,6 +85,7 @@ import { SendActivity } from "../../api/dashboard/pro/params/sendActivity";
 import SkeletonListeProgram from "../../components/ui/SkeletonListeProgram";
 import ResponseExportData from "../../utils/exportData/response.api";
 import { LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line } from "recharts";
+import { SwitchStatut } from "../../api/dashboard/pro/params/switch-activity";
 
 export default function DashboardPro(){
 
@@ -215,6 +216,8 @@ export default function DashboardPro(){
     const activityUpInputRef =useRef(null)
 
     const [apercu, setApercu] = useState('mois_actuel')
+    const [selectActivity, setSelectActivity] = useState(null)
+    const [showSwhitch, setShowSwhitch] = useState(false)
 
 
     const navigate = useNavigate()
@@ -307,16 +310,6 @@ export default function DashboardPro(){
             setCoachOuvert(null)
             setDeleteCoach(null)
             setCoursTab('tous')
-            setHistoryP(false)
-            return
-        }
-
-        if(activeTab === 'finances'){
-            setActiveTab('finances')
-            setShowAdd(false)
-            setNotifModal(false)
-            setCoachOuvert(null)
-            setDeleteCoach(null)
             setHistoryP(false)
             return
         }
@@ -1902,7 +1895,40 @@ export default function DashboardPro(){
         sendActivi.mutate({id})
         
     }
-    
+
+
+    const switchA = useQueryClient()
+    const swhitchAct = useMutation({
+        mutationFn: SwitchStatut,
+        onSuccess: (()=>{
+            switchA.invalidateQueries(['mes-activites'])
+            setSelectActivity(null)
+            setTimeout(()=>{
+                swhitchAct.reset()
+            }, 4000)
+            
+        }),
+
+        onError: (()=>{
+            setSelectActivity(null)
+            setTimeout(()=>{
+                swhitchAct.reset()
+            }, 4000)
+            
+        }),
+        
+    })
+
+    const swhitchLoading = swhitchAct.isPending
+    const swhitchError = swhitchAct.isError
+    const swhitchSuccess = swhitchAct.isSuccess
+
+    async function handleSwhitchActivity(e, id) {
+        e.preventDefault()
+        if(!id) return
+        swhitchAct.mutate({id})
+        
+    }
 
 
     return(
@@ -1994,18 +2020,6 @@ export default function DashboardPro(){
                     <button className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
 
                     >Planning de cours</button>
-                </motion.div>
-
-                <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'finances' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
-                    onClick={()=>{setActiveTab('finances')}}
-                >
-                     <Euro className={`${activeTab === 'finances' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'finances' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-
-                    >Finances</button>
                 </motion.div>
 
 
@@ -2268,7 +2282,9 @@ export default function DashboardPro(){
                             <div className="col-span-4 my-10 grid grid-cols-4 justify-between gap-8">
                                 <div className="shadow-[0_0_5px_rgba(0,0,0,0.5)] p-4 col-span-3 bg-white rounded-lg w-full">
                                     <div className="flex items-center justify-between w-full">
-                                        <h3 className="font-bold">Aperçu financier</h3>
+                                        <div className="font-bold flex items-center gap-1">
+                                           <p>Aperçu financier</p>
+                                        </div>
                                         <div className="flex items-center justify-center gap-2 border rounded-full border-gray-400 py-1 px-5">
                                             <motion.button
                                             whileTap={{scale: 0.95}}
@@ -3398,12 +3414,6 @@ export default function DashboardPro(){
                         
                     </div>
                 </>
-            )}
-
-            {activeTab === 'finances' &&(
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-                    <p>Finances</p>
-                </div>
             )}
 
             {activeTab === 'settings' && (
@@ -4609,6 +4619,7 @@ export default function DashboardPro(){
                                                         </p>
                                                         <div className="flex items-center gap-2">
                                                             <button
+                                                            title="Voir plus"
                                                                 onClick={()=>{
                                                                     setDetailActivity(true)
                                                                     setActivityToDelete(item)
@@ -4617,15 +4628,17 @@ export default function DashboardPro(){
                                                                 <Eye className="h-6 w-6 hover:text-gray-500 transition-colors duration-200"/>
                                                             </button>
                                                             <button
+                                                            title="Modifier l'activité"
                                                                 disabled={daysRemaining <= 0}
                                                                 onClick={()=>{
                                                                     setModalUpActivity(true)
                                                                     setActivityToUp(item)
                                                                 }}
                                                             >
-                                                                <Pencil className="h-5 w-5 hover:text-blue-500 transition-colors duration-200" />
+                                                                <Edit className="h-5 w-5 hover:text-blue-500 transition-colors duration-200" />
                                                             </button>
                                                             <button
+                                                            title="Supprimer l'activité"
                                                                 disabled={daysRemaining <= 0}
                                                                 onClick={()=>{
                                                                     setModalSupActivity(true)
@@ -4635,9 +4648,18 @@ export default function DashboardPro(){
                                                                 <Trash2 className="h-5 w-5 hover:text-red-500 transition-colors duration-200"/>
                                                             </button>
                                                             <button
-                                                                disabled={daysRemaining <= 0}
+                                                                onClick={(e)=>{
+                                                                    setSelectActivity(selectActivity === item.id ? null : item.id)
+                                                                    handleSwhitchActivity(e, selectActivity)
+                                                                }}
+                                                                disabled={daysRemaining <= 0 || swhitchLoading}
+                                                                title="Changer de statut"
                                                             >
-                                                                <ArrowDownUpIcon className="h-5 w-5 hover:text-gray-500 transition-colors duration-200"/>
+                                                                {swhitchLoading ? (
+                                                                    <Loader2 className="h-5 w-5 animate-spin transition-colors duration-200"/>
+                                                                ):(
+                                                                    <ArrowDownUpIcon className="h-5 w-5 hover:text-gray-500 transition-colors duration-200"/>
+                                                                )}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -6337,14 +6359,14 @@ export default function DashboardPro(){
             <ResponseInfoPerso persoSuccess={persoSuccess} passwordSuccess={passwordSuccess} />
             <ResponseInfoSalle successUpdate={successUpdate} />
             <ResponseExportData dataExportSuccess={dataExportSuccess} />
-            <ResponseActivity activitySuccess={activitySuccess} activityDelSuccess={activityDelSuccess} activityUpdateSuccess={activityUpdateSuccess} sendSuccess={sendSuccess} />
+            <ResponseActivity activitySuccess={activitySuccess} activityDelSuccess={activityDelSuccess} activityUpdateSuccess={activityUpdateSuccess} sendSuccess={sendSuccess} swhitchSuccess={swhitchSuccess} />
             
-            <ResponseError 
+            <ResponseError
                 coachError={coachError}
                 errorTarif={errorTarif}
                 errorTarifUp={errorTarifUp}
                 errorTarifDel={errorTarifDel}
-                persoError={persoError} 
+                persoError={persoError} swhitchError={swhitchError}
                 passwordError={passwordError} errorSupCoach={errorSupCoach}
                 signDelError={signDelError} signEditError={signEditError} signError={signError}
                 logoDelError={logoDelError} logoEditError={logoEditError} logoError={logoError}

@@ -13,7 +13,7 @@ export default function ResponseError({
     reactError, programError, modifCoachError,
     suspError, errorSupCours, errorSupAdh,
     errorSupCoach, activityError, errorSupActivity,
-    errorUpdateActivity, sendError
+    errorUpdateActivity, sendError, swhitchError
 
  }) {
 
@@ -22,7 +22,7 @@ export default function ResponseError({
             {
                 (coachError || errorTarif || sendError ||
                 errorTarifUp || errorTarifDel || errorSupActivity ||
-                persoError || passwordError || 
+                persoError || passwordError || swhitchError ||
                 signError || signEditError || signDelError || 
                 logoError || logoEditError || logoDelError ||
                 updateError || errorAdherant || errorUpdateAdh ||

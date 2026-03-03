@@ -1,7 +1,7 @@
 import React from "react";
 import ToastSuccess from "../../components/ui/ToastSuccess";
 
-export default function ResponseActivity({ activitySuccess, activityUpdateSuccess, activityDelSuccess, sendSuccess }) {
+export default function ResponseActivity({ activitySuccess, swhitchSuccess, activityUpdateSuccess, activityDelSuccess, sendSuccess }) {
     return (
         <>
             {activityDelSuccess && (
@@ -12,6 +12,10 @@ export default function ResponseActivity({ activitySuccess, activityUpdateSucces
             )}
             {activitySuccess && (
                 <ToastSuccess title={'Succès !'} message={'Activité enregistrée avec succès'}/>
+            )}
+
+            {swhitchSuccess && (
+                <ToastSuccess title={'Succès !'} message={'Le statut de l\'activité a été changé avec succès.'}/>
             )}
 
             {sendSuccess && (
