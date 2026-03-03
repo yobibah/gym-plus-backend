@@ -2041,8 +2041,8 @@ export default function DashboardPro(){
                     <motion.button
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
-                        disabled={misNiveauLoading || daysRemaining <= 0}
-                        className={`${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-600'}  shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
+                        disabled={misNiveauLoading || daysRemaining < 0}
+                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'}  shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
                         onClick={handleNiveau}
                     >
                         {misNiveauLoading ? (
@@ -2600,9 +2600,9 @@ export default function DashboardPro(){
                             <div className="flex items-center gap-2">
                                 <motion.button
                                     whileTap={{scale: 0.95}}
-                                    disabled={dataExportLoading || daysRemaining <= 0}
+                                    disabled={dataExportLoading || daysRemaining < 0}
                                     onClick={handleExport}
-                                    className={`flex font-bold justify-center  text-sm items-center ${daysRemaining <= 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                    className={`flex font-bold justify-center  text-sm items-center ${daysRemaining < 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
                                     {dataExportLoading  ? (
                                         <Loader2 className="animate-spin h-5 w-5"/>
                                     ):(
@@ -2617,8 +2617,8 @@ export default function DashboardPro(){
                                 <motion.button
                                     whileTap={{scale: 0.95}}
                                     onClick={()=>{setShowAdd(true), setActiveTab('')}}
-                                    disabled={daysRemaining <= 0}
-                                className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                    disabled={daysRemaining < 0}
+                                className={`flex font-bold text-white text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
                                     <Plus className="h-5 w-5 "/>
                                     Ajouter un adhérant
                                 </motion.button>
@@ -2687,18 +2687,18 @@ export default function DashboardPro(){
                                                     </motion.button>
                                                     <motion.button
                                                         type="button"
-                                                        disabled={daysRemaining <= 0}
+                                                        disabled={daysRemaining < 0}
                                                         onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
+                                                        className={`border  ${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
                                                         <Pencil className="text-white h-4 w-4"/>
                                                     </motion.button>
                                                     <motion.button
                                                         type="button"
-                                                        disabled={daysRemaining <= 0}
+                                                        disabled={daysRemaining < 0}
                                                         onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
+                                                        className={`border  border-red-100 ${daysRemaining < 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
                                                     >
                                                         <Trash className="h-4 w-4 text-white" />
                                                     </motion.button>
@@ -2883,14 +2883,14 @@ export default function DashboardPro(){
                                                                     type="button"
                                                                     onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
                                                                     whileTap={{scale: 0.95}}
-                                                                    disabled={daysRemaining <= 0}
-                                                                    className={`border ${daysRemaining <= 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
+                                                                    disabled={daysRemaining < 0}
+                                                                    className={`border ${daysRemaining < 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
                                                                     Reabonner
                                                                 </motion.button>
                                                             ):(
                                                                 <motion.button
                                                                     type="button"
-                                                                    disabled={daysRemaining <= 0}
+                                                                    disabled={daysRemaining < 0}
                                                                     onClick={()=>{setReactiverModal(true), setReact(item)}}
                                                                     className={`border  border-green-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-green-500`}>
                                                                     Réactiver
@@ -2900,7 +2900,7 @@ export default function DashboardPro(){
                                                         ): (
                                                             <motion.button
                                                                 type="button"
-                                                                disabled={daysRemaining <= 0}
+                                                                disabled={daysRemaining < 0}
                                                                 onClick={()=>{setSuspendreModal(true), setSuspen(item)}}
                                                                 className={` border  border-red-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-red-500`}>
                                                                 Suspendre
@@ -3290,8 +3290,8 @@ export default function DashboardPro(){
                                 <motion.button
                                     whileTap={{scale: 0.95}}
                                     onClick={()=>{setModalAddCours(true), setNiveaux('debutant')}}
-                                    disabled={daysRemaining <= 0}
-                                    className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                    disabled={daysRemaining < 0}
+                                    className={`flex font-bold text-white text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
                                     <Plus className="h-5 w-5 "/>
                                     Ajouter un cours
                                 </motion.button>
@@ -3343,26 +3343,26 @@ export default function DashboardPro(){
                                                 <td className="flex justify-center py-5 items-center gap-2 px-3">
                                                     <motion.button
                                                         type="button"
-                                                        disabled={daysRemaining <= 0}
+                                                        disabled={daysRemaining < 0}
                                                         onClick={()=>{setModalProgram(true), setProgram(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className={`border ${daysRemaining <= 0 ? 'bg-blue-300' : 'cursor-pointer bg-blue-500 '}  border-blue-100 rounded-lg text-white font-bold p-1 px-3`}>
+                                                        className={`border ${daysRemaining < 0 ? 'bg-blue-300' : 'cursor-pointer bg-blue-500 '}  border-blue-100 rounded-lg text-white font-bold p-1 px-3`}>
                                                         Programmer
                                                     </motion.button>
                                                     <motion.button
                                                         type="button"
-                                                        disabled={daysRemaining <= 0}
+                                                        disabled={daysRemaining < 0}
                                                         onClick={()=>{setModalUpCours(true), setCoursToUp(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
+                                                        className={`border  ${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
                                                         <Pencil className="text-white h-4 w-4"/>
                                                     </motion.button>
                                                     <motion.button
                                                         type="button"
-                                                        disabled={daysRemaining <= 0}
+                                                        disabled={daysRemaining < 0}
                                                         onClick={()=>{setModalSupCours(true), setCoursToDelete(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
+                                                        className={`border  border-red-100 ${daysRemaining < 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
                                                     >
                                                         <Trash className="h-4 w-4 text-white" />
                                                     </motion.button>
@@ -4146,8 +4146,8 @@ export default function DashboardPro(){
                                                     type="button"
                                                         whileTap={{scale:0.95}}
                                                         onClick={FormMensuel}
-                                                        disabled={daysRemaining <= 0}
-                                                        className={`${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 border-orange-600'} px-5 py-3 rounded-lg shadow-lg border `}
+                                                        disabled={daysRemaining < 0}
+                                                        className={`${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 border-orange-600'} px-5 py-3 rounded-lg shadow-lg border `}
                                                     >
                                                         {showFormTarif ? <X className="text-white"/> : <Plus className="text-white"/>}
                                                     </motion.button>
@@ -4505,8 +4505,8 @@ export default function DashboardPro(){
 
                                     <button
                                         onClick={handleActivity}
-                                        disabled={activityLoading || !validateFieldActivity() || daysRemaining <= 0}
-                                        className={`w-full p-4 font-bold text-white ${!validateFieldActivity() || daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 hover:bg-orange-600 '} flex items-center gap-2 justify-center rounded-lg`}
+                                        disabled={activityLoading || !validateFieldActivity() || daysRemaining < 0}
+                                        className={`w-full p-4 font-bold text-white ${(!validateFieldActivity() || daysRemaining < 0) ? 'bg-orange-300' : 'bg-orange-500 hover:bg-orange-600 '} flex items-center gap-2 justify-center rounded-lg`}
                                     >
                                         {activityLoading ? (
                                             <Loader2 className="h-6 w-6 animate-spin text-white"/>
@@ -4592,9 +4592,9 @@ export default function DashboardPro(){
                                                 {item?.status === 'publie' && (
                                                     <motion.button
                                                         whileTap={{scale: 0.95}}
-                                                        disabled={item?.ispast || daysRemaining <= 0}
+                                                        disabled={item?.ispast || daysRemaining < 0}
                                                         onClick={(e)=>{handleSendActivity(e, item.id)}}
-                                                        className={`absolute ${(item?.ispast || daysRemaining <= 0) ? 'bg-orange-300' : 'hover:scale-105 transition-transform bg-orange-600' }  rounded-full top-5 right-5  text-white py-1 px-4 uppercase font-bold`}
+                                                        className={`absolute ${(item?.ispast || daysRemaining < 0) ? 'bg-orange-300' : 'hover:scale-105 transition-transform bg-orange-600' }  rounded-full top-5 right-5  text-white py-1 px-4 uppercase font-bold`}
                                                     >
                                                         {sendLoading ? (
                                                             <div className="flex items-center">
@@ -4629,7 +4629,7 @@ export default function DashboardPro(){
                                                             </button>
                                                             <button
                                                             title="Modifier l'activité"
-                                                                disabled={daysRemaining <= 0}
+                                                                disabled={daysRemaining < 0}
                                                                 onClick={()=>{
                                                                     setModalUpActivity(true)
                                                                     setActivityToUp(item)
@@ -4639,7 +4639,7 @@ export default function DashboardPro(){
                                                             </button>
                                                             <button
                                                             title="Supprimer l'activité"
-                                                                disabled={daysRemaining <= 0}
+                                                                disabled={daysRemaining < 0}
                                                                 onClick={()=>{
                                                                     setModalSupActivity(true)
                                                                     setActivityToDelete(item)
@@ -4652,7 +4652,7 @@ export default function DashboardPro(){
                                                                     setSelectActivity(selectActivity === item.id ? null : item.id)
                                                                     handleSwhitchActivity(e, selectActivity)
                                                                 }}
-                                                                disabled={daysRemaining <= 0 || swhitchLoading}
+                                                                disabled={daysRemaining < 0 || swhitchLoading}
                                                                 title="Changer de statut"
                                                             >
                                                                 {swhitchLoading ? (
