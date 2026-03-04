@@ -87,6 +87,7 @@ import ResponseExportData from "../../utils/exportData/response.api";
 import { LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line } from "recharts";
 import { SwitchStatut } from "../../api/dashboard/pro/params/switch-activity";
 import { AnalyzeAi } from "../../api/dashboard/pro/params/analyseAI";
+import { NombreReactiver } from "../../api/dashboard/pro/abonnements/nbrReactiver";
 
 export default function DashboardPro(){
 
@@ -1958,6 +1959,14 @@ export default function DashboardPro(){
     }
 
 
+    const adhReactiver = useQuery({
+        queryKey: ['nbr-reactiver'],
+        queryFn: NombreReactiver,
+        staleTime: 1000 * 60 * 30
+    })
+    const adhReactiverLoad = adhReactiver.isPending
+    const adhReactiverError = adhReactiver.isError
+    const nbrReactiver = adhReactiver.data?.NbrReactiver || 0
 
 
 
@@ -2072,7 +2081,7 @@ export default function DashboardPro(){
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
                         disabled={misNiveauLoading || daysRemaining < 0}
-                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'}  shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
+                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'} flex items-center justify-center shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
                         onClick={handleNiveau}
                     >
                         {misNiveauLoading ? (
@@ -2410,8 +2419,19 @@ export default function DashboardPro(){
                                                 <p className="text-gray-400 text-sm font-semibold">Expires{totalExpire > 1? 's' : ''} bientôt</p>
                                             </div>
                                             <div className="flex flex-col items-center">
-                                                <p className="text-green-500 text-xl font-bold">8</p>
-                                                <p className="text-gray-400 text-sm font-semibold">Réactivés</p>
+                                                {adhReactiverLoad ? (
+                                                    <p className="h-7 w-7 bg-gray-300 animate-pulse"></p>
+                                                ):(
+                                                    <p className="text-green-500 text-xl font-bold">{nbrReactiver > 9 ? `${nbrReactiver}` : `0${nbrReactiver}`}</p>
+                                                )}
+
+                                                {adhReactiverError && (
+                                                    <div className="flex items-center gap-1 p-1">
+                                                        <AlertTriangleIcon className="h-5 w-5" fill="red" stroke="white" />
+                                                        <p className="text-xs text-red-500 font-semibold">Erreur</p>
+                                                    </div>
+                                                )}
+                                                <p className="text-gray-400 text-sm font-semibold">Réactivé{nbrReactiver > 1 ? 's' : ''}</p>
                                             </div>
                                         </div>
                                     </div>
