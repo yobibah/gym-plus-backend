@@ -86,6 +86,7 @@ import SkeletonListeProgram from "../../components/ui/SkeletonListeProgram";
 import ResponseExportData from "../../utils/exportData/response.api";
 import { LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line } from "recharts";
 import { SwitchStatut } from "../../api/dashboard/pro/params/switch-activity";
+import { AnalyzeAi } from "../../api/dashboard/pro/params/analyseAI";
 
 export default function DashboardPro(){
 
@@ -1931,6 +1932,35 @@ export default function DashboardPro(){
     }
 
 
+    const FinanceAI = useMutation({
+        mutationFn: AnalyzeAi,
+
+        onSuccess: (()=>{
+            setTimeout(()=>{
+                FinanceAI.reset()
+            }, 4000)
+        }),
+        onError: (()=>{
+            setTimeout(()=>{
+                FinanceAI.reset()
+            }, 4000)
+        })
+    })
+
+    const financeLoading = FinanceAI.isPending
+    const financeError = FinanceAI.isError
+    const financeSuccess = FinanceAI.isSuccess
+    // const Analyse = FinanceAI.refetch
+
+    async function handleFinanceAI(e){
+        e.preventDefault()
+        FinanceAI.mutate()
+    }
+
+
+
+
+
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
 
@@ -2284,6 +2314,20 @@ export default function DashboardPro(){
                                     <div className="flex items-center justify-between w-full">
                                         <div className="font-bold flex items-center gap-1">
                                            <p>Aperçu financier</p>
+                                           <button
+                                            disabled={financeLoading}
+                                                className={`text-xs ${financeLoading ? 'bg-gray-500' : 'hover:bg-orange-600 bg-orange-500'} text-white  font-semibold rounded-lg py-1 px-3 transition-all duration-200`}
+                                                onClick={(e)=>{handleFinanceAI(e)}}
+                                           >
+                                            {financeLoading ? (
+                                                <div className="flex items-center gap-1">
+                                                    <p>Analyse en cours...</p>
+                                                <Loader2 className="animate-spin h-4 w-4 text-white"/>
+                                                </div>
+                                            ):(
+                                                'Demander une analyse financère'
+                                            )}
+                                            </button>
                                         </div>
                                         <div className="flex items-center justify-center gap-2 border rounded-full border-gray-400 py-1 px-5">
                                             <motion.button
@@ -2600,9 +2644,9 @@ export default function DashboardPro(){
                             <div className="flex items-center gap-2">
                                 <motion.button
                                     whileTap={{scale: 0.95}}
-                                    disabled={dataExportLoading || daysRemaining < 0}
+                                    disabled={dataExportLoading || daysRemaining < 0 || adherentsFiltres.length === 0}
                                     onClick={handleExport}
-                                    className={`flex font-bold justify-center  text-sm items-center ${daysRemaining < 0 ? ' text-gray-400 bg-gray-300 border-gray-300' : 'bg-transparent text-black border-gray-400'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                    className={`flex font-bold justify-center  text-sm items-center ${(daysRemaining < 0 || adherentsFiltres.length === 0) ? ' text-gray-400 bg-gray-200 border-gray-300' : 'bg-transparent text-black border-gray-400'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
                                     {dataExportLoading  ? (
                                         <Loader2 className="animate-spin h-5 w-5"/>
                                     ):(
@@ -2618,7 +2662,7 @@ export default function DashboardPro(){
                                     whileTap={{scale: 0.95}}
                                     onClick={()=>{setShowAdd(true), setActiveTab('')}}
                                     disabled={daysRemaining < 0}
-                                className={`flex font-bold text-white text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                className={`flex font-bold text-white text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:bg-orange-500 border-orange-500 '}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
                                     <Plus className="h-5 w-5 "/>
                                     Ajouter un adhérant
                                 </motion.button>
@@ -2982,14 +3026,15 @@ export default function DashboardPro(){
                                 <p className="text-gray-400 text-[18px]">Consultez et gérer votre personnel de coaching</p>
                             </div>
 
-                            <motion.button
-                                whileTap={{scale: 0.95}}
-                                onClick={handleAddCoach}
-                                className="flex items-center text-sm text-white hover:text-black bg-orange-600 transition-colors duration-200 py-2 px-5 font-bold  border-2 border-orange-600 hover:bg-transparent rounded-lg gap-3"
-                            >
-                                <UserPlus className="h-5 w-5  transition-colors duration-200" />
-                                <p>Ajouter un coach</p>
-                            </motion.button>
+
+                                <motion.button
+                                    whileTap={{scale: 0.95}}
+                                    onClick={handleAddCoach}
+                                    className="flex items-center text-sm text-white bg-orange-500 transition-colors duration-200 py-2 px-5 font-bold  border-2 border-orange-500 hover:bg-orange-600 rounded-lg gap-3"
+                                >
+                                    <UserPlus className="h-5 w-5  transition-colors duration-200" />
+                                    <p>Ajouter un coach</p>
+                                </motion.button>
                         </div>
 
                         <div className="flex items-center w-full relative w-90 my-8">
@@ -3057,7 +3102,7 @@ export default function DashboardPro(){
                                             <motion.button
                                                 whileTap={{scale: 0.95}}
                                                 onClick={handleAddCoach}
-                                                className="flex items-center bg-orange-500 transition-colors duration-200 text-white hover:text-black py-2 px-5 font-bold  border border-orange-500 hover:bg-transparent rounded-lg gap-3"
+                                                className="flex items-center bg-orange-500 transition-colors duration-200 text-white py-2 px-5 font-bold  border border-orange-500 hover:bg-orange-600 rounded-lg gap-3"
                                             >
                                                 <UserPlus className="h-5 w-5  transition-colors duration-200" />
                                                 <p>Ajouter un coach</p>
@@ -3283,7 +3328,7 @@ export default function DashboardPro(){
                                 <motion.button
                                     whileTap={{scale: 0.95}}
                                     onClick={()=>{setSideBar(true)}}
-                                    className={`flex font-bold text-white text-sm items-center bg-blue-600 hover:text-black border-blue-600 hover:bg-transparent cursor-pointer gap-2 py-2 px-4 rounded-lg  border-2  transition-all duration-200`}>
+                                    className={`flex font-bold text-white text-sm items-center bg-blue-500 border-blue-500 hover:bg-blue-600 gap-2 py-2 px-4 rounded-lg  border-2  transition-all duration-200`}>
                                     <Eye className="h-5 w-5 "/>
                                     Consulter les cours programmés
                                 </motion.button>
@@ -3291,7 +3336,7 @@ export default function DashboardPro(){
                                     whileTap={{scale: 0.95}}
                                     onClick={()=>{setModalAddCours(true), setNiveaux('debutant')}}
                                     disabled={daysRemaining < 0}
-                                    className={`flex font-bold text-white text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                    className={`flex font-bold text-white text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-500  border-orange-500 hover:bg-orange-600'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
                                     <Plus className="h-5 w-5 "/>
                                     Ajouter un cours
                                 </motion.button>
@@ -4155,9 +4200,9 @@ export default function DashboardPro(){
                                                 <div>
                                                     {(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
                                                         <motion.button
-                                                        type={`${action === "PUT" ? "submit" : "button"}`}
-                                                        disabled={action === "PUT" ? loadingTarifUp : loadingTarifDel}
-                                                        onClick={(e) =>{editMois && editAn && editTrim ? setShowModalTrash(true) : sendTarif(e, "PUT")}}
+                                                            type={`${action === "PUT" ? "submit" : "button"}`}
+                                                            disabled={action === "PUT" ? loadingTarifUp : loadingTarifDel}
+                                                            onClick={(e) =>{editMois && editAn && editTrim ? setShowModalTrash(true) : sendTarif(e, "PUT")}}
                                                             whileTap={{scale:0.95}}
                                                             className={`px-5 py-3 flex item-center gap-2 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
                                                         >
@@ -4184,7 +4229,7 @@ export default function DashboardPro(){
                                             {showFormTarif && (
                                                 <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
                                                 <motion.button
-                                                type="submit"
+                                                    type="submit"
                                                     whileTap={{scale:0.95}}
                                                     disabled={loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim()}
                                                     className={`px-5 py-3 rounded-lg shadow-lg border ${loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim() ? 'bg-gray-300 border-gray-400' : 'bg-green-200 border-green-600'}`}
@@ -4204,11 +4249,21 @@ export default function DashboardPro(){
 
                                         
                                         <div className="border border-gray-400 p-2 ">
-                                            <div className="flex items-center justify-between">
-                                                <span className="font-bold">Mensuel</span>
-                                                <hr className=" w-140 text-gray-400 "/>
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-bold">Mensuel</span>
+                                                    <hr className=" w-140 text-gray-400 "/>
 
-                                                <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                </div>
+                                                {(!prix_mensuel && !showFormTarif) && (
+                                                    <input
+                                                        type="tel"
+                                                        disabled={!showFormTarif}
+                                                        className="border w-full  my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500"
+                                                        placeholder="Tarif non défini"
+                                                    />
+                                                )}
                                             </div>
 
                                             {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
@@ -4220,7 +4275,7 @@ export default function DashboardPro(){
                                                                 type="tel"
                                                                 value={mensuel}
                                                                 onChange={(e)=>{setMensuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
-                                                                className={`border w-full ${editMois ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
+                                                                className={`border w-full ${editMois ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400 '}  pl-3 focus:outline-none p-2`}
                                                                 placeholder={editMois ? `${prix_mensuel} XOF` : 'Saisissez un nouveau tarif mensuel'}
                                                                 disabled={editMois}
                                                             />
@@ -4231,7 +4286,7 @@ export default function DashboardPro(){
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
-                                                                    {editMois ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                    {editMois ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
                                                                 </motion.button>
                                                             </div>
                                                         </>
@@ -4253,11 +4308,21 @@ export default function DashboardPro(){
                                         </div>
 
                                         <div className="border border-gray-400 p-2 ">
-                                            <div className="flex items-center justify-between">
-                                                <span className="font-bold">Trimestriel</span>
-                                                <hr className=" w-135 text-gray-400 "/>
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-bold">Trimestriel</span>
+                                                    <hr className=" w-135 text-gray-400 "/>
 
-                                                <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                </div>
+                                                {(!prix_trimestriel && !showFormTarif) && (
+                                                    <input
+                                                        type="tel"
+                                                        disabled={!showFormTarif}
+                                                        className="border w-full  my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500"
+                                                        placeholder="Tarif non défini"
+                                                    />
+                                                )}
                                             </div>
 
                                             {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
@@ -4269,7 +4334,7 @@ export default function DashboardPro(){
                                                                 type="tel"
                                                                 value={trimestriel}
                                                                 onChange={(e)=>{setTrimestriel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
-                                                                className={`border w-full ${editTrim ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
+                                                                className={`border w-full ${editTrim ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
                                                                 placeholder={editTrim ? `${prix_trimestriel} XOF` : 'Saisissez un nouveau tarif trimestriel'}
                                                                 disabled={editTrim}
                                                             />
@@ -4280,7 +4345,7 @@ export default function DashboardPro(){
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
-                                                                    {editTrim ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                    {editTrim ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
                                                                 </motion.button>
                                                             </div>
                                                         </>
@@ -4291,7 +4356,7 @@ export default function DashboardPro(){
                                                             value={trimestriel}
                                                             onChange={(e)=>{setTrimestriel(e.target.value)}}
                                                             className="border w-full  border-gray-400 pl-3 focus:outline-none p-2"
-                                                            placeholder="Saisissez le tarif par mois"
+                                                            placeholder="Saisissez le tarif par trimestre"
                                                         />
                                                     )}
 
@@ -4302,11 +4367,21 @@ export default function DashboardPro(){
                                         </div>
 
                                         <div className="border border-gray-400 p-2 ">
-                                            <div className="flex items-center justify-between">
-                                                <span className="font-bold">Annuel</span>
-                                                <hr className=" w-144 text-gray-400 "/>
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-bold">Annuel</span>
+                                                    <hr className=" w-144 text-gray-400 "/>
 
-                                                <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                </div>
+                                                {(!prix_annuel && !showFormTarif) && (
+                                                    <input
+                                                        type="tel"
+                                                        disabled={!showFormTarif}
+                                                        className="border w-full  my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500"
+                                                        placeholder="Tarif non défini"
+                                                    />
+                                                )}
                                             </div>
 
                                             {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
@@ -4318,7 +4393,7 @@ export default function DashboardPro(){
                                                                 type="tel"
                                                                 value={annuel}
                                                                 onChange={(e)=>{setAnnuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
-                                                                className={`border w-full ${editAn ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
+                                                                className={`border w-full ${editAn ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
                                                                 placeholder={editAn ? `${prix_annuel} XOF` : 'Saisissez un nouveau tarif annuel'}
                                                                 disabled={editAn}
                                                             />
@@ -4329,7 +4404,7 @@ export default function DashboardPro(){
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
-                                                                    {editAn ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                    {editAn ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
                                                                 </motion.button>
                                                             </div>
                                                         </>
@@ -4340,7 +4415,7 @@ export default function DashboardPro(){
                                                             value={annuel}
                                                             onChange={(e)=>{setAnnuel(e.target.value)}}
                                                             className="border w-full  border-gray-400 pl-3 focus:outline-none p-2"
-                                                            placeholder="Saisissez le tarif par mois"
+                                                            placeholder="Saisissez le tarif par an"
                                                         />
                                                     )}
 
@@ -6358,14 +6433,14 @@ export default function DashboardPro(){
             <ResponseTarif successTarif={successTarif} successTarifDel={successTarifDel} successTarifUp={successTarifUp} />
             <ResponseInfoPerso persoSuccess={persoSuccess} passwordSuccess={passwordSuccess} />
             <ResponseInfoSalle successUpdate={successUpdate} />
-            <ResponseExportData dataExportSuccess={dataExportSuccess} />
+            <ResponseExportData dataExportSuccess={dataExportSuccess} financeSuccess={financeSuccess} />
             <ResponseActivity activitySuccess={activitySuccess} activityDelSuccess={activityDelSuccess} activityUpdateSuccess={activityUpdateSuccess} sendSuccess={sendSuccess} swhitchSuccess={swhitchSuccess} />
             
             <ResponseError
                 coachError={coachError}
                 errorTarif={errorTarif}
                 errorTarifUp={errorTarifUp}
-                errorTarifDel={errorTarifDel}
+                errorTarifDel={errorTarifDel} financeError={financeError}
                 persoError={persoError} swhitchError={swhitchError}
                 passwordError={passwordError} errorSupCoach={errorSupCoach}
                 signDelError={signDelError} signEditError={signEditError} signError={signError}

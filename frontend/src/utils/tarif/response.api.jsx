@@ -5,13 +5,13 @@ export default function ResponseTarif({ successTarif, successTarifDel, successTa
     return (
         <>
              {successTarif && (
-                <ToastSuccess message={'Tarif ajouté avec succès'}/>
+                <ToastSuccess title={'Succès'} message={'Tarif ajouté avec succès! Maintenant vous pouvez l\'utiliser dans les abonnements.'}/>
             )}
             {successTarifUp && (
-                <ToastSuccess message={'Tarif mis à jour avec succès'}/>
+                <ToastSuccess title={'Succès'} message={'Tarif mis à jour avec succès!'}/>
             )}
             {successTarifDel && (
-                <ToastSuccess message={'Tarif supprimé avec succès'}/>
+                <ToastSuccess title={'Succès'} message={'Tarif supprimé avec succès'}/>
             )}
         </>
     );

@@ -5,7 +5,7 @@ export default function ResponseError({
 
     coachError, errorTarif,
     errorTarifUp, errorTarifDel,
-    persoError, passwordError,
+    persoError, passwordError, financeError,
     signDelError, signEditError, signError,
     logoDelError, logoEditError, logoError,
     updateError, errorAdherant, errorUpdateAdh,
@@ -20,7 +20,7 @@ export default function ResponseError({
     return (
         <>
             {
-                (coachError || errorTarif || sendError ||
+                (coachError || errorTarif || sendError || financeError,
                 errorTarifUp || errorTarifDel || errorSupActivity ||
                 persoError || passwordError || swhitchError ||
                 signError || signEditError || signDelError || 
