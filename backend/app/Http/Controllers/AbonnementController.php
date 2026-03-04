@@ -11,6 +11,7 @@ use App\Mail\ReabonnementMail;
 use App\Mail\SendFacture;
 use Illuminate\Support\Carbon;
 use App\Models\reabonnemen_trace;
+use App\Models\Reactiver;
 use App\Services\FactureService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -21,7 +22,7 @@ use Illuminate\Database\Events\TransactionBeginning;
 class AbonnementController extends Controller
 {
     protected $plan = ["pro", "premium"];
-   
+
     public function reabonemment(Request $request)
     {
         $current = $request->user();
@@ -31,10 +32,10 @@ class AbonnementController extends Controller
                 'message' => 'vous n\'etes pas autorise'
             ]);
         }
-        if ($current->dernierAbonnementReussi->status =='expirer'){
+        if ($current->dernierAbonnementReussi->status == 'expirer') {
             return response()->json([
-                'message'=>'abonnement expirer veuillez vous abonner pour continuer'
-            ],401);
+                'message' => 'abonnement expirer veuillez vous abonner pour continuer'
+            ], 401);
         }
 
         $validator = Validator::make($request->all(), [
@@ -51,7 +52,7 @@ class AbonnementController extends Controller
         }
         DB::beginTransaction();
 
-        collect(['abonemment_'.$current->id,'abonnementpas_'.$current->id,'adherentExpirer_'.$current->id,'bientotExpirer_'.$current->id])->each(fn($key)=>Cache::forget($key));
+        collect(['abonemment_' . $current->id, 'abonnementpas_' . $current->id, 'adherentExpirer_' . $current->id, 'bientotExpirer_' . $current->id])->each(fn($key) => Cache::forget($key));
 
         try {
 
@@ -99,38 +100,36 @@ class AbonnementController extends Controller
                 'salle_id' => $abonnement_passer->salle_id,
                 'abonnement_id' => $abonnement_passer->id,
                 'debut' => $abonnement_passer->debut,
-                'montant'=>$abonnement_passer->montant
+                'montant' => $abonnement_passer->montant
 
             ]);
             // $abonnement_passer->delete();
             // $abonnement_passer->save();
 
             //$transID = Str::random(4) . '#' . Carbon::today() . '@' . rand(111, 999);
-    $abonnement_passer->update([
-    'debut' => Carbon::now(),
-    'fin' => Carbon::today()->addMonths($fin),
-    'montant' => $montant,
-    'plan' => $request->plan,
-    'actif' => 1
-]);
-$abonnement = $abonnement_passer;
+            $abonnement_passer->update([
+                'debut' => Carbon::now(),
+                'fin' => Carbon::today()->addMonths($fin),
+                'montant' => $montant,
+                'plan' => $request->plan,
+                'actif' => 1
+            ]);
+            $abonnement = $abonnement_passer;
 
             // mail le user que son abonnement a ete mise a jours
             Mail::to($adherant->email)->queue(new ReabonnementMail($adherant, salle: $salle));
-                  if ($current->isPro ()|| $current->isPremium()) {
+            if ($current->isPro() || $current->isPremium()) {
                 $facture = new FactureService();
                 $salle = $current->salle;
-     
-            $fac=  $facture->Generer($salle, $adherant, $abonnement);
 
-             Mail::to($adherant->email)->queue(new SendFacture($adherant,  $salle,$fac));
+                $fac =  $facture->Generer($salle, $adherant, $abonnement);
+
+                Mail::to($adherant->email)->queue(new SendFacture($adherant,  $salle, $fac));
             }
             DB::commit();
             return response()->json([
                 'message' => 'abonnement mise a jours'
             ]);
-
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getTrace());
@@ -140,7 +139,6 @@ $abonnement = $abonnement_passer;
                 'error' => $e->getTraceAsString()
             ]);
         }
-
     }
 
     /// suspendre un abonnement uniquement reserver au pro et premium
@@ -158,9 +156,8 @@ $abonnement = $abonnement_passer;
             return response()->json([
                 'message' => 'vous ne pouvez pas effectuer cette action'
             ], 403);
-
         }
-        collect(['abonemment_'.$user->id,'abonnementpas_'.$user->id])->each(fn($key)=>Cache::forget($key));
+        collect(['abonemment_' . $user->id, 'abonnementpas_' . $user->id])->each(fn($key) => Cache::forget($key));
 
         $validator = Validator::make($request->all(), [
             'id' => 'required|numeric'
@@ -202,6 +199,11 @@ $abonnement = $abonnement_passer;
             $abonnement->actif = 0;
             $abonnement->save();
 
+            $reactiver = Reactiver::where('salle_id', $user->salle->id)->where('adherant_id', $adh->id)->first();
+            if ($reactiver) {
+                $reactiver->delete();
+            }
+
             DB::commit();
 
             return response()->json([
@@ -209,7 +211,6 @@ $abonnement = $abonnement_passer;
                 'message' => ' l\'abonnement de ' . $adh->name . ' ' . $adh->prenom . ' a ete geler avec succes'
 
             ], 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -234,7 +235,6 @@ $abonnement = $abonnement_passer;
             return response()->json([
                 'message' => 'vous ne pouvez pas effectuer cette action'
             ], 403);
-
         }
 
         $validator = Validator::make($request->all(), [
@@ -248,7 +248,7 @@ $abonnement = $abonnement_passer;
         }
 
         DB::beginTransaction();
-        collect(['abonemment_'.$user->id,'abonnementpas_'.$user->id])->each(fn($key)=>Cache::forget($key));
+        collect(['abonemment_' . $user->id, 'abonnementpas_' . $user->id])->each(fn($key) => Cache::forget($key));
         try {
             $adh = User::find($request->id);
             if (!$adh) {
@@ -278,11 +278,16 @@ $abonnement = $abonnement_passer;
             $joursRestants = Carbon::parse($abonnement->date_suspension)
                 ->diffInDays(Carbon::parse($abonnement->fin));
 
-            Log::info('jours restant '.$joursRestants);
+            Log::info('jours restant ' . $joursRestants);
             $abonnement->date_suspension = null;
-   $abonnement->fin = Carbon::now()->addDays($joursRestants);
+            $abonnement->fin = Carbon::now()->addDays($joursRestants);
             $abonnement->actif = 1;
             $abonnement->save();
+
+            Reactiver::create([
+                'salle_id' => $user->salle->id,
+                'adherant_id' => $adh->id
+            ]);
 
             DB::commit();
 
@@ -300,8 +305,4 @@ $abonnement = $abonnement_passer;
             ], 500);
         }
     }
-
-
-
-
 }

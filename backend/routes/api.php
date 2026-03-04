@@ -40,7 +40,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/update-infos-perso', [UserController::class, 'UpdateUser']);
     Route::delete('/delete-info', [UserController::class, 'deleteprix']);
     Route::post('/ajouter-mes-prix', [UserController::class, 'AddSallePrix']);
-    Route::get('/mes-prix', [UserController::class, 'SallePrix'])->middleware('paiement');
+    Route::get('/mes-prix', [UserController::class, 'SallePrix']);
     Route::post('/ajouter-adherant', [UserController::class, 'AjouterAdherant']);
     Route::post('/update-adherant', action: [UserController::class, 'UpdateAdherent']);
     Route::get('/plan-choisit', [UserController::class, 'PlanChoisit']);
@@ -70,6 +70,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/nbr-adherant-actif', [HomeController::class, 'AdherantActif']);
     Route::get('/bientot-expirer', [HomeController::class, 'BientotExpirer']);
     Route::get('/expirer', [HomeController::class, 'AdherantExpirer']);
+    route::get('/nbr-reactiver',[HomeController::class,'NbrReactiver']);
 
 
     // gestion des abonnements

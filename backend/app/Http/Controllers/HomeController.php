@@ -6,6 +6,7 @@ use App\Http\Resources\HistoriqueResource;
 use App\Models\abonnement;
 use App\Models\historique;
 use App\Models\reabonnemen_trace;
+use App\Models\Reactiver;
 use App\Models\User;
 use App\Services\IkoddiService;
 use App\Services\PaysApiService;
@@ -284,4 +285,13 @@ return response()->json([
     // }
 
 
+    public function NbrReactiver(Request $request){
+        $user = $request->user();
+        
+        $count = Reactiver::where('salle_id',$user->salle->id)->count();
+
+        return response()->json([
+            'NbrReactiver'=> $count ?? 0
+        ]);
+    }
 }

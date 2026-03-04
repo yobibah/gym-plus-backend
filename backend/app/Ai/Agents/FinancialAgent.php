@@ -22,6 +22,9 @@ class FinancialAgent implements Agent, Conversational
     public function instructions(): string
     {
         $data = new AiDataNeeded($this->user);
+        if (!$data){
+          return 'vous n\'avez pas de data';
+        }
         $jsonData = $data->Recette();
 
         $json = json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -46,13 +49,6 @@ Les revenus peuvent provenir :
 - Des ventes de produits
 - Des services supplémentaires (coach privé, programmes spéciaux, etc.)
 
-Les dépenses peuvent inclure :
-- Salaires
-- Loyer
-- Charges (eau, électricité, internet)
-- Maintenance des équipements
-- Marketing
-- Autres charges opérationnelles
 
 DONNÉES DISPONIBLES (FORMAT JSON) :
 $json
@@ -79,7 +75,6 @@ Structure attendue :
 {
   "resume_executif": "texte ici",
   "analyse_revenus": "texte ici",
-  "analyse_depenses": "texte ici",
   "rentabilite": "texte ici",
   "points_attention": [
     "point 1",

@@ -71,10 +71,7 @@
     <p>{{ $report['analyse_revenus'] }}</p>
 </div>
 
-<div class="section box">
-    <h2>3. Analyse des Dépenses</h2>
-    <p>{{ $report['analyse_depenses'] }}</p>
-</div>
+
 
 <div class="section box">
     <h2>4. Rentabilité</h2>
@@ -121,7 +118,7 @@
 </div>
 
 <div class="footer">
-    Généré automatiquement le {{ now()->format('d/m/Y') }}
+    Généré automatiquement le  {{ now()->format('d/m/Y') }} par <strong>GymPlus</strong>
 </div>
 
 </body>

@@ -40,7 +40,7 @@ class AiDataNeeded {
             ->get();
 
         // Dépenses
-        $depense = depenses::where('salle_id', $salle->id)->get();
+        // $depense = depenses::where('salle_id', $salle->id)->get();
 
         // Retourne uniquement les totaux (pas les objets complets)
         return [
@@ -56,7 +56,7 @@ class AiDataNeeded {
             'nbrannerDernierre' => $anD->count(),
             'MontantAnnerDerniere' => $anD->sum('montant'),
 
-            'MontantDepnses' => $depense->sum('montant'),
+            // 'MontantDepnses' => $depense->sum('montant'),
         ];
     }
 }
