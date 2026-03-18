@@ -32,7 +32,7 @@ class AbonnementController extends Controller
                 'message' => 'vous n\'etes pas autorise'
             ]);
         }
-        if ($current->dernierAbonnementReussi->status == 'expirer') {
+        if (!$current->dernierPaiementReussi()) {
             return response()->json([
                 'message' => 'abonnement expirer veuillez vous abonner pour continuer'
             ], 401);

@@ -26,8 +26,10 @@ class Expirer extends Command
             foreach ($user->abonnements as $abonnement) {
                 // apres je vais modifier pour mettre isyesterday
                 if (Carbon::parse($abonnement->fin)->isPast()) {
-                    $abonnement->actif = 0;
-                    $abonnement->save();
+                    $abonnement->update([
+                        'actif'=>0
+                    ]);
+                 
                     $count++;
                 }
             }

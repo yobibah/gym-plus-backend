@@ -291,7 +291,7 @@ return response()->json([
         $count = Reactiver::where('salle_id',$user->salle->id)->count();
 
         return response()->json([
-            'NbrReactiver'=> $count ?? 0
+            'NbrReactiver'=> $count ?? 0,
         ]);
     }
 }

@@ -90,8 +90,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware(['proprem'])->group(function () {
 
       Route::get('/export/users/{gerantId}', function ($gerantId) {
+        $os=php_uname('s');
+      
+        $extension = strtolower($os) == strtolower('Linux') ? '.xlsx' : '.csv';
 
-        return Excel::download(new UserExport($gerantId), 'users_gerant_' . $gerantId . '.xlsx');
+        return Excel::download(new UserExport($gerantId), 'users_gerant_' . $gerantId . $extension);
       });
       Route::post('/test-sms', [HomeController::class, 'testSms']);
 
