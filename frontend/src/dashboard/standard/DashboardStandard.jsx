@@ -1,9 +1,10 @@
-import { AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, ArrowRight, BadgeCheck, Calendar, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, Wallet, WalletCards, X, XCircle } from "lucide-react";
+import { AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, ArrowRight, BadgeCheck, Calendar, Calendar1, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, Edit, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, Wallet, WalletCards, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/input";
 import Cookies from 'js-cookie'
+import support from '../../../src/assets/images/support.png'
 import { getToken } from "../../hooks/getToken";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { FetchNombreAdherant } from "../../api/dashboard/standard/tableau/nombreAdh";
@@ -38,6 +39,18 @@ import sank from '../../assets/images/sank.png'
 import coris from '../../assets/images/coris.webp'
 import ok from '../../assets/images/ok.png'
 import { PaymentOtp } from "../../api/subscribe/PaiementOtp";
+import SkeletonAdh from "../../components/ui/SkeletonAdh";
+import SkeletonAbonnement from "../../components/ui/SkeletonAbonnemet";
+import ImageComponent from "../../components/ui/image";
+import ResponseAdherant from "../../utils/adherant/response.api";
+import ResponseAbonnement from "../../utils/abonnement/response.api";
+import ResponseError from "../../utils/error.response";
+import ResponseTarif from "../../utils/tarif/response.api";
+import ResponseLogo from "../../utils/logo/response.api";
+import ResponseInfoPerso from "../../utils/infosPerso/response.api";
+import ResponseInfoSalle from "../../utils/infosSalle/response.api";
+import ModalComponent from "../../components/ui/ModalComponent";
+import ModalLogout from "../../components/ui/Modal";
 
 export default function DashboardStandard(){
 
@@ -64,7 +77,7 @@ export default function DashboardStandard(){
     const [editMois, setEditMois] = useState(true)
     const [editTrim, setEditTrim] = useState(true)
     const [editAn, setEditAn] = useState(true)
-    const [action, setAction] = useState("POST"); 
+    const [action, setAction] = useState("POST");
     const [nom_salle, setNomSalle] = useState('')
     const [pays_salle, setPaysSalle] = useState('')
     const [region, setRegion] = useState('')
@@ -94,7 +107,10 @@ export default function DashboardStandard(){
     const [montantReab, setMontantReab]= useState(null)
     const [telReab, setTelReab] = useState('')
     const [errorStep, setErrorStep] = useState(null)
+    const [paramsTab, setParamstab] = useState('salle')
+    const [historyP, setHistoryP] = useState(false)
     
+
 
 
 
@@ -108,22 +124,24 @@ export default function DashboardStandard(){
         setPreview(URL.createObjectURL(logoSelection))
     }
 
-    
+
 
     const navigate = useNavigate()
     const token = getToken()
-    
+
     function ActiveTab(){
 
          if(activeTab === 'dashboard'){
             setActiveTab('dashboard')
             setView('part-dashboard')
             setShowAdd(false)
+            setHistoryP(false)
             return
         }
 
         if(activeTab === 'adherant'){
             setActiveTab('adherant')
+            setHistoryP(false)
             return
         }
 
@@ -131,6 +149,7 @@ export default function DashboardStandard(){
             setActiveTab('abonnement')
             setShowAdd(false)
             setAbonnementTab('tous')
+            setHistoryP(false)
             return
         }
 
@@ -141,8 +160,52 @@ export default function DashboardStandard(){
         }
     }
 
+    function paramTab(){
+        if(paramsTab === 'salle'){
+            setParamstab('salle')
+            if(historyP){
+                setHistoryP(false)
+            }
+            return
+        }
+
+        if(paramsTab === 'perso'){
+            setParamstab('perso')
+            if(historyP){
+                setHistoryP(false)
+            }
+            return
+        }
+
+        if(paramsTab === 'visuel'){
+            setParamstab('visuel')
+            if(historyP){
+                setHistoryP(false)
+            }
+            return
+        }
+
+        if(paramsTab === 'tarif'){
+            setParamstab('tarif')
+            if(historyP){
+                setHistoryP(false)
+            }
+            return
+        }
+
+
+        if(paramsTab === 'support'){
+            setParamstab('support')
+            if(historyP){
+                setHistoryP(false)
+            }
+            return
+        }
+    }
+
     useEffect(()=>{
         ActiveTab()
+        paramTab()
     }, [activeTab])
 
     const nbrAdh = useQuery({
@@ -159,11 +222,11 @@ export default function DashboardStandard(){
         queryKey : ['nbr_actif'],
         queryFn : FetchNombreActif
     })
-    const nbrAdherantsActif = Number(nbrActif.data?.nbr_actif) 
+    const nbrAdherantsActif = Number(nbrActif.data?.nbr_actif)
     const loadingNbrActif = nbrActif.isPending
     const errorNbrActif = nbrActif.isError
 
-    
+
     const prix = useQuery({
         queryKey : ['prix'],
         queryFn : fetchPrix
@@ -186,7 +249,7 @@ export default function DashboardStandard(){
             setEmail('')
             setTel('')
             setMontant('')
-           
+
 
             queryClient.invalidateQueries(['nbr_adherant'])
             queryClient.invalidateQueries(['nbr_actif'])
@@ -226,23 +289,23 @@ export default function DashboardStandard(){
     const loadingAbExpirer = abonnerExpire.isPending
     const errorAbExpirer = abonnerExpire.isError
     const totalAbExpirer = Number(abonnerExpire.data?.nbr)
-
-
-
-
-
+    console.log(listExpirer);
     
+
+
+
+
+
+
     const mesAdh = useQuery({
         queryKey : ['mes-adherant', page],
         queryFn : mesAdherants,
         keepPreviousData: true
     })
     const dataAdh = mesAdh.data?.adherents?.data || []
-    const totalMensuel = Number(mesAdh.data?.mensuel) || 0
-    const totalTrimestre = Number(mesAdh.data?.trimestriel) || 0
-    const totalAnnuel = Number(mesAdh.data?.annuel) || 0
     const loadingAdh = mesAdh.isPending
     const errorAdh = mesAdh.isError
+    const successAdh = mesAdh.isSuccess
 
 
     const adherentsFiltres = useMemo(() => {
@@ -283,7 +346,7 @@ export default function DashboardStandard(){
                 tarif.reset()
             }, 2500)
         }
-        
+
     })
     const loadingTarif = tarif.isPending
     const errorTarif = tarif.isError
@@ -306,7 +369,7 @@ export default function DashboardStandard(){
                 tarifUpdate.reset()
             }, 2500)
         }
-        
+
     })
     const loadingTarifUp = tarifUpdate.isPending
     const errorTarifUp = tarifUpdate.isError
@@ -318,7 +381,7 @@ export default function DashboardStandard(){
         mutationFn : DeleteTarif,
         onSuccess : ()=>{
             setShowModalTrash(false)
-            
+
             setMensuel('')
             setTrimestriel('')
             setAnnuel('')
@@ -338,7 +401,7 @@ export default function DashboardStandard(){
                 tarifDelete.reset()
             }, 2500)
         }
-        
+
     })
     const loadingTarifDel = tarifDelete.isPending
     const errorTarifDel = tarifDelete.isError
@@ -365,7 +428,7 @@ export default function DashboardStandard(){
             });
         }
     }
-    
+
 
     const infos = useQuery({
         queryKey : ['mes-infos'],
@@ -384,7 +447,7 @@ export default function DashboardStandard(){
             setNomSalle('')
             setPaysSalle('')
             setRegion('')
-            
+
             update.invalidateQueries(['mes-infos'])
 
             setTimeout(()=>{
@@ -400,7 +463,7 @@ export default function DashboardStandard(){
         e.preventDefault()
         update_infos.mutate({
             nom_salle,
-            pays:pays_salle, 
+            pays:pays_salle,
             region
         })
     }
@@ -414,7 +477,7 @@ export default function DashboardStandard(){
             setNomPerso('')
             setPrenomPerso('')
             setTelPerso('')
-            
+
             updatePerso.invalidateQueries(['mes-infos'])
 
             setTimeout(()=>{
@@ -447,9 +510,9 @@ export default function DashboardStandard(){
             updatePassword.mutate({ password })
         } else {
             update_infos_perso.mutate({
-                nom:nomPerso, 
-                prenom:prenomPerso, 
-                telephone:telPerso, 
+                nom:nomPerso,
+                prenom:prenomPerso,
+                telephone:telPerso,
             })
         }
     }
@@ -533,7 +596,7 @@ export default function DashboardStandard(){
         } else {
             logoUpload.mutate({formData})
         }
-        
+
 
     }
 
@@ -548,7 +611,7 @@ export default function DashboardStandard(){
             setTimeout(()=>{
                 supAdh.reset()
 
-            }, 5000)
+            }, 4000)
 
             supAdhQuery.invalidateQueries(['mes-adherant'])
         }),
@@ -559,7 +622,7 @@ export default function DashboardStandard(){
             setTimeout(()=>{
                 supAdh.reset()
 
-            }, 3000)
+            }, 4000)
         })
     })
 
@@ -584,16 +647,16 @@ export default function DashboardStandard(){
             setTimeout(()=>{
                 updateAdh.reset()
 
-            }, 5000)
+            }, 4000)
 
             adhUpQuery.invalidateQueries(['mes-adherant'])
-            
+
         }),
         onError: (()=>{
             setTimeout(()=>{
                 adhToUp.reset()
 
-            }, 3000)
+            }, 4000)
         })
     })
     const loadingUpdateAdh = updateAdh.isPending
@@ -605,10 +668,10 @@ export default function DashboardStandard(){
         e.preventDefault()
         if(!id) return
         updateAdh.mutate({
-            id:adhToUp?.id, 
-            nom:adhToUp?.name, 
+            id:adhToUp?.id,
+            nom:adhToUp?.name,
             prenom:adhToUp?.prenom,
-            email:adhToUp?.email, 
+            email:adhToUp?.email,
             telephone:adhToUp?.telephone
         })
     }
@@ -623,7 +686,7 @@ export default function DashboardStandard(){
 
             setTimeout(()=>{
                 reabAdh.reset()
-            }, 5000)
+            }, 4000)
 
             reabQuery.invalidateQueries(['nbr_actif'])
             reabQuery.invalidateQueries(['abonner-expirer'])
@@ -633,7 +696,7 @@ export default function DashboardStandard(){
 
             setTimeout(()=>{
                 reabAdh.reset()
-            }, 3000)
+            }, 4000)
         })
     })
     const reabLoading = reabAdh.isPending
@@ -661,18 +724,18 @@ export default function DashboardStandard(){
     const misNiveau = useMutation({
         mutationFn : MisNiveau,
         onSuccess : (()=>{
-            
+
             misNiveauQuery.invalidateQueries(['nbr-adherant'])
 
             setTimeout(()=>{
                 misNiveau.reset()
-            }, 3000)
+            }, 4000)
         }),
 
         onError : (()=>{
             setTimeout(()=>{
                 misNiveau.reset()
-            }, 3000)
+            }, 4000)
         })
     })
     const misNiveauLoading = misNiveau.isPending
@@ -697,7 +760,7 @@ export default function DashboardStandard(){
         }
     }
 
-    
+
 
 
     // Debut
@@ -721,8 +784,8 @@ export default function DashboardStandard(){
     const errorOtp = paiementOtp.isError
     const successOtp = paiementOtp.isSuccess
 
-    
-    
+
+
     const reinscription = useMutation({
         mutationFn: PaymentProcess,
 
@@ -753,10 +816,10 @@ export default function DashboardStandard(){
         if(!montantReab || !telReab || !desc || !type || !provider) return
         if(!telReab.trim()) return
         reinscription.mutate({
-            montant: montantReab, 
-            numero: telReab, 
-            forfait: desc, 
-            type, 
+            montant: montantReab,
+            numero: telReab,
+            forfait: desc,
+            type,
             provider
         })
     }
@@ -780,7 +843,7 @@ export default function DashboardStandard(){
                 setTimeout(()=>{
                     setErrorStep('')
                 }, 2500)
-                
+
                 return
             }
             handleReinscription()
@@ -790,7 +853,7 @@ export default function DashboardStandard(){
                 setTimeout(()=>{
                     setErrorStep('')
                 }, 2500)
-                
+
                 return
             }
             handlePaymentOtp()
@@ -803,7 +866,7 @@ export default function DashboardStandard(){
             setTelReab('')
             setStep('1')
             setErrorStep('')
-            
+
         }
     }
 
@@ -835,25 +898,25 @@ export default function DashboardStandard(){
             queryClient.removeQueries(['history'])
 
         )
-        
+
     }
 
 
     function logoutModal(e){
         e.preventDefault()
         setModalLogout(!modalLogout)
-        
+
     }
 
     function logout(e){
         e.preventDefault()
-        
+
         if(token){
             Cookies.remove('token')
             clearCache()
             navigate('/auth', {replace : true})
         }
-        
+
     }
 
     function FormMensuel(e){
@@ -899,78 +962,78 @@ export default function DashboardStandard(){
 
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
-            
+
             <div className="col-span-1 py-3 bg-white shadow-lg flex flex-col gap-10 h-screen overflow-y-auto sticky top-0">
                 <div className="flex items-center gap-2  px-5 my-5">
                     <div className="rounded-full flex items-center justify-center border border-orange-500 bg-orange-500 w-15 h-15">
                         {infosSalle?.logo_salle ? (
                             <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                         ):(
-                            
+
                             <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>}</p>
                         )}
-                        
-                        
+
+
                     </div>
                     <div className="flex flex-col">
-                        <div className="font-semibold text-2xl">{infosSalle?.nom_salle || 'GymPlus'}</div> 
+                        <div className="font-semibold text-2xl">{infosSalle?.nom_salle || 'GymPlus'}</div>
                         <div className="text-orange-500 text-sm">Plan {planActuel}</div>
                     </div>
                 </div>
 
                 <div className="flex flex-col gap-10">
 
-                    <motion.div 
-                        whileHover={{ scale: 1.02 }} 
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
                         whileTap={{scale: 0.95}}
                         className={`${activeTab === 'dashboard' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                         onClick={()=>{setActiveTab('dashboard')}}
                     >
                         <LayoutDashboard className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
                         <button className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                            
+
                         >Tableau de bord</button>
                     </motion.div>
 
                     <motion.div
-                        
-                        whileHover={{ scale: 1.02 }} 
+
+                        whileHover={{ scale: 1.02 }}
                         whileTap={{scale: 0.95}}
                         className={`${activeTab === 'adherant' || showAdd  ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                         onClick={()=>{setActiveTab('adherant')}}
                     >
                         <Users className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200 `}/>
                         <button className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                            
+
                         >Adhérants</button>
                     </motion.div>
 
                     <motion.div
-                        whileHover={{ scale: 1.02 }} 
-                        whileTap={{scale: 0.95}} 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{scale: 0.95}}
                         className={`${activeTab === 'abonnement' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                         onClick={()=>{setActiveTab('abonnement')}}
                     >
                         <SquarePlus className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
                         <button className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                            
+
                         >Abonnements</button>
                     </motion.div>
 
                     <motion.div
-                        whileHover={{ scale: 1.02 }} 
-                        whileTap={{scale: 0.95}} 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{scale: 0.95}}
                         className={`${activeTab === 'settings' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
                         onClick={()=>{setActiveTab('settings')}}
                     >
                         <Settings className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
                         <button className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
-                            
+
                         >Paramètres</button>
                     </motion.div>
                 </div>
 
-                    
+
                 <motion.div
                     className="py-3 px-5"
                 >
@@ -978,8 +1041,8 @@ export default function DashboardStandard(){
                         <div className="flex relative flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
                             {/* <AlertTriangle className="text-red-500" /> */}
                             <p className="text-red-500 font-bold">
-                                {daysRemaining === 0 
-                                    ? "Votre abonnement expire aujourd'hui !" 
+                                {daysRemaining === 0
+                                    ? "Votre abonnement expire aujourd'hui !"
                                     : "Votre abonnement est expiré !"
                                 }
                             </p>
@@ -1008,10 +1071,10 @@ export default function DashboardStandard(){
 
                     {0 < daysRemaining && daysRemaining <= 7 &&(
                         <div className="flex relative flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
-                            {/* <AlertTriangle className="text-red-500" /> */}
+                            
                             <p className="text-red-500 font-bold">
-                            {daysRemaining === 1 
-                                ? "Votre abonnement expire demain !" 
+                            {daysRemaining === 1
+                                ? "Votre abonnement expire demain !"
                                 : `Votre abonnement expirera dans ${daysRemaining} jours !`
                             }
                             </p>
@@ -1025,47 +1088,7 @@ export default function DashboardStandard(){
                                 Me Réabonner
                             </motion.button>
 
-                            {/* {modalNext &&(
-                                <>
-                                    <motion.div 
-                                         initial = {{opacity: 0, x: -80}}
-                                        animate = {{opacity: 1, x: 0}}
-                                        transition={{duration: 0.2}}
-                                        className="absolute rounded-lg inset-0 bg-black/90 backdrop-blur flex flex-col items-center gap-6 justify-center">
-                                        <h1 className="text-xl font-bold text-white">Processus de réabonnement</h1>
-                                        <p className="text-center text-gray-200">
-                                            Voulez-vous continuez avec votre forfait actuel 
-                                            <span className="font-bold text-orange-500 mx-1">({planActuel})</span> 
-                                            ou sur d'autres forfaits ?
-                                        </p>
-                                        <div className="px-3 gap-3 flex items-center justify-center">
-                                            <motion.button
-                                                whileTap={{scale:0.95}}
-                                                onClick={handleModalReabActu}
-                                                className="bg-transparent hover:text-black hover:bg-orange-500 rounded-lg p-2 w-full text-white font-bold text-[18px] border border-orange-500 transition-colors duration-200"
-                                            >
-                                                Continuer avec mon forfait
-                                            </motion.button>
-                                            <motion.button
-                                                whileTap={{scale:0.95}}
-                                                onClick={handleModalReab}
-                                                className="bg-orange-500 text-black w-full rounded-lg p-2 hover:bg-transparent hover:text-white transition-colors duration-200 font-bold text-[18px] border border-orange-500"
-                                            >
-                                                Choisir un autre forfait
-                                            </motion.button>
-                                        </div>
-                                    </motion.div>
 
-                                    <motion.button
-                                        initial = {{opacity: 0, x: -80}}
-                                        animate = {{opacity: 1, x: 0}}
-                                        transition={{duration: 0.2}} 
-                                        onClick={nextStep}
-                                        className="absolute top-0 right-0 p-1">
-                                        <X className="text-gray-400 hover:text-orange-500 transition-colors duration-200" />
-                                    </motion.button>
-                                </>
-                            )} */}
                         </div>
                     )}
 
@@ -1073,12 +1096,12 @@ export default function DashboardStandard(){
 
             {/* {'A gerer en fonction de la date de labonnement'} */}
                 <div className="absolute mx-5 py-3 px-5 transition-colors duration-200 bottom-5 mx-auto w-full flex flex-col gap-2">
-                    
-                    <motion.button 
+
+                    <motion.button
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
-                        disabled={misNiveauLoading || daysRemaining <= 0}
-                        className={`${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-600'}  shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
+                        disabled={misNiveauLoading || daysRemaining < 0}
+                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'}  shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
                         onClick={handleNiveau}
                     >
                         {misNiveauLoading ? (
@@ -1087,7 +1110,7 @@ export default function DashboardStandard(){
                             'Mettre à niveau'
                         )}
                     </motion.button>
-                    <motion.button 
+                    <motion.button
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
                         className="bg-red-700 shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3"
@@ -1097,20 +1120,20 @@ export default function DashboardStandard(){
 
             </div>
 
-        
+
             {activeTab === 'dashboard' && (
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-                    
+                <div className="col-span-4 px-8 py-3 my-5 ">
+
                     <div className="flex items-center mb-10 justify-between border-b-1 pb-5 border-gray-200">
                         <div className="flex flex-col gap-2 text-lg">
                             <div className="flex items-center gap-5">
                                 <h1 className="font-bold text-3xl">Tableau de Bord</h1>
-                                {daysRemaining <= 0 && (
+                                {daysRemaining < 0 && (
                                     <div className="flex items-center gap-1 bg-red-100 px-4 rounded-full py-1">
                                         <AlertTriangle className="text-red-500" />
                                         <p className="text-red-500 font-bold">
-                                        {daysRemaining === 0 
-                                            ? "Votre abonnement expire aujourd'hui !" 
+                                        {daysRemaining === 0
+                                            ? "Votre abonnement expire aujourd'hui !"
                                             : "Votre abonnement est expiré !"
                                         }
                                         </p>
@@ -1121,24 +1144,24 @@ export default function DashboardStandard(){
                                     <div className="flex items-center gap-1 bg-red-100 px-4 animate-pulse rounded-full py-1">
                                         <AlertTriangle className="text-red-500" />
                                         <p className="text-red-500 font-bold">
-                                        {daysRemaining === 1 
-                                            ? "Votre abonnement expire demain !" 
+                                        {daysRemaining === 1
+                                            ? "Votre abonnement expire demain !"
                                             : `Votre abonnement expirera dans ${daysRemaining} jours !`
                                         }
                                         </p>
                                     </div>
                                 )}
-                                
+
                             </div>
                             <p className="text-[18px] text-gray-400">Bienvenue {infosUser?.name || ''} {infosUser?.prenom || ''} !</p>
-                            
+
                         </div>
 
                         <div className="flex items-center justify-center gap-5">
                             <div className="relative w-full">
-                                <input type="text" value={search} 
+                                <input type="text" value={search}
                                     onChange={(e)=>{setSearch(e.target.value)}}
-                                    placeholder="Rechercher adherant..." 
+                                    placeholder="Rechercher adherant..."
                                     className="block w-full mx-2 p-2 pl-10 border border-orange-500 rounded-lg text-sm focus:outline-none bg-white"
                                 />
                                 <div className="absolute top-2 left-4">
@@ -1150,489 +1173,460 @@ export default function DashboardStandard(){
                                 {infosSalle?.logo_salle ? (
                                     <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                                 ):(
-                                    
+
                                     <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <img src={logoGym} alt="logo" className="w-full rounded-full h-full object-cover"/>}</p>
                                 )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-5 mb-10">
-                        
-                        <motion.div
-                            className={`flex-col relative shadow-lg ${loadingNbrAdherant ? '' : 'border-l-5 border-orange-600 shadow-orange-600'} bg-white rounded-xl items-center px-5 py-6`}
-                            whileHover={{scale: 1.1}}
-                        >
-                            {loadingNbrAdherant ? (
-                                <>
-                                <div className="absolute inset-0 animate-pulse backdrop-blur rounded-xl shadow-lg ">
-                                    
-                                </div>
-                                <div className="absolute inset-0 backdrop-blur rounded-xl ">
-                                    
-                                </div>
-                                <div className="absolute animate-pulse inset-0  flex items-center justify-center backdrop-blur rounded-xl ">
-                                    <Loader2 className='transition-alls duration-200  animate-spin text-orange-300 '/>
-                                </div>
-                                </>
-                            ):(
-                                <>
+                    <div className="grid grid-cols-4 gap-8 p-1 ">
+                        <div className="col-span-4 p-3  h-40 flex justify-between gap-4 ">
+                            <motion.div
+                                className={`flex-col w-full relative  ${loadingNbrAdherant ? '' : 'border-1 border-orange-500 shadow-[0_0_12px_rgba(255,100,0,1)]'} bg-white rounded-xl items-center px-5 py-6`}
+                                whileHover={{scale: 1.05}}
+                            ><p className="text-xl font-bold text-gray-400">Adhérants</p>
+                                {loadingNbrAdherant ? (
                                     <div className="flex items-center justify-between">
-                                        
-                                        <div className="flex w-full flex-col gap-2">
-                                            <p className="text-xl font-bold text-gray-400">Adhérants</p>
-                                            <p className="font-bold text-3xl text-black font-bold">{nbrAdherants}<span className="text-xl font-normal text-gray-400">/200</span></p>
-                                            <div className="w-full bg-gray-300 h-2 rounded-xl overflow-hidden">
-                                                <div className="bg-orange-600 h-2 rounded-xl transition-all duration-500" style={{width: `${progressBarAdherant}%`}}></div>
+
+                                            <div className="flex w-full flex-col gap-2">
+                                                
+                                                <p className="w-25 h-8 bg-gray-200 animate-pulse"></p>
+                                                <div className="w-full bg-gray-200 h-2 rounded-xl overflow-hidden">
+                                                </div>
                                             </div>
+                                            <div className=" rounded-full bg-gray-200 animate-pulse p-7"></div>
                                         </div>
-                                        <div className="border-1 border-orange-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-orange-600"><Users className="h-8 w-8"/></div>
-                                    </div>
-                                </>
-                            )}
-                        
-                        </motion.div>
-
-                        <motion.div 
-                        whileHover={{scale: 1.1}}
-                        className={`bg-white flex relative ${loadingNbrActif ? '' : 'border-l-5 border-green-600 shadow-green-600'} justify-between shadow-lg rounded-xl items-center px-5 py-6`}>
-                            
-                            {loadingNbrActif ? (
-                                <>
-                                <div className="absolute inset-0 animate-pulse backdrop-blur rounded-xl shadow-lg ">
                                     
-                                </div>
-                                <div className="absolute inset-0  backdrop-blur rounded-xl ">
-                                    
-                                </div>
-                                <div className="absolute animate-pulse inset-0  flex items-center justify-center backdrop-blur rounded-xl ">
-                                    <Loader2 className='transition-alls duration-200 animate-spin text-green-300 '/>
-                                </div>
-                                </>
-                            ):(
-                                <>
-                                    <div className="flex flex-col gap-2">
-                                        <p className="text-xl font-bold text-gray-400">Abonnements Actifs</p>
-                                
-                                        <p className="font-bold text-3xl text-black font-bold">{nbrAdherantsActif}</p>
-                                    
-
-                                    </div>
-                                    <div className="border-1 border-green-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-green-600"><BadgeCheck className="h-8 w-8"/></div>
-                                </>
-                            )}
-                                
-                            
-                        </motion.div>
-
-                        <motion.div 
-                            whileHover={{scale: 1.1}}
-                            className={`bg-white flex-col relative ${loadingExpire ? '' : 'border-l-5 border-yellow-600 shadow-yellow-600'} justify-between shadow-lg rounded-xl items-center px-5 py-6`}>
-
-                            {loadingExpire ? (
-                                <>
-                                <div className="absolute inset-0 animate-pulse backdrop-blur rounded-xl shadow-lg ">
-                                    
-                                </div>
-                                <div className="absolute inset-0  backdrop-blur rounded-xl ">
-                                    
-                                </div>
-                                <div className="absolute animate-pulse inset-0  flex items-center justify-center backdrop-blur rounded-xl ">
-                                    <Loader2 className='transition-alls duration-200 animate-spin text-yellow-300 '/>
-                                </div>
-                                </>
-                            ):(
-                                <>
-                               
-                                    <div className="flex items-center justify-between">
-                                    
-                                        <div className="flex flex-col gap-2">
-                                            <p className="text-xl font-bold text-gray-400">Expire Bientôt </p>
-                                            <p className="font-bold text-3xl text-yellow-600">{totalExpire} </p>
-                                            <div className="w-full overflow-hidden">
-                                                <p className="text-[14px] text-gray-400 italic">7 jours avant la fin de l'abonnement</p>
-                                            </div>
-                                        </div>
-                                        <div className="border-1 border-yellow-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-yellow-600"><AlertCircle className="h-8 w-8"/></div>
-                                    </div>
-                                </>
-                            )}
-                            
-                        </motion.div>
-
-                        <motion.div 
-                        whileHover={{scale: 1.1}}
-                        className={`bg-white flex relative ${loadingAbExpirer ? '' : 'border-l-5 border-red-600 shadow-red-600'} justify-between shadow-lg rounded-xl items-center px-5 py-6`}>
-
-                            {loadingAbExpirer ? (
-                                <>
-                                <div className="absolute inset-0 animate-pulse backdrop-blur rounded-xl shadow-lg ">
-                                    
-                                </div>
-                                <div className="absolute inset-0  backdrop-blur rounded-xl ">
-                                    
-                                </div>
-                                <div className="absolute animate-pulse inset-0  flex items-center justify-center backdrop-blur rounded-xl ">
-                                    <Loader2 className='transition-alls duration-200 animate-spin text-yellow-300 '/>
-                                </div>
-                                </>
-                            ):(
-                                <>
-                                    <div className="flex flex-col gap-2">
-                                        <p className="text-xl font-bold text-gray-400">Abonnements Expirés</p>
-
-                                        <p className="font-bold text-3xl text-black font-bold">{totalAbExpirer}</p>
-                                    </div>
-                                    <div className="border-1 border-red-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-red-600"><CalendarOff className="h-8 w-8"/></div>
-                            
-                                </>
-                            )}
-                        </motion.div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-5 mb-8">
-                        <motion.div className="bg-white shadow py-3 px-5">
-                            
-                            <div className="flex items-center justify-between">
-                            
-                                <div className="flex flex-col gap-2">
-                                    <div className="text-xl font-bold text-gray-400">Total Mensuel </div>
-                                    <div className="font-bold text-2xl">
-                                        {totalMensuel} {totalMensuel === 0 ? '':'XOF'}
-                                    </div>
-                                    <div className="w-full overflow-hidden">
-                                        <p className="text-[14px] text-gray-400 italic">Revenus basés sur vos enregistrements mensuels</p>
-                                    </div>
-                                </div>
-                                <motion.div className="border-1 border-gray-600 p-2 h-15 w-15 font-bold text-3xl flex items-center justify-center rounded-lg bg-gray-100">M</motion.div>
-                            </div>
-                        
-                        </motion.div>
-
-                        <motion.div className="bg-white shadow py-3 px-5">
-                            
-                            <div className="flex items-center justify-between">
-                            
-                                <div className="flex flex-col gap-2">
-                                    <div className="text-xl font-bold text-gray-400">Total Trimestriel </div>
-                                    <div className="font-bold text-2xl">
-                                        {totalTrimestre} {totalTrimestre === 0 ? '':'XOF'}
-                                    </div>
-                                    <div className="w-full overflow-hidden">
-                                        <p className="text-[14px] text-gray-400 italic">Revenus basés sur vos enregistrements trimestriels</p>
-                                    </div>
-                                </div>
-                                <motion.div className="border-1 border-gray-600 p-2 h-15 w-15 font-bold text-3xl flex items-center justify-center rounded-lg bg-gray-100">T</motion.div>
-                            </div>
-                        
-                        </motion.div>
-
-                        <motion.div className="bg-white shadow py-3 px-5">
-                            
-                            <div className="flex items-center justify-between">
-                            
-                                <div className="flex flex-col gap-2">
-                                    <div className="text-xl font-bold text-gray-400">Total Annuel </div>
-                                    <div className="font-bold text-2xl">
-                                        {totalAnnuel} {totalAnnuel === 0 ? '':'XOF'}
-                                    </div>
-                                    <div className="w-full overflow-hidden">
-                                        <p className="text-[14px] text-gray-400 italic">Revenus basés sur vos enregistrements annuel</p>
-                                    </div>
-                                </div>
-                                <motion.div className="border-1 border-gray-600 p-2 h-15 w-15 font-bold text-3xl flex items-center justify-center rounded-lg bg-gray-100">A</motion.div>
-                            </div>
-                        
-                        </motion.div>
-
-                    </div>
-
-                    <div className="bg-white mb-10 sticky top-0 overflow-hidden shadow-lg rounded-xl px-5 py-6">
-                        <p className="font-bold text-xl mb-5">Accès Rapide</p>
-                        <div className="grid grid-cols-2 gap-5 ">
-                    
-
-                            <motion.button 
-                            whileHover={{scale: 1.02}}
-                            whileTap={{scale: 0.98}}
-                            type="button"
-                            disabled={daysRemaining <= 0}
-                            onClick={() =>
-                                setView(view === "access-adherant" ? "part-dashboard" : "access-adherant")
-                            }
-                            className={`transition-colors duration-200 hover:bg-orange-500 font-bold text-sm ${view === "access-adherant" ? 'bg-orange-500 text-white' : 'bg-orange-100 text-black'} flex items-center rounded-xl justify-center py-4 gap-2`}>
-                                <UserPlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-adherant" ? 'text-white' : 'text-black'}`}/>
-                                
-                                Nouvel Adhérant
-                            </motion.button>
-
-                            <motion.button 
-                            whileHover={{scale: 1.02}}
-                            whileTap={{scale: 0.98}}
-                            type="button"
-                            disabled={daysRemaining <= 0}
-                            onClick={() =>
-                                setView(view === "access-abonnement" ? "part-dashboard" : "access-abonnement")
-                            }
-                            className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-abonnement" ? 'bg-orange-500 text-white' : 'bg-orange-100 text-black'} font-bold text-sm flex items-center rounded-xl justify-center py-4 gap-2`}>
-                                <SquarePlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-abonnement" ? 'text-white' : 'text-black'}`}/>
-                                Voir tous les abonnements
-                            </motion.button>
-
-                            
-                        </div>
-                    </div>
-
-                    {view === "part-dashboard" && (
-
-                    <div className="grid grid-cols-2 gap-5">
-                        <div className="bg-white shadow-lg rounded-xl px-5 py-6">
-                            <span className="text-red-600 font-bold text-xl" >Abonnements Récemment Expirés</span>
-                            <div className="flex items-center justify-between text-sm">
-                                {loadingAbExpirer ? (
+                                ):(
                                     <>
-                                        <div className=" flex items-center animate-pulse">
-                                            
-                                            <div className="flex bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2"></div>
-                                            
-                                        
-                                            <div className="h-10 w-10">
-                                                <p className="h-5 w-10"></p>
-                                                <p className="h-5 w-10"></p>
+                                        <div className="flex items-center justify-between">
+
+                                            <div className="flex w-full flex-col gap-2">
+                                                
+                                                <p className="font-bold text-3xl text-black font-bold">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}` || 0}<span className="text-xl font-normal text-gray-400">/200</span></p>
+                                                <div className="w-full bg-gray-300 h-2 rounded-xl overflow-hidden">
+                                                    <div className="bg-orange-600 h-2 rounded-xl transition-all duration-500" style={{width: `${progressBarAdherant}%`}}></div>
+                                                </div>
                                             </div>
-                                            
+                                            <div className="border-1 border-orange-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-orange-600"><Users className="h-8 w-8"/></div>
                                         </div>
-                                        <div className="h-5 w-10"></div>
                                     </>
-                                ):listExpirer.length === 0 ? (
-                                    <div className="flex text-base w-full pt-10 items-center justify-center">
-                                        <span className="text-gray-400">Aucun abonnement Expiré</span>
+                                )}
+
+                                {errorNbrAdherant && (
+                                    <div>
+                                        <p className="text-red-500 text-sm">Erreur lors de la récupération du nombre d'adhérents</p>
                                     </div>
-                                ):listExpirer.map(item => (
-                                    <div className="p-2 flex items-center justify-between w-full">
-                                        <div key={item.id} className="flex items-center gap-2 mt-3">
-                                            <div className="flex bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2">
-                                                <User className="h-5 w-5" />
-                                            </div>
-                                            <div className="">
-                                                <p className="font-bold">{`${item.name} ${item.prenom}` || item.username}</p>
-                                            </div>
+                                )}
+
+                            </motion.div>
+
+                            <motion.div
+                            whileHover={{scale: 1.05}}
+                            className={`bg-white flex flex-col w-full relative ${loadingNbrActif ? '' : 'border-1 border-green-500 shadow-[0_0_12px_rgba(0,255,0,1)]'} rounded-xl px-5 py-6`}>
+                                <p className="text-xl font-bold text-gray-400">Abonnements Actifs</p>
+                                {loadingNbrActif ? (
+                                   <div className="flex items-center justify-between">
+
+                                            
+                                                
+                                                <p className="w-25 h-8 bg-gray-200 animate-pulse"></p>
+                                                
+                                            
+                                            <div className=" rounded-full bg-gray-200 animate-pulse p-7"></div>
                                         </div>
-                                       <div>
-                                            <p className="text-xs text-gray-400 font-bold">Expiré le : {formatDate(item.created_at)}</p>
-                                       </div>
+                                ):(
+                                    <>
+                                        <div className="flex items-center justify-between">
+                                            
+
+                                            <p className="font-bold text-3xl text-black font-bold">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}` || 0}</p>
+
+                                            <div className="border-1 border-green-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-green-600"><BadgeCheck className="h-8 w-8"/></div>
+                                        </div>
+                                        
+                                    </>
+                                )}
+
+                                {errorNbrActif && (
+                                    <div>
+                                        <p className="text-red-500 text-sm">Erreur lors de la récupération du nombre d'adhérents</p>
                                     </div>
-                                ))}
+                                )}
+
+
+                            </motion.div>
+
+                            <motion.div
+                                whileHover={{scale: 1.05}}
+                                className={`bg-white w-full flex-col relative ${loadingExpire ? '' : 'border-1 border-yellow-500 shadow-[0_0_12px_rgba(255,200,0,1)]'} justify-between rounded-xl items-center px-5 py-6`}>
+
+                                <p className="text-xl font-bold text-gray-400">Expire Bientôt </p>
+                                {loadingExpire ? (
+                                    <div className="flex items-center justify-between">
+
+                                            <div className="flex w-full flex-col gap-2">
+                                                
+                                                <p className="w-25 h-8 bg-gray-200 animate-pulse"></p>
+                                                <div className="w-full bg-gray-200 h-2 rounded-xl overflow-hidden">
+                                                </div>
+                                            </div>
+                                            <div className=" rounded-full bg-gray-200 animate-pulse p-7"></div>
+                                        </div>
+                                ):(
+                                    <>
+
+                                        <div className="flex items-center justify-between">
+
+                                            <div className="flex flex-col gap-2">
+                                                <p className="font-bold text-3xl text-yellow-600">{totalExpire > 9 ? totalExpire : `0${totalExpire}` || 0} </p>
+                                                <div className="w-full overflow-hidden">
+                                                    <p className="text-[14px] text-gray-400 italic">7 jours avant la fin de l'abonnement</p>
+                                                </div>
+                                            </div>
+                                            <div className="border-1 border-yellow-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-yellow-600"><AlertCircle className="h-8 w-8"/></div>
+                                        </div>
+                                    </>
+                                )}
+
+                                {errorExpire && (
+                                    <div>
+                                        <p className="text-red-500 text-sm">Erreur lors de la récupération des abonnements expirés</p>
+                                    </div>
+                                )}
+
+                            </motion.div>
+
+                            <motion.div
+                            whileHover={{scale: 1.05}}
+                            className={`bg-white flex flex-col w-full relative ${loadingAbExpirer ? '' : 'border-1 border-red-500 shadow-[0_0_12px_rgba(255,0,0,1)]'} justify-between rounded-xl px-5 py-6`}>
+
+                                <p className="text-xl font-bold text-gray-400">Abonnements Expirés</p>
+                                {loadingAbExpirer ? (
+                                     <div className="flex items-center justify-between">
+
+                                            
+                                                
+                                                <p className="w-25 h-8 bg-gray-200 animate-pulse"></p>
+                                                
+                                            
+                                            <div className=" rounded-full bg-gray-200 animate-pulse p-7"></div>
+                                        </div>
+                                    
+                                ):(
+                                    <>
+                                        <div className="flex items-center justify-between">
+
+                                            <p className="font-bold text-3xl text-black font-bold">{totalAbExpirer > 9 ? totalAbExpirer : `0${totalAbExpirer}` || 0} </p>
+                                        <div className="border-1 border-red-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-red-600"><CalendarOff className="h-8 w-8"/></div>
+                                        </div>
+
+                                    </>
+                                )}
+
+                                {errorAbExpirer && (
+                                    <div>
+                                        <p className="text-red-500 text-sm">Erreur lors de la récupération des abonnements expirés</p>
+                                    </div>
+                                )}
+                            </motion.div>
+                        </div>
+
+
+                        <div className="bg-white h-40 col-span-4 sticky top-0 overflow-hidden shadow-lg rounded-xl px-5 py-3 ">
+                            <p className="font-bold text-xl mb-5">Accès Rapide</p>
+                            <div className="grid grid-cols-2 gap-5 ">
+
+
+                                <motion.button
+                                whileHover={{scale: 1.02}}
+                                whileTap={{scale: 0.98}}
+                                type="button"
+                                disabled={daysRemaining < 0}
+                                onClick={() =>
+                                    setView(view === "access-adherant" ? "part-dashboard" : "access-adherant")
+                                }
+                                className={`transition-colors duration-200 hover:bg-orange-500 font-bold text-sm ${view === "access-adherant" ? 'bg-orange-500 text-white' : 'bg-orange-100 text-black'} flex items-center rounded-xl justify-center py-4 gap-2`}>
+                                    <UserPlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-adherant" ? 'text-white' : 'text-black'}`}/>
+
+                                    Nouvel Adhérant
+                                </motion.button>
+
+                                <motion.button
+                                whileHover={{scale: 1.02}}
+                                whileTap={{scale: 0.98}}
+                                type="button"
+                                disabled={daysRemaining < 0}
+                                onClick={() =>
+                                    setView(view === "access-abonnement" ? "part-dashboard" : "access-abonnement")
+                                }
+                                className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-abonnement" ? 'bg-orange-500 text-white' : 'bg-orange-100 text-black'} font-bold text-sm flex items-center rounded-xl justify-center py-4 gap-2`}>
+                                    <SquarePlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-abonnement" ? 'text-white' : 'text-black'}`}/>
+                                    Voir tous les abonnements
+                                </motion.button>
+
+
                             </div>
                         </div>
 
-                        <div className="bg-white shadow-lg rounded-xl px-5 py-6">
-                            <p className="text-yellow-600 font-bold text-xl">Renouvellement à venir <span className="text-sm">(expire bientôt)</span></p>
-                            
+                        {view === "part-dashboard" && (
+                            <div className="col-span-4">
+                                <div className="grid grid-cols-2 gap-5">
+                                    <div className="bg-white shadow-lg rounded-xl p-4">
+                                        <span className="text-red-600 font-bold text-xl" >Abonnements Récemment Expirés</span>
+                                    <div className=" overflow-y-auto scrollbar-hide h-95">
+                                        <div className="flex flex-col gap-1 text-sm">
+                                            {loadingAbExpirer ? (
+                                                [1,2,3,4,5,6].map(item => (
+                                                    <div key={item} className="p-2 flex items-center justify-between w-full">
+                                                        <div className="flex items-center gap-2 w-full">
+                                                            <div className="h-10 w-10 rounded-full bg-gray-300 animate-pulse">
+                                                                
+                                                            </div>
+                                                            <div className="bg-gray-300 animate-pulse h-5 w-50"></div>
+                                                        </div>
+                                                        <div className="bg-gray-300 h-5 w-30 animate-pulse"></div>
+                                                    </div>
+                                                ))
+                                            ):listExpirer.length === 0 ? (
+                                                <div className="flex text-base w-full h-95 items-center justify-center">
+                                                    <span className="text-gray-400">Aucun abonnement Expiré</span>
+                                                </div>
+                                            ):listExpirer.map(item => (
+                                                <div className="p-2 flex items-center justify-between w-full">
+                                                    <div key={item.id} className="flex items-center gap-2">
+                                                        <div className="flex bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2">
+                                                            <User className="h-5 w-5" />
+                                                        </div>
+                                                        <div className="">
+                                                            <p className="font-bold">{`${item.name} ${item.prenom}` || item.username}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                            <p className="text-xs text-gray-400 font-bold">Expiré le : {formatDate(item.created_at)}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
 
-                                <table  className=" w-full text-left mt-3" style={{ borderCollapse: "collapse" }}>
-                                    <thead className="">
-                                        <tr className="bg-yellow-600">
-                                            <th className="p-2 border-b border-gray-400">Adhérant</th>
-                                            <th className="p-2 border-b border-gray-400">Type</th>
-                                            <th className="p-2 border-b border-gray-400">Expire le</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody >
-
-                                        {loadingAbExpirer ? (
-                                            <tr>
-                                                <td colSpan={3} className="py-6 text-center">
-                                                    <Loader2 className="mx-auto animate-spin" />
-                                                </td>
-                                            </tr>
-                                        ): listExpireBiento.length === 0 ? (
-                                             <tr>
-                                                <td colSpan={3} className="py-6 text-gray-400 text-center">
-                                                    Aucun renouvellement à venir
-                                                </td>
-                                            </tr>
-                                        ):listExpireBiento.map(item => (
-                                            <tr key={item.id} className=" ">
-                                                
-                                                <td className="p-2 border-b border-gray-400">{`${item.name} ${item.prenom}` || item?.username || 'N/A'}</td>
-                                                {item?.abonnements?.map(a => (
-                                                    <td key={a.id} className="p-2 border-b border-gray-400">{a?.plan || 'N/A'}</td>
-                                                ))}
-
-                                                {item?.abonnements?.map(a => (
-                                                    <td key={a.id} className="p-2 border-b border-gray-400">{a?.fin || 'N/A'}</td>
-                                                ))}
-                                                
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                        
-                        </div>
-                    </div>
-                    )}
-
-                    {view === "access-adherant" && (
-
-                        <form onSubmit={handleAdd} className="">
-                            <div className="grid grid-cols-4 gap-10 ">
-                                <div className="col-span-2 border px-8 py-5 bg-white border-orange-500 rounded-lg shadow-lg ">
-                                    <div className="flex items-center gap-5">
-                                        <div className="flex-col flex gap-2 mb-3">
-                                            <label className="font-bold">Nom <span className="text-red-600">*</span></label>
-                                            <Input 
-                                                type={'text'}
-                                                value={nom}
-                                                onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
-                                                className={'border focus:outline-none  border-gray-300 text-sm p-2 rounded-lg'}
-                                                placeholder={'Nom de l\'adhérant'}
-                                                disabled={false}
-                                                hidden={false}
-                                                pattern={null}
-                                                ref={null}
-                                                checked={null}
-                                            />
-                                        </div>
-
-                                        <div className="flex-col flex gap-2 mb-3">
-                                            <label className="font-bold">Prénom <span className="text-red-600">*</span></label>
-                                            <Input 
-                                                type={'text'}
-                                                value={prenom}
-                                                onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
-                                                className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
-                                                placeholder={'Prenom de l\'adhérant'}
-                                                disabled={false}
-                                                hidden={false}
-                                                pattern={null}
-                                                ref={null}
-                                                checked={null}
-                                            />
+                                            {errorAbExpirer && (
+                                                <div className="flex text-base w-full h-95 items-center justify-center">
+                                                    <span className="text-red-500">Erreur de récupération de données</span>
+                                                </div>
+                                            )}
+                                        
                                         </div>
                                     </div>
-                                    <div className="flex-col flex gap-2 mb-3">
-                                        <label className="font-bold">Adresse e-mail <span className="text-red-600">*</span></label>
-                                        <Input 
-                                            type={'email'}
-                                            value={email}
-                                            onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
-                                            className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
-                                            placeholder={'Email de l\'adhérant'}
-                                            disabled={false}
-                                            hidden={false}
-                                            pattern={null}
-                                            ref={null}
-                                            checked={null}
-                                        />
                                     </div>
 
-                                    <div className="flex-col flex gap-2 mb-3">
-                                        <label className="font-bold">Numéro de téléphone <span className="text-red-600">*</span></label>
-                                        <Input 
-                                            type={'tel'}
-                                            value={tel}
-                                            onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
-                                            className={'border focus:outline-none border-gray-300 text-sm p-2 rounded-lg'}
-                                            placeholder={'Numéro de l\'adhérant'}
-                                            disabled={false}
-                                            hidden={false}
-                                            pattern={null}
-                                            ref={null}
-                                            checked={null}
-                                        />
+                                    <div className="bg-white shadow-lg rounded-xl p-4 ">
+                                        <p className="text-yellow-600 font-bold text-xl">Renouvellement à venir <span className="text-sm">(expire bientôt)</span></p>
+                                    <div className="overflow-y-auto scrollbar-hide h-95">
+
+
+                                            <table  className=" w-full text-left mt-3" style={{ borderCollapse: "collapse" }}>
+                                                <thead className="">
+                                                    <tr className="bg-yellow-600">
+                                                        <th className="p-2 border-b border-gray-400">Adhérant</th>
+                                                        <th className="p-2 border-b border-gray-400">Type</th>
+                                                        <th className="p-2 border-b border-gray-400">Expire le</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody >
+
+                                                    {loadingAbExpirer ? (
+                                                        <tr className=" h-80">
+                                                            <td colSpan={3} className="py-6 text-center">
+                                                                Chargement des données
+                                                                <Loader2 className="mx-auto animate-spin" />
+                                                            </td>
+                                                        </tr>
+                                                    ): listExpireBiento.length === 0 ? (
+                                                        <tr>
+                                                            <td colSpan={3} className="py-6 h-80 text-gray-400 text-center">
+                                                                Aucun renouvellement à venir
+                                                            </td>
+                                                        </tr>
+                                                    ):listExpireBiento.map(item => (
+                                                        <tr key={item.id} className=" ">
+
+                                                            <td className="p-2 border-b border-gray-400">{`${item.name} ${item.prenom}` || item?.username || 'N/A'}</td>
+                                                            {item?.abonnements?.map(a => (
+                                                                <td key={a.id} className="p-2 border-b border-gray-400">{a?.plan || 'N/A'}</td>
+                                                            ))}
+
+                                                            {item?.abonnements?.map(a => (
+                                                                <td key={a.id} className="p-2 border-b border-gray-400">{a?.fin || 'N/A'}</td>
+                                                            ))}
+
+                                                        </tr>
+                                                    ))}
+
+
+                                                    {errorExpire && (
+                                                    <tr className=" h-80">
+                                                        <td colSpan={3} className="py-6 text-center text-red-500">
+                                                            Erreur lors de la récuperation des données
+                                                        </td>
+                                                    </tr>
+                                                    )}
+                                                    
+                                                        
+                                                    
+                                                </tbody>
+                                            </table>
+
+                                    </div>
                                     </div>
                                 </div>
+                            </div>
+                        )}
 
-                
-                                <div className="col-span-2 border border-orange-500 px-8 py-5 bg-white rounded-lg shadow-lg ">
-                                    <div className="flex-col flex gap-2 ">
-                                        <label className="font-bold">Abonnement</label>
+                        {view === "access-adherant" && (
+
+                            <form onSubmit={handleAdd} className="col-span-4 overflow-y-auto scrollbar-hide h-110">
+                                <div className="grid grid-cols-4 gap-4 h-40">
+                                    <div className="col-span-2 border px-8 py-5 bg-white border-orange-500 rounded-lg shadow-lg ">
+                                        <div className="flex items-center gap-5 w-full">
+                                            <div className="flex-col flex gap-2 mb-3 w-full">
+                                                <label className="font-bold">Nom <span className="text-red-600">*</span></label>
+                                                <Input
+                                                    type={'text'}
+                                                    value={nom}
+                                                    onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
+                                                    className={'border focus:outline-none  border-gray-300 text-sm p-2 w-full rounded-lg'}
+                                                    placeholder={'Nom de l\'adhérant'}
+                                                    
+                                                />
+                                            </div>
+
+                                            <div className="flex-col flex gap-2 mb-3 w-full">
+                                                <label className="font-bold">Prénom <span className="text-red-600">*</span></label>
+                                                <Input
+                                                    type={'text'}
+                                                    value={prenom}
+                                                    onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
+                                                    className={'border focus:outline-none border-gray-300 text-sm p-2 w-full rounded-lg'}
+                                                    placeholder={'Prenom de l\'adhérant'}
+                                                    
+                                                />
+                                            </div>
+                                        </div>
+                                        {/* <div className="flex items-center gap-5 w-full"> */}
+                                        <div className="flex-col flex gap-2 mb-3 w-full">
+                                            <label className="font-bold">Adresse e-mail <span className="text-red-600">*</span></label>
+                                            <Input
+                                                type={'email'}
+                                                value={email}
+                                                onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
+                                                className={'border focus:outline-none border-gray-300 text-sm p-2 w-full rounded-lg'}
+                                                placeholder={'Email de l\'adhérant'}
+                                                
+                                            />
+                                        </div>
+
+                                        <div className="flex-col flex gap-2 mb-3 w-full">
+                                            <label className="font-bold">Numéro de téléphone <span className="text-red-600">*</span></label>
+                                            <Input
+                                                type={'tel'}
+                                                value={tel}
+                                                onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
+                                                className={'border focus:outline-none border-gray-300 text-sm p-2 w-full rounded-lg'}
+                                                placeholder={'Numéro de l\'adhérant'}
+                                                
+                                            />
+                                        </div>
+                                        {/* </div> */}
+                                    </div>
+
+
+                                    <div className="col-span-2 border border-orange-500 px-8 py-5 bg-white rounded-lg shadow-lg ">
+                                        <div className="flex-col flex gap-2 ">
+                                            <label className="font-bold">Abonnement</label>
+
+
+                                            <select
+                                                value={plan}
+                                                onChange={(e) => {
+                                                    const value = e.target.value
+                                                    setPlan(value)
+                                                    setShowPrix(!!value)
+                                                    addAdh.reset()
+                                                }}
+                                                className="border-4 border-gray-300 p-2 border-dotted text-sm"
+                                                >
+                                                <option value="">-- Choisir le type d'abonnement --</option>
+                                                <option value="mensuel">Mensuel</option>
+                                                <option value="trimestriel">Trimestriel</option>
+                                                <option value="annuel">Annuel</option>
+                                            </select>
+
+                                        </div>
+
+                                        <div>
+                                            {showPrix && (
+                                                <div className="flex-col flex gap-2">
+                                                    {loading ? (
+                                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                                    ) : (
+                                                    <>
+                                                        <label className="font-bold mt-5">Prix</label>
+                                                        <select
+                                                        value={montant}
+                                                        onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
+                                                        className="border-4 border-gray-300 p-2 border-dotted text-sm"
+                                                        >
+                                                        <option value="">-- Choisir --</option>
+                                                            {plan === "mensuel" && (
+                                                                <option value={prix_mensuel}>
+                                                                    {prix_mensuel}
+                                                                </option>)}
+                                                            {plan === "trimestriel" && (
+                                                                <option value={prix_trimestriel}>
+                                                                    {prix_trimestriel}
+                                                                </option>)}
+                                                            {plan === "annuel" && (
+                                                                <option value={prix_annuel}>
+                                                                    {prix_annuel}
+                                                                </option>)}
+                                                        </select>
+                                                    </>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                    </div>
+
                                     
 
-                                        <select
-                                            value={plan}
-                                            onChange={(e) => {
-                                                const value = e.target.value
-                                                setPlan(value)
-                                                setShowPrix(!!value)
-                                                addAdh.reset()
-                                            }}
-                                            className="border-4 border-gray-300 p-2 border-dotted text-sm"
-                                            >
-                                            <option value="">-- Choisir --</option>
-                                            <option value="mensuel">Mensuel</option>
-                                            <option value="trimestriel">Trimestriel</option>
-                                            <option value="annuel">Annuel</option>
-                                        </select>
+                                    <div className="flex items-center w-80 mx-auto  mt-5 col-span-4">
+                                        <motion.button
+                                        whileTap={{scale: 0.95}}
+                                        disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
+                                        className={`flex items-center  justify-center w-full border   rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white hover:bg-transparent hover:text-black '} font-bold  p-3`}
 
-                                    </div>
-
-                                    <div>
-                                        {showPrix && (
-                                            <div className="flex-col flex gap-2">
-                                                {loading ? (
-                                                <Loader2 className="h-5 w-5 animate-spin" />
-                                                ) : (
+                                        >
+                                            {loadingAdherant ? (
                                                 <>
-                                                    <label className="font-bold mt-5">Prix</label>
-                                                    <select
-                                                    value={montant}
-                                                    onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
-                                                    className="border-4 border-gray-300 p-2 border-dotted text-sm"
-                                                    >
-                                                    <option value="">-- Choisir --</option>
-                                                        {plan === "mensuel" && (
-                                                            <option value={prix_mensuel}>
-                                                                {prix_mensuel}
-                                                            </option>)}
-                                                        {plan === "trimestriel" && (
-                                                            <option value={prix_trimestriel}>
-                                                                {prix_trimestriel}
-                                                            </option>)}
-                                                        {plan === "annuel" && (
-                                                            <option value={prix_annuel}>
-                                                                {prix_annuel}
-                                                            </option>)}
-                                                    </select>
+                                                En cours...
+                                                <Loader2 className='h-5 w-5 animate-spin'/>
                                                 </>
-                                                )}
-                                            </div>
-                                        )}
+                                            ):(
+                                                'Ajouter'
+                                            )}
+                                        </motion.button>
                                     </div>
-                                
+
                                 </div>
-                            </div>
-                            <div className="flex items-center my-3">
-                                {errorAdherant && (
-                                    <span className="text-red-600 text-sm">{addAdh.error.message}</span>
-                                )}
-                                {successAdherant && (
-                                    <span className="text-green-600 text-sm">Enregistrement effectué avec succèss</span>
-                                )}
-                            </div>
 
-                            <div className="flex items-center mt-8">
-                                <motion.button 
-                                whileTap={{scale: 0.95}}
-                                disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
-                                className={`flex items-center  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-gray-300 text-gray-500 border-gray-300' : 'bg-orange-600 text-white hover:bg-transparent hover:text-black '} font-bold  py-1 px-5 mx-auto`}
-                                
-                                >
-                                    {loadingAdherant ? (
-                                        <Loader2 className='h-5 w-5 animate-spin'/>
-                                    ):(
-                                        'Ajouter'
-                                    )}
-                                </motion.button>
-                            </div>
-                            
-                        </form>
 
-                    )}
+                            </form>
 
-                    {view === "access-abonnement" && (
-                            <div className="bg-white w-full my-8 rounded-lg ">
+                        )}
+
+                        {view === "access-abonnement" && (
+                            <div className="bg-white w-full rounded-lg  overflow-y-auto scrollbar-hide h-110 col-span-4">
                                 <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
                                     <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
                                         <tr >
@@ -1658,7 +1652,7 @@ export default function DashboardStandard(){
                                                 </tr>
                                             ): adherentsFiltres.map(item => (
                                                 <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
-                                                    
+
                                                     <td className="flex items-center  font-bold  gap-2 py-5 px-3">
                                                     <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
                                                     {`${item.name} ${item.prenom}` || item.username }
@@ -1671,14 +1665,14 @@ export default function DashboardStandard(){
                                                             {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
                                                         </span>
                                                     </td>
-                                                    
+
                                                 </tr>
                                             ))}
-                                        
-                                        </tbody>
-                                    
 
-                                    
+                                        </tbody>
+
+
+
                                 </table>
                                 <div className="flex  p-4 items-center justify-between">
                                         <div>
@@ -1689,14 +1683,14 @@ export default function DashboardStandard(){
 
                                         <div className="flex text-sm items-center gap-2">
                                             <motion.button
-                                            disabled={page === 1} 
+                                            disabled={page === 1}
                                             onClick={()=>{setPage(p => p - 1)}}
                                                 whileTap={{scale: 0.95}}
                                                 className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
                                             >Précedent</motion.button>
 
-                                            <motion.button 
-                                            disabled={page === mesAdh.data?.adherents?.last_page} 
+                                            <motion.button
+                                            disabled={page === mesAdh.data?.adherents?.last_page}
                                             onClick={()=>{setPage(p => p + 1)}}
                                             whileTap={{scale: 0.95}}
                                                 className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
@@ -1705,13 +1699,14 @@ export default function DashboardStandard(){
                                     </div>
 
                             </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             )}
 
             {activeTab === 'adherant' && (
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-                    
+                <div className="col-span-4 px-8 py-3 my-5">
+
                     <div className="flex flex-col gap-2" >
                         <h1 className="font-bold text-3xl">Gestion des Adhérants</h1>
                         <p className="text-gray-400 text-[18px]">Plan {planActuel} - {nbrAdherants}/200 adhérants</p>
@@ -1722,7 +1717,7 @@ export default function DashboardStandard(){
                             <div className="absolute top-2">
                                 <Search className="h-5 w-5 text-orange-400 ml-2"/>
                             </div>
-                            <input type="text" 
+                            <input type="text"
                             value={search}
                             onChange={(e)=>{setSearch(e.target.value)}}
                                 className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
@@ -1730,134 +1725,144 @@ export default function DashboardStandard(){
                             />
                         </div>
 
-                        <motion.button 
+                        <motion.button
                             whileTap={{scale: 0.95}}
                             onClick={()=>{setShowAdd(true), setActiveTab('')}}
-                            // disabled={daysRemaining <= 0}
-                            disabled={daysRemaining <= 0}
-                        className={`flex font-bold text-white text-sm items-center ${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
+                            disabled={daysRemaining < 0}
+                        className={`flex font-bold text-white text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:text-black border-orange-500 hover:border-gray-400 hover:bg-transparent cursor-pointer'}  gap-2 py-2 px-4 rounded-lg  border  transition-colors duration-200`}>
                             <Plus className="h-5 w-5 "/>
                             Ajouter un adhérant
                         </motion.button>
                     </div>
 
                     {/* A revoir avec les vraies donnees */}
-                    <div className="bg-white my-8 rounded-lg ">
-                        <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
-                            <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
-                                <tr >
-                                    <th className=" p-3 text-left">Nom complet</th>
-                                    <th className=" p-3">Adresse e-mail</th>
-                                    <th className=" p-3">Telephone</th>
-                                    <th className=" p-3">Forfait</th>
-                                    <th className=" p-3">Montant</th>
-                                    <th className=" p-3">Statut</th>
-                                    <th className=" p-3">Fin d'abonnement</th>
-                                    <th className=" p-3">Actions</th>
-                                </tr>
-                            </thead>
+                    <div className={`grid grid-cols-4 bg-white relative h-190 overflow-y-auto scrollbar-hide p-1 `}>
+                        <div className="col-span-4 bg-white mb-10 rounded-lg ">
+                            <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                                <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                    <tr >
+                                        <th className=" p-3 text-left">Nom complet</th>
+                                        <th className=" p-3">Adresse e-mail</th>
+                                        <th className=" p-3">Telephone</th>
+                                        <th className=" p-3">Forfait</th>
+                                        <th className=" p-3">Montant</th>
+                                        <th className=" p-3">Statut</th>
+                                        <th className=" p-3">Actions</th>
+                                    </tr>
+                                </thead>
 
-                            <tbody className="">
-                                {loadingAdh ? (
-                                    <tr>
-                                        <td colSpan={8} className="py-6 text-center">
-                                            <Loader2 className="mx-auto animate-spin" />
-                                        </td>
-                                    </tr>
-                                ): adherentsFiltres.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={8} className="py-6 text-center text-sm text-gray-500">
-                                            {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Pas encore d'adhérents inscrits"}
-                                        </td>
-                                    </tr>
-                                ): adherentsFiltres.map(item => (
-                                    <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                <tbody className="">
+                                    {loadingAdh ? (
+                                        [1,2,3,4,5,6,7,8,9,10].map(item =>(
                                         
-                                        <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                        <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                        {`${item.name} ${item.prenom}` || item.username }
+                                            <SkeletonAdh key={item}/>
+                                        ))
+                                    ): adherentsFiltres.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={7} className="py-6 text-center text-sm text-gray-500">
+                                                {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Pas encore d'adhérents inscrits"}
+                                            </td>
+                                        </tr>
+                                    ): adherentsFiltres.map(item => (
+                                        <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
 
-                                        </td>
-                                        <td className=" px-3 py-5">{item.email || '-'}</td>
-                                        <td className=" px-3 py-5">{item.telephone || '-'}</td>
-                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.plan : '-'}</td>
-                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? `${item.dernier_abonnement.montant} XOF` : '-'}</td>
-                                        {item.dernier_abonnement !== null ? (
-                                            <td className=" px-3 ">
-                                                <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
-                                                    {item.dernier_abonnement.actif ? 'actif' : 'expiré'}
-                                                </span>
+                                            <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                            <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
+                                            {`${item.name} ${item.prenom}` || item.username }
+
                                             </td>
-                                        ):(
-                                            <td className=" px-3 ">
-                                                <span className="bg-red-200 font-semibold py-1 px-2 rounded-xl">
-                                                expiré
-                                                </span>
-                                            </td>
-                                        )}
-                                        <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
-                                        <td className="flex justify-center py-5 items-center gap-2 px-3">
-                                            <motion.button
-                                            type="button"
-                                            disabled={daysRemaining <= 0}
-                                            onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}} 
-                                                whileTap={{scale: 0.95}}
-                                            className={`border  ${daysRemaining <= 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
-                                                <Pencil className="text-white h-4 w-4"/>
-                                            </motion.button>
-                                            <motion.button
+                                            <td className=" px-3 py-5">{item.email || '-'}</td>
+                                            <td className=" px-3 py-5">{item.telephone || '-'}</td>
+                                            <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.plan : '-'}</td>
+                                            <td className=" px-3 py-5">{item.dernier_abonnement !== null ? `${item.dernier_abonnement.montant} XOF` : '-'}</td>
+                                            {item.dernier_abonnement !== null ? (
+                                                <td className=" px-3 ">
+                                                    <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
+                                                        {item.dernier_abonnement.actif ? 'actif' : 'expiré'}
+                                                    </span>
+                                                </td>
+                                            ):(
+                                                <td className=" px-3 ">
+                                                    <span className="bg-red-200 font-semibold py-1 px-2 rounded-xl">
+                                                    expiré
+                                                    </span>
+                                                </td>
+                                            )}
+                                            <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                                <motion.button
                                                 type="button"
-                                                disabled={daysRemaining <= 0}
-                                                onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item.id)}} 
-                                                whileTap={{scale: 0.95}}
-                                                className={`border  border-red-100 ${daysRemaining <= 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
-                                            >
-                                                <Trash className="h-4 w-4 text-white" />
-                                            </motion.button>
-                                        </td>
-                                    </tr>
-                                ))}
-                              
-                            </tbody>
+                                                disabled={daysRemaining < 0}
+                                                onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}}
+                                                    whileTap={{scale: 0.95}}
+                                                className={`border  ${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
+                                                    <Pencil className="text-white h-4 w-4"/>
+                                                </motion.button>
+                                                <motion.button
+                                                    type="button"
+                                                    disabled={daysRemaining < 0}
+                                                    onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item)}}
+                                                    whileTap={{scale: 0.95}}
+                                                    className={`border  border-red-100 ${daysRemaining < 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
+                                                >
+                                                    <Trash className="h-4 w-4 text-white" />
+                                                </motion.button>
+                                            </td>
+                                        </tr>
+                                    ))}
 
-                            
-                        </table>
-                        <div className="flex  p-4 items-center justify-between">
-                                <div>
-                                    <div className="text-sm text-gray-400">
-                                        Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+                                    {errorAdh && (
+                                        <tr className="">
+                                            <td colSpan={7} className="py-6 h-170 text-center  text-red-600">
+                                                <p className="flex items-center justify-center gap-2 ">
+                                                <XCircle className="animate-spin text-red-600" />
+                                                {mesAdh.error.message}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    )}
+
+                                </tbody>
+
+
+                            </table>
+                            {successAdh  && (
+                                <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} absolute -bottom-17 w-full py-3 px-10 bg-white items-center justify-between`}>
+                                    <div>
+                                        <div className="text-sm text-gray-400">
+                                            Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex text-sm items-center gap-2">
+                                        <motion.button
+                                        disabled={page === 1}
+                                        onClick={()=>{setPage(p => p - 1)}}
+                                            whileTap={{scale: 0.95}}
+                                            className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                        >Précedent</motion.button>
+
+                                        <motion.button
+                                        disabled={page === mesAdh.data?.adherents?.last_page}
+                                        onClick={()=>{setPage(p => p + 1)}}
+                                        whileTap={{scale: 0.95}}
+                                            className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
+                                        > Suivant</motion.button>
                                     </div>
                                 </div>
+                            )}
 
-                                <div className="flex text-sm items-center gap-2">
-                                    <motion.button
-                                    disabled={page === 1} 
-                                    onClick={()=>{setPage(p => p - 1)}}
-                                        whileTap={{scale: 0.95}}
-                                        className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                    >Précedent</motion.button>
-
-                                    <motion.button 
-                                    disabled={page === mesAdh.data?.adherents?.last_page} 
-                                    onClick={()=>{setPage(p => p + 1)}}
-                                    whileTap={{scale: 0.95}}
-                                        className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                    > Suivant</motion.button>
-                                </div>
-                            </div>
-
+                        </div>
                     </div>
-                    
                 </div>
             )}
 
             {activeTab === 'abonnement' && (
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-                    
+                <div className="col-span-4 px-8 py-3 my-5">
+
                     <div className="flex flex-col gap-2">
                         <h1 className="font-bold text-3xl flex items-center">
-                            Gestion Abonnements : 
-                            <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalAbExpirer} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
+                            Gestion Abonnements :
+                            <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalAbExpirer > 9 ? totalAbExpirer : `0${totalAbExpirer}`} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
                         </h1>
                         <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
                     </div>
@@ -1867,7 +1872,7 @@ export default function DashboardStandard(){
                             <div className="absolute top-2">
                                 <Search className="h-5 w-5 text-orange-400 ml-2"/>
                             </div>
-                            <input type="text" 
+                            <input type="text"
                             value={search}
                             onChange={(e)=>{setSearch(e.target.value)}}
                                 className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
@@ -1876,36 +1881,37 @@ export default function DashboardStandard(){
                         </div>
 
                         <div className="flex items-center gap-2">
-                        <motion.button 
+                        <motion.button
                             whileTap={{scale: 0.95}}
                             onClick={()=>{setAbonnementTab('tous')}}
                             className={`${abonnementTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-                            
+
                             Tous
                         </motion.button>
 
-                        <motion.button 
+                        <motion.button
                             whileTap={{scale: 0.95}}
                             onClick={()=>{setAbonnementTab('actifs')}}
-                            
+
                             className={`${abonnementTab === 'actifs' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-                            
+
                             Actifs
                         </motion.button>
 
-                        <motion.button 
+                        <motion.button
                             whileTap={{scale: 0.95}}
                             onClick={()=>{setAbonnementTab('expirés')}}
-                            
+
                             className={`${abonnementTab === 'expirés' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
-                            
+
                             Expirés
                         </motion.button>
                         </div>
                     </div>
 
                     {/* A revoir avec les vraies donnees */}
-                    <div className="bg-white my-8 rounded-lg ">
+                    <div className={`grid grid-cols-4 bg-white relative h-190 overflow-y-auto scrollbar-hide p-1 `}>
+                    <div className="col-span-4 bg-white mb-10  rounded-lg ">
                         <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
                             <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
                                 <tr >
@@ -1919,20 +1925,21 @@ export default function DashboardStandard(){
 
                                 <tbody className="">
                                     {loadingAdh ? (
-                                        <tr>
-                                            <td colSpan={5} className="py-6 text-center">
-                                                <Loader2 className="mx-auto animate-spin" />
-                                            </td>
-                                        </tr>
+                                        [1,2,3,4,5,6,7,8,9,10].map(item =>(
+                                        
+                                            <SkeletonAbonnement key={item}/>
+                                        ))
                                     ): adherentsFiltres.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={5} className="py-6 text-center text-sm text-gray-500">
+                                        <tr className=" h-170 ">
+                                            <td colSpan={5} className={`py-6 text-center text-sm text-gray-500`}>
+                                                <p className="flex items-center justify-center">
                                                 {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
+                                                </p>
                                             </td>
                                         </tr>
                                     ): adherentsFiltres.map(item => (
                                         <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
-                                            
+
                                             <td className="flex items-center  font-bold  gap-2 py-5 px-3">
                                             <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
                                             {`${item.name} ${item.prenom}` || item.username }
@@ -1945,16 +1952,16 @@ export default function DashboardStandard(){
                                                     {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
                                                 </span>
                                             </td>
-                                            
+
                                             <td className="flex justify-center py-5 items-center gap-2 px-3">
-                                                
+
                                                 {((formatDate(item.dernier_abonnement?.fin) <= d ) && (!item.dernier_abonnement?.actif)) ? (
                                                     <motion.button
                                                         type="button"
                                                         onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        disabled={daysRemaining <= 0}
-                                                        className={`border ${daysRemaining <= 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
+                                                        disabled={daysRemaining < 0}
+                                                        className={`border ${daysRemaining < 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
                                                         Reabonner
                                                     </motion.button>
                                                 ):(
@@ -1965,17 +1972,30 @@ export default function DashboardStandard(){
                                                         Reabonner
                                                     </motion.button>
                                                 )}
-                                                
+
                                             </td>
                                         </tr>
                                     ))}
-                                
-                                </tbody>
-                            
 
-                            
+                                    {errorAdh && (
+                                        <tr className="">
+                                            <td colSpan={5} className="py-6 h-170 text-center  text-red-600">
+                                                <p className="flex items-center justify-center gap-2 ">
+                                                <XCircle className="animate-spin text-red-600" />
+                                                {mesAdh.error.message}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    )}
+
+                                </tbody>
+
+
+
                         </table>
-                        <div className="flex  p-4 items-center justify-between">
+                    </div>
+                        {successAdh && (
+                            <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} absolute -bottom-17 w-full py-3 px-10 bg-white items-center justify-between`}>
                                 <div>
                                     <div className="text-sm text-gray-400">
                                         Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
@@ -1984,813 +2004,955 @@ export default function DashboardStandard(){
 
                                 <div className="flex text-sm items-center gap-2">
                                     <motion.button
-                                    disabled={page === 1} 
+                                    disabled={page === 1}
                                     onClick={()=>{setPage(p => p - 1)}}
                                         whileTap={{scale: 0.95}}
                                         className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
                                     >Précedent</motion.button>
 
-                                    <motion.button 
-                                    disabled={page === mesAdh.data?.adherents?.last_page} 
+                                    <motion.button
+                                    disabled={page === mesAdh.data?.adherents?.last_page}
                                     onClick={()=>{setPage(p => p + 1)}}
                                     whileTap={{scale: 0.95}}
                                         className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
                                     > Suivant</motion.button>
                                 </div>
                             </div>
+                        )}
 
+                    
                     </div>
                 </div>
             )}
 
             {activeTab === 'settings' && (
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                <div className="relative col-span-4 px-8 py-3 my-5 ">
                     <div className="flex flex-col gap-2 ">
                         <h1 className="font-bold text-3xl">Paramètres Généraux</h1>
-                        <p className="text-gray-400 text-[18px]">Gérer les informations de votre salle, votre profil, ainsi que la tarification</p>
+                        <p className="text-gray-400 text-[18px]">Gérez vos informations de façon générale.</p>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-2">
-                    
-                        <div className="col-span-2">
-                            {infosLoading ? (
-                                <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 animate-pulse">
-                                    
-                                    <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
-                                    
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                        <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                    </div>
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                        <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                    </div>
-                                    
-                                    <div className="flex items-center justify-between gap-5">
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                            <div className="h-10 bg-gray-100 rounded-lg"></div>
+                    <div className="flex items-center justify-start gap-5 my-2">
+                        <button 
+                            onClick={()=>{setParamstab('salle')}}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'salle' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Informations de la salle</button>
+                        <button 
+                            onClick={()=>{setParamstab('perso')}}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'perso' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Informations personnelles</button>
+                        <button 
+                            onClick={()=>{setParamstab('visuel')}}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'visuel' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Identité visuelle</button>
+                        <button 
+                            onClick={()=>{setParamstab('tarif')}}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'tarif' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Gérer vos tarifs</button>
+                        <button 
+                            onClick={()=>{setHistoryP(!historyP)}}
+                            className={`border-b rounded-lg p-2 ${historyP ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Historique de connexion</button>
+                        <button 
+                            onClick={()=>{setParamstab('support')}}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'support' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                        >Support GymPlus</button>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-2 ">
+                        {paramsTab === 'salle' && (
+                            <>
+                                <div className="flex col-span-2 mt-15 p-4">
+                                        <div className="text-gray-500 flex flex-col gap-8">
+                                            <p>
+                                                Les informations ci-contre correspondent aux détails principaux de votre salle.
+                                                Merci de vérifier qu’elles sont correctes et à jour :
+                                            </p>
+
+                                            <div className="flex flex-col gap-2">
+                                                <p>
+                                                <span className="font-bold">Nom de la salle :</span> Nom officiel de votre établissement.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Adresse :</span> Adresse complète permettant de localiser votre salle.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Pays :</span> Pays dans lequel votre salle est enregistrée.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Région :</span> Région ou province de localisation.
+                                                </p>
+                                            </div>
+
+                                            <p>
+                                            Ces informations sont utilisées pour l’identification, la gestion administrative et l’affichage public de votre salle sur la plateforme.
+                                            </p>
+
+                                            <div className="flex flex-col gap-2">
+                                                <p>
+                                                <span className="font-bold">Date de création :</span> {formatDate(infosSalle.created_at)}
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Dernière mise à jour :</span> {formatDate(infosSalle.updated_at)}
+                                                </p>
+                                            </div>
+
+                                            <p className="text-red-500">
+                                            En cas d’erreur, veuillez procéder à la modification afin de garantir l’exactitude des données.
+                                            </p>
                                         </div>
-                                        
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                            <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="my-3">
-                                        <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
-                                    </div>
+                                        <div className="bg-gray-300 h-120 w-[2px]"></div>
                                 </div>
-                            ):(
-                                <form onSubmit={UpdateInfos} className="bg-white border border-gray-300 rounded-lg p-4 my-5">
-                                    <span className="font-semibold text-xl">Informations de la salle</span>
-
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <label className="text-gray-400 flex gap-1">Nom de la salle 
-                                            <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                        </label>
-                                        <input type="text"
-                                            value={nom_salle}
-                                            onChange={(e)=>{ setNomSalle(e.target.value),update_infos.reset()}}
-                                            disabled={!showButtonSalle}
-                                            placeholder={!showButtonSalle ? infosSalle.nom_salle : 'Entrez le nouveau nom de votre salle'}
-                                            className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                        />
-                                    </div>
-
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <label className="text-gray-400">Adresse</label>
-                                        <input type="text"
-                                            disabled
-                                            placeholder={`${infosSalle.pays_salle} ${infosSalle.region_salle}`}
-                                            className="border bg-gray-100 border-gray-300 p-1 pl-3 font-semibold rounded-lg focus:outline-none"
-                                        />
-                                    </div>
-
-                                    <div className="flex items-center justify-between gap-5">
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <label className="text-gray-400 flex gap-1">Pays 
-                                                <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                            </label>
-                                            <input type="text"
-                                                value={pays_salle}
-                                                onChange={(e)=>{ setPaysSalle(e.target.value),update_infos.reset()}}
-                                                disabled={!showButtonSalle}
-                                                placeholder={!showButtonSalle ? infosSalle.pays_salle : 'Entrez le pays où se trouve la salle'}
-                                                className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                            />
-                                        </div>
-
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <label className="text-gray-400 flex gap-1">Région
-                                                <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                            </label>
-                                            <input type="text"
-                                                value={region}
-                                                onChange={(e)=> {setRegion(e.target.value), update_infos.reset()}}
-                                                disabled={!showButtonSalle}
-                                                placeholder={!showButtonSalle ? infosSalle.region_salle : 'Entrez la région'}
-                                                className={`border border-gray-300 p-1 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {updateError && (
-                                        <p className="my-3 text-red-600 text-sm">{update_infos.error.message}</p>
-                                    )}
-
-                                    {successUpdate && (
-                                        <p className="my-3 text-green-600 text-sm">Infos de la salle mis à jour avec succès</p>
-                                    )}
-
-                                    <p className="my-3 italic text-gray-400 text-sm">Date de création : {formatDate(infosSalle.created_at)} - Mis à jour : {formatDate(infosSalle.updated_at)}</p>
-
-                                    <div className="flex items-center gap-2" >
-                                        <div className={`${showButtonSalle ? 'hidden' : ''}`}>
-                                    
-                                        <motion.button
-                                            type="button" 
-                                            whileTap={{scale:0.95}}
-                                            onClick={()=>{setShowButtonSalle(true) }}
-                                            className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
-                                        >
-                                            Modifier
-                                        </motion.button>
-                                        </div>
-                                        {showButtonSalle && (
-                                            <div className={`${successUpdate ? setShowButtonSalle(false) : 'block'} gap-2 flex items-center`}>
-                                            <motion.button
-                                                type="button" 
-                                                whileTap={{scale:0.95}}
-                                                onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPaysSalle(''), setRegion('')}}
-                                                className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
-                                            >
-                                                Annuler
-                                            </motion.button>
-                                            <motion.button 
-                                                type="submit"
-                                                whileTap={{scale:0.95}}
-                                                disabled={updateLoading || !nom_salle.trim() || !pays_salle.trim() || !region.trim()}
-                                                className={`my-3 ${!nom_salle.trim() || !pays_salle.trim() || !region.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
-                                            >
-                                                {updateLoading ? (
-                                                    <Loader2 className="animate-spin"/>
-                                                ):(
-                                                    'Enregistrer'
-                                                )}
-                                                
-                                            </motion.button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </form>
-                            )}
-                        </div>
-
-                        <div className="col-span-2 border border-gray-300 rounded-lg p-4 my-5">
-                            <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
-                            <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
-                            <form className="flex flex-col relative items-center gap-4">
                                 
+                                <div className="col-span-2">
+                                    {infosLoading ? (
+                                        <div className=" p-4 mt-15 flex flex-col gap-5 animate-pulse">
 
-                                <motion.div
-                                    whileHover={{ scale: 1.08 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="rounded-full w-50 h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
-                                    onClick={() => logoInputRef.current.click()}
-                                >
-                                    {preview ? (
-                                        <div className="relative w-full h-full">
-                                            <img src={preview} className="w-full h-full object-cover" />
-                                            <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                                
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-10 bg-gray-200 rounded-lg"></div>
                                             </div>
-                                        </div>
-                                    ) : infosSalle?.logo_salle ? (
-                                            <div className="relative w-full h-full">
-                                                <img src={infosSalle.logo_salle} className="w-full h-full object-cover" />
-                                                <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                                    
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                            </div>
+
+                                            <div className="flex items-center justify-between gap-5">
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                                </div>
+
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-10 bg-gray-200 rounded-lg"></div>
                                                 </div>
                                             </div>
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                            <div className="flex flex-col items-center">
-                                            <PlusSquare size={50} />
-                                            <span className="font-bold">Ajouter votre logo</span>
+
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-10 bg-gray-200 rounded-lg w-30"></div>
                                             </div>
                                         </div>
-                                    )}
-                                </motion.div>
-
-                                <input 
-                                    type="file" 
-                                    accept="image/*"
-                                    ref={logoInputRef}
-                                    hidden
-                                    onChange={handleLogo}
-                                />
-
-                                {logoSuccess && (
-                                    <p className="text-sm text-center text-green-500">Logo enregistré avec succès</p>
-                                )}
-
-                                {logoError && (
-                                    <p className="text-sm text-center text-red-500">{logoUpload.error.message}</p>
-                                )}
-
-                                {logoEditSuccess && (
-                                    <p className="text-sm text-center text-green-500">Logo modifié avec succès</p>
-                                )}
-
-                                {logoEditError && (
-                                    <p className="text-sm text-center text-red-500">{logoEditUpload.error.message}</p>
-                                )}
-
-                                {logoDelSuccess && (
-                                    <p className="text-sm text-center text-green-500">Logo supprimé avec succès</p>
-                                )}
-
-                                {logoDelError && (
-                                    <p className="text-sm text-center text-red-500">{logoDelUpload.error.message}</p>
-                                )}
-
-                                {logo && (
-                                    <div className="flex items-center gap-2">
-
-                                        <button
-                                            type='button'
-                                            className="text-sm border py-1 px-2 my-3 text-red-500"
-                                            onClick={()=>{setPreview(null);setLogo(null)}}
-                                            disabled={logoLoading || logoEditLoading}
-                                        >
-                                            Annuler
-                                        </button>
-
-                                        <button
-                                            type="submit"
-                                            onClick={(e)=>{infosSalle?.logo_salle ? handlePostLogo(e, 'PUT') : handlePostLogo(e, 'POST')}}
-                                            disabled={logoLoading || logoEditLoading }
-                                            className="px-4 py-1 bg-blue-500 text-white rounded"
-                                        >
-                                            {logoLoading || logoEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
-
-                                        </button>
-
-
-                                    </div>
-                                )}
-
-                                {infosSalle?.logo_salle && (
-                                    <div className={`flex items-center gap-2 ${logo ? "hidden" : "block"}`}>
-
-                                        <button
-                                            type="button"
-                                            className="text-sm border py-1 px-2 my-3 text-red-500"
-                                            onClick={()=>{setLogoModal(true)}}
-                                        >
-                                            Suprimmer
+                                    ):(
+                                        <form onSubmit={UpdateInfos} className=" p-4 mt-15 flex flex-col gap-5 text-xl">
                                             
-                                        </button>
-
-                                    </div>
-                                )}
-
-                                {logoModal && (
-                                    <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
-                                        <div className="flex items-center gap-2  animate-pulse">
-                                            <AlertTriangle className="h-8 w-8 text-red-500" />
-                                            <p className="font-semibold text-red-500">Cette action est irreversible !</p>
-                                        
-                                        </div>
-                                        <p className="text-white font-semibold">Supprimer définitivement ?</p>
-                                        <div className="flex gap-5 items-center justify-center">
-                                            <motion.button
-                                            type="button"
-                                                whileTap={{scale : 0.95}}
-                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
-                                                onClick={()=>{setLogoModal(false)}}
-                                            >Non</motion.button>
-                                            <motion.button
-                                                type="submit"
-                                                whileTap={{scale : 0.95}}
-                                                onClick={(e)=>{handlePostLogo(e, 'DELETE')}}
-                                                disabled={logoDelLoading}
-                                                className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
-                                            >
-                                                {logoDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
-                                            </motion.button>
-                                        </div>
-                                    </div>
-                                )}
-
-                            </form>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-2">
-                        <div className="col-span-3">
-                            {infosLoading ? (
-                                <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 animate-pulse">
-                                    
-                                    <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
-                                    
-                                    <div className="flex items-center justify-between gap-5">
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                            <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                        </div>
-                                        
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                            <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                        <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                    </div>
-                                    <div className="flex flex-col gap-2 my-3">
-                                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                                        <div className="h-10 bg-gray-100 rounded-lg"></div>
-                                    </div>
-                                    
-                                    
-                                    
-                                    <div className="my-3">
-                                        <div className="h-10 bg-gray-200 rounded w-1/3"></div>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
-                                    </div>
-                                </div>
-                            ):(
-                                <form onSubmit={UpdatePerso} className="bg-white border border-gray-300 rounded-lg p-4 my-5">
-                                    <span className="font-semibold text-xl">Mon Profil</span>
-
-                                    <div className="flex items-center justify-between gap-5">
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <label className="text-gray-400 flex gap-1">Prénom 
-                                                <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                            </label>
-                                            <input type="text"
-                                                value={prenomPerso}
-                                                onChange={(e)=>{ setPrenomPerso(e.target.value),update_infos_perso.reset()}}
-                                                disabled={!showButtonProfil}
-                                                placeholder={!showButtonProfil ? infosUser.prenom : 'Entrez votre prénom'}
-                                                className={`border border-gray-300 p-1 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                            />
-                                        </div>
-
-                                        <div className="flex flex-col gap-2 my-3 w-full">
-                                            <label className="text-gray-400 flex gap-1">Nom
-                                                <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                            </label>
-                                            <input type="text"
-                                                value={nomPerso}
-                                                onChange={(e)=> {setNomPerso(e.target.value), update_infos_perso.reset()}}
-                                                disabled={!showButtonProfil}
-                                                placeholder={!showButtonProfil ? infosUser.name : 'Entrez votre nom'}
-                                                className={`border border-gray-300 p-1 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-col gap-2 my-3 w-full">
-                                        <label className="text-gray-400 flex gap-1">Numéro de téléphone 
-                                            <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
-                                        </label>
-                                        <input type="tel"
-                                            value={telPerso}
-                                            onChange={(e)=>{ setTelPerso(e.target.value),update_infos_perso.reset()}}
-                                            disabled={!showButtonProfil}
-                                            placeholder={!showButtonProfil ? infosUser.telephone : 'Entrez votre numéro de telephone'}
-                                            className={`border border-gray-300 p-1 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
-                                        />
-                                    </div>
-
-                                    <div className="flex flex-col gap-2 my-3 w-full">
-                                        <label className="text-gray-400">Adresse e-mail </label>
-                                        <input type="email"
-                                            disabled
-                                            placeholder={infosUser.email}
-                                            className="border bg-gray-100 border-gray-300 p-1 pl-3 font-semibold rounded-lg focus:outline-none"
-                                        />
-                                    </div>
-
-                                    <div className="flex items-center gap-2" >
-                                        <motion.button
-                                        whileTap={{scale:0.95}}
-                                        type="button" 
-                                            onClick={()=>{setShowPasswordChange(!showPasswordChange)}}
-                                            disabled={showButtonProfil}
-                                            className={`${showButtonProfil ? 'bg-gray-200 text-gray-400 border-gray-200' : 'bg-tranparent border-gray-300 cursor-pointer'}  border-2 rounded-lg py-2 px-4 my-3`}
-                                        >
-                                            {showPasswordChange ? 'Annuler le changement' : 'Changer le mot de passe'}
-                                        </motion.button>
-
-                                        {showPasswordChange && (
-                                            <div className={`flex items-center gap-2 my-3 ${passwordSuccess ? setShowPasswordChange(false) : 'block'}`}>
-                                                <input type="password" 
-                                                    placeholder="nouveau mot de passe"
-                                                    value={password}
-                                                    onChange={(e)=>{setPassword(e.target.value), updatePassword.reset()}}
-                                                    className="border py-2 px-4 rounded-lg focus:outline-none"
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <label className="text-gray-400 flex gap-1">Nom de la salle
+                                                    <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                </label>
+                                                <input type="text"
+                                                    value={nom_salle}
+                                                    onChange={(e)=>{ setNomSalle(e.target.value),update_infos.reset()}}
+                                                    disabled={!showButtonSalle}
+                                                    placeholder={!showButtonSalle ? infosSalle.nom_salle : 'Entrez le nouveau nom de votre salle'}
+                                                    className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
                                                 />
-                                                <motion.button
-                                                    type="submit"
-                                                    disabled={changePasswordLoading || !password.trim()}
-                                                    onClick={(e)=>UpdatePerso(e, 'PASSWORD')}
-                                                    whileTap={{scale:0.95}}
-                                                    className={`border ${!password.trim() ? 'bg-gray-200 border-gray-300' : 'bg-green-200 border-green-500 cursor-pointer'}  py-1 px-2 rounded-lg `}
-                                                >
-                                                    {changePasswordLoading ? (
-                                                        <Loader2 className="h-7 w-7 text-green-600 animate-spin"/>
-                                                    ):(
-                                                        <CheckCircle2 className={`h-7 w-7 ${!password.trim() ? 'text-gray-400' : 'text-green-600'}`} />
-                                                    )}
-                                                
-                                                </motion.button>
                                             </div>
-                                        )}
-                                    </div>
 
-                                        {persoError && (
-                                            <p className="my-3 text-red-600 text-sm">{update_infos_perso.error.message}</p>
-                                        )}
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <label className="text-gray-400">Adresse</label>
+                                                <input type="text"
+                                                    disabled
+                                                    placeholder={`${infosSalle.pays_salle} ${infosSalle.region_salle}`}
+                                                    className="border bg-gray-200 text-gray-500 border-gray-300 p-2 pl-3 font-semibold rounded-lg focus:outline-none"
+                                                />
+                                            </div>
 
-                                        {persoSuccess && (
-                                            <p className="my-3 text-green-600 text-sm">Informations personnelles misent à jour avec succès</p>
-                                        )}
+                                            <div className="flex items-center justify-between gap-5">
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <label className="text-gray-400 flex gap-1">Pays
+                                                        <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                        value={pays_salle}
+                                                        onChange={(e)=>{ setPaysSalle(e.target.value),update_infos.reset()}}
+                                                        disabled={!showButtonSalle}
+                                                        placeholder={!showButtonSalle ? infosSalle.pays_salle : 'Entrez le pays où se trouve la salle'}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                    />
+                                                </div>
 
-                                        {passwordError && (
-                                            <p className="my-3 text-red-600 text-sm">{updatePassword.error.message}</p>
-                                        )}
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <label className="text-gray-400 flex gap-1">Région
+                                                        <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                        value={region}
+                                                        onChange={(e)=> {setRegion(e.target.value), update_infos.reset()}}
+                                                        disabled={!showButtonSalle}
+                                                        placeholder={!showButtonSalle ? infosSalle.region_salle : 'Entrez la région'}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                    />
+                                                </div>
+                                            </div>
 
-                                        {passwordSuccess && (
-                                            <p className="my-3 text-green-600 text-sm">Mot de passe changé avec succès</p>
-                                        )}
+                                            
 
-                                    <div className="flex items-center gap-2" >
-                                        <div className={`${showButtonProfil ? 'hidden' : ''}`}>
-                                            <motion.button
-                                                type="button" 
-                                                whileTap={{scale:0.95}}
-                                                disabled={showPasswordChange}
-                                                onClick={()=>{setShowButtonProfil(true) }}
-                                                className={`my-3 ${showPasswordChange ? 'bg-gray-200  text-gray-400 border-gray-200' : 'cursor-pointer bg-gray-300 border-gray-200 text-black/80'} border font-semibold py-2 px-4 rounded-lg`}
-                                            >
-                                                Modifier
-                                            </motion.button>
-                                        </div>
-                                        {showButtonProfil && (
-                                            <div className={`${persoSuccess ? setShowButtonProfil(false) : 'block flex items-center gap-2'}`}>
+                                            <div className="flex items-center gap-2" >
+                                                <div className={`${showButtonSalle ? 'hidden' : ''}`}>
+
                                                 <motion.button
-                                                    type="button" 
+                                                    type="button"
                                                     whileTap={{scale:0.95}}
-                                                    onClick={()=>{setShowButtonProfil(false), setNomPerso(''), setPrenomPerso(''), setTelPerso('')}}
+                                                    onClick={()=>{setShowButtonSalle(true) }}
                                                     className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
                                                 >
-                                                    Annuler
+                                                    Modifier
                                                 </motion.button>
-                                                <motion.button
-                                                    type="submit"
-                                                    // onClick={()=>{setActionProfil('PUT_PROFIL')}} 
-                                                    whileTap={{scale:0.95}}
-                                                    disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim()}
-                                                    className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
-                                                >
-                                                    {persoLoading ? (
-                                                        <Loader2 className="h-5 w-5 animate-spin"/>
-                                                    ):(
-                                                        'Enregistrer'
-                                                    )}
-                                                    
-                                                </motion.button>
+                                                </div>
+                                                {showButtonSalle && (
+                                                    <div className={`${successUpdate ? setShowButtonSalle(false) : 'block'} gap-2 flex items-center`}>
+                                                    <motion.button
+                                                        type="button"
+                                                        whileTap={{scale:0.95}}
+                                                        onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPaysSalle(''), setRegion('')}}
+                                                        className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
+                                                    >
+                                                        Annuler
+                                                    </motion.button>
+                                                    <motion.button
+                                                        type="submit"
+                                                        whileTap={{scale:0.95}}
+                                                        disabled={updateLoading || !nom_salle.trim() || !pays_salle.trim() || !region.trim()}
+                                                        className={`my-3 ${!nom_salle.trim() || !pays_salle.trim() || !region.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
+                                                    >
+                                                        {updateLoading ? (
+                                                            <Loader2 className="animate-spin"/>
+                                                        ):(
+                                                            'Enregistrer'
+                                                        )}
+
+                                                    </motion.button>
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
+                                        </form>
+                                    )}
+
+                                    {infoError && (
+                                        <div className=" p-4 mt-15 h-138 flex items-center gap-2 justify-center">
+                                            <XCircle className="animate-spin text-red-600 h-5 w-5"/>
+                                            <p className="text-red-600">{infos.error.message}</p>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                            </>
+                        )}
+
+                        {paramsTab === 'visuel' && (
+                            <>
+                                <div className="flex col-span-2 mt-15 p-4">
+                                    <div className="text-gray-500 flex flex-col gap-8">
+                                        <p>
+                                            Cette section vous permet de personnaliser l’image de votre salle et de renforcer votre professionnalisme.
+                                        </p>
+
+                                        <div className="flex flex-col gap-2">
+                                            <p>
+                                            <span className="font-bold">Identité de votre salle :</span> Ajoutez des éléments visuels (logo, couleurs, bannière…) afin de représenter votre marque. Une identité visuelle claire permet de vous démarquer des autres salles et de renforcer votre crédibilité auprès de vos clients.
+                                            </p>
+                                            <p>
+                                            <span className="font-bold">Cachet / Signature :</span> Importez ou scannez votre cachet ou votre signature officielle afin de l’apposer automatiquement sur vos factures et documents générés par la plateforme.
+                                                Cela apporte une touche professionnelle et officielle à vos documents.
+                                            </p>
+                                            
+                                        </div>
+
+                                        <p>
+                                            Ces éléments sont facultatifs, mais fortement recommandés pour valoriser votre image et inspirer confiance.
+                                        </p>
                                     </div>
-                                    
-                                </form>
-                            )}
-                        </div>
-
-                        <div className="bg-white border border-gray-300 rounded-lg p-4 my-5 overflow-y-auto h-113">
-                            <p className="font-semibold text-xl">Historique de connexion</p>
-                            {historyLoading ? (
-                                <Loader2 className="animate-spin flex items-center justify-center"/>
-                            ): historyError ?(
-                                <p className="text-red-500 text-sm flex items-center justify-center">{dataHistory.error.message}</p>
-                            ):totalHistory === 0 ?(
-                                <p>Pas d'historique de connexion </p>
-                            ):dataHistory.map((item, index) => (
-                                <div key={index} className="my-3">
-                                    <p className="text-sm bg-orange-100">Date : {item?.date || 'N/A'}, il y'a {item?.depuis || 'N/A'}</p>
+                                    <div className="bg-gray-300 h-100 w-[2px]"></div>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                                <div className="col-span-2 flex items-center gap-5">
+                                    <div className="border border-gray-300 rounded-lg p-4">
+                                        <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
+                                        <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
+                                        <form className="flex flex-col relative items-center gap-4">
 
-                    <div className="p-4 ">  
-                    {/* gerer le tarification, à voir apres une route api pour l'edition et la suppressio */}
-                        <form onSubmit={sendTarif} className="">
 
-                            <div className="flex items-center justify-between">
-                                <div className="flex flex-col gap-2 my-3">
-                                    <span className="font-semibold text-xl">Gérer les tarifications</span>
-                                    <span className="  text-gray-400">Personnalisez les tarifs de votre salle par mois, par an et par trimestre</span>
-                                    {successTarif && (
-                                        <span className="  text-green-500">Tarif ajouté avec succès</span>
-                                    )}
-                                    {errorTarif && (
-                                        <span className="  text-red-500">{tarif.error.message}</span>
-                                    )}
-                                    {successTarifUp && (
-                                        <span className="  text-green-500">Tarif modifié avec succès</span>
-                                    )}
-                                    {errorTarifUp && (
-                                        <span className="  text-red-500">{tarifUpdate.error.message}</span>
-                                    )}
-                                    {successTarifDel && (
-                                        <span className="  text-green-500">Tarif supprimé avec succès</span>
-                                    )}
-                                    {errorTarifDel && (
-                                        <span className="  text-red-500">{tarifDelete.error.message}</span>
-                                    )}
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <div>
-                                        <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
-                                            <motion.button 
-                                            type="button"
-                                                whileTap={{scale:0.95}}
-                                                onClick={FormMensuel}
-                                                disabled={daysRemaining <= 0}
-                                                className={`${daysRemaining <= 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 border-orange-600'} px-5 py-3 rounded-lg shadow-lg border `}
+                                            <motion.div
+                                                whileHover={{ scale: 1.08 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                className="rounded-full w-50 h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
+                                                onClick={() => logoInputRef.current.click()}
                                             >
-                                                {showFormTarif ? <X className="text-white"/> : <Plus className="text-white"/>}
-                                            </motion.button>
-                                        </div>
-                                        {/* Sinon on affiche ça */}
-                                        <div>
-                                            {(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
-                                                <motion.button
-                                                // type="submit"
-                                                type={`${action === "PUT" ? "submit" : "button"}`}
-                                                disabled={action === "PUT" ? loadingTarifUp : loadingTarifDel}
-                                                // onClick={(e) =>{editMois && editAn && editTrim ? sendTarif(e, "DELETE") : sendTarif(e, "PUT")}} 
-                                                onClick={(e) =>{editMois && editAn && editTrim ? setShowModalTrash(true) : sendTarif(e, "PUT")}} 
-                                                    whileTap={{scale:0.95}}
-                                                    className={`px-5 py-3 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
-                                                >
-                                                    {editMois && editAn && editTrim ? (
-                                                     <Trash className=" text-white"/>
-                                                    ): loadingTarifUp ? <Loader2 className="text-green-600 animate-spin"/> : <Check className="text-green-600"/>
-                                                        
-                                                    } 
-                                                </motion.button> 
+                                                {preview ? (
+                                                    <div className="relative w-full h-full">
+                                                        <ImageComponent source={preview} style={"w-full h-full object-cover"} label={'preview'} />
+                                                        <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+
+                                                        </div>
+                                                    </div>
+                                                ) : infosSalle?.logo_salle ? (
+                                                        <div className="relative w-full h-full">
+                                                            <ImageComponent source={infosSalle.logo_salle} className="w-full h-full object-cover" />
+                                                            <div className="absolute border w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+
+                                                            </div>
+                                                        </div>
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                        <div className="flex flex-col items-center">
+                                                        <PlusSquare size={50} />
+                                                        <span className="font-bold">Ajouter votre logo</span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                ref={logoInputRef}
+                                                hidden
+                                                onChange={handleLogo}
+                                            />
+
+                                            {logo && (
+                                                <div className="flex items-center gap-2">
+
+                                                    <button
+                                                        type='button'
+                                                        className="text-sm border py-1 px-2 my-3 text-red-500"
+                                                        onClick={()=>{setPreview(null);setLogo(null)}}
+                                                        disabled={logoLoading || logoEditLoading}
+                                                    >
+                                                        Annuler
+                                                    </button>
+
+                                                    <button
+                                                        type="submit"
+                                                        onClick={(e)=>{infosSalle?.logo_salle ? handlePostLogo(e, 'PUT') : handlePostLogo(e, 'POST')}}
+                                                        disabled={logoLoading || logoEditLoading }
+                                                        className="px-4 py-1 bg-blue-500 text-white rounded"
+                                                    >
+                                                        {logoLoading || logoEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
+
+                                                    </button>
+
+
+                                                </div>
                                             )}
-                                        </div>
+
+                                            {infosSalle?.logo_salle && (
+                                                <div className={`flex items-center gap-2 ${logo ? "hidden" : "block"}`}>
+
+                                                    <button
+                                                        type="button"
+                                                        className="text-sm border py-1 px-2 my-3 text-red-500"
+                                                        onClick={()=>{setLogoModal(true)}}
+                                                    >
+                                                        Suprimmer
+
+                                                    </button>
+
+                                                </div>
+                                            )}
+
+                                            {logoModal && (
+                                                <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
+                                                    <div className="flex items-center gap-2  animate-pulse">
+                                                        <AlertTriangle className="h-8 w-8 text-red-500" />
+                                                        <p className="font-semibold text-red-500">Cette action est irreversible !</p>
+
+                                                    </div>
+                                                    <p className="text-white font-semibold">Supprimer définitivement ?</p>
+                                                    <div className="flex gap-5 items-center justify-center">
+                                                        <motion.button
+                                                        type="button"
+                                                            whileTap={{scale : 0.95}}
+                                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
+                                                            onClick={()=>{setLogoModal(false)}}
+                                                        >Non</motion.button>
+                                                        <motion.button
+                                                            type="submit"
+                                                            whileTap={{scale : 0.95}}
+                                                            onClick={(e)=>{handlePostLogo(e, 'DELETE')}}
+                                                            disabled={logoDelLoading}
+                                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
+                                                        >
+                                                            {logoDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
+                                                        </motion.button>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                        </form>
                                     </div>
-                                    {showFormTarif && (
-                                        <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
-                                        <motion.button
-                                        type="submit"
-                                            whileTap={{scale:0.95}}
-                                            disabled={loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim()}
-                                            className={`px-5 py-3 rounded-lg shadow-lg border ${loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim() ? 'bg-gray-300 border-gray-400' : 'bg-green-200 border-green-600'}`}
-                                        >
-                                            {loadingTarif ? (
-                                                <Loader2 className="text-green-600 animate-spin"/>
-                                            ):(
-                                                <Check className="text-green-600"/>
-                                            )}
-                                        </motion.button>
-                                        </div>
-                                    )}
                                 </div>
+                            </>
+                        )}
 
-                            </div>
-                            <div className="grid grid-cols-3 gap-2">
+                        {paramsTab === 'perso' && (
+                            <>
+                                <div className="flex gap-2 col-span-2 mt-15 p-4">
+                                        <div className="text-gray-500 flex flex-col gap-8">
+                                            <p>
+                                                Les éléments ci-contre correspondent à vos informations personnelles associées à votre compte. Merci de vous assurer qu’elles sont exactes et régulièrement mises à jour :
+                                            </p>
 
-                                {/* Mois */}
-                                <div className="border border-gray-400 p-2 ">
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-bold">Mensuel</span>
-                                        <hr className=" w-80 text-gray-400 "/>
-                                        
-                                        <Calendar className="text-gray-400"/> 
-                                    </div>
+                                            <div className="flex flex-col gap-2">
+                                                <p>
+                                                <span className="font-bold">Prénom :</span> Votre prénom tel qu’utilisé pour l’identification sur la plateforme.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Nom :</span> Votre nom de famille officiel.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Numéro de téléphone :</span> Utilisé pour la connexion, les notifications importantes et la sécurité du compte.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Adresse e-mail :</span> Sert à recevoir les communications, confirmations et à récupérer votre compte en cas d’oubli de mot de passe.
+                                                </p>
+                                                <p>
+                                                <span className="font-bold">Mot de passe :</span> Option permettant de sécuriser votre compte en modifiant votre mot de passe à tout moment.
+                                                </p>
+                                            </div>
 
-                                    {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
-                                        <div className="flex gap-2 my-5 items-center justify-between">
-                                            {/* Si ajout réssui... */}
-                                            {(successTarif || prix_mensuel) ? (
-                                                <>
-                                                    <input 
-                                                        type="tel"
-                                                        value={mensuel}
-                                                        onChange={(e)=>{setMensuel(e.target.value), tarif.reset(), tarifUpdate.reset()}} 
-                                                        className={`border w-full ${editMois ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
-                                                        placeholder={editMois ? prix_mensuel : 'Saisissez un nouveau tarif mensuel'}
-                                                        disabled={editMois}
-                                                    /> 
-                                                    <div >
+                                            <p>
+                                            Ces informations sont confidentielles et contribuent à la sécurité ainsi qu’au bon fonctionnement de votre compte.
+                                            </p>
+
+                                            <p className="text-red-500">
+                                            En cas de changement, veillez à les mettre à jour rapidement.
+                                            </p>
+                                        </div>
+                                        <div className="bg-gray-300 h-138 w-[2px]"></div>
+                                </div>
+                                <div className="col-span-2">
+                                    {infosLoading ? (
+                                        <div className="p-4 mt-15 flex flex-col gap-5 animate-pulse">
+
+                                            <div className="flex items-center justify-between gap-5">
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                                </div>
+
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                            </div>
+                                            <div className="flex flex-col gap-2 my-3">
+                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                            </div>
+
+
+
+                                            <div className="my-3">
+                                                <div className="h-10 bg-gray-200 rounded w-1/3"></div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
+                                            </div>
+                                        </div>
+                                    ):(
+                                        <form onSubmit={UpdatePerso} className=" p-4 mt-15 flex flex-col gap-5 text-xl">
+
+                                            <div className="flex items-center justify-between gap-5">
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <label className="text-gray-400 flex gap-1">Prénom
+                                                        <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                        value={prenomPerso}
+                                                        onChange={(e)=>{ setPrenomPerso(e.target.value),update_infos_perso.reset()}}
+                                                        disabled={!showButtonProfil}
+                                                        placeholder={!showButtonProfil ? infosUser.prenom : 'Entrez votre prénom'}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col gap-2 my-3 w-full">
+                                                    <label className="text-gray-400 flex gap-1">Nom
+                                                        <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                        value={nomPerso}
+                                                        onChange={(e)=> {setNomPerso(e.target.value), update_infos_perso.reset()}}
+                                                        disabled={!showButtonProfil}
+                                                        placeholder={!showButtonProfil ? infosUser.name : 'Entrez votre nom'}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col gap-2 my-3 w-full">
+                                                <label className="text-gray-400 flex gap-1">Numéro de téléphone
+                                                    <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
+                                                </label>
+                                                <input type="tel"
+                                                    value={telPerso}
+                                                    onChange={(e)=>{ setTelPerso(e.target.value),update_infos_perso.reset()}}
+                                                    disabled={!showButtonProfil}
+                                                    placeholder={!showButtonProfil ? infosUser.telephone : 'Entrez votre numéro de telephone'}
+                                                    className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                />
+                                            </div>
+
+                                            <div className="flex flex-col gap-2 my-3 w-full">
+                                                <label className="text-gray-400">Adresse e-mail </label>
+                                                <input type="email"
+                                                    disabled
+                                                    placeholder={infosUser.email}
+                                                    className="border bg-gray-200 text-gray-500 border-gray-300 p-2 pl-3 font-semibold rounded-lg focus:outline-none"
+                                                />
+                                            </div>
+
+                                            <div className="flex items-center gap-2" >
+                                                <motion.button
+                                                whileTap={{scale:0.95}}
+                                                type="button"
+                                                    onClick={()=>{setShowPasswordChange(!showPasswordChange)}}
+                                                    disabled={showButtonProfil}
+                                                    className={`${showButtonProfil ? 'bg-gray-200 text-gray-400 border-gray-200' : 'bg-tranparent border-gray-300 cursor-pointer'}  border-2 rounded-lg py-2 px-4 my-3`}
+                                                >
+                                                    {showPasswordChange ? 'Annuler le changement' : 'Changer le mot de passe'}
+                                                </motion.button>
+
+                                                {showPasswordChange && (
+                                                    <div className={`flex items-center gap-2 my-3 ${passwordSuccess ? setShowPasswordChange(false) : 'block'}`}>
+                                                        <input type="password"
+                                                            placeholder="nouveau mot de passe"
+                                                            value={password}
+                                                            onChange={(e)=>{setPassword(e.target.value), updatePassword.reset()}}
+                                                            className="border py-2 px-4 rounded-lg focus:outline-none"
+                                                        />
+                                                        <motion.button
+                                                            type="submit"
+                                                            disabled={changePasswordLoading || !password.trim()}
+                                                            onClick={(e)=>UpdatePerso(e, 'PASSWORD')}
+                                                            whileTap={{scale:0.95}}
+                                                            className={`border ${!password.trim() ? 'bg-gray-200 border-gray-300' : 'bg-green-200 border-green-500 cursor-pointer'}  py-2 px-2 rounded-lg `}
+                                                        >
+                                                            {changePasswordLoading ? (
+                                                                <Loader2 className="h-7 w-7 text-green-600 animate-spin"/>
+                                                            ):(
+                                                                <CheckCircle2 className={`h-7 w-7 ${!password.trim() ? 'text-gray-400' : 'text-green-600'}`} />
+                                                            )}
+
+                                                        </motion.button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2" >
+                                                <div className={`${showButtonProfil ? 'hidden' : ''}`}>
+                                                    <motion.button
+                                                        type="button"
+                                                        whileTap={{scale:0.95}}
+                                                        disabled={showPasswordChange}
+                                                        onClick={()=>{setShowButtonProfil(true) }}
+                                                        className={`my-3 ${showPasswordChange ? 'bg-gray-200  text-gray-400 border-gray-200' : 'cursor-pointer bg-gray-300 border-gray-200 text-black/80'} border font-semibold py-2 px-4 rounded-lg`}
+                                                    >
+                                                        Modifier
+                                                    </motion.button>
+                                                </div>
+                                                {showButtonProfil && (
+                                                    <div className={`${persoSuccess ? setShowButtonProfil(false) : 'block flex items-center gap-2'}`}>
                                                         <motion.button
                                                             type="button"
-                                                            onClick={()=>{setEditMois(!editMois), setMensuel('')}} 
                                                             whileTap={{scale:0.95}}
-                                                            className="border p-1 bg-orange-600 border-orange-600"
+                                                            onClick={()=>{setShowButtonProfil(false), setNomPerso(''), setPrenomPerso(''), setTelPerso('')}}
+                                                            className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
                                                         >
-                                                            {editMois ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                            Annuler
+                                                        </motion.button>
+                                                        <motion.button
+                                                            type="submit"
+                                                            whileTap={{scale:0.95}}
+                                                            disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim()}
+                                                            className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
+                                                        >
+                                                            {persoLoading ? (
+                                                                <Loader2 className="h-5 w-5 animate-spin"/>
+                                                            ):(
+                                                                'Enregistrer'
+                                                            )}
+
                                                         </motion.button>
                                                     </div>
-                                                </>
-                                            ):(
+                                                )}
+                                            </div>
 
-                                                <input 
-                                                    type="tel"
-                                                    value={mensuel}
-                                                    onChange={(e)=>{setMensuel(e.target.value)}} 
-                                                    className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
-                                                    placeholder="Saisissez le tarif par mois"
-                                                />
-                                            )}
+                                        </form>
+                                    )}
 
-                                        
-                                            
+                                    {infoError && (
+                                        <div className=" p-4 mt-15 h-138 flex items-center gap-2 justify-center">
+                                            <XCircle className="animate-spin text-red-600 h-5 w-5"/>
+                                            <p className="text-red-600">{infos.error.message}</p>
                                         </div>
                                     )}
                                 </div>
+                            </>
+                        )}
 
-                                    {/* Trimestre */}
-                                <div className="border border-gray-400 p-2 ">
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-bold">Trimestriel</span>
-                                        <hr className=" w-80 text-gray-400 "/>
-                                        
-                                        <Calendar className="text-gray-400"/> 
-                                    </div>
+                        {paramsTab === 'tarif' && (
+                            <>
+                                <div className="flex col-span-2 mt-15 p-4">
+                                    <div className="text-gray-500 flex flex-col gap-8">
+                                        <p>
+                                            Cette section vous permet de définir et personnaliser les formules tarifaires proposées par votre salle.
+                                        </p>
+                                        <p>
+                                            Vous pouvez configurer vos prix selon différentes périodes d’abonnement :
+                                        </p>
 
-                                    {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
-                                        <div className="flex gap-2 my-5 items-center justify-between">
-                                            {/* Si ajout réssui... */}
-                                            {(successTarif || prix_trimestriel) ? (
-                                                <>
-                                                    <input 
-                                                        type="tel"
-                                                        value={trimestriel}
-                                                        onChange={(e)=>{setTrimestriel(e.target.value), tarif.reset(), tarifUpdate.reset()}} 
-                                                        className={`border w-full ${editTrim ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
-                                                        placeholder={editTrim ? prix_trimestriel : 'Saisissez un nouveau tarif trimestriel'}
-                                                        disabled={editTrim}
-                                                    /> 
-                                                    <div >
-                                                        <motion.button 
-                                                            type="button"
-                                                            onClick={()=>{setEditTrim(!editTrim), setTrimestriel('')}} 
-                                                            whileTap={{scale:0.95}}
-                                                            className="border p-1 bg-orange-600 border-orange-600"
-                                                        >
-                                                            {editTrim ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
-                                                        </motion.button>
-                                                    </div>
-                                                </>
-                                            ):(
-
-                                                <input 
-                                                    type="tel"
-                                                    value={trimestriel}
-                                                    onChange={(e)=>{setTrimestriel(e.target.value)}} 
-                                                    className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
-                                                    placeholder="Saisissez le tarif par mois"
-                                                />
-                                            )}
-
-                                        
+                                        <div className="flex flex-col gap-2">
+                                            <p>
+                                            <span className="font-bold">Mensuel :</span> Tarif appliqué pour un abonnement d’un mois.
+                                            </p>
+                                            <p>
+                                            <span className="font-bold">Trimestriel :</span> Tarif appliqué pour un abonnement de trois mois.
+                                            </p>
+                                            <p>
+                                            <span className="font-bold">Annuel :</span> Tarif appliqué pour un abonnement d’un an.
+                                            </p>
                                             
                                         </div>
-                                    )}
+
+                                        <p>
+                                            La personnalisation des tarifs vous permet d’adapter vos offres à votre stratégie commerciale et aux besoins de vos adhérents.
+                                        </p>
+                                    </div>
+                                    <div className="bg-gray-300 h-130 w-[2px]"></div>
                                 </div>
+                                <form onSubmit={sendTarif} className=" col-span-2 mt-15 text-xl">
 
-                                        {/* Annuel */}
-                                <div className="border border-gray-400 p-2 ">
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-bold">Annuel</span>
-                                        <hr className=" w-80 text-gray-400 "/>
-                                        
-                                        <Calendar className="text-gray-400"/> 
-                                    </div>
+                                    <div className="flex items-center justify-end gap-2 mb-5">
 
-                                    {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
-                                        <div className="flex gap-2 my-5 items-center justify-between">
-                                            {/* Si ajout réssui... */}
-                                            {(successTarif || prix_annuel) ? (
-                                                <>
-                                                    <input 
-                                                        type="tel"
-                                                        value={annuel}
-                                                        onChange={(e)=>{setAnnuel(e.target.value), tarif.reset(), tarifUpdate.reset()}} 
-                                                        className={`border w-full ${editAn ? 'bg-gray-300 text-gray-800 border-gray-300 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-1`}
-                                                        placeholder={editAn ? prix_annuel : 'Saisissez un nouveau tarif annuel'}
-                                                        disabled={editAn}
-                                                    /> 
-                                                    <div >
-                                                        <motion.button 
-                                                            type="button"
-                                                            onClick={()=>{setEditAn(!editAn), setAnnuel('')}} 
+                                        <div className="flex items-center gap-2">
+                                            <div>
+                                                <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
+                                                    <motion.button
+                                                    type="button"
+                                                        whileTap={{scale:0.95}}
+                                                        onClick={FormMensuel}
+                                                        disabled={daysRemaining < 0}
+                                                        className={`${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 border-orange-600'} px-5 py-3 rounded-lg shadow-lg border `}
+                                                    >
+                                                        {showFormTarif ? <X className="text-white"/> : <Plus className="text-white"/>}
+                                                    </motion.button>
+                                                </div>
+                                                <div>
+                                                    {(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                                        <motion.button
+                                                            type={`${action === "PUT" ? "submit" : "button"}`}
+                                                            disabled={action === "PUT" ? loadingTarifUp : loadingTarifDel}
+                                                            onClick={(e) =>{editMois && editAn && editTrim ? setShowModalTrash(true) : sendTarif(e, "PUT")}}
                                                             whileTap={{scale:0.95}}
-                                                            className="border p-1 bg-orange-600 border-orange-600"
+                                                            className={`px-5 py-3 flex item-center gap-2 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
                                                         >
-                                                            {editAn ? <Pencil className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
-                                                        </motion.button>
-                                                    </div>
-                                                </>
-                                            ):(
+                                                            {editMois && editAn && editTrim ? (
+                                                                <>
+                                                                <span className="  text-white font-bold">Supprimer tous les enregistrements</span>
+                                                                <Trash className=" text-white"/>
+                                                                </>
+                                                            ): loadingTarifUp 
+                                                                ? <>
+                                                                    <span className="  text-green-600">En cours...</span>
+                                                                    <Loader2 className="text-green-600 animate-spin"/> 
+                                                                    </>
+                                                                : <>
+                                                                    <span className="  text-green-600 font-bold">Enregister les modifications</span>
+                                                                    <CheckCircle2 className="text-green-600"/>
+                                                                </>
 
-                                                <input 
-                                                    type="tel"
-                                                    value={annuel}
-                                                    onChange={(e)=>{setAnnuel(e.target.value)}} 
-                                                    className="border w-full  border-gray-400 pl-3 focus:outline-none p-1"
-                                                    placeholder="Saisissez le tarif par mois"
-                                                />
+                                                            }
+                                                        </motion.button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {showFormTarif && (
+                                                <div className={`${(successTarif || prix_mensuel || prix_trimestriel || prix_annuel) ? 'hidden' : 'block'}`}>
+                                                <motion.button
+                                                    type="submit"
+                                                    whileTap={{scale:0.95}}
+                                                    disabled={loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim()}
+                                                    className={`px-5 py-3 rounded-lg shadow-lg border ${loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim() ? 'bg-gray-300 border-gray-400' : 'bg-green-200 border-green-600'}`}
+                                                >
+                                                    {loadingTarif ? (
+                                                        <Loader2 className="text-green-600 animate-spin"/>
+                                                    ):(
+                                                        <Check className="text-green-600"/>
+                                                    )}
+                                                </motion.button>
+                                                </div>
                                             )}
+                                        </div>
+
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-5">
 
                                         
-                                            
+                                        <div className="border border-gray-400 p-2 ">
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-bold">Mensuel</span>
+                                                    <hr className=" w-140 text-gray-400 "/>
+
+                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                </div>
+                                                {(!prix_mensuel && !showFormTarif) && (
+                                                    <input
+                                                        type="tel"
+                                                        disabled={!showFormTarif}
+                                                        className="border w-full  my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500"
+                                                        placeholder="Tarif non défini"
+                                                    />
+                                                )}
+                                            </div>
+
+                                            {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                                <div className="flex gap-2 my-5 items-center justify-between">
+                                                    
+                                                    {(successTarif || prix_mensuel) ? (
+                                                        <>
+                                                            <input
+                                                                type="tel"
+                                                                value={mensuel}
+                                                                onChange={(e)=>{setMensuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
+                                                                className={`border w-full ${editMois ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400 '}  pl-3 focus:outline-none p-2`}
+                                                                placeholder={editMois ? `${prix_mensuel} XOF` : 'Saisissez un nouveau tarif mensuel'}
+                                                                disabled={editMois}
+                                                            />
+                                                            <div >
+                                                                <motion.button
+                                                                    type="button"
+                                                                    onClick={()=>{setEditMois(!editMois), setMensuel('')}}
+                                                                    whileTap={{scale:0.95}}
+                                                                    className="border p-3 rounded-lg bg-orange-600 border-orange-600"
+                                                                >
+                                                                    {editMois ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                </motion.button>
+                                                            </div>
+                                                        </>
+                                                    ):(
+
+                                                        <input
+                                                            type="tel"
+                                                            value={mensuel}
+                                                            onChange={(e)=>{setMensuel(e.target.value)}}
+                                                            className="border w-full  border-gray-400 pl-3 focus:outline-none p-2"
+                                                            placeholder="Saisissez le tarif par mois"
+                                                        />
+                                                    )}
+
+
+
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
+
+                                        <div className="border border-gray-400 p-2 ">
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-bold">Trimestriel</span>
+                                                    <hr className=" w-135 text-gray-400 "/>
+
+                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                </div>
+                                                {(!prix_trimestriel && !showFormTarif) && (
+                                                    <input
+                                                        type="tel"
+                                                        disabled={!showFormTarif}
+                                                        className="border w-full  my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500"
+                                                        placeholder="Tarif non défini"
+                                                    />
+                                                )}
+                                            </div>
+
+                                            {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                                <div className="flex gap-2 my-5 items-center justify-between">
+                                                    
+                                                    {(successTarif || prix_trimestriel) ? (
+                                                        <>
+                                                            <input
+                                                                type="tel"
+                                                                value={trimestriel}
+                                                                onChange={(e)=>{setTrimestriel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
+                                                                className={`border w-full ${editTrim ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
+                                                                placeholder={editTrim ? `${prix_trimestriel} XOF` : 'Saisissez un nouveau tarif trimestriel'}
+                                                                disabled={editTrim}
+                                                            />
+                                                            <div >
+                                                                <motion.button
+                                                                    type="button"
+                                                                    onClick={()=>{setEditTrim(!editTrim), setTrimestriel('')}}
+                                                                    whileTap={{scale:0.95}}
+                                                                    className="border p-3 rounded-lg bg-orange-600 border-orange-600"
+                                                                >
+                                                                    {editTrim ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                </motion.button>
+                                                            </div>
+                                                        </>
+                                                    ):(
+
+                                                        <input
+                                                            type="tel"
+                                                            value={trimestriel}
+                                                            onChange={(e)=>{setTrimestriel(e.target.value)}}
+                                                            className="border w-full  border-gray-400 pl-3 focus:outline-none p-2"
+                                                            placeholder="Saisissez le tarif par trimestre"
+                                                        />
+                                                    )}
+
+
+
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="border border-gray-400 p-2 ">
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-bold">Annuel</span>
+                                                    <hr className=" w-144 text-gray-400 "/>
+
+                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                </div>
+                                                {(!prix_annuel && !showFormTarif) && (
+                                                    <input
+                                                        type="tel"
+                                                        disabled={!showFormTarif}
+                                                        className="border w-full  my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500"
+                                                        placeholder="Tarif non défini"
+                                                    />
+                                                )}
+                                            </div>
+
+                                            {(showFormTarif || prix_mensuel || prix_trimestriel || prix_annuel) && (
+                                                <div className="flex gap-2 my-5 items-center justify-between">
+                                                    
+                                                    {(successTarif || prix_annuel) ? (
+                                                        <>
+                                                            <input
+                                                                type="tel"
+                                                                value={annuel}
+                                                                onChange={(e)=>{setAnnuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
+                                                                className={`border w-full ${editAn ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
+                                                                placeholder={editAn ? `${prix_annuel} XOF` : 'Saisissez un nouveau tarif annuel'}
+                                                                disabled={editAn}
+                                                            />
+                                                            <div >
+                                                                <motion.button
+                                                                    type="button"
+                                                                    onClick={()=>{setEditAn(!editAn), setAnnuel('')}}
+                                                                    whileTap={{scale:0.95}}
+                                                                    className="border p-3 rounded-lg bg-orange-600 border-orange-600"
+                                                                >
+                                                                    {editAn ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                </motion.button>
+                                                            </div>
+                                                        </>
+                                                    ):(
+
+                                                        <input
+                                                            type="tel"
+                                                            value={annuel}
+                                                            onChange={(e)=>{setAnnuel(e.target.value)}}
+                                                            className="border w-full  border-gray-400 pl-3 focus:outline-none p-2"
+                                                            placeholder="Saisissez le tarif par an"
+                                                        />
+                                                    )}
+
+
+
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </form>
+                            </>
+                        )}
+
+                        {historyP && (
+                            <motion.div
+                                initial={{opacity: 0, y:0}}
+                                animate={{ opacity: 1, y:5}}
+                                transition={{duration:0.4}}
+                                className="absolute z-20 top-34 right-110 bg-white shadow-lg border border-gray-300 rounded-lg px-4 py-1 overflow-y-auto h-100">
+                                
+                                {historyLoading ? (
+                                    <Loader2 className="animate-spin flex items-center justify-center"/>
+                                ): historyError ?(
+                                    <p className="text-red-500 text-sm flex items-center justify-center">{dataHistory.error.message}</p>
+                                ):totalHistory === 0 ?(
+                                    <p>Pas d'historique de connexion </p>
+                                ):dataHistory.map((item, index) => (
+                                    <div key={index} className="my-3">
+                                        <p className="text-sm bg-orange-100">Date : {item?.date || 'N/A'}, il y'a {item?.depuis || 'N/A'}</p>
+                                    </div>
+                                ))}
+                            </motion.div>
+                        )}
+
+                        {paramsTab === 'support' && (
+                            <div className="col-span-4 h-200 flex items-center justify-center">
+                                <div className="flex relative flex-col items-center">
+                                    <div className="absolute z-10 inset-0 text-[75px] font-bold text-orange-500 opacity-40 flex items-center justify-center">
+                                        <p>gymplus2025.gym@gmail.com</p>
+                                    </div>
+                                    <ImageComponent source={support} style={"w-200"} label={''} />
+                                    <p><span className="italic text-gray-500 text-xl">Service ouvert 24h/7j</span></p>
                                 </div>
                             </div>
-                        </form>
-                    </div>
-
-                    <div className="p-4">
-                        <div>
-                            <p className="text-xl font-semibold">Support</p>
-                            <p><span className="font-semibold">Adresse e-mail :</span> gymplus2025.gym@gmail.com</p>
-                        </div>
+                        )}
                     </div>
                 </div>
             )}
 
 
             {misNiveauSuccess && (
-                <motion.div 
+                <motion.div
                      initial = {{opacity: 0, x: -80}}
                     animate = {{opacity: 1, x: 0}}
                     transition={{duration: 0.2}}
                     className="bg-white shadow-[0_0_30px_rgba(0,255,0,0.5)] border border-green-500 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute bottom-22 left-5 w-84 h-12 ">
                     <p className="text-sm text-green-500 font-semibold">Mise à niveau réussie</p>
-                   
+
                 </motion.div>
             )}
 
             {miseNiveauError && (
-                <motion.div 
+                <motion.div
                       initial = {{opacity: 0, x: -80}}
                     animate = {{opacity: 1, x: 0}}
                     transition={{duration: 0.2}}
                     className="bg-white shadow-[0_0_30px_rgba(255,0,0,0.5)] border border-red-500 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute bottom-22 left-5 w-84 h-12 ">
                     <p className="text-sm text-red-500 font-semibold">{misNiveau.error.message}</p>
-                   
+
                 </motion.div>
             )}
 
             {modalLogout && (
-                <motion.div 
-                     initial = {{opacity: 0, y: 10}}
-                    animate = {{opacity: 1, y: 0}}
-                    transition={{duration: 0.5}}
-                    className="bg-white shadow-lg border border-red-600 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute bottom-22 left-5 w-84 h-30 ">
-                    <span className="text-xl font-semibold">Êtes-vous sûr ?</span>
-                    <div className="flex items-center justify-between">
-                        <motion.button
-                            whileTap={{scale:0.95}}
-                            onClick={()=>setModalLogout(false)}
-                            className=" shadow-lg transition-colors duration-200 hover:bg-transparent border border-gray-200 bg-gray-200 py-2 px-4 font-bold rounded-lg"
-                        >non</motion.button>
-                        <motion.button
-                            whileTap={{scale:0.95}}
-                            onClick={logout}
-                            className="shadow-lg hover:bg-transparent hover:text-black border border-red-600 transition-colors duration-200 bg-red-700 text-white py-2 px-4 font-bold rounded-lg"
-                        >oui</motion.button>
-                    </div>
-                </motion.div>
+                <ModalLogout 
+                    question={'Se déconnecter ?'}
+                    reject={() => setModalLogout(false)}
+                    confirm={logout}
+                    children={
+                        <>
+                            <p>Cette action est irréversible. Vous</p>
+                            <p>êtes sur le point de vous </p> 
+                            <p>déconnecter. Si cela est volontaire,</p>
+                            <p>veuillez le confirmer.</p>
+                        </>
+                    }
+                />
             )}
 
             {showAdd && (
                 <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
-                    <button 
+                    <button
                         onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
                     className="flex items-center cursor-pointer justify-center gap-2">
                         <ArrowLeft className="h-5 w-5 text-orange-500" />
@@ -2804,7 +2966,7 @@ export default function DashboardStandard(){
                     <div className="my-10">
 
                             <form onSubmit={handleAdd} className="grid grid-cols-4 gap-5 rounded-lg  px-8 py-5">
-                                
+
                                 <div className="col-span-4 w-full flex gap-10 justify-between">
                                     {/* info perso */}
                                     <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
@@ -2814,64 +2976,48 @@ export default function DashboardStandard(){
                                         </div>
                                         <div className="flex-col flex gap-2 mb-5">
                                             <label className="font-bold text-lg">Nom <span className="text-red-600">*</span></label>
-                                            <Input 
+                                            <Input
                                                 type={'text'}
                                                 value={nom}
                                                 onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
                                                 className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
                                                 placeholder={'Nom de l\'adhérant'}
-                                                disabled={false}
-                                                hidden={false}
-                                                pattern={null}
-                                                ref={null}
-                                                checked={null}
+                                                
                                             />
                                         </div>
 
                                         <div className="flex-col flex gap-2 mb-5">
                                             <label className="font-bold text-lg">Prénom <span className="text-red-600">*</span></label>
-                                            <Input 
+                                            <Input
                                                 type={'text'}
                                                 value={prenom}
                                                 onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
                                                 className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
                                                 placeholder={'Prenom de l\'adhérant'}
-                                                disabled={false}
-                                                hidden={false}
-                                                pattern={null}
-                                                ref={null}
-                                                checked={null}
+                                                
                                             />
                                         </div>
                                         <div className="flex-col flex gap-2 mb-5">
                                             <label className="font-bold text-lg">Adresse e-mail <span className="text-red-600">*</span></label>
-                                            <Input 
+                                            <Input
                                                 type={'email'}
                                                 value={email}
                                                 onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
                                                 className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
                                                 placeholder={'Email de l\'adhérant'}
-                                                disabled={false}
-                                                hidden={false}
-                                                pattern={null}
-                                                ref={null}
-                                                checked={null}
+                                               
                                             />
                                         </div>
 
                                         <div className="flex-col flex gap-2 mb-5">
                                             <label className="font-bold text-lg">Numéro de téléphone <span className="text-red-600">*</span></label>
-                                            <Input 
+                                            <Input
                                                 type={'tel'}
                                                 value={tel}
                                                 onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
                                                 className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
                                                 placeholder={'Numéro de l\'adhérant'}
-                                                disabled={false}
-                                                hidden={false}
-                                                pattern={null}
-                                                ref={null}
-                                                checked={null}
+                                               
                                             />
                                         </div>
                                     </div>
@@ -2885,7 +3031,7 @@ export default function DashboardStandard(){
 
                                         <div className="flex-col flex gap-2 mb-5 ">
                                             <label className="font-bold text-lg">Abonnement <span className="text-red-600">*</span></label>
-                                        
+
 
                                             <select
                                                 value={plan}
@@ -2906,7 +3052,7 @@ export default function DashboardStandard(){
                                         </div>
 
                                         <div>
-                                        
+
 
                                             {showPrix && (
                                             <div className="flex-col flex gap-2 ">
@@ -2943,34 +3089,27 @@ export default function DashboardStandard(){
                                         </div>
                                     </div>
                                 </div>
-                                 
 
-                                
-                                <div className="flex items-center my-3  col-span-4 w-full px-8">
-                                    {errorAdherant && (
-                                        <span className="text-red-600 text-lg  flex item-center gap-2"><XCircle className="h-5 w-5 text-red-600"/>{addAdh.error.message}</span>
-                                    )}
-                                    {successAdherant && (
-                                        <span className="text-green-600 text-lg flex item-center gap-2"><CheckCircle className="h-5 w-5 text-green-600"/>Enregistrement effectué avec succèss</span>
-                                    )}
-                                </div>
 
-                               
-                               <div className="flex justify-end items-center gap-2 w-full col-span-4">
-                                    <motion.button 
+                               <div className="flex items-center justify-between h-30 w-full mt-15 col-span-4">
+                                    <div className="flex flex-col items-center col-span-4 w-full">
+                                        
+                                    </div>
+                                    <div className="flex justify-end items-center gap-2 w-full">
+                                    <motion.button
                                         onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
                                         whileTap={{scale: 0.95}}
                                         className='flex items-center justify-center cursor-pointer text-black/80 border rounded-lg bg-gray-300  border-gray-300 font-bold  text-xl py-3 px-5'
-                                    
+
                                     >
                                         Annuler
                                     </motion.button>
 
-                                    <motion.button 
+                                    <motion.button
                                         whileTap={{scale: 0.95}}
                                         disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
                                         className={`flex items-center justify-center  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-orange-200 text-gray-500 border-orange-200' : 'bg-orange-600 text-white cursor-pointer '} font-bold  text-xl py-3 px-5`}
-                                    
+
                                     >
                                         {loadingAdherant ? (
                                             <Loader2 className='h-5 w-5 text-white animate-spin'/>
@@ -2979,85 +3118,48 @@ export default function DashboardStandard(){
                                         )}
                                     </motion.button>
                                 </div>
-                                
-                               
+                            </div>
+
                             </form>
 
                         </div>
                 </div>
 
-                
+
             )}
 
             {showModalTrash && (
-                <div className="absolute inset-0 bg-black/80 backdrop-blur flex items-center justify-center">
-                    <motion.div 
-                        initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                        className="bg-white shadow-[0px_0px_30px_rgba(255,0,0,0.5)] rounded-sm p-3 ">
-                        <div className="font-bold text-red-600 flex items-center gap-2 text-xl uppercase">
-                            <AlertOctagon className="text-red-600 h-10 w-10" />
-                            Attention !
-                        </div>
-
-                        <div className="my-5">
-                            <p className="text-[16px] text-black/80">Vous êtes sur le point de supprimer la 
-                                configuration de <br />tous vos tarifs (mensuel,
-                                trimestriel, annuel).
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-2 justify-end py-3 ">
-                            <motion.button
-                                type="button"
-                                whileTap={{scale: 0.95}}
-                                className="px-2 py-1 transition-colors duration-200 border border-gray-400/50 bg-gray-400/50 font-semibold"
-                                onClick={()=>{setShowModalTrash(false)}}
-                            >Annuler
-                            </motion.button>
-                            <motion.button
-                                onClick={(e)=>{sendTarif(e, "DELETE")}}
-                                whileTap={{scale: 0.95}}
-                                className="px-2 py-1 transition-colors duration-200 border text-white bg-red-600 border-red-600 font-semibold"
-                            >
-                                {loadingTarifDel ?  <Loader2 className=" text-white animate-spin"/> : 'Confirmer'}
-                            </motion.button>
-                        </div>
-                    </motion.div>
-                </div>
+                <ModalComponent 
+                    question={'Supprimer les tarifs ?'}
+                    reject={() => setShowModalTrash(false)}
+                    confirm={(e)=>{sendTarif(e, "DELETE")}}
+                    loading={loadingTarifDel}
+                    children={
+                        <>
+                            <p>Cette action est irréversible. Tous</p>
+                            <p>les tarifs de votre salle à savoir</p> 
+                            <p>'mensuel, trimestriel et annuel'</p>
+                            <p>seront définitivement effacées.</p>
+                        </>
+                    }
+                />
             )}
 
             {modalSupAdherant && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
-                    <motion.div 
-                        initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                    className="bg-white py-3 px-4">
-                        <div className="text-red-500 mb-5 font-bold text-xl flex items-center gap-2">
-                            <AlertTriangle size={40} />
-                            Confirmer la suppression !
-                        </div>
-                        <div className="flex items-center justify-end gap-3">
-                            <button
-                                type="button"
-                                onClick={()=>{setModalSupAdherant(false)}}
-                                className="border py-1 px-3 text-sm font-semibold"
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                type="submit"
-                                onClick={(e)=>{handleDeleteAdh(e, adhToDelete)}}
-                                disabled={loadingSupAdh}
-                                className="border py-1 px-3 text-sm bg-red-500 text-white font-semibold hover:bg-transparent hover:text-black transition-colors duration-200"
-                            >
-                                {loadingSupAdh ? <Loader2 className="animate-spin h-5 w-5 text-red"/> : 'Supprimer'}
-                            </button>
-                        </div>
-                    </motion.div>
-                </div>
+                <ModalComponent 
+                    question={'Supprimer cet adhérant ?'}
+                    reject={() => setModalSupAdherant(false)}
+                    confirm={(e)=>{handleDeleteAdh(e, adhToDelete?.id)}}
+                    loading={loadingSupAdh}
+                    children={
+                        <>
+                            <p>Cette action est irréversible. Toutes</p>
+                            <p>les données de l'adhérant </p> 
+                            <p>'{adhToDelete?.name} {adhToDelete?.prenom}'</p>
+                            <p>seront définitivement effacées.</p>
+                        </>
+                    }
+                />
             )}
 
             {modalUpAdherant && (
@@ -3076,72 +3178,48 @@ export default function DashboardStandard(){
                             </div>
                             <div className="flex-col flex gap-2 mb-5">
                                 <label className="font-bold text-lg">Nom </label>
-                                <Input 
+                                <Input
                                     type={'text'}
                                     value={adhToUp?.name}
                                     onChange={(e)=>{setAdhToUp({ ...adhToUp, name: e.target.value }), updateAdh.reset()}}
                                     className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={null}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
+                                    
                                 />
                             </div>
 
                             <div className="flex-col flex gap-2 mb-5">
                                 <label className="font-bold text-lg">Prénom </label>
-                                <Input 
+                                <Input
                                     type={'text'}
                                     value={adhToUp?.prenom}
                                     onChange={(e)=>{setAdhToUp({ ...adhToUp, prenom: e.target.value }), updateAdh.reset()}}
                                     className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={null}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
+                                    
                                 />
                             </div>
                             <div className="flex-col flex gap-2 mb-5">
                                 <label className="font-bold text-lg">Adresse e-mail </label>
-                                <Input 
+                                <Input
                                     type={'email'}
                                     value={adhToUp?.email}
                                     onChange={(e)=>{setAdhToUp({ ...adhToUp, email: e.target.value }), updateAdh.reset()}}
                                     className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={null}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
+                                   
                                 />
                             </div>
 
                             <div className="flex-col flex gap-2 mb-5">
                                 <label className="font-bold text-lg">Numéro de téléphone </label>
-                                <Input 
+                                <Input
                                     type={'tel'}
                                     value={adhToUp?.telephone}
                                     onChange={(e)=>{setAdhToUp({ ...adhToUp, telephone: e.target.value }), updateAdh.reset()}}
                                     className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={null}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
+                                   
                                 />
                             </div>
-
-                            {errorUpdateAdh && (
-                                <p className="text-red-500 text-sm">{updateAdh.error.message}</p>
-                            )}
                         </div>
-                        
+
                         <div className=" flex justify-end items-center gap-2">
                             <button
                             type="button"
@@ -3161,7 +3239,7 @@ export default function DashboardStandard(){
                                 ):(
                                     'Modifier'
                                 )}
-                                
+
                             </button>
                         </div>
                     </form>
@@ -3185,34 +3263,24 @@ export default function DashboardStandard(){
                             </div>
                             <div className="flex-col flex gap-2 mb-5">
                                 <label className="font-bold text-lg">Adresse e-mail </label>
-                                <Input 
+                                <Input
                                     type={'email'}
                                     value={reabonner?.email}
                                     onChange={(e)=>{setReabonner({ ...reabonner, email: e.target.value }), reabAdh.reset()}}
                                     className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
-                                    placeholder={null}
-                                    disabled={false}
-                                    hidden={false}
-                                    pattern={null}
-                                    ref={null}
-                                    checked={null}
+                                   
                                 />
                             </div>
 
-                            {/* <div className="grid grid-cols-2 gap-10"> */}
+                            
                                 <div className="flex-col flex gap-2 ">
                                     <label className="font-bold">Abonnement</label>
-                                
+
 
                                     <select
                                         value={reabonner?.plan}
                                         onChange={(e)=>{setReabonner({ ...reabonner, plan: e.target.value }), reabAdh.reset()}}
-                                        // onChange={(e) => {
-                                        //     const value = e.target.value
-                                        //     setPlan(value)
-                                        //     setShowPrix(!!value)
-                                        //     addAdh.reset()
-                                        // }}
+                                       
                                         className="border-4 border-gray-300 p-2 border-dotted text-sm"
                                         >
                                         <option value="">-- Choisir --</option>
@@ -3220,57 +3288,11 @@ export default function DashboardStandard(){
                                         <option value="trimestriel">Trimestriel</option>
                                         <option value="annuel">Annuel</option>
                                     </select>
-{/* 
-                                </div> */}
-
-                                {/* <div>
-                                   
-
-                                    {showPrix && (
-                                    <div className="flex-col flex gap-2">
-                                        {loading ? (
-                                        <Loader2 className="h-5 w-5 animate-spin" />
-                                        ) : (
-                                        <>
-                                            <label className="font-bold">Prix</label>
-                                            <select
-                                            value={montant}
-                                            onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
-                                            className="border-4 border-gray-300 p-2 border-dotted text-sm"
-                                            >
-                                            <option value="">-- Choisir --</option>
-                                                {plan === "mensuel" && (
-                                                    <option value={prix_mensuel}>
-                                                        {prix_mensuel}
-                                                    </option>)}
-                                                {plan === "trimestriel" && (
-                                                    <option value={prix_trimestriel}>
-                                                        {prix_trimestriel}
-                                                    </option>)}
-                                                {plan === "annuel" && (
-                                                    <option value={prix_annuel}>
-                                                        {prix_annuel}
-                                                    </option>)}
-                                            </select>
-                                        </>
-                                        )}
-                                    </div>
-                                    )}
 
 
-                                </div> */}
-                                 
-
-                                
                                 </div>
-
-                            
-
-                            {reabError && (
-                                <p className="text-red-500 text-sm">{reabAdh.error.message}</p>
-                            )}
                         </div>
-                        
+
                         <div className=" flex justify-end items-center gap-2">
                             <button
                                 type="button"
@@ -3290,7 +3312,7 @@ export default function DashboardStandard(){
                                 ):(
                                     'Confirmer'
                                 )}
-                                
+
                             </button>
                         </div>
                     </form>
@@ -3298,32 +3320,9 @@ export default function DashboardStandard(){
                 </div>
             )}
 
-            {(successSupAdh || successUpdateAdh || reabSuccess) && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <div className="w-150 h-300">
-                    <img src={checkvideo} alt="gif" 
-                        className="w-full h-auto object-cover"
-                    />
-                    </div>
-                </div>
-            )}
-
-            {errorSupAdh && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    <motion.div 
-                        initial={{opacity:0, scale:0.75}}
-                        animate={{opacity:1, scale:1.05}}
-                        transition={{duration:0.4}}
-                        className="bg-white flex items-center gap-2 py-1 px-3 font-bold text-red-500">
-                        <XCircle className="text-red-500 h-10 w-10" />
-                        <p className="text-xl">{supAdh.error.message}</p>
-                    </motion.div>
-                </div>
-            )}
-
             {modalReab &&(
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    
+
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
@@ -3347,7 +3346,7 @@ export default function DashboardStandard(){
                                             )}
                                             <span className="text-sm text-gray-400">Forfait</span>
                                         </div>
-                                        
+
                                     </div>
                                     <hr className="h-5  w-50 text-gray-300"/>
                                 </div>
@@ -3365,10 +3364,10 @@ export default function DashboardStandard(){
                                                 </div>
                                             )}
 
-                                        
+
                                             <span className="text-sm text-gray-400">Paiement</span>
                                         </div>
-                                        
+
                                     </div>
                                     <hr className="h-5  text-gray-300 w-50"/>
                                 </div>
@@ -3387,7 +3386,7 @@ export default function DashboardStandard(){
                                             )}
                                             <span className="text-sm text-gray-400">Otp</span>
                                         </div>
-                                        
+
                                     </div>
                                     <hr className="h-5 text-gray-300 w-50"/>
                                 </div>
@@ -3413,7 +3412,7 @@ export default function DashboardStandard(){
 
                         {/* etape de forfait 1 */}
                         {step === '1' && (
-                            <motion.div 
+                            <motion.div
                                 initial={{opacity:0, scale:0.75}}
                                 animate={{opacity:1, scale:1}}
                                 transition={{duration:0.4}}
@@ -3422,7 +3421,7 @@ export default function DashboardStandard(){
                                     <div className="">
                                         <h3 className=" font-bold mb-2">Forfait actuel</h3>
                                         <motion.button
-                                            onClick={()=>{setDesc('standard'), setMontantReab(100)}} 
+                                            onClick={()=>{setDesc('standard'), setMontantReab(100)}}
                                             whileHover={{scale: 1.1}}
                                             whileTap={{scale: 0.95}}
                                             className={`border ${desc === 'standard' ? 'shadow-[0_0_10px_rgba(255,100,0,0.8)] border-orange-500' : 'border-gray-200'} `}>
@@ -3435,7 +3434,7 @@ export default function DashboardStandard(){
                                         <h3 className=" font-bold mb-2">Choisir un autre forfait</h3>
                                         <div className="flex items-center gap-5">
                                             <motion.button
-                                                onClick={()=>{setDesc('pro'), setMontantReab(100)}}  
+                                                onClick={()=>{setDesc('pro'), setMontantReab(100)}}
                                                 whileHover={{scale: 1.1}}
                                                 whileTap={{scale: 0.95}}
                                                 className={`border relative ${desc === 'pro' ? 'shadow-[0_0_10px_rgba(255,100,0,0.8)] border-orange-500' : 'border-gray-200'} `}>
@@ -3446,7 +3445,7 @@ export default function DashboardStandard(){
                                             </motion.button>
 
                                             <motion.button
-                                                onClick={()=>{setDesc('premium'), setMontantReab(100)}} 
+                                                onClick={()=>{setDesc('premium'), setMontantReab(100)}}
                                                 whileHover={{scale: 1.1}}
                                                 whileTap={{scale: 0.95}}
                                                 className={`border ${desc === 'premium' ? 'shadow-[0_0_10px_rgba(255,100,0,0.8)] border-orange-500' : 'border-gray-200'} `}>
@@ -3517,7 +3516,7 @@ export default function DashboardStandard(){
 
                         {/* Etape de Paiement */}
                         {step === '2' && (
-                            <motion.div 
+                            <motion.div
                                 initial={{opacity:0, scale:0.75}}
                                 animate={{opacity:1, scale:1}}
                                 transition={{duration:0.4}}
@@ -3537,7 +3536,7 @@ export default function DashboardStandard(){
                                 </div>
                                 <div className="flex items-center justify-center gap-5">
 
-                                    <motion.button 
+                                    <motion.button
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}}
                                         onClick={()=>{setProvider('orange_bf')}}
@@ -3546,21 +3545,21 @@ export default function DashboardStandard(){
                                     </motion.button>
                                     <motion.button
                                         whileHover={{scale: 1.1}}
-                                        whileTap={{scale: 0.95}} 
+                                        whileTap={{scale: 0.95}}
                                         onClick={()=>{setProvider('moov_bf')}}
                                         className={`border p-1 h-30 w-70 bg-white ${provider === 'moov_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={moov} alt="moov-logo" className="h-full w-full"/>
                                     </motion.button>
-                                    <motion.button 
+                                    <motion.button
                                         whileHover={{scale: 1.1}}
-                                        whileTap={{scale: 0.95}} 
+                                        whileTap={{scale: 0.95}}
                                         onClick={()=>{setProvider('corismoney_bf')}}
                                         className={`border p-1 h-30 w-70 bg-white ${provider === 'corismoney_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={coris} alt="coris-logo" className="h-full w-full"/>
                                     </motion.button>
-                                    <motion.button 
+                                    <motion.button
                                         whileHover={{scale: 1.1}}
-                                        whileTap={{scale: 0.95}} 
+                                        whileTap={{scale: 0.95}}
                                         onClick={()=>{setProvider('sank_bf')}}
                                         className={`border p-1 h-30 w-70 bg-white ${provider === 'sank_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={sank} alt="sank-logo" className="h-full w-full"/>
@@ -3571,7 +3570,7 @@ export default function DashboardStandard(){
                                     <label
                                         className="text-gray-500 my-5"
                                     >Entrez votre numéro de telephone pour procéder au paiement</label>
-                                    <input type="text" 
+                                    <input type="text"
                                         value={telReab}
                                         onChange={(e)=>{setTelReab(e.target.value)}}
                                         placeholder="Saisissez içi"
@@ -3580,7 +3579,7 @@ export default function DashboardStandard(){
                                 </div>
 
                                 {errorReab && (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{opacity:0, scale:0.75}}
                                         animate={{opacity:1, scale:0.95}}
                                         transition={{duration:0.4}}
@@ -3599,7 +3598,7 @@ export default function DashboardStandard(){
 
                         {/* Etape de otp */}
                         {step === '3' && (
-                            <motion.div 
+                            <motion.div
                                 initial={{opacity:0, scale:0.75}}
                                 animate={{opacity:1, scale:1}}
                                 transition={{duration:0.4}}
@@ -3613,8 +3612,8 @@ export default function DashboardStandard(){
                                         <p className="text-gray-600">le champ ci-dessous pour valider le paiement</p>
                                     </div>
                                     <div className="flex flex-col gap-2 px-40">
-                                        <input 
-                                            type="tel" 
+                                        <input
+                                            type="tel"
                                             placeholder="Saisissez le code OTP içi"
                                             value={otp}
                                             onChange={(e)=>{setOtp(e.target.value)}}
@@ -3633,7 +3632,7 @@ export default function DashboardStandard(){
                                 </div>
 
                                 {errorOtp && (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{opacity:0, scale:0.75}}
                                         animate={{opacity:1, scale:0.95}}
                                         transition={{duration:0.4}}
@@ -3646,14 +3645,14 @@ export default function DashboardStandard(){
 
                                     </motion.div>
                                 )}
-                                
+
                             </motion.div>
                         )}
 
-                        
+
                         {/* etape success */}
                         {step === '4' && (
-                            <motion.div 
+                            <motion.div
                                 initial={{opacity:0, scale:0.75}}
                                 animate={{opacity:1, scale:1}}
                                 transition={{duration:0.4}}
@@ -3705,7 +3704,7 @@ export default function DashboardStandard(){
                                     whileTap={{scale: 0.95}}
                                     className="bg-gray-200 font-bold transition-colors duration-200 border border-gray-200 hover:bg-transparent cursor-pointer text-gray-500 px-2 py-1"
                                 >
-                                    
+
                                     Annuler l'opération
                                 </motion.button>
                             )}
@@ -3717,7 +3716,7 @@ export default function DashboardStandard(){
                                         whileTap={{scale: 0.95}}
                                         className="bg-gray-200 font-bold transition-colors duration-200 border border-gray-200 hover:bg-transparent cursor-pointer text-gray-500 px-2 py-1"
                                     >
-                                        
+
                                         Retour
                                     </motion.button>
                                 )}
@@ -3734,10 +3733,31 @@ export default function DashboardStandard(){
                                 </motion.button>
                             </div>
                         </div>
-                        
+
                     </motion.div>
                 </div>
             )}
+
+
+
+            <ResponseAdherant successAdherant={successAdherant} successUpdateAdh={successUpdateAdh} successSupAdh={successSupAdh}/>
+            <ResponseAbonnement reabSuccess={reabSuccess} />
+            <ResponseTarif successTarif={successTarif} successTarifDel={successTarifDel} successTarifUp={successTarifUp} />
+            <ResponseInfoPerso persoSuccess={persoSuccess} passwordSuccess={passwordSuccess} />
+            <ResponseLogo logoDelSuccess={logoDelSuccess} logoEditSuccess={logoEditSuccess} logoSuccess={logoSuccess} />
+            <ResponseInfoSalle successUpdate={successUpdate} />
+
+            <ResponseError
+                errorTarif={errorTarif}
+                errorTarifUp={errorTarifUp}
+                errorTarifDel={errorTarifDel}
+                persoError={persoError}
+                passwordError={passwordError} reabError={reabError}
+                logoDelError={logoDelError} logoEditError={logoEditError} logoError={logoError}
+                updateError={updateError} errorAdherant={errorAdherant} errorUpdateAdh={errorUpdateAdh}
+                errorSupAdh={errorSupAdh}
+
+            />
         </div>
     )
 }

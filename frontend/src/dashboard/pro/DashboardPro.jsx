@@ -436,6 +436,12 @@ export default function DashboardPro(){
              setTimeout(()=>{
                 addAdh.reset()
             }, 4000)
+        },
+
+        onError : ()=>{
+             setTimeout(()=>{
+                addAdh.reset()
+            }, 4000)
         }
     })
 
@@ -2682,7 +2688,7 @@ export default function DashboardPro(){
                                     whileTap={{scale: 0.95}}
                                     onClick={()=>{setShowAdd(true), setActiveTab('')}}
                                     disabled={daysRemaining < 0}
-                                className={`flex font-bold text-white text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:bg-orange-500 border-orange-500 '}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                    className={`flex font-bold text-white text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:bg-orange-500 border-orange-500 '}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
                                     <Plus className="h-5 w-5 "/>
                                     Ajouter un adhérant
                                 </motion.button>
