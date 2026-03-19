@@ -2395,7 +2395,7 @@ export default function DashboardPro(){
                                             <LineChart style={{ width: '100%', aspectRatio: 2.4, maxWidth: 1000, margin: 'auto' }} responsive data={dataRecette}>
                                                 <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
                                                 <XAxis dataKey="periode" />
-                                                <YAxis width="auto" />
+                                                <YAxis width="auto" dataKey="montant_total" />
                                                 <Tooltip />
                                                 <Line type="monotone" dataKey="montant_total" stroke="rgba(255,100,0,1)" />
                                                 
