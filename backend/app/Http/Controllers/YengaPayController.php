@@ -225,16 +225,22 @@ class YengaPayController extends Controller
             //     ->whereBetween('fin', [Carbon::now(), Carbon::now()->addDays(7)])
             //     ->where('status', 'reussi')
             //     ->exists();
+$paiementAttente = $current->paiements()
+    ->where(function($query) {
+        $query->where('status', 'attente')
+              ->orWhere(function($q) {
+                  $q->where('status', 'actif')
+                    ->where('date_fin', '>=', Carbon::now());
+              });
+    })
+    ->exists();
 
-            $paiementAttente = $current->paiements()->where('status', 'attente')->latest('fin')
-                ->exists();
-            if ($paiementAttente) {
-                return response()->json([
-                    'message' => 'Vous avez un abonnement en cours',
-                    'info' => 'Si vous souhaitez renouveler, veuillez attendre la fin de votre abonnement actuel.'
-                ], 403);
-            }
-
+if ($paiementAttente) {
+    return response()->json([
+        'message' => 'Vous avez un abonnement en cours',
+        'info' => 'Si vous souhaitez renouveler, veuillez attendre la fin de votre abonnement actuel.'
+    ], 403);
+}
             // if (!$hasAbonnement) {
             //     return response()->json([
             //         'message' => 'abonnement en cours ou une erreur est survenue'
