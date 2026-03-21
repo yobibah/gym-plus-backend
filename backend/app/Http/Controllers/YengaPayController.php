@@ -190,111 +190,204 @@ class YengaPayController extends Controller
 
     /// ces methodes sont reserver pour faire le sans redirection
 
-    public function charge(Request $request)
-    {
-        $current = $request->user();
+    // public function charge(Request $request)
+    // {
+    //     $current = $request->user();
 
-        $validator = Validator::make($request->all(), [
-            "montant" => "required|numeric",
-            'numero' => "required|string|min:8",
-            'forfait' => 'required|string',
-            'provider' => 'required|string|in:orange_bf,moov_bf,sank_bf,coris_bf',
-            'type' => 'required|string|in:reinscription,inscription'
-        ]);
+    //     $validator = Validator::make($request->all(), [
+    //         "montant" => "required|numeric",
+    //         'numero' => "required|string|min:8",
+    //         'forfait' => 'required|string',
+    //         'provider' => 'required|string|in:orange_bf,moov_bf,sank_bf,coris_bf',
+    //         'type' => 'required|string|in:reinscription,inscription'
+    //     ]);
 
-        // $forfait = $request->query('forfait');
-        // verifier le forfait
+    //     // $forfait = $request->query('forfait');
+    //     // verifier le forfait
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => $validator->errors()
-            ], 400);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'message' => $validator->errors()
+    //         ], 400);
+    //     }
 
-        try {
-            $fin = $request->fin ?? 1;
+    //     try {
+    //         $fin = $request->fin ?? 1;
 
-            switch ($this->forfait) {
-            }
-            $hasAbonnement = $current->paiements()
-                ->whereBetween('fin', [Carbon::now(), Carbon::now()->addDays(7)])
-                ->where('status', 'reussi')
-                ->exists();
+    //         switch ($this->forfait) {
+    //         }
+    //         $hasAbonnement = $current->paiements()
+    //             ->whereBetween('fin', [Carbon::now(), Carbon::now()->addDays(7)])
+    //             ->where('status', 'reussi')
+    //             ->exists();
 
-            // $hasAbonnement = $current->paiements()
-            //     ->whereBetween('fin', [Carbon::now(), Carbon::now()->addDays(7)])
-            //     ->where('status', 'reussi')
-            //     ->exists();
-$paiementAttente = $current->paiements()
-    ->where(function($query) {
-        $query->where('status', 'attente')
-              ->orWhere(function($q) {
-                  $q->where('status', 'actif')
-                    ->where('date_fin', '>=', Carbon::now());
-              });
-    })
-    ->exists();
+    //         // $hasAbonnement = $current->paiements()
+    //         //     ->whereBetween('fin', [Carbon::now(), Carbon::now()->addDays(7)])
+    //         //     ->where('status', 'reussi')
+    //         //     ->exists();
+    //         $paiementAttente = $current->paiements()
+    //             ->where(function ($query) {
+    //                 $query->where('status', 'attente')
+    //                     ->orWhere(function ($q) {
+    //                         $q->where('status', 'actif')
+    //                             ->where('date_fin', '>=', Carbon::now());
+    //                     });
+    //             })
+    //             ->exists();
 
-if ($paiementAttente) {
-    return response()->json([
-        'message' => 'Vous avez un abonnement en cours',
-        'info' => 'Si vous souhaitez renouveler, veuillez attendre la fin de votre abonnement actuel.'
-    ], 403);
-}
-            // if (!$hasAbonnement) {
-            //     return response()->json([
-            //         'message' => 'abonnement en cours ou une erreur est survenue'
-            //     ], 409);
-            // }
+    //         if ($paiementAttente) {
+    //             return response()->json([
+    //                 'message' => 'Vous avez un abonnement en cours',
+    //                 'info' => 'Si vous souhaitez renouveler, veuillez attendre la fin de votre abonnement actuel.'
+    //             ], 403);
+    //         }
+    //         // if (!$hasAbonnement) {
+    //         //     return response()->json([
+    //         //         'message' => 'abonnement en cours ou une erreur est survenue'
+    //         //     ], 409);
+    //         // }
 
-            $paiement = paiement::create([
-                'debut' => Carbon::now(),
-                'fin' => Carbon::today()->addMonths((int) $fin),
-                'montant' => $request->montant,
-                'plan' => strtolower($request->forfait),
-                'gerant_id' => $current->id,
-                'status' => 'attente',
-                'moyen paiment' => 'N/A',
-                'transId' => Str::random(4) . Carbon::now()->format('Ymd') . '@' . rand(111, 999)
-            ]);
+    //         $paiement = paiement::create([
+    //             'debut' => Carbon::now(),
+    //             'fin' => Carbon::today()->addMonths((int) $fin),
+    //             'montant' => $request->montant,
+    //             'plan' => strtolower($request->forfait),
+    //             'gerant_id' => $current->id,
+    //             'status' => 'attente',
+    //             'moyen paiment' => 'N/A',
+    //             'transId' => Str::random(4) . Carbon::now()->format('Ymd') . '@' . rand(111, 999)
+    //         ]);
 
-            $data = [
-                "montant" => $request->montant,
-                'numero' => $request->numero,
-                'provider' => $request->provider
-            ];
+    //         $data = [
+    //             "montant" => $request->montant,
+    //             'numero' => $request->numero,
+    //             'provider' => $request->provider
+    //         ];
 
-            $response = $this->senfenico->charge($data);
+    //         $response = $this->senfenico->charge($data);
 
-            if ($response && $response->status == true) {
-                $ref = $response->data->reference;
-                $message = $response->data->display_text;
-                // maj
-                $paiement->update([
-                    'transId' => $ref,
-                ]);
+    //         if ($response && $response->status == true) {
+    //             $ref = $response->data->reference;
+    //             $message = $response->data->display_text;
+    //             // maj
+    //             $paiement->update([
+    //                 'transId' => $ref,
+    //             ]);
 
 
-                Cache::put('reference_' . $current->id, $ref, now()->addMinutes(15));
-                cache::put('type_' . $current->id, $request->type, now()->addMinutes(15));
+    //             Cache::put('reference_' . $current->id, $ref, now()->addMinutes(15));
+    //             cache::put('type_' . $current->id, $request->type, now()->addMinutes(15));
 
-                return response()->json([
-                    'message' => $message,
-                    'reference' => $ref
-                ]);
-            } else {
-                return response()->json([
-                    'message' => ' erreur lier au paiement ou verifier l\'operateur choisi'
-                ], 409);
-            }
-        } catch (Exception $e) {
-            return response()->json([
-                'error' => $e->getTraceAsString(),
+    //             return response()->json([
+    //                 'message' => $message,
+    //                 'reference' => $ref
+    //             ]);
+    //         } else {
+    //             return response()->json([
+    //                 'message' => ' erreur lier au paiement ou verifier l\'operateur choisi'
+    //             ], 409);
+    //         }
+    //     } catch (Exception $e) {
+    //         return response()->json([
+    //             'error' => $e->getTraceAsString(),
 
-            ]);
-        }
+    //         ]);
+    //     }
+    // }
+
+  public function charge(Request $request)
+{
+    $current = $request->user();
+
+    $validator = Validator::make($request->all(), [
+        "montant"  => "required|numeric",
+        'numero'   => "required|string|min:8",
+        'forfait'  => 'required|string',
+        'provider' => 'required|string|in:orange_bf,moov_bf,sank_bf,coris_bf',
+        'type'     => 'required|string|in:reinscription,inscription',
+        'fin'      => 'nullable|integer|min:1'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['message' => $validator->errors()], 400);
     }
 
+    try {
+       
+        $fin = match(strtolower($request->forfait)) {
+            'mensuel'      => 1,
+            'trimestriel'  => 3,
+            'annuel'       => 12,
+            default        => (int) ($request->fin ?? 1)
+        };
+
+        
+        $paiementActif = $current->paiements()
+            ->where(function ($query) {
+                $query->where('status', 'attente')
+                      ->orWhere(function ($q) {
+                          $q->where('status', 'reussi')
+                            ->where('fin', '>=', Carbon::now());
+                      });
+            })
+            ->exists();
+
+        if ($paiementActif) {
+            return response()->json([
+                'message' => 'Vous avez un abonnement en cours',
+                'info'    => 'Veuillez attendre la fin de votre abonnement actuel.'
+            ], 403);
+        }
+
+        
+        $paiement = paiement::create([
+            'debut'          => Carbon::now(),
+            'fin'            => Carbon::now()->addMonths($fin),
+            'montant'        => $request->montant,
+            'plan'           => strtolower($request->forfait),
+            'gerant_id'      => $current->id,
+            'status'         => 'attente',
+            'moyen paiment' => 'N/A', 
+            'transId'        => Str::random(4) . Carbon::now()->format('Ymd') . '@' . rand(111, 999)
+        ]);
+
+        $data = [
+            'montant'  => $request->montant,
+            'numero'   => $request->numero,
+            'provider' => $request->provider
+        ];
+
+        $response = $this->senfenico->charge($data);
+
+        if ($response && $response->status == true) {
+            $ref     = $response->data->reference;
+            $message = $response->data->display_text;
+
+            $paiement->update(['transId' => $ref]);
+
+            Cache::put('reference_' . $current->id, $ref, now()->addMinutes(15));
+            Cache::put('type_' . $current->id, $request->type, now()->addMinutes(15));
+
+            return response()->json([
+                'message'   => $message,
+                'reference' => $ref
+            ]);
+        }
+
+        // ✅ Si l'appel senfenico échoue, on supprime le paiement créé
+        $paiement->delete();
+
+        return response()->json([
+            'message' => 'Erreur liée au paiement, vérifiez l\'opérateur choisi'
+        ], 409);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error'   => $e->getMessage() 
+        ], 500);
+    }
+}
     public function AnnulerPaiement() {}
 
     public function chargeOtp(Request $request)
