@@ -8,10 +8,10 @@ export default function ToastSuccess({message, title}){
             initial = {{opacity: 0, x: 100}}
             animate = {{opacity: 1, x: 0}}
             transition={{duration: 0.4}}
-            className="shadow-lg p-4 w-100 bg-orange-100  z-50  flex flex-col gap-2 absolute bottom-10 right-5 "
+            className="shadow-lg p-4 2xl:w-100 xl:w-100 md:w-100 w-50 bg-orange-100  z-50  flex flex-col gap-2 absolute bottom-10 right-5 "
         >
-            <p className="text-xl text-green-500 font-bold">{title}</p>
-            <p className="text-gray-700 flex items-center">
+            <p className="2xl:text-xl xl:text-xl md:text-xl text-sm text-green-500 font-bold">{title}</p>
+            <p className="text-gray-700 flex 2xl:text-base xl:text-base md:text-base text-xs items-center">
                     {message}
                 </p>
 

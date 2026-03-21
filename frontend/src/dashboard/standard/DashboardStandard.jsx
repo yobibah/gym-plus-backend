@@ -1,4 +1,4 @@
-import { AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, ArrowRight, BadgeCheck, Calendar, Calendar1, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, Edit, LayoutDashboard, LayoutDashboardIcon, Loader2, Pencil, Plus, PlusSquare, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, Wallet, WalletCards, X, XCircle } from "lucide-react";
+import { AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, ArrowRight, BadgeCheck, Calendar, Calendar1, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, CreditCard, Edit, LayoutDashboard, LayoutDashboardIcon, Loader2, LogOut, Pencil, Plus, PlusSquare, RefreshCcw, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, Wallet, WalletCards, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -256,8 +256,13 @@ export default function DashboardStandard(){
 
              setTimeout(()=>{
                 addAdh.reset()
-            }, 2500)
-        }
+            }, 4000)
+        },
+        onError : (()=>{
+            setTimeout(()=>{
+                addAdh.reset()
+            }, 4000)
+        })
     })
 
     const loadingAdherant = addAdh.isPending
@@ -344,8 +349,14 @@ export default function DashboardStandard(){
             updateTarif.invalidateQueries(['prix'])
             setTimeout(()=>{
                 tarif.reset()
-            }, 2500)
-        }
+            }, 4000)
+        },
+        onError : (()=>{
+
+            setTimeout(()=>{
+                tarif.reset()
+            }, 4000)
+        })
 
     })
     const loadingTarif = tarif.isPending
@@ -367,8 +378,14 @@ export default function DashboardStandard(){
 
             setTimeout(()=>{
                 tarifUpdate.reset()
-            }, 2500)
-        }
+            }, 4000)
+        },
+        onError : (()=>{
+
+            setTimeout(()=>{
+                tarifUpdate.reset()
+            }, 4000)
+        })
 
     })
     const loadingTarifUp = tarifUpdate.isPending
@@ -399,8 +416,14 @@ export default function DashboardStandard(){
 
             setTimeout(()=>{
                 tarifDelete.reset()
-            }, 2500)
-        }
+            }, 4000)
+        },
+        onError : (()=>{
+
+            setTimeout(()=>{
+                tarifDelete.reset()
+            }, 4000)
+        })
 
     })
     const loadingTarifDel = tarifDelete.isPending
@@ -452,7 +475,13 @@ export default function DashboardStandard(){
 
             setTimeout(()=>{
                 update_infos.reset()
-            }, 2500)
+            }, 4000)
+        }),
+        onError : (()=>{
+
+            setTimeout(()=>{
+                update_infos.reset()
+            }, 4000)
         })
     })
     const updateLoading = update_infos.isPending
@@ -482,7 +511,13 @@ export default function DashboardStandard(){
 
             setTimeout(()=>{
                 update_infos_perso.reset()
-            }, 2500)
+            }, 4000)
+        }),
+        onError : (()=>{
+
+            setTimeout(()=>{
+                update_infos_perso.reset()
+            }, 4000)
         })
     })
     const persoLoading = update_infos_perso.isPending
@@ -495,7 +530,13 @@ export default function DashboardStandard(){
         onSuccess : (()=>{
             setTimeout(()=>{
                 updatePassword.reset()
-            }, 2500)
+            }, 4000)
+        }),
+        onError : (()=>{
+
+            setTimeout(()=>{
+                updatePassword.reset()
+            }, 4000)
         })
     })
     const changePasswordLoading = updatePassword.isPending
@@ -528,11 +569,14 @@ export default function DashboardStandard(){
 
             setTimeout(()=>{
                 logoUpload.reset()
-            }, 2500)
-        })
-        // onError : (()=>{
+            }, 4000)
+        }),
+        onError : (()=>{
 
-        // })
+            setTimeout(()=>{
+                logoUpload.reset()
+            }, 4000)
+        })
     })
     const logoLoading = logoUpload.isPending
     const logoSuccess = logoUpload.isSuccess
@@ -549,11 +593,14 @@ export default function DashboardStandard(){
 
             setTimeout(()=>{
                 logoEditUpload.reset()
-            }, 2500)
-        })
-        // onError : (()=>{
+            }, 4000)
+        }),
+        onError : (()=>{
 
-        // })
+            setTimeout(()=>{
+                logoEditUpload.reset()
+            }, 4000)
+        })
     })
     const logoEditLoading = logoEditUpload.isPending
     const logoEditSuccess = logoEditUpload.isSuccess
@@ -572,10 +619,13 @@ export default function DashboardStandard(){
 
             setTimeout(()=>{
                 logoDelUpload.reset()
-            }, 2500)
+            }, 4000)
         }),
         onError : (()=>{
             setLogoModal(false)
+            setTimeout(()=>{
+                logoDelUpload.reset()
+            }, 4000)
         })
     })
     const logoDelLoading = logoDelUpload.isPending
@@ -776,7 +826,7 @@ export default function DashboardStandard(){
         onError: (()=>{
             setTimeout(()=>{
                 paiement.reset()
-            }, 2500)
+            }, 4000)
         })
     })
 
@@ -796,7 +846,7 @@ export default function DashboardStandard(){
         onError: (()=>{
             setTimeout(()=>{
                 reinscription.reset()
-            }, 2500)
+            }, 4000)
         })
     })
 
@@ -877,13 +927,6 @@ export default function DashboardStandard(){
         setModalReab(true)
     }
 
-    // function nextStep(){
-    //     setModalNext(true)
-    //     if(modalNext){
-    //         setModalNext(false)
-    //     }
-    // }
-
 
     function clearCache(){
         return (
@@ -963,9 +1006,9 @@ export default function DashboardStandard(){
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
 
-            <div className="col-span-1 py-3 bg-white shadow-lg flex flex-col gap-10 h-screen overflow-y-auto sticky top-0">
+            <div className="col-span-1 py-3 bg-white shadow-lg flex flex-col 2xl:gap-10 xl:gap-10 md:gap-10 gap-5  h-screen overflow-y-auto sticky top-0">
                 <div className="flex items-center gap-2  px-5 my-5">
-                    <div className="rounded-full flex items-center justify-center border border-orange-500 bg-orange-500 w-15 h-15">
+                    <div className="rounded-full md:hidden xl:block flex items-center justify-center border border-orange-500 bg-orange-500 xl:w-15 xl:h-15 2xl:w-15 2xl:h-15 h-10">
                         {infosSalle?.logo_salle ? (
                             <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                         ):(
@@ -975,22 +1018,22 @@ export default function DashboardStandard(){
 
 
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex hidden 2xl:block xl:block md:block flex-col">
                         <div className="font-semibold text-2xl">{infosSalle?.nom_salle || 'GymPlus'}</div>
                         <div className="text-orange-500 text-sm">Plan {planActuel}</div>
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-10">
+                <div className="flex flex-col xl:gap-5 2xl:gap-10 md:gap-5 gap-2">
 
                     <motion.div
                         whileHover={{ scale: 1.02 }}
                         whileTap={{scale: 0.95}}
-                        className={`${activeTab === 'dashboard' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                        className={`${activeTab === 'dashboard' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
                         onClick={()=>{setActiveTab('dashboard')}}
                     >
-                        <LayoutDashboard className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                        <button className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                        <LayoutDashboard className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200`}/>
+                        <button className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
 
                         >Tableau de bord</button>
                     </motion.div>
@@ -999,11 +1042,11 @@ export default function DashboardStandard(){
 
                         whileHover={{ scale: 1.02 }}
                         whileTap={{scale: 0.95}}
-                        className={`${activeTab === 'adherant' || showAdd  ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                        className={`${activeTab === 'adherant' || showAdd  ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
                         onClick={()=>{setActiveTab('adherant')}}
                     >
-                        <Users className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200 `}/>
-                        <button className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                        <Users className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200 `}/>
+                        <button className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
 
                         >Adhérants</button>
                     </motion.div>
@@ -1011,11 +1054,11 @@ export default function DashboardStandard(){
                     <motion.div
                         whileHover={{ scale: 1.02 }}
                         whileTap={{scale: 0.95}}
-                        className={`${activeTab === 'abonnement' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                        className={`${activeTab === 'abonnement' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center  2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
                         onClick={()=>{setActiveTab('abonnement')}}
                     >
-                        <SquarePlus className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                        <button className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                        <SquarePlus className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors md:hidden xl:block duration-200`}/>
+                        <button className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
 
                         >Abonnements</button>
                     </motion.div>
@@ -1023,11 +1066,11 @@ export default function DashboardStandard(){
                     <motion.div
                         whileHover={{ scale: 1.02 }}
                         whileTap={{scale: 0.95}}
-                        className={`${activeTab === 'settings' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                        className={`${activeTab === 'settings' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
                         onClick={()=>{setActiveTab('settings')}}
                     >
-                        <Settings className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                        <button className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                        <Settings className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200 md:hidden xl:block`}/>
+                        <button className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
 
                         >Paramètres</button>
                     </motion.div>
@@ -1040,20 +1083,21 @@ export default function DashboardStandard(){
                     {daysRemaining <= 0 && (
                         <div className="flex relative flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
                             {/* <AlertTriangle className="text-red-500" /> */}
-                            <p className="text-red-500 font-bold">
+                            <p className="text-red-500 font-bold 2xl:block hidden xl:block">
                                 {daysRemaining === 0
                                     ? "Votre abonnement expire aujourd'hui !"
                                     : "Votre abonnement est expiré !"
                                 }
                             </p>
-                            <p className="text-gray-500">À l'expiration définitive de votre abonnement, certaines fonctionalités seront désactivées ! Veuillez-vous réabonnez pour continuer la gestion de votre salle.</p>
+                            <p className="text-gray-500 2xl:block hidden">À l'expiration définitive de votre abonnement, certaines fonctionalités seront désactivées ! Veuillez-vous réabonnez pour continuer la gestion de votre salle.</p>
                             <motion.button
                                 type="button"
                                 onClick={handleModalReab}
                                 whileTap={{scale:0.95}}
-                                className="border hover:bg-transparent hover:text-black transition-colors duration-200 p-2 bg-blue-500 text-white font-bold border-blue-500 rounded-lg"
+                                className="2xl:border xl:border 2xl:hover:bg-transparent xl:hover:bg-transparent hover:text-black transition-colors duration-200 p-2 2xl:bg-blue-500 xl:bg-blue-500 2xl:text-white xl:text-white text-blue-600 font-bold 2xl:border-blue-500 xl:border-blue-500 rounded-lg"
                             >
-                                Me Réabonner
+                                <p className="hidden 2xl:block xl:block md:block">Me Réabonner</p>
+                                <CreditCard className="2xl:hidden xl:hidden h-5 w-5"/>
                             </motion.button>
 
                             {modalNext &&(
@@ -1070,22 +1114,23 @@ export default function DashboardStandard(){
                     )}
 
                     {0 < daysRemaining && daysRemaining <= 7 &&(
-                        <div className="flex relative flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
+                        <div className="flex relative 2xl:flex-col xl:flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 2xl:px-5 xl:px-5 rounded-lg">
                             
-                            <p className="text-red-500 font-bold">
+                            <p className="text-red-500 font-bold 2xl:block hidden xl:block">
                             {daysRemaining === 1
                                 ? "Votre abonnement expire demain !"
                                 : `Votre abonnement expirera dans ${daysRemaining} jours !`
                             }
                             </p>
-                            <p className="text-gray-500">À l'expiration définitive de votre abonnement, certaines fonctionalités seront désactivées ! Veuillez-vous réabonnez pour continuer la gestion de votre salle.</p>
+                            <p className="text-gray-500 2xl:block hidden">À l'expiration définitive de votre abonnement, certaines fonctionalités seront désactivées ! Veuillez-vous réabonnez pour continuer la gestion de votre salle.</p>
                             <motion.button
                                 type="button"
                                 onClick={handleModalReab}
                                 whileTap={{scale:0.95}}
-                                className="border hover:bg-transparent hover:text-black transition-colors duration-200 p-2 bg-blue-500 text-white font-bold border-blue-500 rounded-lg"
+                                className="2xl:border xl:border 2xl:hover:bg-transparent xl:hover:bg-transparent hover:text-black transition-colors duration-200 p-2 2xl:bg-blue-500 xl:bg-blue-500 2xl:text-white xl:text-white text-blue-600 font-bold 2xl:border-blue-500 xl:border-blue-500 rounded-lg"
                             >
-                                Me Réabonner
+                                <p className="hidden 2xl:block xl:block md:block">Me Réabonner</p>
+                                <CreditCard className="2xl:hidden xl:hidden md:hidden h-5 w-5"/>
                             </motion.button>
 
 
@@ -1094,14 +1139,13 @@ export default function DashboardStandard(){
 
                 </motion.div>
 
-            {/* {'A gerer en fonction de la date de labonnement'} */}
                 <div className="absolute mx-5 py-3 px-5 transition-colors duration-200 bottom-5 mx-auto w-full flex flex-col gap-2">
 
                     <motion.button
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
                         disabled={misNiveauLoading || daysRemaining < 0}
-                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'}  shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
+                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'} 2xl:block xl:block md:block hidden shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
                         onClick={handleNiveau}
                     >
                         {misNiveauLoading ? (
@@ -1113,9 +1157,32 @@ export default function DashboardStandard(){
                     <motion.button
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
-                        className="bg-red-700 shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3"
+                        disabled={misNiveauLoading || daysRemaining < 0}
+                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'}  shadow-lg 2xl:hidden xl:hidden md:hidden block w-full text-white font-bold rounded-lg p-2`}
+                        onClick={handleNiveau}
+                    >
+                        {misNiveauLoading ? (
+                            <Loader2 className="animate-spin text-white"/>
+                        ):(
+                            <RefreshCcw className="h-5 w-5" />
+                        )}
+                    </motion.button>
+
+                    <motion.button
+                        whileHover={{scale: 1.03}}
+                        whileTap={{scale: 0.95}}
+                        className="bg-red-700 shadow-lg  2xl:block xl:block md:block hidden w-full text-white font-bold rounded-lg px-5 py-3"
                         onClick={logoutModal}
                     >Se Déconnecter</motion.button>
+                    
+                    <motion.button
+                        whileHover={{scale: 1.03}}
+                        whileTap={{scale: 0.95}}
+                        className="bg-red-700 shadow-lg 2xl:hidden xl:hidden md:hidden block w-full text-white font-bold rounded-lg p-2"
+                        onClick={logoutModal}
+                    >
+                        <LogOut className="h-5 w-5" />
+                    </motion.button>
                 </div>
 
             </div>
@@ -1124,13 +1191,13 @@ export default function DashboardStandard(){
             {activeTab === 'dashboard' && (
                 <div className="col-span-4 px-8 py-3 my-5 ">
 
-                    <div className="flex items-center mb-10 justify-between border-b-1 pb-5 border-gray-200">
-                        <div className="flex flex-col gap-2 text-lg">
-                            <div className="flex items-center gap-5">
+                    <div className="flex flex-col gap-2 2xl:items-center 2xl:flex-row 2xl:justify-between xl:items-center xl:flex-row xl:justify-between md:items-center md:flex-row md:justify-between 2xl:mb-10 xl:mb-10 mb-5 border-b-1 pb-5 border-gray-200">
+                        <div className="flex flex-col gap-2 2xl:text-lg xl:text-lg md:text-base text-xs">
+                            <div className="flex flex-col 2xl:items-center 2xl:flex-row xl:flex-row xl:items-center md:items-center md:flex-row 2xl:gap-5 xl:gap-5 md:gap-5 gap-2">
                                 <h1 className="font-bold text-3xl">Tableau de Bord</h1>
                                 {daysRemaining < 0 && (
-                                    <div className="flex items-center gap-1 bg-red-100 px-4 rounded-full py-1">
-                                        <AlertTriangle className="text-red-500" />
+                                    <div className="flex items-center gap-1 bg-red-100 2xl:px-4 xl:px-4 md:px-4 px-1 2xl:rounded-full xl:rounded-full py-1">
+                                        <AlertTriangle className="text-red-500 hidden 2xl:block" />
                                         <p className="text-red-500 font-bold">
                                         {daysRemaining === 0
                                             ? "Votre abonnement expire aujourd'hui !"
@@ -1141,9 +1208,9 @@ export default function DashboardStandard(){
                                     )}
 
                                 {0 < daysRemaining && daysRemaining <= 7 &&(
-                                    <div className="flex items-center gap-1 bg-red-100 px-4 animate-pulse rounded-full py-1">
-                                        <AlertTriangle className="text-red-500" />
-                                        <p className="text-red-500 font-bold">
+                                    <div className="flex items-center gap-1 bg-red-100 2xl:px-4 xl:px-4 md:px-4 px-1 2xl:rounded-full xl:rounded-full animate-pulse py-1">
+                                        <AlertTriangle className="text-red-500 hidden 2xl:block" />
+                                        <p className="text-red-500 font-bold ">
                                         {daysRemaining === 1
                                             ? "Votre abonnement expire demain !"
                                             : `Votre abonnement expirera dans ${daysRemaining} jours !`
@@ -1162,14 +1229,14 @@ export default function DashboardStandard(){
                                 <input type="text" value={search}
                                     onChange={(e)=>{setSearch(e.target.value)}}
                                     placeholder="Rechercher adherant..."
-                                    className="block w-full mx-2 p-2 pl-10 border border-orange-500 rounded-lg text-sm focus:outline-none bg-white"
+                                    className="block w-full 2xl:mx-2 xl:mx-2 md:mx-2 p-2 pl-10 border border-orange-500 rounded-lg text-sm focus:outline-none bg-white"
                                 />
                                 <div className="absolute top-2 left-4">
                                     <Search className="h-5 w-5 text-orange-500"/>
                                 </div>
                             </div>
 
-                            <div className="rounded-full h-10 w-13 border bg-orange-500 border-orange-500 flex items-center justify-center ">
+                            <div className="rounded-full 2xl:block xl:block md:block hidden h-10 w-13 border bg-orange-500 border-orange-500 flex items-center justify-center ">
                                 {infosSalle?.logo_salle ? (
                                     <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                                 ):(
@@ -1180,8 +1247,8 @@ export default function DashboardStandard(){
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-8 p-1 ">
-                        <div className="col-span-4 p-3  h-40 flex justify-between gap-4 ">
+                    <div className="grid grid-cols-4 gap-8 p-1 2xl:overflow-hidden xl:overflow-hidden overflow-y-auto h-112 md:h-250 2xl:h-auto xl:h-auto">
+                        <div className=" col-span-4 p-3 2xl:overflow-hidden xl:overflow-hidden overflow-y-auto scrollbar-hide 2xl:h-40 xl:h-40 md:h-150 h-80 flex flex-col 2xl:justify-between xl:justify-between 2xl:flex-row xl:flex-row gap-4 ">
                             <motion.div
                                 className={`flex-col w-full relative  ${loadingNbrAdherant ? '' : 'border-1 border-orange-500 shadow-[0_0_12px_rgba(255,100,0,1)]'} bg-white rounded-xl items-center px-5 py-6`}
                                 whileHover={{scale: 1.05}}
@@ -1334,7 +1401,7 @@ export default function DashboardStandard(){
                         </div>
 
 
-                        <div className="bg-white h-40 col-span-4 sticky top-0 overflow-hidden shadow-lg rounded-xl px-5 py-3 ">
+                        <div className="bg-white h-40 col-span-4 2xl:sticky xl:sticky 2xl:top-0 xl:top-0 overflow-hidden shadow-lg rounded-xl px-5 py-3 ">
                             <p className="font-bold text-xl mb-5">Accès Rapide</p>
                             <div className="grid grid-cols-2 gap-5 ">
 
@@ -1347,8 +1414,8 @@ export default function DashboardStandard(){
                                 onClick={() =>
                                     setView(view === "access-adherant" ? "part-dashboard" : "access-adherant")
                                 }
-                                className={`transition-colors duration-200 hover:bg-orange-500 font-bold text-sm ${view === "access-adherant" ? 'bg-orange-500 text-white' : 'bg-orange-100 text-black'} flex items-center rounded-xl justify-center py-4 gap-2`}>
-                                    <UserPlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-adherant" ? 'text-white' : 'text-black'}`}/>
+                                className={`transition-colors duration-200 hover:bg-orange-500 font-bold 2xl:text-sm xl:text-sm md:text-sm text-xs ${view === "access-adherant" ? 'bg-orange-500 text-white' : 'bg-orange-100 text-black'} flex items-center rounded-xl justify-center py-4 gap-2`}>
+                                    <UserPlus className={`h-5 w-5 2xl:block xl:block md:block hidden transition-colors duration-200 ${view === "access-adherant" ? 'text-white' : 'text-black'}`}/>
 
                                     Nouvel Adhérant
                                 </motion.button>
@@ -1361,8 +1428,8 @@ export default function DashboardStandard(){
                                 onClick={() =>
                                     setView(view === "access-abonnement" ? "part-dashboard" : "access-abonnement")
                                 }
-                                className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-abonnement" ? 'bg-orange-500 text-white' : 'bg-orange-100 text-black'} font-bold text-sm flex items-center rounded-xl justify-center py-4 gap-2`}>
-                                    <SquarePlus className={`h-5 w-5  transition-colors duration-200 ${view === "access-abonnement" ? 'text-white' : 'text-black'}`}/>
+                                className={`transition-colors duration-200 hover:bg-orange-500 ${view === "access-abonnement" ? 'bg-orange-500 text-white' : 'bg-orange-100 text-black'} font-bold 2xl:text-sm xl:text-sm md:text-sm text-xs flex items-center rounded-xl justify-center py-4 gap-2`}>
+                                    <SquarePlus className={`h-5 w-5 2xl:block xl:block md:block hidden transition-colors duration-200 ${view === "access-abonnement" ? 'text-white' : 'text-black'}`}/>
                                     Voir tous les abonnements
                                 </motion.button>
 
@@ -1372,121 +1439,232 @@ export default function DashboardStandard(){
 
                         {view === "part-dashboard" && (
                             <div className="col-span-4">
-                                <div className="grid grid-cols-2 gap-5">
-                                    <div className="bg-white shadow-lg rounded-xl p-4">
+                                <div className="2xl:grid grid-cols-2 xl:grid grid-cols-2 gap-5">
+                                    <div className="bg-white shadow-lg rounded-xl 2xl:mb-0 xl:mb-0 mb-5 p-4">
                                         <span className="text-red-600 font-bold text-xl" >Abonnements Récemment Expirés</span>
-                                    <div className=" overflow-y-auto scrollbar-hide h-95">
-                                        <div className="flex flex-col gap-1 text-sm">
-                                            {loadingAbExpirer ? (
-                                                [1,2,3,4,5,6].map(item => (
-                                                    <div key={item} className="p-2 flex items-center justify-between w-full">
-                                                        <div className="flex items-center gap-2 w-full">
-                                                            <div className="h-10 w-10 rounded-full bg-gray-300 animate-pulse">
-                                                                
+                                        <div className=" overflow-y-auto scrollbar-hide 2xl:h-95 h-95 xl:h-30">
+                                            <div className="flex flex-col gap-1 text-sm">
+                                                {loadingAbExpirer ? (
+                                                    [1,2,3,4,5,6].map(item => (
+                                                        <div key={item} className="p-2 flex items-center justify-between w-full">
+                                                            <div className="flex items-center gap-2 w-full">
+                                                                <div className="h-10 w-10 rounded-full bg-gray-300 animate-pulse">
+                                                                    
+                                                                </div>
+                                                                <div className="bg-gray-300 animate-pulse h-5 w-50"></div>
                                                             </div>
-                                                            <div className="bg-gray-300 animate-pulse h-5 w-50"></div>
+                                                            <div className="bg-gray-300 h-5 w-30 animate-pulse"></div>
                                                         </div>
-                                                        <div className="bg-gray-300 h-5 w-30 animate-pulse"></div>
+                                                    ))
+                                                ):listExpirer.length === 0 ? (
+                                                    <div className="flex text-base w-full h-95 items-center justify-center">
+                                                        <span className="text-gray-400">Aucun abonnement Expiré</span>
                                                     </div>
-                                                ))
-                                            ):listExpirer.length === 0 ? (
-                                                <div className="flex text-base w-full h-95 items-center justify-center">
-                                                    <span className="text-gray-400">Aucun abonnement Expiré</span>
-                                                </div>
-                                            ):listExpirer.map(item => (
-                                                <div className="p-2 flex items-center justify-between w-full">
-                                                    <div key={item.id} className="flex items-center gap-2">
-                                                        <div className="flex bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2">
-                                                            <User className="h-5 w-5" />
+                                                ):listExpirer.map(item => (
+                                                    <div className="p-2 flex items-center justify-between w-full">
+                                                        <div key={item.id} className="flex items-center gap-2">
+                                                            <div className="flex hidden 2xl:block xl:block md:block bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2">
+                                                                <User className="h-5 w-5" />
+                                                            </div>
+                                                            <div className="">
+                                                                <p className="font-bold">{`${item.name} ${item.prenom}` || item.username}</p>
+                                                            </div>
                                                         </div>
-                                                        <div className="">
-                                                            <p className="font-bold">{`${item.name} ${item.prenom}` || item.username}</p>
+                                                        <div>
+                                                                <p className="text-xs text-gray-400 font-bold hidden 2xl:block xl:block md:block">Expiré le : {formatDate(item.created_at)}</p>
+                                                                <p className="text-xs text-gray-400 font-bold 2xl:hidden xl:hidden md:hidden block">{formatDate(item.created_at)}</p>
                                                         </div>
                                                     </div>
-                                                    <div>
-                                                            <p className="text-xs text-gray-400 font-bold">Expiré le : {formatDate(item.created_at)}</p>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                ))}
 
-                                            {errorAbExpirer && (
-                                                <div className="flex text-base w-full h-95 items-center justify-center">
-                                                    <span className="text-red-500">Erreur de récupération de données</span>
-                                                </div>
-                                            )}
-                                        
+                                                {errorAbExpirer && (
+                                                    <div className="flex text-base w-full h-95 items-center justify-center">
+                                                        <span className="text-red-500">Erreur de récupération de données</span>
+                                                    </div>
+                                                )}
+                                            
+                                            </div>
                                         </div>
-                                    </div>
                                     </div>
 
                                     <div className="bg-white shadow-lg rounded-xl p-4 ">
                                         <p className="text-yellow-600 font-bold text-xl">Renouvellement à venir <span className="text-sm">(expire bientôt)</span></p>
-                                    <div className="overflow-y-auto scrollbar-hide h-95">
+                                        <div className="overflow-y-auto scrollbar-hide 2xl:h-95 h-95 xl:h-30">
 
 
-                                            <table  className=" w-full text-left mt-3" style={{ borderCollapse: "collapse" }}>
-                                                <thead className="">
-                                                    <tr className="bg-yellow-600">
-                                                        <th className="p-2 border-b border-gray-400">Adhérant</th>
-                                                        <th className="p-2 border-b border-gray-400">Type</th>
-                                                        <th className="p-2 border-b border-gray-400">Expire le</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody >
+                                                <table  className=" w-full text-sm 2 xl:text-base md:text-base text-left mt-3" style={{ borderCollapse: "collapse" }}>
+                                                    <thead className="">
+                                                        <tr className="bg-yellow-600">
+                                                            <th className="p-2 border-b border-gray-400">Adhérant</th>
+                                                            <th className="p-2 border-b border-gray-400">Type</th>
+                                                            <th className="p-2 border-b border-gray-400">Expire le</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody >
 
-                                                    {loadingAbExpirer ? (
+                                                        {loadingAbExpirer ? (
+                                                            <tr className=" h-80">
+                                                                <td colSpan={3} className="py-6 text-center">
+                                                                    Chargement des données
+                                                                    <Loader2 className="mx-auto animate-spin" />
+                                                                </td>
+                                                            </tr>
+                                                        ): listExpireBiento.length === 0 ? (
+                                                            <tr>
+                                                                <td colSpan={3} className="py-6 h-80 text-gray-400 text-center">
+                                                                    Aucun renouvellement à venir
+                                                                </td>
+                                                            </tr>
+                                                        ):listExpireBiento.map(item => (
+                                                            <tr key={item.id} className=" ">
+
+                                                                <td className="p-2 border-b border-gray-400">{`${item.name} ${item.prenom}` || item?.username || 'N/A'}</td>
+                                                                {item?.abonnements?.map(a => (
+                                                                    <td key={a.id} className="p-2 border-b border-gray-400">{a?.plan || 'N/A'}</td>
+                                                                ))}
+
+                                                                {item?.abonnements?.map(a => (
+                                                                    <td key={a.id} className="p-2 border-b border-gray-400">{a?.fin || 'N/A'}</td>
+                                                                ))}
+
+                                                            </tr>
+                                                        ))}
+
+
+                                                        {errorExpire && (
                                                         <tr className=" h-80">
-                                                            <td colSpan={3} className="py-6 text-center">
-                                                                Chargement des données
-                                                                <Loader2 className="mx-auto animate-spin" />
+                                                            <td colSpan={3} className="py-6 text-center text-red-500">
+                                                                Erreur lors de la récuperation des données
                                                             </td>
                                                         </tr>
-                                                    ): listExpireBiento.length === 0 ? (
-                                                        <tr>
-                                                            <td colSpan={3} className="py-6 h-80 text-gray-400 text-center">
-                                                                Aucun renouvellement à venir
-                                                            </td>
-                                                        </tr>
-                                                    ):listExpireBiento.map(item => (
-                                                        <tr key={item.id} className=" ">
-
-                                                            <td className="p-2 border-b border-gray-400">{`${item.name} ${item.prenom}` || item?.username || 'N/A'}</td>
-                                                            {item?.abonnements?.map(a => (
-                                                                <td key={a.id} className="p-2 border-b border-gray-400">{a?.plan || 'N/A'}</td>
-                                                            ))}
-
-                                                            {item?.abonnements?.map(a => (
-                                                                <td key={a.id} className="p-2 border-b border-gray-400">{a?.fin || 'N/A'}</td>
-                                                            ))}
-
-                                                        </tr>
-                                                    ))}
-
-
-                                                    {errorExpire && (
-                                                    <tr className=" h-80">
-                                                        <td colSpan={3} className="py-6 text-center text-red-500">
-                                                            Erreur lors de la récuperation des données
-                                                        </td>
-                                                    </tr>
-                                                    )}
-                                                    
+                                                        )}
                                                         
-                                                    
-                                                </tbody>
-                                            </table>
+                                                            
+                                                        
+                                                    </tbody>
+                                                </table>
 
-                                    </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
+                            // <div className="col-span-4">
+                            //     <div className="grid grid-cols-2 gap-5">
+                            //         <div className="bg-white shadow-lg rounded-xl p-4">
+                            //             <span className="text-red-600 font-bold text-xl" >Abonnements Récemment Expirés</span>
+                            //         <div className=" overflow-y-auto scrollbar-hide h-95">
+                            //             <div className="flex flex-col gap-1 text-sm">
+                            //                 {loadingAbExpirer ? (
+                            //                     [1,2,3,4,5,6].map(item => (
+                            //                         <div key={item} className="p-2 flex items-center justify-between w-full">
+                            //                             <div className="flex items-center gap-2 w-full">
+                            //                                 <div className="h-10 w-10 rounded-full bg-gray-300 animate-pulse">
+                                                                
+                            //                                 </div>
+                            //                                 <div className="bg-gray-300 animate-pulse h-5 w-50"></div>
+                            //                             </div>
+                            //                             <div className="bg-gray-300 h-5 w-30 animate-pulse"></div>
+                            //                         </div>
+                            //                     ))
+                            //                 ):listExpirer.length === 0 ? (
+                            //                     <div className="flex text-base w-full h-95 items-center justify-center">
+                            //                         <span className="text-gray-400">Aucun abonnement Expiré</span>
+                            //                     </div>
+                            //                 ):listExpirer.map(item => (
+                            //                     <div className="p-2 flex items-center justify-between w-full">
+                            //                         <div key={item.id} className="flex items-center gap-2">
+                            //                             <div className="flex bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2">
+                            //                                 <User className="h-5 w-5" />
+                            //                             </div>
+                            //                             <div className="">
+                            //                                 <p className="font-bold">{`${item.name} ${item.prenom}` || item.username}</p>
+                            //                             </div>
+                            //                         </div>
+                            //                         <div>
+                            //                                 <p className="text-xs text-gray-400 font-bold">Expiré le : {formatDate(item.created_at)}</p>
+                            //                         </div>
+                            //                     </div>
+                            //                 ))}
+
+                            //                 {errorAbExpirer && (
+                            //                     <div className="flex text-base w-full h-95 items-center justify-center">
+                            //                         <span className="text-red-500">Erreur de récupération de données</span>
+                            //                     </div>
+                            //                 )}
+                                        
+                            //             </div>
+                            //         </div>
+                            //         </div>
+
+                            //         <div className="bg-white shadow-lg rounded-xl p-4 ">
+                            //             <p className="text-yellow-600 font-bold text-xl">Renouvellement à venir <span className="text-sm">(expire bientôt)</span></p>
+                            //         <div className="overflow-y-auto scrollbar-hide h-95">
+
+
+                            //                 <table  className=" w-full text-left mt-3" style={{ borderCollapse: "collapse" }}>
+                            //                     <thead className="">
+                            //                         <tr className="bg-yellow-600">
+                            //                             <th className="p-2 border-b border-gray-400">Adhérant</th>
+                            //                             <th className="p-2 border-b border-gray-400">Type</th>
+                            //                             <th className="p-2 border-b border-gray-400">Expire le</th>
+                            //                         </tr>
+                            //                     </thead>
+                            //                     <tbody >
+
+                            //                         {loadingAbExpirer ? (
+                            //                             <tr className=" h-80">
+                            //                                 <td colSpan={3} className="py-6 text-center">
+                            //                                     Chargement des données
+                            //                                     <Loader2 className="mx-auto animate-spin" />
+                            //                                 </td>
+                            //                             </tr>
+                            //                         ): listExpireBiento.length === 0 ? (
+                            //                             <tr>
+                            //                                 <td colSpan={3} className="py-6 h-80 text-gray-400 text-center">
+                            //                                     Aucun renouvellement à venir
+                            //                                 </td>
+                            //                             </tr>
+                            //                         ):listExpireBiento.map(item => (
+                            //                             <tr key={item.id} className=" ">
+
+                            //                                 <td className="p-2 border-b border-gray-400">{`${item.name} ${item.prenom}` || item?.username || 'N/A'}</td>
+                            //                                 {item?.abonnements?.map(a => (
+                            //                                     <td key={a.id} className="p-2 border-b border-gray-400">{a?.plan || 'N/A'}</td>
+                            //                                 ))}
+
+                            //                                 {item?.abonnements?.map(a => (
+                            //                                     <td key={a.id} className="p-2 border-b border-gray-400">{a?.fin || 'N/A'}</td>
+                            //                                 ))}
+
+                            //                             </tr>
+                            //                         ))}
+
+
+                            //                         {errorExpire && (
+                            //                         <tr className=" h-80">
+                            //                             <td colSpan={3} className="py-6 text-center text-red-500">
+                            //                                 Erreur lors de la récuperation des données
+                            //                             </td>
+                            //                         </tr>
+                            //                         )}
+                                                    
+                                                        
+                                                    
+                            //                     </tbody>
+                            //                 </table>
+
+                            //         </div>
+                            //         </div>
+                            //     </div>
+                            // </div>
                         )}
 
                         {view === "access-adherant" && (
 
-                            <form onSubmit={handleAdd} className="col-span-4 overflow-y-auto scrollbar-hide h-110">
-                                <div className="grid grid-cols-4 gap-4 h-40">
-                                    <div className="col-span-2 border px-8 py-5 bg-white border-orange-500 rounded-lg shadow-lg ">
+                            <form onSubmit={handleAdd} className="col-span-4 overflow-y-auto scrollbar-hide xl:h-45 h-110 2xl:h-110">
+                                <div className="2xl:grid xl:grid md:grid 2xl:grid-cols-4 xl:grid-cols-4 md:grid-cols-4 gap-4  h-40">
+                                    <div className="col-span-2 border px-8 py-5 bg-white mb-4 2xl:mb-0 xl:mb-0 md:mb-0 border-orange-500 rounded-lg shadow-lg ">
                                         <div className="flex items-center gap-5 w-full">
                                             <div className="flex-col flex gap-2 mb-3 w-full">
                                                 <label className="font-bold">Nom <span className="text-red-600">*</span></label>
@@ -1600,7 +1778,7 @@ export default function DashboardStandard(){
 
                                     
 
-                                    <div className="flex items-center w-80 mx-auto  mt-5 col-span-4">
+                                    <div className="flex items-center 2xl:w-80 xl:w-80 md:w-80 mx-auto  mt-5 col-span-4">
                                         <motion.button
                                         whileTap={{scale: 0.95}}
                                         disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
@@ -1626,7 +1804,7 @@ export default function DashboardStandard(){
                         )}
 
                         {view === "access-abonnement" && (
-                            <div className="bg-white w-full rounded-lg  overflow-y-auto scrollbar-hide h-110 col-span-4">
+                            <div className="bg-white w-full rounded-lg  overflow-y-auto scrollbar-hide xl:h-45 h-110 2xl:h-110 col-span-4">
                                 <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
                                     <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
                                         <tr >
@@ -1712,8 +1890,8 @@ export default function DashboardStandard(){
                         <p className="text-gray-400 text-[18px]">Plan {planActuel} - {nbrAdherants}/200 adhérants</p>
                     </div>
 
-                    <div className="flex items-center justify-between my-8">
-                        <div className="flex items-center relative w-90">
+                    <div className="flex gap-4 2xl:flex-row xl:flex-row md:flex-row flex-col 2xl:items-center xl:items-center md:items-center 2xl:justify-between xl:justify-between md:justify-between my-8">
+                        <div className="flex items-center relative 2xl:w-90 xl:w-90 md:w-90">
                             <div className="absolute top-2">
                                 <Search className="h-5 w-5 text-orange-400 ml-2"/>
                             </div>
@@ -1736,9 +1914,9 @@ export default function DashboardStandard(){
                     </div>
 
                     {/* A revoir avec les vraies donnees */}
-                    <div className={`grid grid-cols-4 bg-white relative h-190 overflow-y-auto scrollbar-hide p-1 `}>
+                    <div className={`grid grid-cols-4 bg-white relative 2xl:h-190 xl:h-135 md:h-230 h-85 overflow-y-auto scrollbar-hide p-1 `}>
                         <div className="col-span-4 bg-white mb-10 rounded-lg ">
-                            <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                            <table className=" w-full text-center " style={{ borderCollapse: "collapse" }}>
                                 <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
                                     <tr >
                                         <th className=" p-3 text-left">Nom complet</th>
@@ -1759,15 +1937,15 @@ export default function DashboardStandard(){
                                         ))
                                     ): adherentsFiltres.length === 0 ? (
                                         <tr>
-                                            <td colSpan={7} className="py-6 text-center text-sm text-gray-500">
+                                            <td colSpan={7} className="py-6 text-center text-xs 2xl:text-sm xl:text-sm md:text-sm text-gray-500">
                                                 {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Pas encore d'adhérents inscrits"}
                                             </td>
                                         </tr>
                                     ): adherentsFiltres.map(item => (
-                                        <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                        <tr key={item.id} className="text-xs 2xl:text-sm xl:text-sm md:text-sm p-2 border-b border-gray-200">
 
                                             <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                            <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
+                                            <span className="rounded-full hidden 2xl:block xl:block md:block bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
                                             {`${item.name} ${item.prenom}` || item.username }
 
                                             </td>
@@ -1795,7 +1973,7 @@ export default function DashboardStandard(){
                                                 onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}}
                                                     whileTap={{scale: 0.95}}
                                                 className={`border  ${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
-                                                    <Pencil className="text-white h-4 w-4"/>
+                                                    <Pencil className="text-white h-3 w-3 2xl:h-4 2xl:w-4 xl:h-4 xl:w-4 md:h-4 md:w-4"/>
                                                 </motion.button>
                                                 <motion.button
                                                     type="button"
@@ -1804,7 +1982,7 @@ export default function DashboardStandard(){
                                                     whileTap={{scale: 0.95}}
                                                     className={`border  border-red-100 ${daysRemaining < 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
                                                 >
-                                                    <Trash className="h-4 w-4 text-white" />
+                                                    <Trash className="h-3 w-3 2xl:h-4 2xl:w-4 xl:h-4 xl:w-4 md:h-4 md:w-4 text-white" />
                                                 </motion.button>
                                             </td>
                                         </tr>
@@ -1812,10 +1990,10 @@ export default function DashboardStandard(){
 
                                     {errorAdh && (
                                         <tr className="">
-                                            <td colSpan={7} className="py-6 h-170 text-center  text-red-600">
+                                            <td colSpan={7} className=" 2xl:h-110 xl:h-100 md:h-200 h-85 text-center  text-red-600">
                                                 <p className="flex items-center justify-center gap-2 ">
                                                 <XCircle className="animate-spin text-red-600" />
-                                                {mesAdh.error.message}
+                                                {/* {mesAdh.error.message} */}Une erreur est survenue
                                                 </p>
                                             </td>
                                         </tr>
@@ -1826,14 +2004,14 @@ export default function DashboardStandard(){
 
                             </table>
                             {successAdh  && (
-                                <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} absolute -bottom-17 w-full py-3 px-10 bg-white items-center justify-between`}>
+                                <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} absolute 2xl:-bottom-17 xl:-bottom-75 md:-bottom-0 w-full py-3 2xl:px-10 xl:px-5 bg-white items-center justify-between`}>
                                     <div>
-                                        <div className="text-sm text-gray-400">
+                                        <div className="text-xs 2xl:text-sm xl:text-sm md:text-sm text-gray-400">
                                             Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
                                         </div>
                                     </div>
 
-                                    <div className="flex text-sm items-center gap-2">
+                                    <div className="flex text-xs 2xl:text-sm xl:text-sm md:text-sm items-center gap-2">
                                         <motion.button
                                         disabled={page === 1}
                                         onClick={()=>{setPage(p => p - 1)}}
@@ -1862,13 +2040,13 @@ export default function DashboardStandard(){
                     <div className="flex flex-col gap-2">
                         <h1 className="font-bold text-3xl flex items-center">
                             Gestion Abonnements :
-                            <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalAbExpirer > 9 ? totalAbExpirer : `0${totalAbExpirer}`} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
+                            <span className="text-red-600 hidden 2xl:block xl:block md:block bg-red-100 text-sm py-1 px-3 rounded-full mx-3">{totalAbExpirer > 9 ? totalAbExpirer : `0${totalAbExpirer}`} expiré{totalAbExpirer > 1 ? 's' : ''}</span>
                         </h1>
                         <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
                     </div>
 
-                    <div className="flex items-center justify-between my-8">
-                        <div className="flex items-center relative w-90">
+                    <div className="flex 2xl:flex-row xl:flex-row flex-col 2xl:items-center xl:items-center 2xl:justify-between xl:justify-between gap-4 2xl:my-8 xl:my-8 my-5">
+                        <div className="flex items-center relative 2xl:w-90 xl:w-90 md:w-90 w-60">
                             <div className="absolute top-2">
                                 <Search className="h-5 w-5 text-orange-400 ml-2"/>
                             </div>
@@ -1910,9 +2088,9 @@ export default function DashboardStandard(){
                     </div>
 
                     {/* A revoir avec les vraies donnees */}
-                    <div className={`grid grid-cols-4 bg-white relative h-190 overflow-y-auto scrollbar-hide p-1 `}>
+                    <div className={`grid grid-cols-4 bg-white relative 2xl:h-190 xl:h-135 md:h-235 h-92 overflow-y-auto scrollbar-hide p-1 `}>
                     <div className="col-span-4 bg-white mb-10  rounded-lg ">
-                        <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                        <table className=" w-full text-center " style={{ borderCollapse: "collapse" }}>
                             <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
                                 <tr >
                                     <th className=" p-3 text-left">Nom de l'adhérant</th>
@@ -1938,10 +2116,10 @@ export default function DashboardStandard(){
                                             </td>
                                         </tr>
                                     ): adherentsFiltres.map(item => (
-                                        <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                        <tr key={item.id} className="text-xs 2xl:text-sm xl:text-sm md:text-sm p-2 border-b border-gray-200">
 
                                             <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                            <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
+                                            <span className="rounded-full bg-gray-200 flex items-center p-2 hidden 2xl:block xl:block  md:block "><User className="h-4 w-4"/></span>
                                             {`${item.name} ${item.prenom}` || item.username }
 
                                             </td>
@@ -1982,7 +2160,7 @@ export default function DashboardStandard(){
                                             <td colSpan={5} className="py-6 h-170 text-center  text-red-600">
                                                 <p className="flex items-center justify-center gap-2 ">
                                                 <XCircle className="animate-spin text-red-600" />
-                                                {mesAdh.error.message}
+                                                Une erreur est survenue
                                                 </p>
                                             </td>
                                         </tr>
@@ -1995,14 +2173,14 @@ export default function DashboardStandard(){
                         </table>
                     </div>
                         {successAdh && (
-                            <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} absolute -bottom-17 w-full py-3 px-10 bg-white items-center justify-between`}>
+                            <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} absolute 2xl:-bottom-17 xl:-bottom-80 md:-bottom-0 -bottom-162  w-full py-3 2xl:px-10 xl:px-10 md:px-10 px-2 bg-white items-center justify-between`}>
                                 <div>
-                                    <div className="text-sm text-gray-400">
+                                    <div className="text-xs 2xl:text-sm xl:text-sm md:text-sm text-gray-400">
                                         Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
                                     </div>
                                 </div>
 
-                                <div className="flex text-sm items-center gap-2">
+                                <div className="flex text-xs 2xl:text-sm xl:text-sm md:text-sm items-center gap-2">
                                     <motion.button
                                     disabled={page === 1}
                                     onClick={()=>{setPage(p => p - 1)}}
@@ -2032,81 +2210,81 @@ export default function DashboardStandard(){
                         <p className="text-gray-400 text-[18px]">Gérez vos informations de façon générale.</p>
                     </div>
 
-                    <div className="flex items-center justify-start gap-5 my-2">
+                    <div className="flex items-center justify-start gap-5 my-2 overflow-x-auto scrollbar-hide">
                         <button 
                             onClick={()=>{setParamstab('salle')}}
-                            className={`border-b rounded-lg p-2 ${paramsTab === 'salle' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'salle' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer text-sm 2xl:text-base xl:text-base md:text-base  font-bold transition-all duration-200`}
                         >Informations de la salle</button>
                         <button 
                             onClick={()=>{setParamstab('perso')}}
-                            className={`border-b rounded-lg p-2 ${paramsTab === 'perso' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'perso' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer text-sm 2xl:text-base xl:text-base md:text-base font-bold transition-all duration-200`}
                         >Informations personnelles</button>
                         <button 
                             onClick={()=>{setParamstab('visuel')}}
-                            className={`border-b rounded-lg p-2 ${paramsTab === 'visuel' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'visuel' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer text-sm 2xl:text-base xl:text-base md:text-base font-bold transition-all duration-200`}
                         >Identité visuelle</button>
                         <button 
                             onClick={()=>{setParamstab('tarif')}}
-                            className={`border-b rounded-lg p-2 ${paramsTab === 'tarif' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
-                        >Gérer vos tarifs</button>
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'tarif' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer text-sm 2xl:text-base xl:text-base md:text-base font-bold transition-all duration-200`}
+                        >Vos tarifs</button>
                         <button 
                             onClick={()=>{setHistoryP(!historyP)}}
-                            className={`border-b rounded-lg p-2 ${historyP ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 ${historyP ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  hidden 2xl:block xl:block text-sm 2xl:text-base xl:text-base md:text-base font-bold transition-all duration-200`}
                         >Historique de connexion</button>
                         <button 
                             onClick={()=>{setParamstab('support')}}
-                            className={`border-b rounded-lg p-2 ${paramsTab === 'support' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 ${paramsTab === 'support' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer text-sm 2xl:text-base xl:text-base md:text-base font-bold transition-all duration-200`}
                         >Support GymPlus</button>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-2 ">
+                    <div className="grid grid-cols-4 gap-2 2xl:h-210 xl:h-137 md:h-auto h-105 xl:overflow-y-auto overflow-y-auto scrollbar-hide 2xl:overflow-hidden md:overflow-hidden">
                         {paramsTab === 'salle' && (
                             <>
-                                <div className="flex col-span-2 mt-15 p-4">
-                                        <div className="text-gray-500 flex flex-col gap-8">
+                                <div className="flex col-span-2 2xl:block xl:block md:block  hidden 2xl:mt-15 mt-5 p-4">
+                                    <div className="text-gray-500 flex  flex-col gap-8">
+                                        <p className="hidden 2xl:block xl:block md:block">
+                                            Les informations ci-contre correspondent aux détails principaux de votre salle.
+                                            Merci de vérifier qu’elles sont correctes et à jour :
+                                        </p>
+
+                                        <div className="flex hidden 2xl:block xl:block md:block flex-col gap-2">
                                             <p>
-                                                Les informations ci-contre correspondent aux détails principaux de votre salle.
-                                                Merci de vérifier qu’elles sont correctes et à jour :
+                                            <span className="font-bold">Nom de la salle :</span> Nom officiel de votre établissement.
                                             </p>
-
-                                            <div className="flex flex-col gap-2">
-                                                <p>
-                                                <span className="font-bold">Nom de la salle :</span> Nom officiel de votre établissement.
-                                                </p>
-                                                <p>
-                                                <span className="font-bold">Adresse :</span> Adresse complète permettant de localiser votre salle.
-                                                </p>
-                                                <p>
-                                                <span className="font-bold">Pays :</span> Pays dans lequel votre salle est enregistrée.
-                                                </p>
-                                                <p>
-                                                <span className="font-bold">Région :</span> Région ou province de localisation.
-                                                </p>
-                                            </div>
-
                                             <p>
-                                            Ces informations sont utilisées pour l’identification, la gestion administrative et l’affichage public de votre salle sur la plateforme.
+                                            <span className="font-bold">Adresse :</span> Adresse complète permettant de localiser votre salle.
                                             </p>
-
-                                            <div className="flex flex-col gap-2">
-                                                <p>
-                                                <span className="font-bold">Date de création :</span> {formatDate(infosSalle.created_at)}
-                                                </p>
-                                                <p>
-                                                <span className="font-bold">Dernière mise à jour :</span> {formatDate(infosSalle.updated_at)}
-                                                </p>
-                                            </div>
-
-                                            <p className="text-red-500">
-                                            En cas d’erreur, veuillez procéder à la modification afin de garantir l’exactitude des données.
+                                            <p>
+                                            <span className="font-bold">Pays :</span> Pays dans lequel votre salle est enregistrée.
+                                            </p>
+                                            <p>
+                                            <span className="font-bold">Région :</span> Région ou province de localisation.
                                             </p>
                                         </div>
-                                        <div className="bg-gray-300 h-120 w-[2px]"></div>
+
+                                        <p className="hidden 2xl:block xl:block md:block">
+                                        Ces informations sont utilisées pour l’identification, la gestion administrative et l’affichage public de votre salle sur la plateforme.
+                                        </p>
+
+                                        <div className="flex flex-col hidden 2xl:block xl:block md:block gap-2">
+                                            <p>
+                                            <span className="font-bold">Date de création :</span> {formatDate(infosSalle.created_at)}
+                                            </p>
+                                            <p>
+                                            <span className="font-bold">Dernière mise à jour :</span> {formatDate(infosSalle.updated_at)}
+                                            </p>
+                                        </div>
+
+                                        <p className="text-red-500 hidden 2xl:block xl:block md:block">
+                                        En cas d’erreur, veuillez procéder à la modification afin de garantir l’exactitude des données.
+                                        </p>
+                                    </div>
+                                    {/* <div className="bg-gray-300 h-120 w-[2px] hidden 2xl:block xl:block md:block"></div> */}
                                 </div>
                                 
-                                <div className="col-span-2">
+                                <div className="2xl:col-span-2 xl:col-span-2 md:col-span-2 col-span-4">
                                     {infosLoading ? (
-                                        <div className=" p-4 mt-15 flex flex-col gap-5 animate-pulse">
+                                        <div className=" p-4 2xl:mt-15 mt-5 flex flex-col gap-5 animate-pulse">
 
                                             <div className="flex flex-col gap-2 my-3">
                                                 <div className="h-5 bg-gray-200 rounded w-1/6"></div>
@@ -2117,7 +2295,7 @@ export default function DashboardStandard(){
                                                 <div className="h-10 bg-gray-200 rounded-lg"></div>
                                             </div>
 
-                                            <div className="flex items-center justify-between gap-5">
+                                            <div className="flex 2xl:flex-row xl:flex-row  2xl:items-center xl:items-center 2xl:justify-between xl:justify-between flex-col 2xl:gap-5 xl:gap-5 gap-2">
                                                 <div className="flex flex-col gap-2 my-3 w-full">
                                                     <div className="h-5 bg-gray-200 rounded w-1/6"></div>
                                                     <div className="h-10 bg-gray-200 rounded-lg"></div>
@@ -2134,7 +2312,7 @@ export default function DashboardStandard(){
                                             </div>
                                         </div>
                                     ):(
-                                        <form onSubmit={UpdateInfos} className=" p-4 mt-15 flex flex-col gap-5 text-xl">
+                                        <form onSubmit={UpdateInfos} className="  2xl:mt-15 xl:mt-5 md:mt-5 flex flex-col 2xl:gap-5 xl:gap-5 md:gap-5 text-sm 2xl:text-xl xl:text-xl md:text-xl">
                                             
                                             <div className="flex flex-col gap-2 my-3">
                                                 <label className="text-gray-400 flex gap-1">Nom de la salle
@@ -2158,7 +2336,7 @@ export default function DashboardStandard(){
                                                 />
                                             </div>
 
-                                            <div className="flex items-center justify-between gap-5">
+                                            <div className="flex 2xl:flex-row xl:flex-row  2xl:items-center xl:items-center 2xl:justify-between xl:justify-between flex-col 2xl:gap-5 xl:gap-5 gap-2">
                                                 <div className="flex flex-col gap-2 my-3 w-full">
                                                     <label className="text-gray-400 flex gap-1">Pays
                                                         <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
@@ -2230,9 +2408,9 @@ export default function DashboardStandard(){
                                     )}
 
                                     {infoError && (
-                                        <div className=" p-4 mt-15 h-138 flex items-center gap-2 justify-center">
+                                        <div className=" p-4 2xl:h-138 xl:h-100 md:h-200 h-80 flex items-center gap-2 justify-center">
                                             <XCircle className="animate-spin text-red-600 h-5 w-5"/>
-                                            <p className="text-red-600">{infos.error.message}</p>
+                                            <p className="text-red-600 text-sm 2xl:text-base xl:text-base md:text-base">Une erreur est survenue</p>
                                         </div>
                                     )}
                                 </div>
@@ -2242,13 +2420,13 @@ export default function DashboardStandard(){
 
                         {paramsTab === 'visuel' && (
                             <>
-                                <div className="flex col-span-2 mt-15 p-4">
+                                <div className="flex col-span-2 2xl:mt-15 xl:mt-5 md:mt-5 hidden 2xl:block xl:block md:block p-4">
                                     <div className="text-gray-500 flex flex-col gap-8">
-                                        <p>
+                                        <p className="hidden 2xl:block xl:block md:block">
                                             Cette section vous permet de personnaliser l’image de votre salle et de renforcer votre professionnalisme.
                                         </p>
 
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col hidden 2xl:block xl:block md:block gap-2">
                                             <p>
                                             <span className="font-bold">Identité de votre salle :</span> Ajoutez des éléments visuels (logo, couleurs, bannière…) afin de représenter votre marque. Une identité visuelle claire permet de vous démarquer des autres salles et de renforcer votre crédibilité auprès de vos clients.
                                             </p>
@@ -2259,16 +2437,16 @@ export default function DashboardStandard(){
                                             
                                         </div>
 
-                                        <p>
+                                        <p className="hidden 2xl:block xl:block md:block">
                                             Ces éléments sont facultatifs, mais fortement recommandés pour valoriser votre image et inspirer confiance.
                                         </p>
                                     </div>
-                                    <div className="bg-gray-300 h-100 w-[2px]"></div>
+                                    {/* <div className="bg-gray-300 h-100 w-[2px]"></div> */}
                                 </div>
-                                <div className="col-span-2 flex items-center gap-5">
-                                    <div className="border border-gray-300 rounded-lg p-4">
-                                        <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
-                                        <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
+                                <div className="2xl:col-span-2 xl:col-span-2 md:col-span-2 col-span-4 2xl:mt-15 xl:mt-5 md:mt-5">
+                                    <div className="2xl:border xl:border md:border border-gray-300 rounded-lg p-4">
+                                        <p className="font-semibold text-xl hidden 2xl:block xl:block md:block ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
+                                        <p className="text-md mb-5 text-gray-400 hidden 2xl:block xl:block md:block">Démarquez-vous des autres grâce à votre identité visuelle</p>
                                         <form className="flex flex-col relative items-center gap-4">
 
 
@@ -2353,17 +2531,17 @@ export default function DashboardStandard(){
 
                                             {logoModal && (
                                                 <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
-                                                    <div className="flex items-center gap-2  animate-pulse">
-                                                        <AlertTriangle className="h-8 w-8 text-red-500" />
-                                                        <p className="font-semibold text-red-500">Cette action est irreversible !</p>
+                                                    <div className="flex  items-center  hidden 2xl:block xl:block md:block gap-2  animate-pulse">
+                                                        {/* <AlertTriangle className="h-8 w-8 text-red-500" /> */}
+                                                        <p className="font-semibold text-xs 2xl:text-base xl:text-base md:text-base text-red-500">Cette action est irreversible !</p>
 
                                                     </div>
-                                                    <p className="text-white font-semibold">Supprimer définitivement ?</p>
+                                                    <p className="text-white font-semibold text-xs 2xl:text-base xl:text-base md:text-base">Supprimer définitivement ?</p>
                                                     <div className="flex gap-5 items-center justify-center">
                                                         <motion.button
                                                         type="button"
                                                             whileTap={{scale : 0.95}}
-                                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
+                                                            className="text-xs 2xl:text-sm xl:text-sm md:text-sm py-1 px-5 my-3 hover:bg-transparent border-gray-400 hover:text-white border transition-colors duration-200 bg-gray-400 font-semibold"
                                                             onClick={()=>{setLogoModal(false)}}
                                                         >Non</motion.button>
                                                         <motion.button
@@ -2371,7 +2549,7 @@ export default function DashboardStandard(){
                                                             whileTap={{scale : 0.95}}
                                                             onClick={(e)=>{handlePostLogo(e, 'DELETE')}}
                                                             disabled={logoDelLoading}
-                                                            className="text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
+                                                            className="text-xs 2xl:text-sm xl:text-sm md:text-sm py-1 px-5 my-3 hover:bg-transparent border-red-500 border transition-colors duration-200 text-white bg-red-500 font-semibold"
                                                         >
                                                             {logoDelLoading ? <Loader2 className="animate-spin text-red-500 h-5 w-5"/> : 'Oui'}
                                                         </motion.button>
@@ -2387,13 +2565,13 @@ export default function DashboardStandard(){
 
                         {paramsTab === 'perso' && (
                             <>
-                                <div className="flex gap-2 col-span-2 mt-15 p-4">
+                                <div className="flex col-span-2 2xl:mt-15 xl:mt-5 md:mt-5 hidden 2xl:block xl:block md:block p-4">
                                         <div className="text-gray-500 flex flex-col gap-8">
-                                            <p>
+                                            <p className="hidden 2xl:block xl:block md:block ">
                                                 Les éléments ci-contre correspondent à vos informations personnelles associées à votre compte. Merci de vous assurer qu’elles sont exactes et régulièrement mises à jour :
                                             </p>
 
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex flex-col hidden 2xl:block xl:block md:block  gap-2">
                                                 <p>
                                                 <span className="font-bold">Prénom :</span> Votre prénom tel qu’utilisé pour l’identification sur la plateforme.
                                                 </p>
@@ -2415,17 +2593,17 @@ export default function DashboardStandard(){
                                             Ces informations sont confidentielles et contribuent à la sécurité ainsi qu’au bon fonctionnement de votre compte.
                                             </p>
 
-                                            <p className="text-red-500">
+                                            <p className="text-red-500 hidden 2xl:block xl:block md:block ">
                                             En cas de changement, veillez à les mettre à jour rapidement.
                                             </p>
                                         </div>
-                                        <div className="bg-gray-300 h-138 w-[2px]"></div>
+                                        {/* <div className="bg-gray-300 h-138 w-[2px]"></div> */}
                                 </div>
-                                <div className="col-span-2">
+                                <div className="2xl:col-span-2 xl:col-span-2 md:col-span-2 col-span-4">
                                     {infosLoading ? (
-                                        <div className="p-4 mt-15 flex flex-col gap-5 animate-pulse">
+                                        <div className="2xl:mt-15 xl:mt-5 md:mt-5 flex flex-col gap-5 animate-pulse">
 
-                                            <div className="flex items-center justify-between gap-5">
+                                            <div className="flex 2xl:flex-row xl:flex-row  2xl:items-center xl:items-center 2xl:justify-between xl:justify-between flex-col 2xl:gap-5 xl:gap-5 gap-2">
                                                 <div className="flex flex-col gap-2 my-3 w-full">
                                                     <div className="h-5 bg-gray-200 rounded w-1/6"></div>
                                                     <div className="h-10 bg-gray-200 rounded-lg"></div>
@@ -2457,9 +2635,9 @@ export default function DashboardStandard(){
                                             </div>
                                         </div>
                                     ):(
-                                        <form onSubmit={UpdatePerso} className=" p-4 mt-15 flex flex-col gap-5 text-xl">
+                                        <form onSubmit={UpdatePerso} className=" 2xl:mt-15 xl:mt-5 md:mt-5 flex flex-col 2xl:gap-5 xl:gap-5 md:gap-5 text-sm 2xl:text-xl xl:text-xl md:text-xl">
 
-                                            <div className="flex items-center justify-between gap-5">
+                                            <div className="flex 2xl:flex-row xl:flex-row  2xl:items-center xl:items-center 2xl:justify-between xl:justify-between flex-col 2xl:gap-5 xl:gap-5 gap-2">
                                                 <div className="flex flex-col gap-2 my-3 w-full">
                                                     <label className="text-gray-400 flex gap-1">Prénom
                                                         <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
@@ -2469,7 +2647,7 @@ export default function DashboardStandard(){
                                                         onChange={(e)=>{ setPrenomPerso(e.target.value),update_infos_perso.reset()}}
                                                         disabled={!showButtonProfil}
                                                         placeholder={!showButtonProfil ? infosUser.prenom : 'Entrez votre prénom'}
-                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                        className={`border w-full border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
                                                     />
                                                 </div>
 
@@ -2482,7 +2660,7 @@ export default function DashboardStandard(){
                                                         onChange={(e)=> {setNomPerso(e.target.value), update_infos_perso.reset()}}
                                                         disabled={!showButtonProfil}
                                                         placeholder={!showButtonProfil ? infosUser.name : 'Entrez votre nom'}
-                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                        className={`border w-full border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
                                                     />
                                                 </div>
                                             </div>
@@ -2508,7 +2686,7 @@ export default function DashboardStandard(){
                                                 />
                                             </div>
 
-                                            <div className="flex items-center gap-2" >
+                                            <div className="flex 2xl:flex-row 2xl:items-center flex-col gap-2" >
                                                 <motion.button
                                                 whileTap={{scale:0.95}}
                                                 type="button"
@@ -2520,12 +2698,12 @@ export default function DashboardStandard(){
                                                 </motion.button>
 
                                                 {showPasswordChange && (
-                                                    <div className={`flex items-center gap-2 my-3 ${passwordSuccess ? setShowPasswordChange(false) : 'block'}`}>
+                                                    <div className={`flex items-center gap-2 ${passwordSuccess ? setShowPasswordChange(false) : 'block'}`}>
                                                         <input type="password"
                                                             placeholder="nouveau mot de passe"
                                                             value={password}
                                                             onChange={(e)=>{setPassword(e.target.value), updatePassword.reset()}}
-                                                            className="border py-2 px-4 rounded-lg focus:outline-none"
+                                                            className="border w-full py-2 px-4 rounded-lg focus:outline-none"
                                                         />
                                                         <motion.button
                                                             type="submit"
@@ -2587,9 +2765,9 @@ export default function DashboardStandard(){
                                     )}
 
                                     {infoError && (
-                                        <div className=" p-4 mt-15 h-138 flex items-center gap-2 justify-center">
+                                        <div className=" p-4 2xl:h-138 xl:h-100 md:h-200 h-80 flex items-center gap-2 justify-center">
                                             <XCircle className="animate-spin text-red-600 h-5 w-5"/>
-                                            <p className="text-red-600">{infos.error.message}</p>
+                                            <p className="text-red-600 text-sm 2xl:text-base xl:text-base md:text-base">Une erreur est survenue</p>
                                         </div>
                                     )}
                                 </div>
@@ -2598,16 +2776,16 @@ export default function DashboardStandard(){
 
                         {paramsTab === 'tarif' && (
                             <>
-                                <div className="flex col-span-2 mt-15 p-4">
+                                <div className="flex col-span-2 2xl:mt-15 xl:mt-5 md:mt-5 hidden 2xl:block xl:block md:block p-4">
                                     <div className="text-gray-500 flex flex-col gap-8">
-                                        <p>
+                                        <p className="hidden 2xl:block xl:block md:block">
                                             Cette section vous permet de définir et personnaliser les formules tarifaires proposées par votre salle.
                                         </p>
-                                        <p>
+                                        <p className="hidden 2xl:block xl:block md:block">
                                             Vous pouvez configurer vos prix selon différentes périodes d’abonnement :
                                         </p>
 
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col gap-2 hidden 2xl:block xl:block md:block">
                                             <p>
                                             <span className="font-bold">Mensuel :</span> Tarif appliqué pour un abonnement d’un mois.
                                             </p>
@@ -2620,15 +2798,15 @@ export default function DashboardStandard(){
                                             
                                         </div>
 
-                                        <p>
+                                        <p className="hidden 2xl:block xl:block md:block">
                                             La personnalisation des tarifs vous permet d’adapter vos offres à votre stratégie commerciale et aux besoins de vos adhérents.
                                         </p>
                                     </div>
-                                    <div className="bg-gray-300 h-130 w-[2px]"></div>
+                                    {/* <div className="bg-gray-300 h-130 w-[2px]"></div> */}
                                 </div>
-                                <form onSubmit={sendTarif} className=" col-span-2 mt-15 text-xl">
+                                <form onSubmit={sendTarif} className=" 2xl:col-span-2 xl:col-span-2 md:col-span-2 col-span-4 2xl:mt-15 xl:mt-5 md:mt-5 text-sm 2xl:text-xl xl:text-xl md:text-xl">
 
-                                    <div className="flex items-center justify-end gap-2 mb-5">
+                                    <div className="flex items-center justify-end gap-2 mb-5 mt-5 xl:mt-0 md:mt-0 2xl:mt-0 ">
 
                                         <div className="flex items-center gap-2">
                                             <div>
@@ -2650,21 +2828,21 @@ export default function DashboardStandard(){
                                                             disabled={action === "PUT" ? loadingTarifUp : loadingTarifDel}
                                                             onClick={(e) =>{editMois && editAn && editTrim ? setShowModalTrash(true) : sendTarif(e, "PUT")}}
                                                             whileTap={{scale:0.95}}
-                                                            className={`px-5 py-3 flex item-center gap-2 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
+                                                            className={`px-1 2xl:px-5 xl:px-5 md:px-5 py-3 flex item-center gap-2 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
                                                         >
                                                             {editMois && editAn && editTrim ? (
                                                                 <>
                                                                 <span className="  text-white font-bold">Supprimer tous les enregistrements</span>
-                                                                <Trash className=" text-white"/>
+                                                                <Trash className=" text-white hidden 2xl:block xl:block"/>
                                                                 </>
                                                             ): loadingTarifUp 
                                                                 ? <>
                                                                     <span className="  text-green-600">En cours...</span>
-                                                                    <Loader2 className="text-green-600 animate-spin"/> 
+                                                                    <Loader2 className="text-green-600 hidden 2xl:block xl:block animate-spin"/> 
                                                                     </>
                                                                 : <>
                                                                     <span className="  text-green-600 font-bold">Enregister les modifications</span>
-                                                                    <CheckCircle2 className="text-green-600"/>
+                                                                    <CheckCircle2 className="text-green-600 hidden 2xl:block xl:block"/>
                                                                 </>
 
                                                             }
@@ -2698,9 +2876,9 @@ export default function DashboardStandard(){
                                             <div className="flex flex-col">
                                                 <div className="flex items-center justify-between">
                                                     <span className="font-bold">Mensuel</span>
-                                                    <hr className=" w-140 text-gray-400 "/>
+                                                    <hr className=" 2xl:w-140 xl:w-80 md:w-35 w-30 text-gray-400 "/>
 
-                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                    <Calendar1 className="text-gray-400 h-5 w-5 2xl:h-7 xl:h-7 md:h-7 2xl:w-7 xl:w-7 md:w-7"/>
                                                 </div>
                                                 {(!prix_mensuel && !showFormTarif) && (
                                                     <input
@@ -2732,7 +2910,7 @@ export default function DashboardStandard(){
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
-                                                                    {editMois ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                    {editMois ? <Edit className="h-4 w-4 2xl:h-5 xl:h-5 md:h-5 2xl:w-5 xl:w-5 md:w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
                                                                 </motion.button>
                                                             </div>
                                                         </>
@@ -2757,9 +2935,9 @@ export default function DashboardStandard(){
                                             <div className="flex flex-col">
                                                 <div className="flex items-center justify-between">
                                                     <span className="font-bold">Trimestriel</span>
-                                                    <hr className=" w-135 text-gray-400 "/>
+                                                    <hr className=" 2xl:w-135 xl:w-80 md:w-30 w-30 text-gray-400 "/>
 
-                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                    <Calendar1 className="text-gray-400 h-5 w-5 2xl:h-7 xl:h-7 md:h-7 2xl:w-7 xl:w-7 md:w-7"/>
                                                 </div>
                                                 {(!prix_trimestriel && !showFormTarif) && (
                                                     <input
@@ -2791,7 +2969,7 @@ export default function DashboardStandard(){
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
-                                                                    {editTrim ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                    {editTrim ? <Edit className="h-4 w-4 2xl:h-5 xl:h-5 md:h-5 2xl:w-5 xl:w-5 md:w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
                                                                 </motion.button>
                                                             </div>
                                                         </>
@@ -2816,9 +2994,9 @@ export default function DashboardStandard(){
                                             <div className="flex flex-col">
                                                 <div className="flex items-center justify-between">
                                                     <span className="font-bold">Annuel</span>
-                                                    <hr className=" w-144 text-gray-400 "/>
+                                                    <hr className=" 2xl:w-144 xl:w-80 md:w-35 w-35 text-gray-400 "/>
 
-                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                    <Calendar1 className="text-gray-400 h-5 w-5 2xl:h-7 xl:h-7 md:h-7 2xl:w-7 xl:w-7 md:w-7"/>
                                                 </div>
                                                 {(!prix_annuel && !showFormTarif) && (
                                                     <input
@@ -2850,7 +3028,7 @@ export default function DashboardStandard(){
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
-                                                                    {editAn ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                    {editAn ? <Edit className="h-4 w-4 2xl:h-5 xl:h-5 md:h-5 2xl:w-5 xl:w-5 md:w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
                                                                 </motion.button>
                                                             </div>
                                                         </>
@@ -2880,7 +3058,7 @@ export default function DashboardStandard(){
                                 initial={{opacity: 0, y:0}}
                                 animate={{ opacity: 1, y:5}}
                                 transition={{duration:0.4}}
-                                className="absolute z-20 top-34 right-110 bg-white shadow-lg border border-gray-300 rounded-lg px-4 py-1 overflow-y-auto h-100">
+                                className="absolute z-20 2xl:top-34 xl:top-40 2xl:right-110 xl:right-25 bg-white shadow-lg border border-gray-300 rounded-lg px-4 py-1 overflow-y-auto h-100">
                                 
                                 {historyLoading ? (
                                     <Loader2 className="animate-spin flex items-center justify-center"/>
@@ -2897,13 +3075,13 @@ export default function DashboardStandard(){
                         )}
 
                         {paramsTab === 'support' && (
-                            <div className="col-span-4 h-200 flex items-center justify-center">
+                            <div className="col-span-4 2xl:h-200 xl:h-135 md:h-200 flex items-center justify-center">
                                 <div className="flex relative flex-col items-center">
-                                    <div className="absolute z-10 inset-0 text-[75px] font-bold text-orange-500 opacity-40 flex items-center justify-center">
+                                    <div className="absolute z-10 inset-0 2xl:text-[75px] xl:text-[65px] md:text-[40px] font-bold text-orange-500 opacity-40 flex items-center justify-center">
                                         <p>gymplus2025.gym@gmail.com</p>
                                     </div>
-                                    <ImageComponent source={support} style={"w-200"} label={''} />
-                                    <p><span className="italic text-gray-500 text-xl">Service ouvert 24h/7j</span></p>
+                                    <ImageComponent source={support} style={"2xl:w-200 xl:w-120"} label={''} />
+                                    <p><span className="italic text-gray-500 2xl:text-xl xl:text-xl md:text-xl text-sm">Service ouvert 24h/7j</span></p>
                                 </div>
                             </div>
                         )}
@@ -2917,7 +3095,7 @@ export default function DashboardStandard(){
                      initial = {{opacity: 0, x: -80}}
                     animate = {{opacity: 1, x: 0}}
                     transition={{duration: 0.2}}
-                    className="bg-white shadow-[0_0_30px_rgba(0,255,0,0.5)] border border-green-500 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute bottom-22 left-5 w-84 h-12 ">
+                    className="bg-white shadow-[0_0_30px_rgba(0,255,0,0.5)] border border-green-500 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute 2xl:bottom-22 2xl:left-5 bottom-5 right-2  w-84 h-8 2xl:h-12 xl:h-12 md:h-12 ">
                     <p className="text-sm text-green-500 font-semibold">Mise à niveau réussie</p>
 
                 </motion.div>
@@ -2928,7 +3106,7 @@ export default function DashboardStandard(){
                       initial = {{opacity: 0, x: -80}}
                     animate = {{opacity: 1, x: 0}}
                     transition={{duration: 0.2}}
-                    className="bg-white shadow-[0_0_30px_rgba(255,0,0,0.5)] border border-red-500 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute bottom-22 left-5 w-84 h-12 ">
+                    className="bg-white shadow-[0_0_30px_rgba(255,0,0,0.5)] border border-red-500 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute 2xl:bottom-22 2xl:left-5 bottom-5 right-2  w-84 h-8 2xl:h-12 xl:h-12 md:h-12 ">
                     <p className="text-sm text-red-500 font-semibold">{misNiveau.error.message}</p>
 
                 </motion.div>
@@ -2960,18 +3138,18 @@ export default function DashboardStandard(){
                     </button>
 
                     <div className="my-5 font-bold text-3xl">Ajout d'adherant <br />
-                        <span className="text-gray-400 text-sm">Remplissez le formulaire ci-dessous pour enregistrer vos adhérants</span>
+                        <span className="text-gray-400 hidden 2xl:block xl:block md:block  text-sm">Remplissez le formulaire ci-dessous pour enregistrer vos adhérants</span>
                     </div>
 
-                    <div className="my-10">
+                    <div className="">
 
-                            <form onSubmit={handleAdd} className="grid grid-cols-4 gap-5 rounded-lg  px-8 py-5">
+                            <form onSubmit={handleAdd} className="grid grid-cols-4 gap-5 rounded-lg py-5">
 
-                                <div className="col-span-4 w-full flex gap-10 justify-between">
+                                <div className="col-span-4 w-full flex gap-10 2xl:flex-row xl:flex-row 2xl:justify-between xl:justify-between flex-col">
                                     {/* info perso */}
                                     <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
                                         <div className="flex items-center gap-2 text-xl font-bold mb-5">
-                                            <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                            <User className="h-10 hidden 2xl:block xl:block  md:block w-10 border rounded-full bg-orange-500 text-white p-2"/>
                                             Informations personnelles de l'adhérant
                                         </div>
                                         <div className="flex-col flex gap-2 mb-5">
@@ -3025,7 +3203,7 @@ export default function DashboardStandard(){
                                     {/* Aboonement */}
                                     <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
                                         <div className="flex items-center gap-2 text-xl font-bold mb-5">
-                                            <Plus className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                            <Plus className="h-10 hidden 2xl:block xl:block  md:block w-10 border rounded-full bg-orange-500 text-white p-2"/>
                                             Type d'abonnement
                                         </div>
 
@@ -3091,34 +3269,32 @@ export default function DashboardStandard(){
                                 </div>
 
 
-                               <div className="flex items-center justify-between h-30 w-full mt-15 col-span-4">
-                                    <div className="flex flex-col items-center col-span-4 w-full">
-                                        
+                               <div className="flex items-center justify-between h-30 w-full col-span-4">
+                                    
+                                    <div className="flex justify-between 2xl:justify-end xl:justify-end  md:justify-end  items-center gap-2 w-full">
+                                        <motion.button
+                                            onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
+                                            whileTap={{scale: 0.95}}
+                                            className='flex items-center justify-center cursor-pointer text-black/80 border rounded-lg bg-gray-300  border-gray-300 font-bold  text-sm 2xl:text-xl xl:text-xl md:text-xl py-3 px-5'
+
+                                        >
+                                            Annuler
+                                        </motion.button>
+
+                                        <motion.button
+                                            whileTap={{scale: 0.95}}
+                                            disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
+                                            className={`flex items-center justify-center  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-orange-200 text-gray-500 border-orange-200' : 'bg-orange-600 text-white cursor-pointer '} font-bold  text-sm 2xl:text-xl xl:text-xl md:text-xl py-3 px-5`}
+
+                                        >
+                                            {loadingAdherant ? (
+                                                <Loader2 className='h-5 w-5 text-white animate-spin'/>
+                                            ):(
+                                                'Enregistrer'
+                                            )}
+                                        </motion.button>
                                     </div>
-                                    <div className="flex justify-end items-center gap-2 w-full">
-                                    <motion.button
-                                        onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
-                                        whileTap={{scale: 0.95}}
-                                        className='flex items-center justify-center cursor-pointer text-black/80 border rounded-lg bg-gray-300  border-gray-300 font-bold  text-xl py-3 px-5'
-
-                                    >
-                                        Annuler
-                                    </motion.button>
-
-                                    <motion.button
-                                        whileTap={{scale: 0.95}}
-                                        disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
-                                        className={`flex items-center justify-center  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-orange-200 text-gray-500 border-orange-200' : 'bg-orange-600 text-white cursor-pointer '} font-bold  text-xl py-3 px-5`}
-
-                                    >
-                                        {loadingAdherant ? (
-                                            <Loader2 className='h-5 w-5 text-white animate-spin'/>
-                                        ):(
-                                            'Enregistrer'
-                                        )}
-                                    </motion.button>
                                 </div>
-                            </div>
 
                             </form>
 
@@ -3164,16 +3340,16 @@ export default function DashboardStandard(){
 
             {modalUpAdherant && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
-                    {/* <p>{adhToUp.name}</p> */}
+                    
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
                     >
-                    <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
+                    <form className=" bg-white mx-5 2xl:mx-0 xl:mx-0 md:mx-0 py-5 px-8 rounded-lg shadow-lg">
                         <div className="mb-10">
                             <div className="flex items-center gap-2 text-xl font-bold mb-5">
-                                <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                <User className="h-10 hidden 2xl:block xl:block md:block w-10 border rounded-full bg-orange-500 text-white p-2"/>
                                 Informations personnelles de l'adhérant
                             </div>
                             <div className="flex-col flex gap-2 mb-5">
@@ -3255,7 +3431,7 @@ export default function DashboardStandard(){
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
                     >
-                    <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
+                    <form className=" bg-white py-5 mx-5 2xl:mx-0 xl:mx-0 md:mx-0  px-8 rounded-lg shadow-lg">
                         <div className="mb-10">
                             <div className="flex items-center gap-2 text-xl font-bold mb-5">
                                 <WalletCards className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
@@ -3327,9 +3503,9 @@ export default function DashboardStandard(){
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
-                        className="bg-white relative px-8  h-130 w-220 py-5"
+                        className="bg-white relative px-8 h-130 2xl:w-220 xl:w-220 md:w-180 w-80 py-5"
                     >
-                        <div className="flex items-center justify-center">
+                        <div className="flex hidden 2xl:block xl:block  items-center justify-center">
                             {/* Etape */}
                             <div className="flex items-center justify-center">
                                 <div className="flex items-center  w-full" >
@@ -3417,7 +3593,7 @@ export default function DashboardStandard(){
                                 animate={{opacity:1, scale:1}}
                                 transition={{duration:0.4}}
                                 className="flex flex-col ">
-                                <div className=" flex items-center justify-between gap-8 my-8">
+                                <div className=" flex 2xl:flex-row xl:flex-row md:flex-row flex-col 2xl:items-center xl:items-center md:items-center 2xl:justify-between xl:justify-between md:justify-between gap-8 my-8">
                                     <div className="">
                                         <h3 className=" font-bold mb-2">Forfait actuel</h3>
                                         <motion.button
@@ -3459,10 +3635,10 @@ export default function DashboardStandard(){
 
                                 <div>
                                     {errorStep && (
-                                        <p className="text-red-600">{errorStep}</p>
+                                        <p className="text-red-600 text-xs 2xl:text-base xl:text-base md:text-base">{errorStep}</p>
                                     )}
                                     {desc === 'standard' && (
-                                        <>
+                                        <div className="hidden 2xl:block xl:block md:block">
                                         <h2 className="font-bold">Idéal pour les petites salles et les studios qui débutent.</h2>
                                         <p className="text-gray-500">
                                             Gérer jusqu'à 200 membres,
@@ -3473,11 +3649,11 @@ export default function DashboardStandard(){
                                             Alertes simples sur les abonnements expirés.
 
                                         </p>
-                                        </>
+                                        </div>
                                     )}
 
                                     {desc === 'pro' && (
-                                        <>
+                                        <div className="hidden 2xl:block xl:block md:block">
                                         <h2 className="font-bold">Pour les salles en croissance qui veulent plus d'outils.</h2>
                                         <p className="text-gray-500">
                                             Gérez jusqu'à 1000 membres,
@@ -3490,12 +3666,12 @@ export default function DashboardStandard(){
                                             Alertes avancées sur les abonnements expirés / bientôt expirés.
 
                                         </p>
-                                        </>
+                                        </div>
                                     )}
 
 
                                     {desc === 'premium' && (
-                                        <>
+                                        <div className="hidden 2xl:block xl:block md:block">
                                         <h2 className="font-bold">Pour les grandes salles et réseaux de gyms.</h2>
                                         <p className="text-gray-500">
                                             Membres illimités,
@@ -3507,7 +3683,7 @@ export default function DashboardStandard(){
                                             Support Prioritaire.
 
                                         </p>
-                                        </>
+                                        </div>
                                     )}
                                 </div>
                             </motion.div>
@@ -3523,7 +3699,7 @@ export default function DashboardStandard(){
                                 className=" relative bg-orange-50 my-7 px-5 pb-5 flex flex-col"
                             >
                                 <div className="my-5 flex items-center gap-2">
-                                    <p className="text-gray-500">Veuillez choisir votre moyen de paiement</p>
+                                    <p className="text-gray-500 text-sm 2xl:text-base xl:text-base md:text-base">Veuillez choisir votre moyen de paiement</p>
                                     {errorStep && (
                                         <p className="text-red-600 text-sm">{errorStep}</p>
                                     )}
@@ -3540,41 +3716,41 @@ export default function DashboardStandard(){
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}}
                                         onClick={()=>{setProvider('orange_bf')}}
-                                        className={`border p-1 h-30 w-70 bg-white ${provider === 'orange_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        className={`border p-1 2xl:h-30 xl:h-30 md:h-30 2xl:w-70 xl:w-70 md:w-70 h-10 w-30 bg-white ${provider === 'orange_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={orange} alt="orange-logo" className="h-full w-full" />
                                     </motion.button>
                                     <motion.button
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}}
                                         onClick={()=>{setProvider('moov_bf')}}
-                                        className={`border p-1 h-30 w-70 bg-white ${provider === 'moov_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        className={`border p-1 2xl:h-30 xl:h-30 md:h-30 2xl:w-70 xl:w-70 md:w-70 h-10 w-30 bg-white ${provider === 'moov_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={moov} alt="moov-logo" className="h-full w-full"/>
                                     </motion.button>
                                     <motion.button
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}}
                                         onClick={()=>{setProvider('corismoney_bf')}}
-                                        className={`border p-1 h-30 w-70 bg-white ${provider === 'corismoney_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        className={`border p-1 2xl:h-30 xl:h-30 md:h-30 2xl:w-70 xl:w-70 md:w-70 h-10 w-30 bg-white ${provider === 'corismoney_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={coris} alt="coris-logo" className="h-full w-full"/>
                                     </motion.button>
                                     <motion.button
                                         whileHover={{scale: 1.1}}
                                         whileTap={{scale: 0.95}}
                                         onClick={()=>{setProvider('sank_bf')}}
-                                        className={`border p-1 h-30 w-70 bg-white ${provider === 'sank_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        className={`border p-1 2xl:h-30 xl:h-30 md:h-30 2xl:w-70 xl:w-70 md:w-70 h-10 w-30 bg-white ${provider === 'sank_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
                                         <img src={sank} alt="sank-logo" className="h-full w-full"/>
                                     </motion.button>
                                 </div>
 
                                 <div className="flex flex-col gap-2">
                                     <label
-                                        className="text-gray-500 my-5"
+                                        className="text-gray-500 my-5 text-sm 2xl:text-base xl:text-base md:text-base"
                                     >Entrez votre numéro de telephone pour procéder au paiement</label>
                                     <input type="text"
                                         value={telReab}
                                         onChange={(e)=>{setTelReab(e.target.value)}}
                                         placeholder="Saisissez içi"
-                                        className="border-b border-gray-400 text-center p-1 rounded-lg text-xl px-3 focus:outline-none "
+                                        className="border-b border-gray-400 text-center p-1 rounded-lg text-sm 2xl:text-xl xl:text-xl md:text-xl px-3 focus:outline-none "
                                     />
                                 </div>
 
@@ -3611,13 +3787,13 @@ export default function DashboardStandard(){
                                         <p className="text-gray-600">sur votre téléphone pour obtenir le code OTP à entrez dans</p>
                                         <p className="text-gray-600">le champ ci-dessous pour valider le paiement</p>
                                     </div>
-                                    <div className="flex flex-col gap-2 px-40">
+                                    <div className="flex flex-col gap-2 2xl:px-40 xl:px-40 md:px-40 px-5">
                                         <input
                                             type="tel"
                                             placeholder="Saisissez le code OTP içi"
                                             value={otp}
                                             onChange={(e)=>{setOtp(e.target.value)}}
-                                            className="border-b p-2 rounded-lg text-center border-gray-400 text-xl focus:outline-none"
+                                            className="border-b p-2 rounded-lg text-center border-gray-400 2xl:text-xl xl:text-xl md:text-xl text-sm focus:outline-none"
                                         />
                                     </div>
                                     {errorStep && (
@@ -3657,16 +3833,21 @@ export default function DashboardStandard(){
                                 animate={{opacity:1, scale:1}}
                                 transition={{duration:0.4}}
                                 className="my-8 flex items-center justify-center gap-5">
-                                <div className="w-100">
+                                <div className="w-100 hidden 2xl:block xl:block md:block">
                                     <img src={ok} alt="success" className="object-contain" />
                                 </div>
                                 <div className="flex flex-col gap-3">
                                     <h3 className="font-bold text-xl">Votre abonnement sur le forfait standard a été réactivé avec succès</h3>
                                     <div className="flex flex-col gap-2">
-                                        <p className="text-gray-400 text-[18px]">Inforamtions de paiement</p>
+                                        <p className="text-gray-400 text-[18px]">Informations de paiement</p>
                                         <div className="flex text-sm items-center gap-5">
                                             <p className="">Moyen de paiement:</p>
-                                            <p className="text-gray-500">{provider}</p>
+                                            <p className="text-gray-500">
+                                                {provider === 'orange_bf' && 'Orange Money'}
+                                                {provider === 'moov_bf' && 'Moov Money'}
+                                                {provider === 'corismoney_bf' && 'Coris Money'}
+                                                {provider === 'sank_bf' && 'Sank Money'}
+                                            </p>
                                         </div>
                                         <div className="flex text-sm  items-center gap-5">
                                             <p>Montant facturé:</p>
@@ -3679,7 +3860,7 @@ export default function DashboardStandard(){
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <p className="text-gray-400 text-[18px]">Inforamtions sur le réabonnement</p>
+                                        <p className="text-gray-400 text-[18px]">Informations sur le réabonnement</p>
                                         <div className="flex text-sm items-center gap-5">
                                             <p>Début:</p>
                                             <p className="text-gray-500">{formatDate(debutReab)}</p>
@@ -3696,13 +3877,13 @@ export default function DashboardStandard(){
 
 
                         {/* etape validation */}
-                        <div className="flex absolute bottom-4 items-center gap-5 w-204 justify-between ">
+                        <div className="flex absolute bottom-4 items-center gap-5 2xl:w-204 xl:w-204 md:w-165 w-70 justify-between ">
                             {step !== '4' && (
                                 <motion.button
                                     type="button"
                                     onClick={()=>{setModalReab(false), setStep('1'), setDesc(null), setProvider(null), setOtp(''), setTelReab(''), setErrorStep('')}}
                                     whileTap={{scale: 0.95}}
-                                    className="bg-gray-200 font-bold transition-colors duration-200 border border-gray-200 hover:bg-transparent cursor-pointer text-gray-500 px-2 py-1"
+                                    className="text-sm 2xl:text-base xl:text-base md:text-base bg-gray-200 font-bold transition-colors duration-200 border border-gray-200 hover:bg-transparent cursor-pointer text-gray-500 px-2 py-1"
                                 >
 
                                     Annuler l'opération
@@ -3714,7 +3895,7 @@ export default function DashboardStandard(){
                                         type="button"
                                         onClick={handleBack}
                                         whileTap={{scale: 0.95}}
-                                        className="bg-gray-200 font-bold transition-colors duration-200 border border-gray-200 hover:bg-transparent cursor-pointer text-gray-500 px-2 py-1"
+                                        className="text-sm 2xl:text-base xl:text-base md:text-base bg-gray-200 font-bold transition-colors duration-200 border border-gray-200 hover:bg-transparent cursor-pointer text-gray-500 px-2 py-1"
                                     >
 
                                         Retour
@@ -3724,7 +3905,7 @@ export default function DashboardStandard(){
                                     onClick={handleNext}
                                     disabled={loadingReab || loadingOtp}
                                     whileTap={{scale: 0.95}}
-                                    className="bg-orange-500 cursor-pointer hover:text-black transition-colors duration-200 hover:bg-transparent border border-orange-500 text-white font-bold text-gray-500 px-2 py-1"
+                                    className=" text-sm 2xl:text-base xl:text-base md:text-base bg-orange-500 cursor-pointer hover:text-black transition-colors duration-200 hover:bg-transparent border border-orange-500 text-white font-bold text-gray-500 px-2 py-1"
                                 >
                                     {step === '4' ? (
                                         'Fermer'
@@ -3737,8 +3918,6 @@ export default function DashboardStandard(){
                     </motion.div>
                 </div>
             )}
-
-
 
             <ResponseAdherant successAdherant={successAdherant} successUpdateAdh={successUpdateAdh} successSupAdh={successSupAdh}/>
             <ResponseAbonnement reabSuccess={reabSuccess} />
