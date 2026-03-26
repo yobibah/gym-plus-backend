@@ -2,6 +2,7 @@
 
 use App\Console\Commands\Expirer;
 use App\Http\Middleware\estGerant;
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\paiementMid;
 use App\Http\Middleware\premium;
 use App\Http\Middleware\pro;
@@ -26,6 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'premium' => premium::class,
             'proprem'=>proprem::class
         ]);
+
+        $middleware->web(append: [
+        HandleInertiaRequests::class,
+    ]);
     })
     ->withCommands([
         Expirer::class
