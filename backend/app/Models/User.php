@@ -93,7 +93,7 @@ class User extends Authenticatable
     public function salles()
     {
         return $this->belongsToMany(salle::class, 'adherent_salle', 'adherent_id', 'salle_id')
-            ->withPivot(['date_inscription', 'statut'])
+        
             ->withTimestamps();
     }
 

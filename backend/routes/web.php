@@ -52,6 +52,7 @@ Route::get('/dashboard', [AdminController::class, 'dashboard'])
     Route::put('/salles/{id}',         [AdminController::class, 'updateSalle'])->name('salles.update');
     Route::post('/salles/{id}/toggle', [AdminController::class, 'toggleSalle'])->name('salles.toggle');
     Route::delete('/salles/{id}',      [AdminController::class, 'deleteSalle'])->name('salles.delete');
+    Route::get('/membres',[AdminController::class,'Membre'])->name('membres');
 
 });
 // Rediriger / vers login

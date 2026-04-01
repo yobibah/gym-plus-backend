@@ -6,6 +6,7 @@ use App\Models\paiement;
 use Exception;
 use App\Models\User;
 use App\Models\salle;
+use App\Services\SenfenicoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -17,6 +18,7 @@ use Inertia\Inertia;
 class AdminController extends Controller
 {
     //
+      public function __construct(public SenfenicoService $senfenico) {}
     public function createUser(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -57,6 +59,8 @@ class AdminController extends Controller
         return view('admin.auth.login');
     }
 
+
+
 public function login(Request $request)
 {
     $credentials = $request->validate([
@@ -66,39 +70,28 @@ public function login(Request $request)
 
     if (Auth::attempt($credentials, $request->boolean('remember'))) {
         $request->session()->regenerate();
-        
-        return redirect()->intended(route('dashboard'));
+        $user = Auth::user();
+        Log::info('users roles: ' . $user->getRoleNames());
+
+        if (!$user->hasRole('Admin')) {
+            
+            return back()->with('flash', [
+                'type' => 'error',
+                'message' => 'Accès refusé. Vous n\'êtes pas admin.',
+            ]);
+        }
+
+        return redirect()->intended(route('dashboard'))->with('flash', [
+            'type' => 'success',
+            'message' => 'Connexion réussie !',
+        ]);
     }
 
-    return back()->withErrors([
-        'email' => 'Email ou mot de passe incorrect.',
+    return back()->with('flash', [
+        'type' => 'error',
+        'message' => 'Email ou mot de passe incorrect.',
     ])->onlyInput('email');
 }
-
-    public function AffecterNewRole(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'id' => 'required|int',
-            'role' => 'required|in:gestionnaire,admin,super_admin',
-        ]);
-
-        try {
-            $user = User::findOrFail($request->id);
-            $tab = [
-                'gestionnaire',
-                'admin',
-                'super_admin',
-            ];
-
-            if (!in_array($user->id, $tab)) {
-                return with(['error' => 'une erreur est survenue']);
-            }
-            $user->syncRoles([$request->role]);
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-        }
-    }
-
 
     public function logout(Request $request)
     {
@@ -116,6 +109,7 @@ public function dashboard()
     $salles = Salle::withCount('adherents')->get();
     $sallesActive   = $salles->where('active', 1)->count();
     $sallesInactive = $salles->where('active', 0)->count();
+    $money = paiement::sum('montant');
 
     // Membres adherants
     $totalAdherants = User::whereHas('roles', fn($q) =>
@@ -134,6 +128,7 @@ public function dashboard()
             'sallesInactive' => $sallesInactive,
             'totalSalles'    => $salles->count(),
             'totalAdherants' => $totalAdherants,
+            'totalmontantRecu'=> $money
         ],
         'adherantsParSalle' => $adherantsParSalle,
     ]);
@@ -143,22 +138,21 @@ public function dashboard()
 {
     $query = Paiement::with('gerant');
 
-    // Filtre par statut
     if ($request->filled('status')) {
         $query->where('status', $request->status);
     }
 
-    // Filtre par date début
+
     if ($request->filled('date_debut')) {
         $query->whereDate('debut', '>=', $request->date_debut);
     }
 
-    // Filtre par date fin
+
     if ($request->filled('date_fin')) {
         $query->whereDate('fin', '<=', $request->date_fin);
     }
 
-    // Filtre par plan
+  
     if ($request->filled('plan')) {
         $query->where('plan', $request->plan);
     }
@@ -306,5 +300,144 @@ public function Gerant(Request $request)
     ]);
 }
 
+
+public function Membre(Request $request)
+{
+    $user = $request->user();
+
+    $query = User::query()
+        ->whereHas('roles', fn($q) => 
+            $q->where('name', 'Adherant')
+        )
+        ->with([
+            'salles:id,nom_salle',
+            'dernierAbonnement'
+        ]);
+
+    // 🔍 search
+    if ($request->filled('search')) {
+        $query->where(function ($q) use ($request) {
+            $q->where('name', 'like', "%{$request->search}%")
+              ->orWhere('email', 'like', "%{$request->search}%");
+        });
+    }
+
+    // 🏢 salle
+    if ($request->filled('salle')) {
+        $query->whereHas('salles', function ($q) use ($request) {
+            $q->where('nom_salle', 'like', "%{$request->salle}%");
+        });
+    }
+
+    // 🎯 statut pivot
+    if ($request->filled('statut')) {
+        $query->whereHas('salles', function ($q) use ($request) {
+            $q->where('adherent_salle.statut', $request->statut); // 🔥 plus fiable que wherePivot
+        });
+    }
+
+    $membre = $query->latest()->paginate(10)->withQueryString();
+
+    // dd($membre);
+    return Inertia::render('Membres', [
+        'admin_roles' => $user->getRoleNames(),
+        'membres' => $membre,
+        'filters' => $request->only(['search', 'salle', 'statut']),
+    ]);
+}
+
+
+    public function Reglement(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'montant' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'remplir correctement les champs'
+            ], 400);
+        }
+
+        try {
+            $response = $this->senfenico->Decharger((int) $request->montant);
+
+            if ($response->status == true) {
+
+                // je creer une table avec le user_id , la date de 
+
+                // Reglement::create([
+                //     'admin_id'=>$user->id,
+                //      'date'=> Carbon::now(),
+                //      'status'=>$response->data->status,
+                //      'reference'=>$response->data->reference,
+                //      'montant'=>$response->montant
+                // ]);
+
+                return response()->json([
+                    'message' => $response->data->message,
+                    'status' => $response->data->status == 'processing' ? ' en cours ' : 'erreur'
+
+                ], 201);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+
+    public function Annuler(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = validator::make($request->all(), [
+            'reference' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'token dois etre en string'
+            ]);
+        }
+
+        try {
+            $response = $this->senfenico->AnnulerRegelement($request->reference);
+            if ($response->status != true) {
+                return response()->json([
+                    'message' => 'une erreur est survenue'
+                ]);
+            }
+        } catch (Exception $e) {
+        }
+    }
+    
+
+// les options de parametres 
+
+public function updateProfile(Request $request){
+            $validator = Validator::make($request->all(), [
+            'id'=>'required',
+            'nom' => 'required|string|max:100',
+            'prenom' => 'required|string|max:100',
+            'password' => 'required|string|min:8',
+        ]);
+
+        if ($validator->fails()){
+
+        }
+
+        DB::beginTransaction();
+        try{
+
+        }
+        catch(Exception $e){
+            DB::rollBack();
+        }
+
+}
 
 }

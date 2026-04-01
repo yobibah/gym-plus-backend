@@ -12,7 +12,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
-class ActivityMail extends Mailable
+class ActivityMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

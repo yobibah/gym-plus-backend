@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Nouvelle activité</title>
+    <title>Nouveau Cours programmer</title>
 </head>
 
 <body style="margin:0; padding:0; background-color:#eef2f7; font-family: Arial, Helvetica, sans-serif;">
@@ -19,7 +19,7 @@
                     <tr>
                         <td style="background:linear-gradient(135deg,#0f172a,#1e40af); padding:30px; text-align:center;">
                             <h1 style="color:#ffffff; margin:0; font-size:24px; letter-spacing:0.5px;">
-                                Nouvelle activité disponible
+                                Nouveau cours disponible
                             </h1>
                             <p style="color:#cbd5e1; margin:8px 0 0; font-size:13px;">
                                 {{ $salle->nom_salle }}
@@ -41,7 +41,7 @@
                     </tr>
                     @endif
 
-                    <!-- BODY -->
+
                     <tr>
                         <td style="padding:30px; color:#334155;">
 
@@ -85,7 +85,7 @@
                         </td>
                     </tr>
 
-                    <!-- FOOTER -->
+
                     <tr>
                         <td style="background:#f1f5f9; padding:20px; text-align:center; font-size:12px; color:#64748b;">
                             © {{ date('Y') }} {{ $salle->nom_salle }}

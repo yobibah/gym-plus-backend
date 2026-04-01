@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\CoursMail;
 use App\Models\cours;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use function PHPUnit\Framework\isNull;
 
@@ -187,4 +190,54 @@ class CoursController extends Controller
             'cours' => $cours
         ]);
     }
+
+    public function SendToAdherent(Request $request)
+    {
+        $user = $request->user();
+        if (!$user->IsActif()) {
+            return response()->json([
+                'message' => 'abonnement expirer veuillez vous reaboabonner pour continuer'
+            ], 401);
+        }
+        $validator = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Oups !! donnees manquantes veuillez ressayer'
+            ]);
+        }
+        try {
+
+            $salle = $user->salle;
+            $adh = $salle->adherentsActif();
+            $cours = cours::find((int)$request->id);
+            if (!$cours || $cours->gerant_id != $user->id) {
+                return response()->json([
+                    'message' => 'Oups !! une erreur est survenue'
+                ], 409);
+            }
+            // if ($cours->Ispast()) {
+            //     return response()->json([
+            //         'message' => 'votre cours est passe. Impossible d\'envoyer a vos utilisateur'
+            //     ], 409);
+            // }
+
+        
+                foreach ($adh as $ad) {
+                    Mail::to($ad->email)->queue(new CoursMail($salle, $cours));
+                }
+            
+            return response()->json([
+                'mesage' => 'mail envoyer...'
+            ]);
+        } catch (Exception $e) {
+            Log::error('cours publication exception ' . $e->getMessage());
+            return response()->json([
+                'message' => 'erreur liee au serveur ! Veuillez reessayer'
+            ], 500);
+        }
+    }
+
 }

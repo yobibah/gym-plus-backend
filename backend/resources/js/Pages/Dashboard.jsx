@@ -14,6 +14,15 @@ export default function Dashboard() {
   const donutChart = useRef(null)
   const barChart   = useRef(null)
 
+  // 💰 Format monnaie (Franc CFA)
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'XOF',
+      minimumFractionDigits: 0,
+    }).format(amount || 0)
+  }
+
   // Chart Donut — Salles actives/inactives
   useEffect(() => {
     if (donutChart.current) donutChart.current.destroy()
@@ -39,7 +48,7 @@ export default function Dashboard() {
     return () => donutChart.current?.destroy()
   }, [stats])
 
-  // Chart Bar — Adherants par salle
+  // Chart Bar — Adhérants par salle
   useEffect(() => {
     if (barChart.current) barChart.current.destroy()
 
@@ -83,7 +92,7 @@ export default function Dashboard() {
       </div>
 
       {/* Cards stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
 
         <StatCard
           icon={<Building2 size={22} className="text-orange-600" />}
@@ -91,23 +100,34 @@ export default function Dashboard() {
           value={stats.totalSalles}
           bg="bg-orange-50"
         />
+
         <StatCard
           icon={<CheckCircle size={22} className="text-green-600" />}
           label="Salles Actives"
           value={stats.sallesActive}
           bg="bg-green-50"
         />
+
         <StatCard
           icon={<XCircle size={22} className="text-red-500" />}
           label="Salles Inactives"
           value={stats.sallesInactive}
           bg="bg-red-50"
         />
+
         <StatCard
           icon={<Users size={22} className="text-purple-600" />}
           label="Total Adhérants"
           value={stats.totalAdherants}
           bg="bg-purple-50"
+        />
+
+        <StatCard
+          icon={<span className="text-green-600 text-xl">💰</span>}
+          label="Total Numéraire"
+          value={formatCurrency(stats.totalmontantRecu)}
+          bg="bg-gradient-to-r from-green-50 to-emerald-100"
+          highlight
         />
 
       </div>
@@ -139,16 +159,29 @@ export default function Dashboard() {
   )
 }
 
-// Composant carte stat
-function StatCard({ icon, label, value, bg }) {
+
+function StatCard({ icon, label, value, bg, highlight }) {
   return (
-    <div className={`${bg} rounded-2xl p-5 flex items-center gap-4`}>
-      <div className="p-2 bg-white rounded-xl shadow-sm">
+    <div className={`
+      ${bg} 
+      rounded-2xl 
+      p-5 
+      flex items-center gap-4 
+      transition 
+      hover:scale-[1.02] 
+      hover:shadow-lg
+      ${highlight ? 'ring-1 ring-green-200' : ''}
+    `}>
+      
+      <div className="p-3 bg-white rounded-xl shadow-sm">
         {icon}
       </div>
+
       <div>
         <p className="text-xs text-gray-500 font-medium">{label}</p>
-        <p className="text-2xl font-bold text-gray-800">{value}</p>
+        <p className="text-2xl font-bold text-gray-800 tracking-tight">
+          {value}
+        </p>
       </div>
     </div>
   )

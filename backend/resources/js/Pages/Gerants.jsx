@@ -1,5 +1,6 @@
 import { router } from "@inertiajs/react";
 import { useState } from "react";
+import AppLayout from "../Layouts/AppLayout";
 
 const statusColor = {
     reussi:  "bg-green-100 text-green-700",
@@ -25,13 +26,16 @@ export default function Gerants({ gerant, filters }) {
         setStatut("");
         setPlan("");
         router.get(
-            route("gerant.index"), // ✅ idem
+            route("gerant.index"), 
             {},
             { preserveState: true, replace: true }
         );
     };
 
     return (
+        <AppLayout>
+            
+  
         <div className="p-6 space-y-6">
             <h1 className="text-2xl font-bold text-gray-800">Gérants</h1>
 
@@ -54,7 +58,7 @@ export default function Gerants({ gerant, filters }) {
                     <select
                         value={statut}
                         onChange={(e) => setStatut(e.target.value)}
-                        className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+                        className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
                     >
                         <option value="">Tous</option>
                         <option value="reussi">Réussi</option>
@@ -121,7 +125,7 @@ export default function Gerants({ gerant, filters }) {
                                             {(gerant.current_page - 1) * 10 + i + 1}
                                         </td>
                                         <td className="px-4 py-3 font-medium text-gray-800">
-                                            {g.name}
+                                           <span className="font-bold">{g.name} </span>   {g.prenom}
                                         </td>
                                         <td className="px-4 py-3 text-gray-500">
                                             {g.email}
@@ -168,5 +172,7 @@ export default function Gerants({ gerant, filters }) {
                 </div>
             )}
         </div>
+              </AppLayout>
     );
+
 }

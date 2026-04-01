@@ -153,7 +153,7 @@ export default function SallesIndex() {
                       </span>
                     </td>
 
-                    {/* Actions */}
+          
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <Link
@@ -191,7 +191,6 @@ export default function SallesIndex() {
           </table>
         </div>
 
-        {/* Pagination */}
         <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
           <p className="text-xs text-gray-500">{salles.total} salle(s)</p>
           <div className="flex gap-2">

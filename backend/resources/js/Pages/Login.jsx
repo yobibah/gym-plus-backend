@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { useForm, Head } from '@inertiajs/react'
+import { useForm, Head, usePage } from '@inertiajs/react'
 import { Eye, EyeOff } from 'lucide-react'
 
 export default function Login() {
+  const { flash } = usePage().props  
   const { data, setData, post, processing, errors } = useForm({
     email: '',
     password: '',
@@ -26,6 +27,17 @@ export default function Login() {
           <h1 className="text-xl sm:text-2xl font-bold text-center text-orange-600 mb-6">
             Login — GymPlus
           </h1>
+
+     
+          {flash?.message && (
+            <div
+              className={`mb-4 p-3 rounded text-sm ${
+                flash.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+              }`}
+            >
+              {flash.message}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -72,7 +84,7 @@ export default function Login() {
               )}
             </div>
 
-            {/* Se souvenir de moi */}
+          
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
