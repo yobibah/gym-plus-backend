@@ -1247,7 +1247,7 @@ export default function DashboardStandard(){
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-8 p-1 2xl:overflow-hidden xl:overflow-hidden overflow-y-auto h-112 md:h-250 2xl:h-auto xl:h-auto">
+                    <div className="grid grid-cols-4 gap-8 p-1 2xl:overflow-hidden xl:overflow-hidden overflow-y-auto h-112 md:h-250 2xl:h-auto xl:h-auto scrollbar-hide">
                         <div className=" col-span-4 p-3 2xl:overflow-hidden xl:overflow-hidden overflow-y-auto scrollbar-hide 2xl:h-40 xl:h-40 md:h-150 h-80 flex flex-col 2xl:justify-between xl:justify-between 2xl:flex-row xl:flex-row gap-4 ">
                             <motion.div
                                 className={`flex-col w-full relative  ${loadingNbrAdherant ? '' : 'border-1 border-orange-500 shadow-[0_0_12px_rgba(255,100,0,1)]'} bg-white rounded-xl items-center px-5 py-6`}

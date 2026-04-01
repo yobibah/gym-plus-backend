@@ -1,4 +1,4 @@
-import { AlertOctagon, AlertTriangle, AlertTriangleIcon, ArrowDownUpIcon, ArrowLeft, ArrowRight, Bell, Calendar1, CalendarOff, Check, CheckCircle, CheckCircle2, Circle, Clock, Download, Edit, Euro, Eye, File, Info, LayoutDashboard, Loader2, LogOut, NotebookPen, Pencil, Plus, PlusSquare, Save, Search, Settings, SquarePlus, Star, Timer, Trash, Trash2, UploadCloud, User, UserCog, UserPlus, Users, Users2, WalletCards, X, XCircle } from "lucide-react";
+import { AlertOctagon, AlertTriangle, AlertTriangleIcon, ArrowDownUpIcon, ArrowLeft, ArrowRight, Bell, Calendar1, CalendarOff, Check, CheckCircle, CheckCircle2, Circle, Clock, Download, Edit, Euro, Eye, File, Info, LayoutDashboard, Loader2, LogOut, NotebookPen, Pencil, Plus, PlusSquare, RefreshCcw, Save, Search, Settings, SquarePlus, Star, Timer, Trash, Trash2, UploadCloud, User, UserCog, UserPlus, Users, Users2, WalletCards, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -1979,9 +1979,9 @@ export default function DashboardPro(){
     return(
         <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
 
-            <div className="col-span-1 py-3 bg-white shadow-lg flex flex-col gap-5 h-screen overflow-y-auto sticky top-0">
-                <div className="flex items-center gap-2  px-5 my-5">
-                    <div className="rounded-full flex items-center justify-center border border-orange-500 bg-orange-500 w-18 h-15">
+            <div className="col-span-1 py-3 bg-white shadow-lg flex flex-col xl:gap-5 2xl:gap-5 md:gap-5 gap-1 h-screen overflow-y-auto sticky top-0">
+                <div className="flex 2xl:flex-row xl:flex-row md:flex-row items-center gap-2 2xl:justify-between xl:justify-between md:justify-between flex-col px-5 my-5">
+                    <div className="rounded-full flex items-center justify-center border border-orange-500 bg-orange-500   2xl:w-18 xl:h-15 xl:w-18 2xl:h-15 md:h-12 md:w-18 h-10">
                         {infosSalle?.logo_salle ? (
                             <ImageComponent source={infosSalle?.logo_salle} label={"logo"} style={"w-full rounded-full h-full object-cover"}/>
                         ):(
@@ -1992,14 +1992,14 @@ export default function DashboardPro(){
 
                     </div>
                     <div className="flex items-center w-full justify-between">
-                        <div className="flex flex-col">
+                        <div className="flex flex-col  hidden 2xl:block xl:block ">
                             <div className="font-semibold text-2xl">{infosSalle?.nom_salle || 'GymPlus'}</div>
                             <div className="text-orange-500 text-sm">Plan {planActuel}</div>
                         </div>
 
                         <motion.button
                             whileTap={{scale: 0.95}}
-                            className="text-red-500 border hover:bg-orange-50 transition-colors duration-200 border-red-500 rounded-lg p-2"
+                            className="text-red-500 border hover:bg-orange-50 transition-colors duration-200 border-red-500 rounded-lg 2xl:p-2 xl:p-2 md:p-2 p-1"
                             onClick={logoutModal}
                         >
                             <LogOut className="h-5 w-5"/>
@@ -2010,11 +2010,11 @@ export default function DashboardPro(){
                 <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'dashboard' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                    className={`${activeTab === 'dashboard' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
                     onClick={()=>{setActiveTab('dashboard')}}
                 >
-                     <LayoutDashboard className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                     <LayoutDashboard className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200`}/>
+                    <button className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
 
                     >Tableau de bord</button>
                 </motion.div>
@@ -2023,11 +2023,11 @@ export default function DashboardPro(){
 
                     whileHover={{ scale: 1.02 }}
                     whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'adherant' || showAdd  ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                    className={`${activeTab === 'adherant' || showAdd  ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
                     onClick={()=>{setActiveTab('adherant')}}
                 >
-                     <Users className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200 `}/>
-                    <button className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                     <Users className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200 `}/>
+                    <button className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
 
                     >Adhérants</button>
                 </motion.div>
@@ -2035,11 +2035,11 @@ export default function DashboardPro(){
                 <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'abonnement' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                    className={`${activeTab === 'abonnement' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
                     onClick={()=>{setActiveTab('abonnement')}}
                 >
-                     <SquarePlus className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                     <SquarePlus className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200`}/>
+                    <button className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
 
                     >Abonnements</button>
                 </motion.div>
@@ -2047,35 +2047,35 @@ export default function DashboardPro(){
                 <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'coach' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                    className={`${activeTab === 'coach' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
                     onClick={()=>{setActiveTab('coach')}}
                 >
-                     <UserCog className={`${activeTab === 'coach' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'coach' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                     <UserCog className={`${activeTab === 'coach' ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200`}/>
+                    <button className={`${activeTab === 'coach' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
 
                     >Coachs</button>
                 </motion.div>
                 <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'cours' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                    className={`${activeTab === 'cours' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
                     onClick={()=>{setActiveTab('cours')}}
                 >
-                     <Calendar1 className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                     <Calendar1 className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200`}/>
+                    <button className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
 
-                    >Planning de cours</button>
+                    >Planning (cours)</button>
                 </motion.div>
 
 
                 <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'settings' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center mx-5  py-3 px-5 gap-5 hover:rounded-lg hover:bg-orange-100 text-lg`}
+                    className={`${activeTab === 'settings' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
                     onClick={()=>{setActiveTab('settings')}}
                 >
-                     <Settings className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} h-7 w-7 transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} font-bold transition-colors duration-200`}
+                     <Settings className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200`}/>
+                    <button className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
 
                     >Paramètres</button>
                 </motion.div>
@@ -2087,13 +2087,27 @@ export default function DashboardPro(){
                         whileHover={{scale: 1.03}}
                         whileTap={{scale: 0.95}}
                         disabled={misNiveauLoading || daysRemaining < 0}
-                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'} flex items-center justify-center shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
+                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'} 2xl:block xl:block md:block hidden flex items-center justify-center shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
                         onClick={handleNiveau}
                     >
                         {misNiveauLoading ? (
                             <Loader2 className="animate-spin text-white"/>
                         ):(
                             'Mettre à niveau'
+                        )}
+                    </motion.button>
+
+                    <motion.button
+                        whileHover={{scale: 1.03}}
+                        whileTap={{scale: 0.95}}
+                        disabled={misNiveauLoading || daysRemaining < 0}
+                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'}  shadow-lg 2xl:hidden xl:hidden md:hidden block w-full text-white font-bold rounded-lg p-2`}
+                        onClick={handleNiveau}
+                    >
+                        {misNiveauLoading ? (
+                            <Loader2 className="animate-spin text-white"/>
+                        ):(
+                            <RefreshCcw className="h-5 w-5" />
                         )}
                     </motion.button>
                 </div>
@@ -2103,18 +2117,18 @@ export default function DashboardPro(){
 
             {activeTab === 'dashboard' && (
                 <>
-                    <div className="absolute top-0 right-0 opacity-40 h-200 overflow-hidden w-200">
+                    <div className="absolute 2xl:top-0 xl:top-0 md:top-20 top-30 right-0 opacity-40 2xl:h-200 xl:h-200 md:h-150 h-80 w-80 md:w-150 overflow-hidden 2xl:w-200 xl:w-200">
                         <ImageComponent source={coverhero} label={"logo"} className="h-full w-full" />
                     </div>
-                    <div className="col-span-4 relative px-8 py-3 my-5 ">
+                    <div className="col-span-4 relative 2xl:px-8 xl:px-8 md:px-8 px-4 py-3 my-5 ">
 
-                        <div className="flex items-center mb-10 justify-between border-b-1 pb-5 border-gray-200">
-                            <div className="flex flex-col gap-2 text-lg">
-                                <div className="flex items-center gap-5">
+                        <div className="flex flex-col gap-2 2xl:items-center 2xl:flex-row 2xl:justify-between xl:items-center xl:flex-row xl:justify-between 2xl:mb-10 xl:mb-10 mb-5 border-b-1 pb-5 border-gray-200">
+                            <div className="flex flex-col gap-2 2xl:text-lg xl:text-lg md:text-base text-xs">
+                                <div className="flex flex-col 2xl:items-center 2xl:flex-row xl:flex-row xl:items-center md:items-center md:flex-row 2xl:gap-5 xl:gap-5 md:gap-5 gap-2">
                                     <h1 className="font-bold text-3xl">Tableau de Bord</h1>
                                     {daysRemaining <= 0 && (
-                                        <div className="flex items-center gap-1 bg-red-100 px-4 rounded-full py-1">
-                                            <AlertTriangle className="text-red-500" />
+                                        <div className="flex items-center gap-1 bg-red-100 2xl:px-4 xl:px-4 md:px-4 px-1 2xl:rounded-full xl:rounded-full py-1">
+                                            <AlertTriangle className="text-red-500 hidden 2xl:block" />
                                             <p className="text-red-500 font-bold">
                                             {daysRemaining === 0
                                                 ? "Votre abonnement expire aujourd'hui !"
@@ -2125,8 +2139,8 @@ export default function DashboardPro(){
                                         )}
 
                                     {0 < daysRemaining && daysRemaining <= 7 &&(
-                                        <div className="flex items-center gap-1 bg-red-100 px-4 animate-pulse rounded-full py-1">
-                                            <AlertTriangle className="text-red-500" />
+                                        <div className="flex items-center gap-1 bg-red-100 2xl:px-4 xl:px-4 md:px-4 px-1 2xl:rounded-full xl:rounded-full animate-pulse rounded-full py-1">
+                                            <AlertTriangle className="text-red-500 hidden 2xl:block" />
                                             <p className="text-red-500 font-bold">
                                             {daysRemaining === 1
                                                 ? "Votre abonnement expire demain !"
@@ -2146,14 +2160,14 @@ export default function DashboardPro(){
                                     <input type="text" value={search}
                                         onChange={(e)=>{setSearch(e.target.value)}}
                                         placeholder="Rechercher adherant..."
-                                        className="block w-full mx-2 p-2 pl-10 border border-orange-500 rounded-lg text-sm focus:outline-none bg-white"
+                                        className="block w-full 2xl:mx-2 xl:mx-2 md:mx-2 p-2 pl-10 border border-orange-500 rounded-lg text-sm focus:outline-none bg-white"
                                     />
                                     <div className="absolute top-2 left-4">
                                         <Search className="h-5 w-5 text-orange-500"/>
                                     </div>
                                 </div>
 
-                                <div className="relative">
+                                <div className="relative hidden 2xl:block xl:block md:block">
                                     <motion.button
                                         whileTap={{scale : 0.95}}
                                         onClick={handleNotif}
@@ -2219,7 +2233,7 @@ export default function DashboardPro(){
                                     )}
                                 </div>
 
-                                <div className="rounded-full h-10 w-15 border bg-orange-500 border-orange-500 flex items-center justify-center ">
+                                <div className="rounded-full 2xl:block xl:block md:block hidden h-10 w-13 border bg-orange-500 border-orange-500 flex items-center justify-center ">
                                     {infosSalle?.logo_salle ? (
                                         <ImageComponent source={infosSalle?.logo_salle} label={"logo"} style={"w-full rounded-full h-full object-cover"}/>
                                     ):(
@@ -2230,14 +2244,14 @@ export default function DashboardPro(){
                             </div>
                         </div>
                         
-                        <div className="grid grid-cols-4 h-205 p-1 overflow-y-auto scrollbar-hide">
-                            <div className="col-span-4 flex items-center justify-between gap-8 ">
+                        <div className="grid grid-cols-4 h-112 md:h-250 2xl:h-205 xl:h-145 p-1 overflow-y-auto scrollbar-hide">
+                            <div className="col-span-4 flex flex-col 2xl:justify-between xl:justify-between 2xl:flex-row xl:flex-row 2xl:gap-8 xl:gap-8 gap-4 ">
                                 <motion.div
                                     whileHover={{scale: 1.02}}
                                     className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.8)] h-27 rounded-lg w-full flex flex-col gap-2 p-4">
                                     
                                     <div className="">
-                                        <p className="text-gray-400 font-bold text-[18px]">Adhérants</p>
+                                        <p className="text-gray-400 font-bold 2xl:text-[18px] xl:text-[17px] md:text-[18px] text-base">Adhérants</p>
                                     </div>
                                     {loadingNbrAdherant ? (
                                         <div>
@@ -2245,7 +2259,7 @@ export default function DashboardPro(){
                                         </div>
                                     ):(
                                         <div>
-                                            <p className="font-bold text-3xl">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}` || 0} / 1000</p>
+                                            <p className="font-bold 2xl:text-3xl xl:text-2xl md:text-3xl text-2xl">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}` || 0} / 1000</p>
                                         </div>
                                     )}
 
@@ -2259,7 +2273,7 @@ export default function DashboardPro(){
                                     whileHover={{scale: 1.02}}
                                     className="bg-white shadow-[0_0_5px_rgba(0,255,0,0.8)] h-27 w-full flex flex-col gap-2 p-4 rounded-lg">
                                     <div>
-                                        <p className="text-gray-400 font-bold text-[18px]">Adhérants Actifs</p>
+                                        <p className="text-gray-400 font-bold 2xl:text-[18px] xl:text-[17px] md:text-[18px] text-base">Adhérants Actifs</p>
                                     </div>
                                     {loadingNbrActif ? (
                                         <div>
@@ -2267,7 +2281,7 @@ export default function DashboardPro(){
                                         </div>
                                     ):(
                                         <div>
-                                            <p className="font-bold text-3xl text-green-500">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}` || 0}</p>
+                                            <p className="font-bold 2xl:text-3xl xl:text-2xl md:text-3xl text-2xl text-green-500">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}` || 0}</p>
                                         </div>
                                     )}
 
@@ -2281,7 +2295,7 @@ export default function DashboardPro(){
                                     whileHover={{scale: 1.02}}
                                     className="bg-white shadow-[0_0_5px_rgba(255,0,0,0.8)] h-27 w-full flex flex-col gap-2 p-4 rounded-lg">
                                     <div>
-                                        <p className="text-gray-400 font-bold text-[18px]">Récettes mois précédent</p>
+                                        <p className="text-gray-400 font-bold 2xl:text-[18px] xl:text-[17px] md:text-[18px] text-base">Récettes (mois passé)</p>
                                     </div>
 
                                     {loadingRecette ? (
@@ -2290,7 +2304,7 @@ export default function DashboardPro(){
                                         </div>
                                     ):(
                                         <div>
-                                            <p className="font-bold text-3xl text-red-500">XOF {dataRecette?.[0]?.mois_precedent || 0}</p>
+                                            <p className="font-bold 2xl:text-3xl xl:text-2xl md:text-3xl text-2xl text-red-500">XOF {dataRecette?.[0]?.mois_precedent || 0}</p>
                                         </div>
                                     )}
 
@@ -2304,7 +2318,7 @@ export default function DashboardPro(){
                                     whileHover={{scale: 1.02}}
                                     className="bg-white rounded-lg shadow-[0_0_5px_rgba(251,255,0,0.8)] h-27 w-full flex flex-col gap-2 p-4">
                                     <div>
-                                        <p className="text-gray-400 font-bold text-[18px]">Récettes du Mois</p>
+                                        <p className="text-gray-400 font-bold 2xl:text-[18px] xl:text-[17px] md:text-[18px] text-base">Récettes du Mois</p>
                                     </div>
                                     {loadingRecette ? (
                                         <div>
@@ -2312,7 +2326,7 @@ export default function DashboardPro(){
                                         </div>
                                     ):(
                                         <div>
-                                            <p className="font-bold text-3xl text-yellow-500">XOF {dataRecette?.[0]?.montant_total || 0}</p>
+                                            <p className="font-bold 2xl:text-3xl xl:text-2xl md:text-3xl text-2xl text-yellow-500">XOF {dataRecette?.[0]?.montant_total || 0}</p>
                                         </div>
                                     )}
 
@@ -2325,8 +2339,8 @@ export default function DashboardPro(){
                             </div>
 
                             <div className="col-span-4 my-10 grid grid-cols-4 justify-between gap-8">
-                                <div className="shadow-[0_0_5px_rgba(0,0,0,0.5)] p-4 col-span-3 bg-white rounded-lg w-full">
-                                    <div className="flex items-center justify-between w-full">
+                                <div className="shadow-[0_0_5px_rgba(0,0,0,0.5)] p-4 2xl:col-span-3 xl:col-span-2 col-span-4 bg-white rounded-lg w-full">
+                                    <div className="flex 2xl:flex-row 2xl:items-center 2xl:justify-between flex-col gap-4 w-full">
                                         <div className="font-bold flex items-center gap-1">
                                            <p>Aperçu financier</p>
                                            <button
@@ -2348,28 +2362,28 @@ export default function DashboardPro(){
                                             <motion.button
                                             whileTap={{scale: 0.95}}
                                                 onClick={()=>{setApercu('mois_dernier')}}
-                                                className={`text-sm rounded-lg py-1 px-3 ${apercu === 'mois_dernier' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
+                                                className={`text-xs 2xl:text-sm rounded-lg py-1 px-1 2xl:px-3 xl:px-3 md:px-3 ${apercu === 'mois_dernier' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
                                             >
                                                 3 derniers mois
                                             </motion.button>
                                             <motion.button
                                                 whileTap={{scale: 0.95}}
                                                 onClick={()=>{setApercu('mois_actuel')}}
-                                                className={`text-sm rounded-lg py-1 px-3 ${apercu === 'mois_actuel' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
+                                                className={`text-xs 2xl:text-sm rounded-lg py-1 px-1 2xl:px-3 xl:px-3 md:px-3 ${apercu === 'mois_actuel' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
                                             >
                                                 Mois actuel
                                             </motion.button>
                                             <motion.button
                                             whileTap={{scale: 0.95}}
                                                 onClick={()=>{setApercu('annee_passe')}}
-                                                className={`text-sm rounded-lg py-1 px-3 ${apercu === 'annee_passe' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
+                                                className={`text-xs 2xl:text-sm rounded-lg py-1 px-1 2xl:px-3 xl:px-3 md:px-3 ${apercu === 'annee_passe' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
                                             >
                                                 Année passée
                                             </motion.button>
                                         </div>
                                     </div>
                                     <div className=" my-3">
-                                        <p className="text-2xl font-bold">XOF {dataRecette?.[0]?.montant_total}
+                                        <p className="2xl:text-2xl xl:text-2xl md:text-2xl text-xl font-bold">XOF {dataRecette?.[0]?.montant_total}
                                             <span className="text-green-500 font-semibold ml-2 text-orange-500 text-sm">
                                                 {pourcentageMois()} 
                                                 
@@ -2385,7 +2399,7 @@ export default function DashboardPro(){
                                         
                                     </div>
 
-                                    <div className="flex items-center justify-center h-100">
+                                    <div className="flex items-center justify-center 2xl:h-100 md:h-55 xl:h-80 h-50">
                                         {(dataRecette?.[0]?.montant_total === 0 &&
                                             dataRecette?.[1]?.montant_total === 0 &&
                                             dataRecette?.[2]?.montant_total === 0 &&
@@ -2395,7 +2409,7 @@ export default function DashboardPro(){
                                             <LineChart style={{ width: '100%', aspectRatio: 2.4, maxWidth: 1000, margin: 'auto' }} responsive data={dataRecette}>
                                                 <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
                                                 <XAxis dataKey="periode" />
-                                                <YAxis width="auto"  />
+                                                <YAxis width="auto" dataKey="montant_total" />
                                                 <Tooltip />
                                                 <Line type="monotone" dataKey="montant_total" fill="2" stroke="rgba(255,100,0,1)" />
                                                 
@@ -2405,7 +2419,7 @@ export default function DashboardPro(){
                                 </div>
 
 
-                                <div className="flex flex-col gap-4 w-full">
+                                <div className="flex flex-col 2xl:col-span-1 xl:col-span-2 col-span-4 gap-4 w-full">
                                     <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
                                         <h3 className="font-bold">Gestion des Abonnements</h3>
                                         <div className="flex items-center justify-center gap-8">
@@ -2543,12 +2557,12 @@ export default function DashboardPro(){
                             <div className="col-span-4 mb-1 bg-white flex flex-col gap-3 shadow-[0_0_5px_rgba(0,0,0,0.5)] w-full p-4 rounded-lg ">
                                 <h3 className="font-bold">Suivi des Abonnés</h3>
                                 <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
-                                    <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
-                                        <tr >
-                                            <th className=" p-3 text-left">Nom de l'adhérant</th>
-                                            <th className=" p-3">Date de début</th>
-                                            <th className=" p-3">Date de fin</th>
-                                            <th className=" p-3">Statut</th>
+                                    <thead className="uppercase 2xl:text-sm xl:text-sm md:text-sm text-xs text-gray-400 bg-gray-200/70">
+                                        <tr className="justify-between w-full flex items-center">
+                                            <th className=" w-full p-3 text-left">Adhérant</th>
+                                            <th className=" w-full hidden 2xl:block xl:block md:block p-3">Début</th>
+                                            <th className="w-full p-3">Fin</th>
+                                            <th className=" w-full p-3">Statut</th>
                                         </tr>
                                     </thead>
 
@@ -2556,34 +2570,36 @@ export default function DashboardPro(){
                                             {loadingAdh ? (
                                                 [1,2,3,4,5,6,7,8,9,10].map(item =>(
 
-                                                    <tr key={item} className="text-sm p-2 border-b border-gray-200">
+                                                    <tr key={item} className="text-sm p-2 flex w-full justify-between items-center border-b border-gray-200">
 
-                                                        <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                                            <span className=" h-5 w-5 rounded-full bg-gray-200 animate-pulse flex items-center p-2"></span>
-                                                            <p className="h-5 w-20 animate-pulse bg-gray-200"></p>
+                                                        <td className="flex w-full  items-center  font-bold  gap-2 py-5 px-3">
+                                                            <span className=" h-5 w-5 2xl:block xl:block md:block  hidden rounded-full bg-gray-200 animate-pulse flex items-center p-2"></span>
+                                                            <p className="h-5 2xl:w-40 xl:w-40 md:w-20 w-10 animate-pulse bg-gray-200"></p>
                                                         </td>
-                                                        <td className=" px-3 py-5"><p className="h-5 animate-pulse mx-auto w-50 bg-gray-200"></p></td>
-                                                        <td className=" px-3 py-5"><p className="h-5 animate-pulse w-50 mx-auto bg-gray-200"></p></td>
-                                                        <td className=" px-3 py-5"><p className="h-5 animate-pulse w-20 mx-auto bg-gray-200"></p></td>
+                                                        <td className=" hidden 2xl:block xl:block md:block px-2 w-full  py-5"><p className="h-5 animate-pulse mx-auto xl:w-40 2xl:w-40 md:w-20 w-10 bg-gray-200"></p></td>
+                                                        <td className=" px-2 w-full  py-5"><p className="h-5 animate-pulse xl:w-40 2xl:w-40 md:w-20 w-10 mx-auto bg-gray-200"></p></td>
+                                                        <td className=" px-2 w-full  py-5"><p className="h-5 animate-pulse 2xl:w-20 xl:w-20 md:w-10 w-5 mx-auto bg-gray-200"></p></td>
                                                     </tr>
                                                 ))
                                             ): adherentsFiltres.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={4} className={`${search.trim() ? '' : 'h-140'} py-6 text-center text-sm text-gray-500`}>
+                                                    <td colSpan={4} className={`${search.trim() ? '' : 'h-140'} py-6 text-center 2xl:text-sm xl:text-sm md:text-sm text-xs text-gray-500`}>
                                                         {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
                                                     </td>
                                                 </tr>
                                             ): adherentsFiltres.map(item => (
-                                                <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                                <tr key={item.id} className="2xl:text-sm  xl:text-sm md:text-sm text-xs p-2 border-b flex w-full justify-between items-center border-gray-200">
 
-                                                    <td className="flex items-center  font-bold  gap-2 py-5 px-3">
-                                                    <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                                    {`${item.name} ${item.prenom}` || item.username }
+                                                    <td className="flex items-center w-full font-bold  gap-2 py-5">
+                                                        <span className="rounded-full hidden 2xl:block xl:block md:block bg-gray-200 flex items-center p-2">
+                                                            <User className="h-4 w-4 "/>
+                                                        </span>
+                                                        {`${item.name} ${item.prenom}` || item.username || 'N/A' }
 
                                                     </td>
-                                                    <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
-                                                    <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
-                                                    <td className=" px-3 flex items-center justify-center">
+                                                    <td className="hidden 2xl:block xl:block md:block w-full py-5">{item.dernier_abonnement !== null ? formatDate(item.dernier_abonnement.debut) : '-'}</td>
+                                                    <td className="  w-full py-5">{item.dernier_abonnement !== null ? formatDate(item.dernier_abonnement.fin) : '-'}</td>
+                                                    <td className="w-full flex items-center justify-center">
                                                         {item.dernier_abonnement?.date_suspension !== null ?(
                                                             <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl`}>
                                                                 suspendu
@@ -2602,10 +2618,10 @@ export default function DashboardPro(){
 
                                         {errorAdh && (
                                             <tr className="">
-                                                <td colSpan={4} className="py-6 h-140 text-center  text-red-600">
+                                                <td colSpan={4} className="py-6 2xl:text-sm xl:text-sm md:text-sm text-xs h-140 text-center  text-red-600">
                                                     <p className="flex items-center justify-center gap-2 ">
-                                                    <XCircle className="animate-spin text-red-600" />
-                                                    {mesAdh.error.message}
+                                                    <XCircle className="animate-spin h-5 w-5 text-red-600" />
+                                                    Une erreur est survenue
                                                     </p>
                                                 </td>
                                             </tr>
@@ -2614,14 +2630,14 @@ export default function DashboardPro(){
                                 </table>
                                 <div className="flex  p-4 items-center justify-between">
                                         <div>
-                                            <div className="text-sm text-gray-400">
+                                            <div className="2xl:text-sm xl:text-sm md:text-sm text-xs text-gray-400">
                                                 Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
                                             </div>
                                         </div>
 
-                                        <div className="flex text-sm items-center gap-2">
+                                        <div className="flex 2xl:text-sm xl:text-sm md:text-sm text-xs items-center gap-2">
                                             <motion.button
-                                            disabled={page === 1}
+                                            disabled={page === 1 || loadingAdh}
                                             onClick={()=>{setPage(p => p - 1)}}
                                                 whileTap={{scale: 0.95}}
                                                 className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
@@ -2629,7 +2645,9 @@ export default function DashboardPro(){
 
                                             <motion.button
                                             disabled={page === mesAdh.data?.adherents?.last_page}
-                                            onClick={()=>{setPage(p => p + 1)}}
+                                            onClick={()=>{
+                                                setPage(p => p + 1) || loadingAdh
+                                            }}
                                             whileTap={{scale: 0.95}}
                                                 className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
                                             > Suivant</motion.button>
@@ -2644,7 +2662,7 @@ export default function DashboardPro(){
 
             {activeTab === 'adherant' && (
                 <>
-                    <div className="absolute opacity-40 right-0 w-200 overflow-hidden">
+                    <div className="absolute opacity-40 right-0 2xl:w-200 xl:w-200 md:w-180 w-80 overflow-hidden">
                         <ImageComponent source={abonnement} label={"logo-cours"} style={''} />
                     </div>
                     <div className="relative col-span-4 px-8 py-3 my-5">
@@ -2654,8 +2672,8 @@ export default function DashboardPro(){
                             <p className="text-gray-400 text-[18px]">Plan {planActuel} - {nbrAdherants}/1000 adhérants</p>
                         </div>
 
-                        <div className="flex items-center justify-between my-8">
-                            <div className="flex items-center relative w-90">
+                        <div className="flex gap-4 2xl:flex-row xl:flex-row md:flex-row flex-col 2xl:items-center xl:items-center md:items-center 2xl:justify-between xl:justify-between md:justify-between my-8">
+                            <div className="flex items-center relative 2xl:w-90 xl:w-90 md:w-90">
                                 <div className="absolute top-2">
                                     <Search className="h-5 w-5 text-orange-400 ml-2"/>
                                 </div>
@@ -2672,12 +2690,12 @@ export default function DashboardPro(){
                                     whileTap={{scale: 0.95}}
                                     disabled={dataExportLoading || daysRemaining < 0 || adherentsFiltres.length === 0}
                                     onClick={handleExport}
-                                    className={`flex font-bold justify-center  text-sm items-center ${(daysRemaining < 0 || adherentsFiltres.length === 0) ? ' text-gray-400 bg-gray-200 border-gray-300' : 'bg-transparent text-black border-gray-400'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                    className={`flex font-bold justify-center  text-xs 2xl:text-sm xl:text-sm items-center ${(daysRemaining < 0 || adherentsFiltres.length === 0) ? ' text-gray-400 bg-gray-200 border-gray-300' : 'bg-transparent text-black border-gray-400'}  gap-2 py-2 px-2 2xl:px-4 xl:px-4 rounded-lg  border-2  transition-colors duration-200`}>
                                     {dataExportLoading  ? (
                                         <Loader2 className="animate-spin h-5 w-5"/>
                                     ):(
                                         <>
-                                            <Download className="h-5 w-5 "/>
+                                            <Download className="h-5 w-5 hidden 2xl:block xl:block"/>
                                             Export CSV
                                         </>
                                     )}
@@ -2688,8 +2706,8 @@ export default function DashboardPro(){
                                     whileTap={{scale: 0.95}}
                                     onClick={()=>{setShowAdd(true), setActiveTab('')}}
                                     disabled={daysRemaining < 0}
-                                    className={`flex font-bold text-white text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:bg-orange-500 border-orange-500 '}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
-                                    <Plus className="h-5 w-5 "/>
+                                    className={`flex font-bold text-white text-xs 2xl:text-sm xl:text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:bg-orange-500 border-orange-500 '}  gap-2 py-2 px-2 2xl:px-4 xl:px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                    <Plus className="h-5 w-5 hidden 2xl:block xl:block"/>
                                     Ajouter un adhérant
                                 </motion.button>
                             </div>
@@ -4778,7 +4796,7 @@ export default function DashboardPro(){
                                                     <div className="flex items-center justify-between w-full">
                                                         <div className=" flex items-center gap-2">
                                                             <Calendar1 className="h-6 w-6 text-blue-600"/>
-                                                            <p className="font-bold text-[18px]">{formatDate(item?.date_activite) || 'N/A'}</p>
+                                                            <p className="font-bold text-[18px]">{item?.date_activite || 'N/A'}</p>
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <Timer className="h-7 w-7 text-blue-600"/>
