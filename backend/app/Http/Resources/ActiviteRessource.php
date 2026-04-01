@@ -28,7 +28,7 @@ class ActiviteRessource extends JsonResource
             "images_activte" => $this->images_activte,
 
             "date_activite" => Carbon::parse($this->date_activite)->isoFormat('dddd D MMMM YYYY'),
-
+            'date_ac'=>$this->date_activite,
             "heure_activite" => $this->heure_activite,
 
             "status" => $this->status,
