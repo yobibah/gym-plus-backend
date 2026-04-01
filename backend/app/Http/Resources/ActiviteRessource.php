@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Predis\Command\Traits\Json\NxXxArgument;
 
 class ActiviteRessource extends JsonResource
 {
@@ -27,8 +28,9 @@ class ActiviteRessource extends JsonResource
 
             "images_activte" => $this->images_activte,
 
-            "date_activite" => Carbon::parse($this->date_activite)->isoFormat('dddd D MMMM YYYY'),
-            'date_ac'=>$this->date_activite,
+            // "date_activite" => Carbon::parse($this->date_activite)->isoFormat('dddd D MMMM YYYY'),
+            
+            'date_activite'=>$this->date_activite,
             "heure_activite" => $this->heure_activite,
 
             "status" => $this->status,
