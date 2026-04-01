@@ -4796,7 +4796,7 @@ export default function DashboardPro(){
                                                     <div className="flex items-center justify-between w-full">
                                                         <div className=" flex items-center gap-2">
                                                             <Calendar1 className="h-6 w-6 text-blue-600"/>
-                                                            <p className="font-bold text-[18px]">{item?.date_ac || 'N/A'}</p>
+                                                            <p className="font-bold text-[18px]">{item?.date_activite || 'N/A'}</p>
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <Timer className="h-7 w-7 text-blue-600"/>
