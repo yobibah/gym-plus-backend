@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 
 export default function ModalComponent({reject, confirm, question, children, loading, confirmLabel='Supprimer', rejectLabel='Annuler'}){
     return(
-        <div className="absolute inset-0 bg-black/50 backdrop-blur flex items-center justify-center">
+        <div className="absolute inset-0 z-50 bg-black/50 backdrop-blur flex items-center justify-center">
             <motion.div
                 initial={{opacity:0, scale:0.75}}
                 animate={{opacity:1, scale:1.15}}

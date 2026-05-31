@@ -16,12 +16,12 @@ export default function Hero(){
 
 
     return(
-        <div className="relative bg-orange-200 h-screen">
+        <div className="relative bg-orange-200 h-180 2xl:h-screen xl:h-screen md:h-screen">
             <div className="absolute flex items-center justify-between  bottom-0 z-20 bg-orange-600 w-full h-20 2xl:h-40 xl:h-25 md:h-20">
                 <p className="w-full flex items-center justify-center text-base 2xl:text-6xl xl:text-4xl md:text-2xl uppercase font-bold text-white">Choisir mon forfait dès maintenant</p>
                 <motion.div 
                     
-                    className="2xl:w-120 xl:w-120 md:w-120 relative 2xl:px-20 xl:px-20 md:px-20">
+                    className="2xl:w-120 xl:w-120 md:w-120 relative 2xl:px-20 xl:px-20 md:px-5 px-2">
                     <Link
                             to="suscribe"
                             smooth={true}
@@ -39,7 +39,7 @@ export default function Hero(){
                     <MousePointerClick className="absolute hidden 2xl:block xl:block md:block -bottom-0 xl:-bottom-8 2xl:-bottom-8 md:-bottom-8 right-20 2xl:h-20 xl:h-20 md:h-20 xl:w-20 2xl:w-20 md:w-20 h-8 w-8"  fill="white" stroke="orange"/>
                 </motion.div>
             </div>
-            <div className=" py-8 2xl:px-20 xl:px-20 md:px-20 px-2 relative ">
+            <div className=" py-8 2xl:px-20 xl:px-20 md:px-5 px-2 relative ">
                 
                 <div className="absolute bg-orange-300/50 rounded-full h-200 w-200 bottom-5 right-35"></div>
                 <div className="flex items-center justify-between w-full 2xl:px-10 xl:px-10 md:px-0 xl:mb-5 md:mb-10 2xl:mb-0 mb-5">
@@ -80,7 +80,7 @@ export default function Hero(){
                     </motion.button>
                 </div>
 
-                <div className="flex relative 2xl:px-8 xl:px-8 md:px-8 px-2 justify-between ">
+                <div className="flex relative 2xl:px-8 xl:px-8 md:px-5 px-2 justify-between ">
                     
                     <div className="flex w-full flex-col 2xl:gap-10 xl:gap-10 md:gap-20 gap-3 pb-10 justify-center">
                         <div className="flex flex-col 2xl:gap-3 xl:gap-3 md:gap-3 gap-1 ">
@@ -89,18 +89,17 @@ export default function Hero(){
                             <p className="2xl:text-5xl xl:text-4xl md:text-5xl  text-2xl font-bold">partout où vous êtes</p>
                             <p className="2xl:text-5xl xl:text-4xl md:text-5xl text-2xl font-bold">et quand vous voulez.</p>
                         </div>
-                        <div className="flex flex-col gap-2">
-                            <p className="text-gray-500 text-2xl">Gérer vos membres, vos abonnements, vos cours,</p>
-                            <p className="text-gray-500 text-2xl">vos activités, vos finances en toute simplicité.</p>
-                            <p className="text-gray-500 text-2xl">Augmentez la fidélité et optimisez la gestion de</p>
-                            <p className="bg-orange-600 text-white font-bold typing text-2xl">votre salle avec <span className="uppercase italic ">GymPlus</span>.</p>
+                        <div className="flex flex-col 2xl:gap-2 xl:gap-2 gap-2 md:gap-6">
+                            <p className="text-gray-500 text-2xl 2xl:text-2xl xl:text-2xl md:text-3xl">Gérer vos membres, vos abonnements, vos cours,</p>
+                            <p className="text-gray-500 text-2xl 2xl:text-2xl xl:text-2xl md:text-3xl">vos activités, vos finances en toute simplicité.</p>
+                            <p className="text-gray-500 text-2xl 2xl:text-2xl xl:text-2xl md:text-3xl">Augmentez la fidélité et optimisez la gestion de</p>
+                            <p className="bg-orange-600 text-white text-2xl font-bold typing 2xl:text-2xl xl:text-2xl md:text-3xl">votre salle avec <span className="uppercase italic ">GymPlus</span>.</p>
                             <div className="md:flex xl:flex 2xl:flex items-center hidden 2xl:block xl:block md:block gap-2">
-                            <Users className="h-10 w-10 text-gray-500 border border-orange-300 p-2 flex items-center justify-center rounded-full" />
-                            <Receipt className="h-10 w-10 text-gray-500 border border-orange-300 p-2 flex items-center justify-center rounded-full" />
-                            <LayoutDashboard className="h-10 w-10 text-gray-500 border border-orange-300 p-2 flex items-center justify-center rounded-full" />
-                            <Medal className="h-10 w-10 text-gray-500 border border-orange-300 p-2 flex items-center justify-center rounded-full" />
-                            <Settings className="h-10 w-10 text-gray-500 border border-orange-300 p-2 flex items-center justify-center rounded-full" />
-                            <FilePieChart className="h-10 w-10 text-gray-500 border border-orange-300 p-2 flex items-center justify-center rounded-full" />
+                            <Users className="2xl:h-10 xl:h-10 md:h-15 h-10 2xl:w-10 xl:w-10 md:w-15 w-10 text-gray-500 border border-orange-300 p-2 flex items-center justify-center rounded-full" />
+                            <Receipt className="2xl:h-10 xl:h-10 md:h-15 h-10 2xl:w-10 xl:w-10 md:w-15 w-10  text-gray-500 border border-orange-300 p-2 flex items-center justify-center rounded-full" />
+                            <LayoutDashboard className="2xl:h-10 xl:h-10 md:h-15 h-10 2xl:w-10 xl:w-10 md:w-15 w-10 text-gray-500 border border-orange-300 p-2 flex items-center justify-center rounded-full" />
+                            <Settings className="2xl:h-10 xl:h-10 md:h-15 h-10 2xl:w-10 xl:w-10 md:w-15 w-10  text-gray-500 border border-orange-300 p-2 flex items-center justify-center rounded-full" />
+                            <FilePieChart className="2xl:h-10 xl:h-10 md:h-15 h-10 2xl:w-10 xl:w-10 md:w-15 w-10  text-gray-500 border border-orange-300 p-2 flex items-center justify-center rounded-full" />
                             </div>
                         </div>
 

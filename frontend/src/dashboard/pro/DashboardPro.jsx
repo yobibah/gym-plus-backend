@@ -221,6 +221,17 @@ export default function DashboardPro(){
     const [selectActivity, setSelectActivity] = useState(null)
     const [showSwhitch, setShowSwhitch] = useState(false)
 
+    // Ajoute cet état au début du composant avec les autres useState
+const [sidebarOpen, setSidebarOpen] = useState(false)
+
+    // Ajoute cette fonction pour fermer la sidebar quand on clique sur un lien (optionnel)
+    const handleSidebarNavigation = (tab) => {
+        setActiveTab(tab)
+        if (window.innerWidth < 1024) {
+            setSidebarOpen(false)
+        }
+    }
+
 
     const navigate = useNavigate()
     const token = getToken()
@@ -1979,159 +1990,183 @@ export default function DashboardPro(){
 
 
     return(
-        <div className="grid grid-cols-5 h-screen bg-gray-100 overflow-hidden">
+        <div className="flex flex-col lg:grid lg:grid-cols-5 h-screen bg-gray-100 overflow-hidden">
+            {/* Bouton hamburger pour mobile/tablette */}
+            <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="lg:hidden fixed top-4 right-4 z-50 bg-orange-600 text-white p-2 rounded-lg shadow-lg"
+            >
+                {sidebarOpen ? (
+                    <X className="h-6 w-6" />
+                ) : (
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                )}
+            </button>
 
-            <div className="col-span-1 py-3 bg-white shadow-lg flex flex-col xl:gap-5 2xl:gap-5 md:gap-5 gap-1 h-screen overflow-y-auto sticky top-0">
-                <div className="flex 2xl:flex-row xl:flex-row md:flex-row items-center gap-2 2xl:justify-between xl:justify-between md:justify-between flex-col px-5 my-5">
-                    <div className="rounded-full flex items-center justify-center border border-orange-500 bg-orange-500   2xl:w-18 xl:h-15 xl:w-18 2xl:h-15 md:h-12 md:w-18 h-10">
-                        {infosSalle?.logo_salle ? (
-                            <ImageComponent source={infosSalle?.logo_salle} label={"logo"} style={"w-full rounded-full h-full object-cover"}/>
-                        ):(
+            {/* Overlay pour fermer la sidebar sur mobile/tablette */}
+            {sidebarOpen && (
+                <div
+                    className="lg:hidden fixed inset-0 bg-black/50 z-40"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
 
-                            <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <ImageComponent source={logoGym} label={"logo"} style={"w-full rounded-full h-full object-cover"}/>}</p>
-                        )}
-
-
-                    </div>
-                    <div className="flex items-center w-full justify-between">
-                        <div className="flex flex-col  hidden 2xl:block xl:block ">
-                            <div className="font-semibold text-2xl">{infosSalle?.nom_salle || 'GymPlus'}</div>
-                            <div className="text-orange-500 text-sm">Plan {planActuel}</div>
+            {/* Sidebar */}
+            <div className={`
+                fixed lg:sticky top-0 left-0 z-40 bg-white shadow-lg flex flex-col transition-all duration-300 ease-in-out
+                h-screen overflow-y-auto
+                ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+                w-64 lg:w-auto lg:col-span-1 lg:relative lg:block
+            `}>
+                
+                {/* En-tête - Version desktop en ligne, mobile en colonne */}
+                <div className="p-4 lg:p-5 border-b border-gray-100">
+                    <div className="flex items-center justify-between lg:justify-start lg:gap-4">
+                        {/* Logo + Nom - alignés horizontalement sur desktop */}
+                        <div className="flex items-center gap-3">
+                            <div className="rounded-full flex items-center justify-center border border-orange-500 bg-orange-500 h-12 w-12 lg:h-14 lg:w-14 shrink-0">
+                                {infosSalle?.logo_salle ? (
+                                    <ImageComponent source={infosSalle?.logo_salle} label={"logo"} style={"w-full rounded-full h-full object-cover"}/>
+                                ):(
+                                    <p className="text-xl font-bold">{infosSalle?.nom_salle ? infosSalle?.nom_salle[0].toUpperCase() : <ImageComponent source={logoGym} label={"logo"} style={"w-full rounded-full h-full object-cover"}/>}</p>
+                                )}
+                            </div>
+                            <div className="hidden lg:block">
+                                <div className="font-semibold text-lg">{infosSalle?.nom_salle || 'GymPlus'}</div>
+                                <div className="text-orange-500 text-xs">Plan {planActuel}</div>
+                            </div>
+                            <div className="lg:hidden">
+                                <div className="font-semibold text-base">{infosSalle?.nom_salle || 'GymPlus'}</div>
+                                <div className="text-orange-500 text-xs">Plan {planActuel}</div>
+                            </div>
                         </div>
 
+
+                        {/* Bouton déconnexion - aligné à droite sur desktop */}
                         <motion.button
                             whileTap={{scale: 0.95}}
-                            className="text-red-500 border hover:bg-orange-50 transition-colors duration-200 border-red-500 rounded-lg 2xl:p-2 xl:p-2 md:p-2 p-1"
+                            className="text-red-500 border hover:bg-orange-50 transition-colors duration-200 border-red-500 rounded-lg p-2 lg:ml-auto shrink-0"
                             onClick={logoutModal}
                         >
-                            <LogOut className="h-5 w-5"/>
+                            <LogOut className="h-5 w-5" />
                         </motion.button>
                     </div>
                 </div>
 
-                <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'dashboard' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
-                    onClick={()=>{setActiveTab('dashboard')}}
-                >
-                     <LayoutDashboard className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
+                {/* Navigation */}
+                <div className="flex flex-col gap-1 px-3 py-4 flex-1">
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{scale: 0.95}}
+                        className={`${activeTab === 'dashboard' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center px-4 py-3 gap-3 hover:rounded-lg hover:bg-orange-100 cursor-pointer`}
+                        onClick={() => {setActiveTab('dashboard'); if(window.innerWidth < 1024) setSidebarOpen(false)}}
+                    >
+                        <LayoutDashboard className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-gray-600'} h-5 w-5 lg:h-6 lg:w-6 transition-colors duration-200 shrink-0`}/>
+                        <span className={`${activeTab === 'dashboard' ? 'text-orange-600' : 'text-gray-700'} font-medium text-sm lg:text-base transition-colors duration-200`}>
+                            Tableau de bord
+                        </span>
+                    </motion.div>
 
-                    >Tableau de bord</button>
-                </motion.div>
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{scale: 0.95}}
+                        className={`${activeTab === 'adherant' || showAdd ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center px-4 py-3 gap-3 hover:rounded-lg hover:bg-orange-100 cursor-pointer`}
+                        onClick={() => {setActiveTab('adherant'); if(window.innerWidth < 1024) setSidebarOpen(false)}}
+                    >
+                        <Users className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-gray-600'} h-5 w-5 lg:h-6 lg:w-6 transition-colors duration-200 shrink-0`}/>
+                        <span className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-gray-700'} font-medium text-sm lg:text-base transition-colors duration-200`}>
+                            Adhérants
+                        </span>
+                    </motion.div>
 
-                <motion.div
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{scale: 0.95}}
+                        className={`${activeTab === 'abonnement' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center px-4 py-3 gap-3 hover:rounded-lg hover:bg-orange-100 cursor-pointer`}
+                        onClick={() => {setActiveTab('abonnement'); if(window.innerWidth < 1024) setSidebarOpen(false)}}
+                    >
+                        <SquarePlus className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-gray-600'} h-5 w-5 lg:h-6 lg:w-6 transition-colors duration-200 shrink-0`}/>
+                        <span className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-gray-700'} font-medium text-sm lg:text-base transition-colors duration-200`}>
+                            Abonnements
+                        </span>
+                    </motion.div>
 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'adherant' || showAdd  ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
-                    onClick={()=>{setActiveTab('adherant')}}
-                >
-                     <Users className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200 `}/>
-                    <button className={`${activeTab === 'adherant' || showAdd ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{scale: 0.95}}
+                        className={`${activeTab === 'coach' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center px-4 py-3 gap-3 hover:rounded-lg hover:bg-orange-100 cursor-pointer`}
+                        onClick={() => {setActiveTab('coach'); if(window.innerWidth < 1024) setSidebarOpen(false)}}
+                    >
+                        <UserCog className={`${activeTab === 'coach' ? 'text-orange-600' : 'text-gray-600'} h-5 w-5 lg:h-6 lg:w-6 transition-colors duration-200 shrink-0`}/>
+                        <span className={`${activeTab === 'coach' ? 'text-orange-600' : 'text-gray-700'} font-medium text-sm lg:text-base transition-colors duration-200`}>
+                            Coachs
+                        </span>
+                    </motion.div>
 
-                    >Adhérants</button>
-                </motion.div>
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{scale: 0.95}}
+                        className={`${activeTab === 'cours' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center px-4 py-3 gap-3 hover:rounded-lg hover:bg-orange-100 cursor-pointer`}
+                        onClick={() => {setActiveTab('cours'); if(window.innerWidth < 1024) setSidebarOpen(false)}}
+                    >
+                        <Calendar1 className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-gray-600'} h-5 w-5 lg:h-6 lg:w-6 transition-colors duration-200 shrink-0`}/>
+                        <span className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-gray-700'} font-medium text-sm lg:text-base transition-colors duration-200`}>
+                            Planning (cours)
+                        </span>
+                    </motion.div>
 
-                <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'abonnement' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
-                    onClick={()=>{setActiveTab('abonnement')}}
-                >
-                     <SquarePlus className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'abonnement' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{scale: 0.95}}
+                        className={`${activeTab === 'settings' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center px-4 py-3 gap-3 hover:rounded-lg hover:bg-orange-100 cursor-pointer`}
+                        onClick={() => {setActiveTab('settings'); if(window.innerWidth < 1024) setSidebarOpen(false)}}
+                    >
+                        <Settings className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-gray-600'} h-5 w-5 lg:h-6 lg:w-6 transition-colors duration-200 shrink-0`}/>
+                        <span className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-gray-700'} font-medium text-sm lg:text-base transition-colors duration-200`}>
+                            Paramètres
+                        </span>
+                    </motion.div>
+                </div>
 
-                    >Abonnements</button>
-                </motion.div>
-
-                <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'coach' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
-                    onClick={()=>{setActiveTab('coach')}}
-                >
-                     <UserCog className={`${activeTab === 'coach' ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'coach' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
-
-                    >Coachs</button>
-                </motion.div>
-                <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'cours' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
-                    onClick={()=>{setActiveTab('cours')}}
-                >
-                     <Calendar1 className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'cours' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
-
-                    >Planning (cours)</button>
-                </motion.div>
-
-
-                <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{scale: 0.95}}
-                    className={`${activeTab === 'settings' ? 'bg-orange-100 rounded-lg' : ''} flex transition-colors duration-200 items-center 2xl:mx-5 xl:mx-5 md:mx-2 mx-2 py-3 md:px-2 xl:px-3 2xl:px-5 px-5 2xl:gap-5 xl:gap-5 md:gap-2 gap-2 hover:rounded-lg hover:bg-orange-100 2xl:text-lg xl:text-lg md:text-sm`}
-                    onClick={()=>{setActiveTab('settings')}}
-                >
-                     <Settings className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} h-7 w-7 md:hidden xl:block transition-colors duration-200`}/>
-                    <button className={`${activeTab === 'settings' ? 'text-orange-600' : 'text-black'} hidden 2xl:block xl:block md:block font-bold transition-colors duration-200`}
-
-                    >Paramètres</button>
-                </motion.div>
-
-
-                <div className="absolute mx-5 py-3 px-5 transition-colors duration-200 bottom-5 mx-auto w-full flex flex-col gap-2">
-
+                {/* Bouton Mettre à niveau - TOUT EN BAS (margin-top auto) */}
+                <div className="p-4 mt-auto border-t border-gray-100 fixed bottom-4 w-full">
                     <motion.button
-                        whileHover={{scale: 1.03}}
+                        whileHover={{scale: 1.02}}
                         whileTap={{scale: 0.95}}
                         disabled={misNiveauLoading || daysRemaining < 0}
-                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'} 2xl:block xl:block md:block hidden flex items-center justify-center shadow-lg  w-full text-white font-bold rounded-lg px-5 py-3`}
+                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'} w-full text-white font-bold rounded-lg py-3 px-4 transition-all duration-200 flex items-center justify-center gap-2`}
                         onClick={handleNiveau}
                     >
                         {misNiveauLoading ? (
-                            <Loader2 className="animate-spin text-white"/>
-                        ):(
-                            'Mettre à niveau'
-                        )}
-                    </motion.button>
-
-                    <motion.button
-                        whileHover={{scale: 1.03}}
-                        whileTap={{scale: 0.95}}
-                        disabled={misNiveauLoading || daysRemaining < 0}
-                        className={`${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-600'}  shadow-lg 2xl:hidden xl:hidden md:hidden block w-full text-white font-bold rounded-lg p-2`}
-                        onClick={handleNiveau}
-                    >
-                        {misNiveauLoading ? (
-                            <Loader2 className="animate-spin text-white"/>
-                        ):(
-                            <RefreshCcw className="h-5 w-5" />
+                            <Loader2 className="animate-spin text-white h-5 w-5"/>
+                        ) : (
+                            <>
+                                <RefreshCcw className="h-4 w-4 lg:h-5 lg:w-5" />
+                                <span className="text-sm lg:text-base">Mettre à niveau</span>
+                            </>
                         )}
                     </motion.button>
                 </div>
-
             </div>
 
 
             {activeTab === 'dashboard' && (
                 <>
-                    <div className="absolute 2xl:top-0 xl:top-0 md:top-20 top-30 right-0 opacity-40 2xl:h-200 xl:h-200 md:h-150 h-80 w-80 md:w-150 overflow-hidden 2xl:w-200 xl:w-200">
+                    <div className="absolute top-0 right-0 opacity-40 w-80 md:w-150 lg:w-200 overflow-hidden pointer-events-none">
                         <ImageComponent source={coverhero} label={"logo"} className="h-full w-full" />
                     </div>
-                    <div className="col-span-4 relative 2xl:px-8 xl:px-8 md:px-8 px-4 py-3 my-5 ">
+                    <div className="lg:col-span-4 relative px-4 md:px-8 py-3 my-2 md:my-5 overflow-y-auto h-screen lg:h-auto">
 
-                        <div className="flex flex-col gap-2 2xl:items-center 2xl:flex-row 2xl:justify-between xl:items-center xl:flex-row xl:justify-between 2xl:mb-10 xl:mb-10 mb-5 border-b-1 pb-5 border-gray-200">
-                            <div className="flex flex-col gap-2 2xl:text-lg xl:text-lg md:text-base text-xs">
-                                <div className="flex flex-col 2xl:items-center 2xl:flex-row xl:flex-row xl:items-center md:items-center md:flex-row 2xl:gap-5 xl:gap-5 md:gap-5 gap-2">
-                                    <h1 className="font-bold text-3xl">Tableau de Bord</h1>
+                        <div className="flex flex-col gap-2 lg:items-center lg:flex-row lg:justify-between mb-5 border-b pb-5 border-gray-200">
+                            <div className="flex flex-col gap-2 text-sm md:text-base lg:text-lg">
+                                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-5">
+                                    <h1 className="font-bold text-2xl lg:text-3xl">Tableau de Bord</h1>
                                     {daysRemaining <= 0 && (
-                                        <div className="flex items-center gap-1 bg-red-100 2xl:px-4 xl:px-4 md:px-4 px-1 2xl:rounded-full xl:rounded-full py-1">
-                                            <AlertTriangle className="text-red-500 hidden 2xl:block" />
-                                            <p className="text-red-500 font-bold">
+                                        <div className="flex items-center gap-1 bg-red-100 px-2 md:px-4 rounded-full py-1 w-fit">
+                                            <AlertTriangle className="text-red-500 hidden md:block h-4 w-4" />
+                                            <p className="text-red-500 font-bold text-xs md:text-sm">
                                             {daysRemaining === 0
                                                 ? "Votre abonnement expire aujourd'hui !"
                                                 : "Votre abonnement est expiré !"
@@ -2141,9 +2176,9 @@ export default function DashboardPro(){
                                         )}
 
                                     {0 < daysRemaining && daysRemaining <= 7 &&(
-                                        <div className="flex items-center gap-1 bg-red-100 2xl:px-4 xl:px-4 md:px-4 px-1 2xl:rounded-full xl:rounded-full animate-pulse rounded-full py-1">
-                                            <AlertTriangle className="text-red-500 hidden 2xl:block" />
-                                            <p className="text-red-500 font-bold">
+                                        <div className="flex items-center gap-1 bg-red-100 px-2 md:px-4 rounded-full animate-pulse py-1 w-fit">
+                                            <AlertTriangle className="text-red-500 hidden md:block h-4 w-4" />
+                                            <p className="text-red-500 font-bold text-xs md:text-sm">
                                             {daysRemaining === 1
                                                 ? "Votre abonnement expire demain !"
                                                 : `Votre abonnement expirera dans ${daysRemaining} jours !`
@@ -2153,39 +2188,39 @@ export default function DashboardPro(){
                                     )}
 
                                 </div>
-                                <p className="text-[18px] text-gray-400">Bienvenue {infosUser?.name || ''} {infosUser?.prenom || ''} !</p>
+                                <p className="text-base md:text-[18px] text-gray-400">Bienvenue {infosUser?.name || ''} {infosUser?.prenom || ''} !</p>
 
                             </div>
 
-                            <div className="flex items-center justify-center gap-5">
-                                <div className="relative w-full">
+                            <div className="flex items-center justify-end gap-3 md:gap-5">
+                                <div className="relative w-full max-w-[200px] md:max-w-none">
                                     <input type="text" value={search}
                                         onChange={(e)=>{setSearch(e.target.value)}}
                                         placeholder="Rechercher adherant..."
-                                        className="block w-full 2xl:mx-2 xl:mx-2 md:mx-2 p-2 pl-10 border border-orange-500 rounded-lg text-sm focus:outline-none bg-white"
+                                        className="block w-full p-2 pl-8 border border-orange-500 rounded-lg text-sm focus:outline-none bg-white"
                                     />
-                                    <div className="absolute top-2 left-4">
-                                        <Search className="h-5 w-5 text-orange-500"/>
+                                    <div className="absolute top-2 left-2 md:left-3">
+                                        <Search className="h-4 w-4 md:h-5 md:w-5 text-orange-500"/>
                                     </div>
                                 </div>
 
-                                <div className="relative hidden 2xl:block xl:block md:block">
+                                <div className="relative hidden md:block">
                                     <motion.button
                                         whileTap={{scale : 0.95}}
                                         onClick={handleNotif}
                                         className=""
                                     >
-                                        <Bell className="h-7 w-7"/>
+                                        <Bell className="h-6 w-6 md:h-7 md:w-7"/>
                                     </motion.button>
 
                                     {totalAbExpirer > 0  && (
-                                        <div className="absolute -top-3 text-sm -right-2 flex items-center justify-center">
-                                            <Info className="h-6 w-6 " fill="rgba(0,100,255,0.8)" stroke="white" />
+                                        <div className="absolute -top-2 -right-2 flex items-center justify-center">
+                                            <Info className="h-5 w-5 md:h-6 md:w-6" fill="rgba(0,100,255,0.8)" stroke="white" />
                                         </div>
                                     )}
                                     {totalExpire > 0  && (
-                                        <div className="absolute -top-3 text-sm -right-2 flex items-center justify-center">
-                                            <Info className="h-6 w-6 " fill="rgba(0,100,255,0.8)" stroke="white" />
+                                        <div className="absolute -top-2 -right-2 flex items-center justify-center">
+                                            <Info className="h-5 w-5 md:h-6 md:w-6" fill="rgba(0,100,255,0.8)" stroke="white" />
                                         </div>
                                     )}
 
@@ -2194,8 +2229,8 @@ export default function DashboardPro(){
                                             initial = {{opacity: 0, y: -8}}
                                             animate = {{opacity: 1, y: 0}}
                                             transition={{duration: 0.5}}
-                                            className="absolute -bottom-31 bg-white -right-22 text-sm w-50 flex flex-col shadow-[0_0_3px_rgba(0,0,0,0.8)]">
-                                            <div className=" p-2 bg-orange-50 hover:bg-gray-50 transition-colors duration-200 cursor-pointer font-semibold">
+                                            className="absolute -bottom-30 bg-white -right-20 text-sm w-48 flex flex-col shadow-lg z-20">
+                                            <div className="p-2 bg-orange-50 hover:bg-gray-50 transition-colors duration-200 cursor-pointer font-semibold">
                                                 {loadingAbExpirer ? (
                                                     <p className="h-5 w-40 bg-gray-300 animate-pulse"></p>
                                                 ):totalAbExpirer >= 1 ? (
@@ -2226,7 +2261,7 @@ export default function DashboardPro(){
                                             </div>
                                             <hr className="w-45 text-gray-300  mt-2 mx-auto"/>
                                             <button
-                                                className=" p-2 text-red-500 cursor-pointer"
+                                                className="p-2 text-red-500 cursor-pointer"
                                                 onClick={logoutModal}
                                             >
                                                 Déconnexion
@@ -2235,33 +2270,32 @@ export default function DashboardPro(){
                                     )}
                                 </div>
 
-                                <div className="rounded-full 2xl:block xl:block md:block hidden h-10 w-13 border bg-orange-500 border-orange-500 flex items-center justify-center ">
+                                <div className="rounded-full h-8 w-8 md:h-10 md:w-12 border bg-orange-500 border-orange-500 flex items-center justify-center shrink-0">
                                     {infosSalle?.logo_salle ? (
                                         <ImageComponent source={infosSalle?.logo_salle} label={"logo"} style={"w-full rounded-full h-full object-cover"}/>
                                     ):(
-
-                                        <p className="text-xl text-center font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <ImageComponent source={logoGym} label={"logo"} className="w-full rounded-full h-full object-cover"/>}</p>
+                                        <p className="text-lg md:text-xl text-center font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <ImageComponent source={logoGym} label={"logo"} className="w-full rounded-full h-full object-cover"/>}</p>
                                     )}
                                 </div>
                             </div>
                         </div>
                         
-                        <div className="grid grid-cols-4 h-112 md:h-250 2xl:h-205 xl:h-145 p-1 overflow-y-auto scrollbar-hide">
-                            <div className="col-span-4 flex flex-col 2xl:justify-between xl:justify-between 2xl:flex-row xl:flex-row 2xl:gap-8 xl:gap-8 gap-4 ">
+                        <div className="h-[calc(100vh-120px)] lg:h-auto overflow-y-auto pb-10">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
                                 <motion.div
                                     whileHover={{scale: 1.02}}
-                                    className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.8)] h-27 rounded-lg w-full flex flex-col gap-2 p-4">
+                                    className="bg-white shadow-md rounded-lg w-full flex flex-col gap-2 p-4">
                                     
                                     <div className="">
-                                        <p className="text-gray-400 font-bold 2xl:text-[18px] xl:text-[17px] md:text-[18px] text-base">Adhérants</p>
+                                        <p className="text-gray-400 font-bold text-base md:text-[18px]">Adhérants</p>
                                     </div>
                                     {loadingNbrAdherant ? (
                                         <div>
-                                            <p className="w-40 h-8 bg-gray-200 animate-pulse"></p>
+                                            <p className="w-32 h-8 bg-gray-200 animate-pulse"></p>
                                         </div>
                                     ):(
                                         <div>
-                                            <p className="font-bold 2xl:text-3xl xl:text-2xl md:text-3xl text-2xl">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}` || 0} / 1000</p>
+                                            <p className="font-bold text-2xl md:text-3xl">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}` || 0} / 1000</p>
                                         </div>
                                     )}
 
@@ -2273,17 +2307,17 @@ export default function DashboardPro(){
                                 </motion.div>
                                 <motion.div
                                     whileHover={{scale: 1.02}}
-                                    className="bg-white shadow-[0_0_5px_rgba(0,255,0,0.8)] h-27 w-full flex flex-col gap-2 p-4 rounded-lg">
+                                    className="bg-white shadow-md h-27 w-full flex flex-col gap-2 p-4 rounded-lg">
                                     <div>
-                                        <p className="text-gray-400 font-bold 2xl:text-[18px] xl:text-[17px] md:text-[18px] text-base">Adhérants Actifs</p>
+                                        <p className="text-gray-400 font-bold text-base md:text-[18px]">Adhérants Actifs</p>
                                     </div>
                                     {loadingNbrActif ? (
                                         <div>
-                                            <p className="w-40 h-8 bg-gray-200 animate-pulse"></p>
+                                            <p className="w-32 h-8 bg-gray-200 animate-pulse"></p>
                                         </div>
                                     ):(
                                         <div>
-                                            <p className="font-bold 2xl:text-3xl xl:text-2xl md:text-3xl text-2xl text-green-500">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}` || 0}</p>
+                                            <p className="font-bold text-2xl md:text-3xl text-green-500">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}` || 0}</p>
                                         </div>
                                     )}
 
@@ -2295,18 +2329,18 @@ export default function DashboardPro(){
                                 </motion.div>
                                 <motion.div
                                     whileHover={{scale: 1.02}}
-                                    className="bg-white shadow-[0_0_5px_rgba(255,0,0,0.8)] h-27 w-full flex flex-col gap-2 p-4 rounded-lg">
+                                    className="bg-white shadow-md h-27 w-full flex flex-col gap-2 p-4 rounded-lg">
                                     <div>
-                                        <p className="text-gray-400 font-bold 2xl:text-[18px] xl:text-[17px] md:text-[18px] text-base">Récettes (mois passé)</p>
+                                        <p className="text-gray-400 font-bold text-base md:text-[18px]">Récettes (mois passé)</p>
                                     </div>
 
                                     {loadingRecette ? (
                                         <div>
-                                            <p className="w-40 h-8 bg-gray-200 animate-pulse"></p>
+                                            <p className="w-32 h-8 bg-gray-200 animate-pulse"></p>
                                         </div>
                                     ):(
                                         <div>
-                                            <p className="font-bold 2xl:text-3xl xl:text-2xl md:text-3xl text-2xl text-red-500">XOF {dataRecette?.[0]?.mois_precedent || 0}</p>
+                                            <p className="font-bold text-2xl md:text-3xl text-red-500">XOF {dataRecette?.[0]?.mois_precedent || 0}</p>
                                         </div>
                                     )}
 
@@ -2318,17 +2352,17 @@ export default function DashboardPro(){
                                 </motion.div>
                                 <motion.div
                                     whileHover={{scale: 1.02}}
-                                    className="bg-white rounded-lg shadow-[0_0_5px_rgba(251,255,0,0.8)] h-27 w-full flex flex-col gap-2 p-4">
+                                    className="bg-white rounded-lg shadow-md h-27 w-full flex flex-col gap-2 p-4">
                                     <div>
-                                        <p className="text-gray-400 font-bold 2xl:text-[18px] xl:text-[17px] md:text-[18px] text-base">Récettes du Mois</p>
+                                        <p className="text-gray-400 font-bold text-base md:text-[18px]">Récettes du Mois</p>
                                     </div>
                                     {loadingRecette ? (
                                         <div>
-                                            <p className="w-40 h-8 bg-gray-200 animate-pulse"></p>
+                                            <p className="w-32 h-8 bg-gray-200 animate-pulse"></p>
                                         </div>
                                     ):(
                                         <div>
-                                            <p className="font-bold 2xl:text-3xl xl:text-2xl md:text-3xl text-2xl text-yellow-500">XOF {dataRecette?.[0]?.montant_total || 0}</p>
+                                            <p className="font-bold text-2xl md:text-3xl text-yellow-500">XOF {dataRecette?.[0]?.montant_total || 0}</p>
                                         </div>
                                     )}
 
@@ -2340,14 +2374,14 @@ export default function DashboardPro(){
                                 </motion.div>
                             </div>
 
-                            <div className="col-span-4 my-10 grid grid-cols-4 justify-between gap-8">
-                                <div className="shadow-[0_0_5px_rgba(0,0,0,0.5)] p-4 2xl:col-span-3 xl:col-span-2 col-span-4 bg-white rounded-lg w-full">
-                                    <div className="flex 2xl:flex-row 2xl:items-center 2xl:justify-between flex-col gap-4 w-full">
-                                        <div className="font-bold flex items-center gap-1">
+                            <div className="my-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
+                                <div className="shadow-md p-4 lg:col-span-3 bg-white rounded-lg w-full">
+                                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full mb-4">
+                                        <div className="font-bold flex flex-wrap items-center gap-2">
                                            <p>Aperçu financier</p>
                                            <button
                                             disabled={financeLoading}
-                                                className={`text-xs ${financeLoading ? 'bg-gray-500' : 'hover:bg-orange-600 bg-orange-500'} text-white  font-semibold rounded-lg py-1 px-3 transition-all duration-200`}
+                                                className={`text-xs ${financeLoading ? 'bg-gray-500' : 'hover:bg-orange-600 bg-orange-500'} text-white font-semibold rounded-lg py-1 px-3 transition-all duration-200`}
                                                 onClick={(e)=>{handleFinanceAI(e)}}
                                            >
                                             {financeLoading ? (
@@ -2360,37 +2394,37 @@ export default function DashboardPro(){
                                             )}
                                             </button>
                                         </div>
-                                        <div className="flex items-center justify-center gap-2 border rounded-full border-gray-400 py-1 px-5">
+                                        <div className="flex items-center justify-center gap-1 md:gap-2 border rounded-full border-gray-400 py-1 px-2 md:px-5">
                                             <motion.button
                                             whileTap={{scale: 0.95}}
                                                 onClick={()=>{setApercu('mois_dernier')}}
-                                                className={`text-xs 2xl:text-sm rounded-lg py-1 px-1 2xl:px-3 xl:px-3 md:px-3 ${apercu === 'mois_dernier' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
+                                                className={`text-xs lg:text-sm rounded-lg py-1 px-1 md:px-3 ${apercu === 'mois_dernier' ? 'bg-orange-500 text-white' : ''} font-semibold transition-all duration-200`}
                                             >
                                                 3 derniers mois
                                             </motion.button>
                                             <motion.button
                                                 whileTap={{scale: 0.95}}
                                                 onClick={()=>{setApercu('mois_actuel')}}
-                                                className={`text-xs 2xl:text-sm rounded-lg py-1 px-1 2xl:px-3 xl:px-3 md:px-3 ${apercu === 'mois_actuel' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
+                                                className={`text-xs lg:text-sm rounded-lg py-1 px-1 md:px-3 ${apercu === 'mois_actuel' ? 'bg-orange-500 text-white' : ''} font-semibold transition-all duration-200`}
                                             >
                                                 Mois actuel
                                             </motion.button>
                                             <motion.button
                                             whileTap={{scale: 0.95}}
                                                 onClick={()=>{setApercu('annee_passe')}}
-                                                className={`text-xs 2xl:text-sm rounded-lg py-1 px-1 2xl:px-3 xl:px-3 md:px-3 ${apercu === 'annee_passe' ? 'bg-orange-500 text-white' : '' }  font-semibold transition-all duration-200`}
+                                                className={`text-xs lg:text-sm rounded-lg py-1 px-1 md:px-3 ${apercu === 'annee_passe' ? 'bg-orange-500 text-white' : ''} font-semibold transition-all duration-200`}
                                             >
                                                 Année passée
                                             </motion.button>
                                         </div>
                                     </div>
-                                    <div className=" my-3">
-                                        <p className="2xl:text-2xl xl:text-2xl md:text-2xl text-xl font-bold">XOF {dataRecette?.[0]?.montant_total}
-                                            <span className="text-green-500 font-semibold ml-2 text-orange-500 text-sm">
+                                    <div className="my-3">
+                                        <p className="text-xl md:text-2xl font-bold">XOF {dataRecette?.[0]?.montant_total}
+                                            <span className="text-green-500 font-semibold ml-2 text-orange-500 text-xs md:text-sm">
                                                 {pourcentageMois()} 
                                                 
                                                 {apercu === 'mois_dernier' ? (
-                                                    '% vs  les trois(3) derniers mois'
+                                                    '% vs les trois(3) derniers mois'
                                                 ):apercu === 'annee_passe' ? (
                                                     '% vs  l\'année passée'
                                                 ):(
@@ -2401,7 +2435,7 @@ export default function DashboardPro(){
                                         
                                     </div>
 
-                                    <div className="flex items-center justify-center 2xl:h-100 md:h-55 xl:h-80 h-50">
+                                    <div className="flex items-center justify-center h-64 md:h-80 lg:h-100 w-full">
                                         {(dataRecette?.[0]?.montant_total === 0 &&
                                             dataRecette?.[1]?.montant_total === 0 &&
                                             dataRecette?.[2]?.montant_total === 0 &&
@@ -2421,8 +2455,8 @@ export default function DashboardPro(){
                                 </div>
 
 
-                                <div className="flex flex-col 2xl:col-span-1 xl:col-span-2 col-span-4 gap-4 w-full">
-                                    <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
+                                <div className="flex flex-col gap-4 w-full">
+                                    <div className="bg-white shadow-md flex flex-col gap-3 p-4 rounded-lg">
                                         <h3 className="font-bold">Gestion des Abonnements</h3>
                                         <div className="flex items-center justify-center gap-8">
                                             <div className="flex flex-col items-center">
@@ -2457,15 +2491,15 @@ export default function DashboardPro(){
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
+                                    <div className="bg-white shadow-md flex flex-col gap-3 p-4 rounded-lg">
                                         <h3 className="font-bold">Alertes Intelligentes</h3>
                                         <div className="">
                                             <div className="flex gap-2 items-center">
-                                                <div className="flex items-center rounded-full justify-center p-1 bg-yellow-100">
+                                                <div className="flex items-center rounded-full justify-center p-1 bg-yellow-100 shrink-0">
                                                     <Calendar1 className="h-5 w-5 text-yellow-500"/>
                                                 </div>
                                                 {loadingExpire ? (
-                                                    <p className="h-5 w-50 bg-gray-300 animate-pulse"></p>
+                                                    <p className="h-5 w-40 bg-gray-300 animate-pulse"></p>
                                                 ):totalExpire >= 1 ? (
                                                     <p className="text-sm font-semibold">{totalExpire >= 10 ? `${totalExpire}` : `0${totalExpire}`} abonnement{totalExpire > 1 ? 's' : ''} expire{totalExpire > 1 ? 'nt' : ''} cette semaine</p>
                                                     ):(
@@ -2477,11 +2511,11 @@ export default function DashboardPro(){
                                                 )}
                                             </div>
                                             <div className="flex gap-2 items-center">
-                                                <div className="flex items-center rounded-full justify-center p-1 bg-red-100">
+                                                <div className="flex items-center rounded-full justify-center p-1 bg-red-100 shrink-0">
                                                     <CalendarOff className="h-5 w-5 text-red-500"/>
                                                 </div>
                                                 {loadingAbExpirer ? (
-                                                    <p className="h-5 w-50 bg-gray-300 animate-pulse"></p>
+                                                    <p className="h-5 w-40 bg-gray-300 animate-pulse"></p>
                                                 ):totalAbExpirer >= 1 ? (
                                                         <p className="text-sm font-semibold">{totalAbExpirer >= 10 ? `${totalAbExpirer}` : `0${totalAbExpirer}`} abonnement{totalAbExpirer > 1 ? 's' : ''} expiré{totalAbExpirer > 1 ? 's' : ''}</p>
                                                     ):(
@@ -2496,7 +2530,7 @@ export default function DashboardPro(){
                                         </div>
                                     </div>
 
-                                    <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
+                                    <div className="bg-white shadow-md flex flex-col gap-3 p-4 rounded-lg">
                                         <h3 className="font-bold">Coachs affectés à la salle</h3>
                                         <div className="flex items-center justify-center gap-8">
                                             <div className="flex flex-col items-center">
@@ -2525,7 +2559,7 @@ export default function DashboardPro(){
                                         </div>
                                     </div>
 
-                                    <div className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] flex flex-col gap-3 p-4 rounded-lg">
+                                    <div className="bg-white shadow-md flex flex-col gap-3 p-4 rounded-lg">
                                         <h3 className="font-bold">Total cours programmés</h3>
                                         <div className="flex items-center justify-center gap-8">
                                             <div className="flex flex-col items-center">
@@ -2556,107 +2590,122 @@ export default function DashboardPro(){
                             </div>
 
 
-                            <div className="col-span-4 mb-1 bg-white flex flex-col gap-3 shadow-[0_0_5px_rgba(0,0,0,0.5)] w-full p-4 rounded-lg ">
-                                <h3 className="font-bold">Suivi des Abonnés</h3>
-                                <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
-                                    <thead className="uppercase 2xl:text-sm xl:text-sm md:text-sm text-xs text-gray-400 bg-gray-200/70">
-                                        <tr className="justify-between w-full flex items-center">
-                                            <th className=" w-full p-3 text-left">Adhérant</th>
-                                            <th className=" w-full hidden 2xl:block xl:block md:block p-3">Début</th>
-                                            <th className="w-full p-3">Fin</th>
-                                            <th className=" w-full p-3">Statut</th>
-                                        </tr>
-                                    </thead>
+                            <div className="mb-1 bg-white flex flex-col gap-3 shadow-md w-full p-4 rounded-lg overflow-x-auto">
+    <h3 className="font-bold">Suivi des Abonnés</h3>
+    <table className="w-full text-center min-w-[600px]" style={{ borderCollapse: "collapse" }}>
+        <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+            <tr>
+                <th className="p-3 text-left">Adhérant</th>
+                <th className="p-3 hidden md:table-cell">Début</th>
+                <th className="p-3">Fin</th>
+                <th className="p-3">Statut</th>
+            </tr>
+        </thead>
 
-                                        <tbody className="">
-                                            {loadingAdh ? (
-                                                [1,2,3,4,5,6,7,8,9,10].map(item =>(
-
-                                                    <tr key={item} className="text-sm p-2 flex w-full justify-between items-center border-b border-gray-200">
-
-                                                        <td className="flex w-full  items-center  font-bold  gap-2 py-5 px-3">
-                                                            <span className=" h-5 w-5 2xl:block xl:block md:block  hidden rounded-full bg-gray-200 animate-pulse flex items-center p-2"></span>
-                                                            <p className="h-5 2xl:w-40 xl:w-40 md:w-20 w-10 animate-pulse bg-gray-200"></p>
-                                                        </td>
-                                                        <td className=" hidden 2xl:block xl:block md:block px-2 w-full  py-5"><p className="h-5 animate-pulse mx-auto xl:w-40 2xl:w-40 md:w-20 w-10 bg-gray-200"></p></td>
-                                                        <td className=" px-2 w-full  py-5"><p className="h-5 animate-pulse xl:w-40 2xl:w-40 md:w-20 w-10 mx-auto bg-gray-200"></p></td>
-                                                        <td className=" px-2 w-full  py-5"><p className="h-5 animate-pulse 2xl:w-20 xl:w-20 md:w-10 w-5 mx-auto bg-gray-200"></p></td>
-                                                    </tr>
-                                                ))
-                                            ): adherentsFiltres.length === 0 ? (
-                                                <tr>
-                                                    <td colSpan={4} className={`${search.trim() ? '' : 'h-140'} py-6 text-center 2xl:text-sm xl:text-sm md:text-sm text-xs text-gray-500`}>
-                                                        {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
-                                                    </td>
-                                                </tr>
-                                            ): adherentsFiltres.map(item => (
-                                                <tr key={item.id} className="2xl:text-sm  xl:text-sm md:text-sm text-xs p-2 border-b flex w-full justify-between items-center border-gray-200">
-
-                                                    <td className="flex items-center w-full font-bold  gap-2 py-5">
-                                                        <span className="rounded-full hidden 2xl:block xl:block md:block bg-gray-200 flex items-center p-2">
-                                                            <User className="h-4 w-4 "/>
-                                                        </span>
-                                                        {`${item.name} ${item.prenom}` || item.username || 'N/A' }
-
-                                                    </td>
-                                                    <td className="hidden 2xl:block xl:block md:block w-full py-5">{item.dernier_abonnement !== null ? formatDate(item.dernier_abonnement.debut) : '-'}</td>
-                                                    <td className="  w-full py-5">{item.dernier_abonnement !== null ? formatDate(item.dernier_abonnement.fin) : '-'}</td>
-                                                    <td className="w-full flex items-center justify-center">
-                                                        {item.dernier_abonnement?.date_suspension !== null ?(
-                                                            <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl`}>
-                                                                suspendu
-                                                            </span>
-                                                        ):(
-                                                            <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200  animate-pulse'} font-semibold py-1 px-2 rounded-xl`}>
-                                                                {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
-                                                            </span>
-                                                        )}
-                                                    </td>
-
-                                                </tr>
-                                            ))}
-
-                                        </tbody>
-
-                                        {errorAdh && (
-                                            <tr className="">
-                                                <td colSpan={4} className="py-6 2xl:text-sm xl:text-sm md:text-sm text-xs h-140 text-center  text-red-600">
-                                                    <p className="flex items-center justify-center gap-2 ">
-                                                    <XCircle className="animate-spin h-5 w-5 text-red-600" />
-                                                    Une erreur est survenue
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        )}
-
-                                </table>
-                                <div className="flex  p-4 items-center justify-between">
-                                        <div>
-                                            <div className="2xl:text-sm xl:text-sm md:text-sm text-xs text-gray-400">
-                                                Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex 2xl:text-sm xl:text-sm md:text-sm text-xs items-center gap-2">
-                                            <motion.button
-                                            disabled={page === 1 || loadingAdh}
-                                            onClick={()=>{setPage(p => p - 1)}}
-                                                whileTap={{scale: 0.95}}
-                                                className={`${mesAdh.data?.adherents?.current_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                            >Précedent</motion.button>
-
-                                            <motion.button
-                                            disabled={page === mesAdh.data?.adherents?.last_page}
-                                            onClick={()=>{
-                                                setPage(p => p + 1) || loadingAdh
-                                            }}
-                                            whileTap={{scale: 0.95}}
-                                                className={`${mesAdh.data?.adherents?.last_page ? 'bg-gray-200' : 'bg-transparent'} px-2 py-1 cursor-pointer border border-gray-200 font-semibold`}
-                                            > Suivant</motion.button>
-                                        </div>
-                                    </div>
-
+        <tbody>
+            {loadingAdh ? (
+                [1,2,3,4,5,6,7,8,9,10].map(item => (
+                    <tr key={item} className="border-b border-gray-200">
+                        <td className="py-5 px-3">
+                            <div className="flex items-center gap-2">
+                                <span className="h-8 w-8 hidden md:block rounded-full bg-gray-200 animate-pulse"></span>
+                                <p className="h-5 w-32 md:w-48 animate-pulse bg-gray-200 rounded"></p>
                             </div>
+                        </td>
+                        <td className="hidden md:table-cell py-5 px-2">
+                            <p className="h-5 w-28 md:w-36 animate-pulse bg-gray-200 rounded mx-auto"></p>
+                        </td>
+                        <td className="py-5 px-2">
+                            <p className="h-5 w-28 md:w-36 animate-pulse bg-gray-200 rounded mx-auto"></p>
+                        </td>
+                        <td className="py-5 px-2">
+                            <p className="h-5 w-16 md:w-24 animate-pulse bg-gray-200 rounded mx-auto"></p>
+                        </td>
+                    </tr>
+                ))
+            ) : adherentsFiltres.length === 0 ? (
+                <tr>
+                    <td colSpan={4} className={`${search.trim() ? '' : 'h-40 md:h-60'} py-10 text-center text-xs md:text-sm text-gray-500`}>
+                        {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
+                    </td>
+                </tr>
+            ) : (
+                adherentsFiltres.map(item => (
+                    <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td className="py-3 md:py-4 px-3">
+                            <div className="flex items-center gap-2">
+                                <span className="rounded-full hidden md:flex bg-gray-200 items-center justify-center p-2 h-8 w-8 shrink-0">
+                                    <User className="h-4 w-4 text-gray-500"/>
+                                </span>
+                                <span className="font-medium text-sm md:text-base break-words">
+                                    {`${item.name} ${item.prenom}` || item.username || 'N/A'}
+                                </span>
+                            </div>
+                        </td>
+                        <td className="hidden md:table-cell py-3 md:py-4 px-2 text-sm md:text-base">
+                            {item.dernier_abonnement !== null ? formatDate(item.dernier_abonnement.debut) : '-'}
+                        </td>
+                        <td className="py-3 md:py-4 px-2 text-sm md:text-base">
+                            {item.dernier_abonnement !== null ? formatDate(item.dernier_abonnement.fin) : '-'}
+                        </td>
+                        <td className="py-3 md:py-4 px-2">
+                            {item.dernier_abonnement?.date_suspension !== null ? (
+                                <span className="bg-yellow-200 font-semibold py-1 px-2 md:px-3 rounded-full text-xs md:text-sm whitespace-nowrap">
+                                    suspendu
+                                </span>
+                            ) : (
+                                <span className={`${item.dernier_abonnement?.actif ? 'bg-green-200' : 'bg-red-200 animate-pulse'} font-semibold py-1 px-2 md:px-3 rounded-full text-xs md:text-sm whitespace-nowrap`}>
+                                    {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
+                                </span>
+                            )}
+                        </td>
+                    </tr>
+                ))
+            )}
+        </tbody>
+
+        {errorAdh && (
+            <tbody>
+                <tr>
+                    <td colSpan={4} className="py-10 text-center text-xs md:text-sm text-red-600">
+                        <p className="flex items-center justify-center gap-2">
+                            <XCircle className="animate-spin h-5 w-5 text-red-600" />
+                            Une erreur est survenue
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        )}
+    </table>
+
+    <div className="flex p-4 items-center justify-between flex-col md:flex-row gap-2 border-t border-gray-100 mt-2">
+        <div>
+            <div className="text-xs md:text-sm text-gray-400">
+                Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+            </div>
+        </div>
+
+        <div className="flex text-xs md:text-sm items-center gap-2">
+            <motion.button
+                disabled={page === 1 || loadingAdh}
+                onClick={() => setPage(p => p - 1)}
+                whileTap={{scale: 0.95}}
+                className={`${page === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'} px-3 py-1 rounded border border-gray-300 font-semibold transition-colors`}
+            >
+                Précedent
+            </motion.button>
+
+            <motion.button
+                disabled={page === mesAdh.data?.adherents?.last_page || loadingAdh}
+                onClick={() => setPage(p => p + 1)}
+                whileTap={{scale: 0.95}}
+                className={`${page === mesAdh.data?.adherents?.last_page ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'} px-3 py-1 rounded border border-gray-300 font-semibold transition-colors`}
+            >
+                Suivant
+            </motion.button>
+        </div>
+    </div>
+</div>
                         </div>
                     </div>
                 </>
@@ -2664,40 +2713,40 @@ export default function DashboardPro(){
 
             {activeTab === 'adherant' && (
                 <>
-                    <div className="absolute opacity-40 right-0 2xl:w-200 xl:w-200 md:w-180 w-80 overflow-hidden">
+                    <div className="absolute opacity-40 right-0 w-48 md:w-80 lg:w-180 pointer-events-none">
                         <ImageComponent source={abonnement} label={"logo-cours"} style={''} />
                     </div>
-                    <div className="relative col-span-4 px-8 py-3 my-5">
+                    <div className="relative lg:col-span-4 px-4 md:px-8 py-3 my-2 md:my-5 overflow-x-auto">
 
                         <div className="flex flex-col gap-2" >
-                            <h1 className="font-bold text-3xl">Gestion des Adhérants</h1>
-                            <p className="text-gray-400 text-[18px]">Plan {planActuel} - {nbrAdherants}/1000 adhérants</p>
+                            <h1 className="font-bold text-2xl md:text-3xl">Gestion des Adhérants</h1>
+                            <p className="text-gray-400 text-base md:text-[18px]">Plan {planActuel} - {nbrAdherants}/1000 adhérants</p>
                         </div>
 
-                        <div className="flex gap-4 2xl:flex-row xl:flex-row md:flex-row flex-col 2xl:items-center xl:items-center md:items-center 2xl:justify-between xl:justify-between md:justify-between my-8">
-                            <div className="flex items-center relative 2xl:w-90 xl:w-90 md:w-90">
-                                <div className="absolute top-2">
-                                    <Search className="h-5 w-5 text-orange-400 ml-2"/>
+                        <div className="flex gap-4 flex-col md:flex-row md:items-center md:justify-between my-4 md:my-8">
+                            <div className="flex items-center relative w-full md:w-80">
+                                <div className="absolute top-2 left-2">
+                                    <Search className="h-5 w-5 text-orange-400"/>
                                 </div>
                                 <input type="text"
                                 value={search}
                                 onChange={(e)=>{setSearch(e.target.value)}}
-                                    className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
+                                    className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border"
                                     placeholder="Rechercher un adherant..."
                                 />
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 mt-2 md:mt-0">
                                 <motion.button
                                     whileTap={{scale: 0.95}}
                                     disabled={dataExportLoading || daysRemaining < 0 || adherentsFiltres.length === 0}
                                     onClick={handleExport}
-                                    className={`flex font-bold justify-center  text-xs 2xl:text-sm xl:text-sm items-center ${(daysRemaining < 0 || adherentsFiltres.length === 0) ? ' text-gray-400 bg-gray-200 border-gray-300' : 'bg-transparent text-black border-gray-400'}  gap-2 py-2 px-2 2xl:px-4 xl:px-4 rounded-lg  border-2  transition-colors duration-200`}>
+                                    className={`flex font-bold justify-center text-xs md:text-sm items-center ${(daysRemaining < 0 || adherentsFiltres.length === 0) ? ' text-gray-400 bg-gray-200 border-gray-300' : 'bg-transparent text-black border-gray-400'} gap-1 md:gap-2 py-2 px-3 md:px-4 rounded-lg border-2 transition-colors duration-200`}>
                                     {dataExportLoading  ? (
-                                        <Loader2 className="animate-spin h-5 w-5"/>
+                                        <Loader2 className="animate-spin h-4 w-4 md:h-5 md:w-5"/>
                                     ):(
                                         <>
-                                            <Download className="h-5 w-5 hidden 2xl:block xl:block"/>
+                                            <Download className="h-4 w-4 md:h-5 md:w-5 hidden md:block"/>
                                             Export CSV
                                         </>
                                     )}
@@ -2708,117 +2757,116 @@ export default function DashboardPro(){
                                     whileTap={{scale: 0.95}}
                                     onClick={()=>{setShowAdd(true), setActiveTab('')}}
                                     disabled={daysRemaining < 0}
-                                    className={`flex font-bold text-white text-xs 2xl:text-sm xl:text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:bg-orange-500 border-orange-500 '}  gap-2 py-2 px-2 2xl:px-4 xl:px-4 rounded-lg  border-2  transition-colors duration-200`}>
-                                    <Plus className="h-5 w-5 hidden 2xl:block xl:block"/>
+                                    className={`flex font-bold text-white text-xs md:text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 hover:bg-orange-500 border-orange-500'} gap-1 md:gap-2 py-2 px-3 md:px-4 rounded-lg border-2 transition-colors duration-200`}>
+                                    <Plus className="h-4 w-4 md:h-5 md:w-5 hidden md:block"/>
                                     Ajouter un adhérant
                                 </motion.button>
                             </div>
                         </div>
                         
-                        <div className={`grid grid-cols-4 bg-white relative h-190 overflow-y-auto scrollbar-hide p-1 `}>
-                            <div className=" col-span-4 bg-white mb-10 rounded-lg ">
-                                <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                        <div className="bg-white relative overflow-x-auto rounded-lg shadow">
+                            <div className="min-w-[800px]">
+                                <table className="w-full text-center" style={{ borderCollapse: "collapse" }}>
                                     <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
-                                        <tr >
-                                            <th className=" p-3 text-left">Nom complet</th>
-                                            <th className=" p-3">Adresse e-mail</th>
-                                            <th className=" p-3">Telephone</th>
-                                            <th className=" p-3">Forfait</th>
-                                            <th className=" p-3">Montant</th>
-                                            <th className=" p-3">Statut</th>
-                                            <th className=" p-3">Actions</th>
+                                        <tr>
+                                            <th className="p-3 text-left">Nom complet</th>
+                                            <th className="p-3">Adresse e-mail</th>
+                                            <th className="p-3">Telephone</th>
+                                            <th className="p-3">Forfait</th>
+                                            <th className="p-3">Montant</th>
+                                            <th className="p-3">Statut</th>
+                                            <th className="p-3">Actions</th>
                                         </tr>
                                     </thead>
 
                                     <tbody className="">
                                         {loadingAdh ? (
                                             [1,2,3,4,5,6,7,8,9,10].map(item =>(
-
                                                 <SkeletonAdh key={item}/>
                                             ))
                                         ): adherentsFiltres.length === 0 ? (
-                                            <tr className="h-170">
+                                            <tr className="h-40 md:h-60">
                                                 <td colSpan={7} className={`py-6 text-center text-sm text-gray-500`}>
                                                     {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Pas encore d'adhérents inscrits"}
-                                                </td>
-                                            </tr>
+                                                 </td>
+                                             </tr>
                                         ): adherentsFiltres.map(item => (
-                                            <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                            <tr key={item.id} className="text-xs md:text-sm p-2 border-b border-gray-200">
 
-                                                <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                <td className="flex items-center font-bold gap-2 py-3 md:py-5 px-3">
                                                 <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
                                                 {`${item.name} ${item.prenom}` || item.username }
 
-                                                </td>
-                                                <td className=" px-3 py-5">{item.email || '-'}</td>
-                                                <td className=" px-3 py-5">{item.telephone || '-'}</td>
-                                                <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.plan : '-'}</td>
-                                                <td className=" px-3 py-5">{item.dernier_abonnement !== null ? `${item.dernier_abonnement.montant} XOF` : '-'}</td>
+                                                 </td>
+                                                <td className="px-3 py-3 md:py-5">{item.email || '-'}</td>
+                                                <td className="px-3 py-3 md:py-5">{item.telephone || '-'}</td>
+                                                <td className="px-3 py-3 md:py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.plan : '-'}</td>
+                                                <td className="px-3 py-3 md:py-5">{item.dernier_abonnement !== null ? `${item.dernier_abonnement.montant} XOF` : '-'}</td>
                                                 {item.dernier_abonnement !== null ? (
-                                                    <td className=" px-3 ">
-                                                        <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl`}>
+                                                    <td className="px-3">
+                                                        <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200'} font-semibold py-1 px-2 rounded-xl text-xs md:text-sm`}>
                                                             {item.dernier_abonnement.actif ? 'actif' : 'expiré'}
                                                         </span>
-                                                    </td>
+                                                     </td>
                                                 ):(
-                                                    <td className=" px-3 ">
-                                                        <span className="bg-red-200 font-semibold py-1 px-2 rounded-xl">
+                                                    <td className="px-3">
+                                                        <span className="bg-red-200 font-semibold py-1 px-2 rounded-xl text-xs md:text-sm">
                                                         expiré
                                                         </span>
-                                                    </td>
+                                                     </td>
                                                 )}
-                                                <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                                <td className="flex justify-center py-3 md:py-5 items-center gap-2 px-3">
                                                     <motion.button
                                                         type="button"
                                                         onClick={()=>{setDetailAdherant(true),setAdhToUp(item)}}
                                                             whileTap={{scale: 0.95}}
-                                                        className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm `}>
-                                                        <Eye className="text-gray-600 h-4 w-4"/>
+                                                        className={`border cursor-pointer border-gray-100 bg-gray-300 p-1 rounded-sm`}>
+                                                        <Eye className="text-gray-600 h-3 w-3 md:h-4 md:w-4"/>
                                                     </motion.button>
                                                     <motion.button
                                                         type="button"
                                                         disabled={daysRemaining < 0}
                                                         onClick={()=>{setModalUpAdherant(true),setAdhToUp(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className={`border  ${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
-                                                        <Pencil className="text-white h-4 w-4"/>
+                                                        className={`border ${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm`}>
+                                                        <Pencil className="text-white h-3 w-3 md:h-4 md:w-4"/>
                                                     </motion.button>
                                                     <motion.button
                                                         type="button"
                                                         disabled={daysRemaining < 0}
                                                         onClick={()=>{setModalSupAdherant(true), setAdhToDelete(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className={`border  border-red-100 ${daysRemaining < 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
+                                                        className={`border border-red-100 ${daysRemaining < 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
                                                     >
-                                                        <Trash className="h-4 w-4 text-white" />
+                                                        <Trash className="h-3 w-3 md:h-4 md:w-4 text-white" />
                                                     </motion.button>
-                                                </td>
-                                            </tr>
+                                                 </td>
+                                             </tr>
                                         ))}
 
                                         {errorAdh && (
                                             <tr className="">
-                                                <td colSpan={7} className="py-6 h-170 text-center  text-red-600">
-                                                    <p className="flex items-center justify-center gap-2 ">
+                                                <td colSpan={7} className="py-6 h-40 md:h-60 text-center text-red-600">
+                                                    <p className="flex items-center justify-center gap-2">
                                                     <XCircle className="animate-spin text-red-600" />
                                                     {mesAdh.error.message}
                                                     </p>
-                                                </td>
-                                            </tr>
+                                                 </td>
+                                             </tr>
                                         )}
 
                                     </tbody>
                                 </table>
                             </div>
                             {successAdh  && (
-                                <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} absolute -bottom-17 w-full py-3 px-10 bg-white items-center justify-between`}>
+                                <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} py-3 px-4 md:px-10 bg-white items-center justify-between border-t flex-col md:flex-row gap-2`}>
                                     <div>
-                                        <div className="text-sm text-gray-400">
+                                        <div className="text-xs md:text-sm text-gray-400">
                                             Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
                                         </div>
                                     </div>
 
-                                    <div className="flex text-sm items-center gap-2">
+                                    <div className="flex text-xs md:text-sm items-center gap-2">
                                         <motion.button
                                         disabled={page === 1}
                                         onClick={()=>{setPage(p => p - 1)}}
@@ -2844,44 +2892,44 @@ export default function DashboardPro(){
 
             {activeTab === 'abonnement' && (
                 <>
-                    <div className="absolute opacity-40 right-0 w-200 overflow-hidden">
+                    <div className="absolute opacity-40 right-0 w-48 md:w-80 lg:w-180 pointer-events-none">
                         <ImageComponent source={adhh} label={"logo-cours"} style={''} />
                     </div>
-                    <div className="relative col-span-4 px-8 py-3 my-5">
+                    <div className="relative lg:col-span-4 px-4 md:px-8 py-3 my-2 md:my-5 overflow-x-auto">
 
                         <div className="flex flex-col gap-2">
-                            <h1 className="font-bold text-3xl flex items-center">
+                            <h1 className="font-bold text-xl md:text-3xl flex flex-wrap items-center gap-2">
                                 Gestion Abonnements :
-                                <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">
+                                <span className="text-green-600 bg-green-100 text-xs md:text-sm py-1 px-2 md:px-3 rounded-full">
                                     {nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}`} actif{nbrAdherantsActif > 1 ? 's' : ''}
                                 </span>
-                                <span className="text-red-600 bg-red-100 text-sm py-1 px-3 rounded-full">
+                                <span className="text-red-600 bg-red-100 text-xs md:text-sm py-1 px-2 md:px-3 rounded-full">
                                     {totalAbExpirer > 9 ? totalAbExpirer : `0${totalAbExpirer}`} expiré{totalAbExpirer > 1 ? 's' : ''}
                                 </span>
-                                <span className="text-yellow-600 bg-yellow-100 text-sm py-1 px-3 rounded-full mx-3">{totalExpire > 9 ? totalExpire : `0${totalExpire}`} expire{totalExpire > 1 ? 's' : ''} bientôt</span>
+                                <span className="text-yellow-600 bg-yellow-100 text-xs md:text-sm py-1 px-2 md:px-3 rounded-full">{totalExpire > 9 ? totalExpire : `0${totalExpire}`} expire{totalExpire > 1 ? 's' : ''} bientôt</span>
                             </h1>
-                            <p className="text-gray-400 text-[18px]">Consultez et gérez vos abonnements</p>
+                            <p className="text-gray-400 text-base md:text-[18px]">Consultez et gérez vos abonnements</p>
                         </div>
 
-                        <div className="flex items-center justify-between my-8">
-                            <div className="flex items-center relative w-90">
-                                <div className="absolute top-2">
-                                    <Search className="h-5 w-5 text-orange-400 ml-2"/>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between my-4 md:my-8 gap-4">
+                            <div className="flex items-center relative w-full md:w-80">
+                                <div className="absolute top-2 left-2">
+                                    <Search className="h-5 w-5 text-orange-400"/>
                                 </div>
                                 <input type="text"
                                 value={search}
                                 onChange={(e)=>{setSearch(e.target.value)}}
-                                    className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
+                                    className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border"
                                     placeholder="Rechercher des infos par page..."
                                 />
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
                             <motion.button
                                 whileTap={{scale: 0.95}}
                                 disabled={loadingAdh || errorAdh}
                                 onClick={()=>{setAbonnementTab('tous')}}
-                                className={`${abonnementTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+                                className={`${abonnementTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold text-xs md:text-sm gap-1 md:gap-2 py-1 md:py-2 px-2 md:px-4 rounded-lg border cursor-pointer transition-colors duration-200`}>
 
                                 Tous
                             </motion.button>
@@ -2890,7 +2938,7 @@ export default function DashboardPro(){
                                 whileTap={{scale: 0.95}}
                                 onClick={()=>{setAbonnementTab('actifs')}}
 
-                                className={`${abonnementTab === 'actifs' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+                                className={`${abonnementTab === 'actifs' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold text-xs md:text-sm gap-1 md:gap-2 py-1 md:py-2 px-2 md:px-4 rounded-lg border cursor-pointer transition-colors duration-200`}>
 
                                 Actifs
                             </motion.button>
@@ -2899,7 +2947,7 @@ export default function DashboardPro(){
                                 whileTap={{scale: 0.95}}
                                 onClick={()=>{setAbonnementTab('expirés')}}
 
-                                className={`${abonnementTab === 'expirés' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+                                className={`${abonnementTab === 'expirés' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold text-xs md:text-sm gap-1 md:gap-2 py-1 md:py-2 px-2 md:px-4 rounded-lg border cursor-pointer transition-colors duration-200`}>
 
                                 Expirés
                             </motion.button>
@@ -2908,34 +2956,33 @@ export default function DashboardPro(){
                                 whileTap={{scale: 0.95}}
                                 onClick={()=>{setAbonnementTab('suspendu')}}
 
-                                className={`${abonnementTab === 'suspendu' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+                                className={`${abonnementTab === 'suspendu' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold text-xs md:text-sm gap-1 md:gap-2 py-1 md:py-2 px-2 md:px-4 rounded-lg border cursor-pointer transition-colors duration-200`}>
 
                                 Suspendus
                             </motion.button>
                             </div>
                         </div>
 
-                        <div className={`grid grid-cols-4 bg-white relative h-190 overflow-y-auto scrollbar-hide p-1 `}>
-                            <div className="col-span-4 bg-white mb-10 rounded-lg ">
-                                <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                        <div className="bg-white relative overflow-x-auto rounded-lg shadow">
+                            <div className="min-w-[600px]">
+                                <table className="w-full text-center" style={{ borderCollapse: "collapse" }}>
                                     <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
                                         <tr >
-                                            <th className=" p-3 text-left">Nom de l'adhérant</th>
-                                            <th className=" p-3">Date de début</th>
-                                            <th className=" p-3">Date de fin</th>
-                                            <th className=" p-3">Statut</th>
-                                            <th className=" p-3">Actions</th>
+                                            <th className="p-3 text-left">Nom de l'adhérant</th>
+                                            <th className="p-3">Date de début</th>
+                                            <th className="p-3">Date de fin</th>
+                                            <th className="p-3">Statut</th>
+                                            <th className="p-3">Actions</th>
                                         </tr>
                                     </thead>
 
                                         <tbody className="">
                                             {loadingAdh ? (
                                                 [1,2,3,4,5,6,7,8,9,10].map(item =>(
-
                                                     <SkeletonAbonnement key={item}/>
                                                 ))
                                             ): adherentsFiltres.length === 0 ? (
-                                                <tr className=" h-170 ">
+                                                <tr className="h-40 md:h-60">
                                                     <td colSpan={5} className={`py-6 text-center text-sm text-gray-500`}>
                                                         <p className="flex items-center justify-center">
                                                         {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
@@ -2943,28 +2990,28 @@ export default function DashboardPro(){
                                                     </td>
                                                 </tr>
                                             ): adherentsFiltres.map(item => (
-                                                <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                                <tr key={item.id} className="text-xs md:text-sm p-2 border-b border-gray-200">
 
-                                                    <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                    <td className="flex items-center font-bold gap-2 py-3 md:py-5 px-3">
                                                     <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
                                                     {`${item.name} ${item.prenom}` || item.username }
 
                                                     </td>
-                                                    <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
-                                                    <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
-                                                    <td className=" px-3 flex items-center justify-center">
+                                                    <td className="px-3 py-3 md:py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
+                                                    <td className="px-3 py-3 md:py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.fin : '-'}</td>
+                                                    <td className="px-3 flex items-center justify-center">
                                                         {item.dernier_abonnement?.date_suspension !== null ?(
-                                                            <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl`}>
+                                                            <span className={`bg-yellow-200 font-semibold py-1 px-2 rounded-xl text-xs md:text-sm`}>
                                                                 suspendu
                                                             </span>
                                                         ):(
-                                                            <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200  animate-pulse'} font-semibold py-1 px-2 rounded-xl`}>
+                                                            <span className={`${item.dernier_abonnement.actif ? 'bg-green-200 ' : 'bg-red-200  animate-pulse'} font-semibold py-1 px-2 rounded-xl text-xs md:text-sm`}>
                                                                 {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
                                                             </span>
                                                         )}
                                                     </td>
 
-                                                    <td className=" py-5 items-center gap-2 px-3">
+                                                    <td className="py-3 md:py-5 items-center gap-2 px-3">
 
                                                         {!item.dernier_abonnement?.actif ? (
                                                             <div className="">
@@ -2974,7 +3021,7 @@ export default function DashboardPro(){
                                                                     onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
                                                                     whileTap={{scale: 0.95}}
                                                                     disabled={daysRemaining < 0}
-                                                                    className={`border ${daysRemaining < 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'}  transition-colors duration-200  py-1 px-3 rounded-lg  text-white font-bold `}>
+                                                                    className={`border ${daysRemaining < 0 ? 'border-blue-300 bg-blue-300' : 'bg-blue-500 hover:bg-transparent hover:text-black border-blue-500'} transition-colors duration-200 py-1 px-2 md:px-3 rounded-lg text-white font-bold text-xs md:text-sm`}>
                                                                     Reabonner
                                                                 </motion.button>
                                                             ):(
@@ -2982,7 +3029,7 @@ export default function DashboardPro(){
                                                                     type="button"
                                                                     disabled={daysRemaining < 0}
                                                                     onClick={()=>{setReactiverModal(true), setReact(item)}}
-                                                                    className={`border  border-green-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-green-500`}>
+                                                                    className={`border border-green-300 py-1 px-2 md:px-3 rounded-lg text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-green-500 text-xs md:text-sm`}>
                                                                     Réactiver
                                                                 </motion.button>
                                                             )}
@@ -2992,7 +3039,7 @@ export default function DashboardPro(){
                                                                 type="button"
                                                                 disabled={daysRemaining < 0}
                                                                 onClick={()=>{setSuspendreModal(true), setSuspen(item)}}
-                                                                className={` border  border-red-300 py-1 px-3 rounded-lg  text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-red-500`}>
+                                                                className={`border border-red-300 py-1 px-2 md:px-3 rounded-lg text-white font-bold hover:bg-transparent hover:text-black transition-colors duration-200 bg-red-500 text-xs md:text-sm`}>
                                                                 Suspendre
                                                             </motion.button>
                                                         )}
@@ -3003,8 +3050,8 @@ export default function DashboardPro(){
 
                                             {errorAdh && (
                                                 <tr className="">
-                                                    <td colSpan={5} className="py-6 h-170 text-center  text-red-600">
-                                                        <p className="flex items-center justify-center gap-2 ">
+                                                    <td colSpan={5} className="py-6 h-40 md:h-60 text-center text-red-600">
+                                                        <p className="flex items-center justify-center gap-2">
                                                         <XCircle className="animate-spin text-red-600" />
                                                         {mesAdh.error.message}
                                                         </p>
@@ -3013,22 +3060,18 @@ export default function DashboardPro(){
                                             )}
 
                                         </tbody>
-
-                                    
-
                                 </table>
-                                
                             </div>
 
                             {successAdh && (
-                                <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} absolute -bottom-17 w-full py-3 px-10 bg-white items-center justify-between`}>
+                                <div className={`flex ${loadingAdh || errorAdh ? 'hidden' : 'block'} py-3 px-4 md:px-10 bg-white items-center justify-between border-t flex-col md:flex-row gap-2`}>
                                     <div>
-                                        <div className="text-sm text-gray-400">
+                                        <div className="text-xs md:text-sm text-gray-400">
                                             Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
                                         </div>
                                     </div>
 
-                                    <div className="flex text-sm items-center gap-2">
+                                    <div className="flex text-xs md:text-sm items-center gap-2">
                                         <motion.button
                                         disabled={page === 1}
                                         onClick={()=>{setPage(p => p - 1)}}
@@ -3053,66 +3096,66 @@ export default function DashboardPro(){
             {activeTab === 'coach' &&(
                 <>
                     {mes_coach.length > 0 && (
-                        <div className="absolute right-0 opacity-40 overflow-hidden w-200">
+                        <div className="absolute right-0 opacity-40 overflow-hidden w-48 md:w-80 lg:w-180 pointer-events-none">
                             <ImageComponent source={coach} label={"logo"} style={"h-full w-full"} />
                         </div>
                     )}
-                    <div className="relative col-span-4 px-8 py-3 my-5">
+                    <div className="relative lg:col-span-4 px-4 md:px-8 py-3 my-2 md:my-5 overflow-x-auto">
 
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex flex-col gap-2">
-                                <div className="flex items-center gap-5">
-                                    <h1 className="font-bold text-3xl flex items-center">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                    <h1 className="font-bold text-2xl md:text-3xl flex items-center gap-2">
                                         Equipe des coachs :
-                                        <span className="text-green-600 bg-green-100 text-sm py-1 px-3 rounded-full mx-3">Total : {mes_coach.length === 0 ? 0 : mes_coach.length}</span>
+                                        <span className="text-green-600 bg-green-100 text-xs md:text-sm py-1 px-2 md:px-3 rounded-full">Total : {mes_coach.length === 0 ? 0 : mes_coach.length}</span>
                                     </h1>
                                 </div>
                                
                                 
-                                <p className="text-gray-400 text-[18px]">Consultez et gérer votre personnel de coaching</p>
+                                <p className="text-gray-400 text-base md:text-[18px]">Consultez et gérer votre personnel de coaching</p>
                             </div>
 
 
                                 <motion.button
                                     whileTap={{scale: 0.95}}
                                     onClick={handleAddCoach}
-                                    className="flex items-center text-sm text-white bg-orange-500 transition-colors duration-200 py-2 px-5 font-bold  border-2 border-orange-500 hover:bg-orange-600 rounded-lg gap-3"
+                                    className="flex items-center text-xs md:text-sm text-white bg-orange-500 transition-colors duration-200 py-2 px-3 md:px-5 font-bold border-2 border-orange-500 hover:bg-orange-600 rounded-lg gap-2 md:gap-3 w-fit"
                                 >
-                                    <UserPlus className="h-5 w-5  transition-colors duration-200" />
+                                    <UserPlus className="h-4 w-4 md:h-5 md:w-5 transition-colors duration-200" />
                                     <p>Ajouter un coach</p>
                                 </motion.button>
                         </div>
 
-                        <div className="flex items-center w-full relative w-90 my-8">
-                            <div className="absolute top-2">
-                                <Search className="h-5 w-5 text-orange-400 ml-2"/>
+                        <div className="flex items-center w-full relative w-full md:w-80 my-4 md:my-8">
+                            <div className="absolute top-2 left-2">
+                                <Search className="h-5 w-5 text-orange-400"/>
                             </div>
                             <input type="text"
                             value={search}
                             onChange={(e)=>{setSearch(e.target.value)}}
-                                className="block p-2 text-sm pl-10 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border text-[16px] w-full"
+                                className="block p-2 text-sm pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border"
                                 placeholder="Recherche..."
                             />
                         </div>
 
-                        <div className="flex items-center gap-3  my-8 p-1 ">
+                        <div className="flex items-center gap-2 my-4 p-1 overflow-x-auto">
                             <motion.button
                                 whileTap={{scale: 0.95}}
-                                className="rounded-lg bg-orange-500 py-1  px-5 font-bold border border-orange-500"
+                                className="rounded-lg bg-orange-500 py-1 px-3 md:px-5 font-bold border border-orange-500 text-white text-sm shrink-0"
                             >
                                 Tous
                             </motion.button>
                         
 
-                            <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide">
+                            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
                             
                                 {mes_coach?.map(item =>(
-                                    <div key={item.id} className=" flex items-center gap-3">
+                                    <div key={item.id} className="flex items-center gap-2 shrink-0">
                                         {[...new Set(item.competence)].map((comp, index) => (
                                             <motion.button
                                                 key={index}
                                                 whileTap={{ scale: 0.95 }}
-                                                className="rounded-lg bg-white py-2 px-5 border border-gray-300"
+                                                className="rounded-lg bg-white py-1 md:py-2 px-3 md:px-5 border border-gray-300 text-xs md:text-sm shrink-0"
                                             >
                                                 <p className="text-gray-500 font-bold">{comp}</p>
                                             </motion.button>
@@ -3125,7 +3168,7 @@ export default function DashboardPro(){
 
  
 
-                        <div className={`grid grid-cols-6 gap-8 ${filterCoach.length === 12 ? 'overflow-y-auto h-170 scrollbar-hide mb-10' : ''}  p-1 ` }>
+                        <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 p-1`}>
 
                            {mesCoachLoad ? ( 
                                 [1,2,3,4,5,6,7,8,9,10,11, 12].map(item => (
@@ -3133,24 +3176,24 @@ export default function DashboardPro(){
                                 ))
                             ): filterCoach.length === 0 ? (
                                 <div
-                                    className=" col-span-6 flex flex-col gap-3 items-center justify-center"
+                                    className="col-span-full flex flex-col gap-3 items-center justify-center py-10"
                                 >
                                     {search.trim() ? (
-                                        <div className="flex w-full h-170 items-center justify-center">
-                                            <p className="text-xl text-gray-600">Aucun coach trouvé</p>
+                                        <div className="flex w-full h-40 md:h-60 items-center justify-center">
+                                            <p className="text-lg md:text-xl text-gray-600">Aucun coach trouvé</p>
                                         </div>
                                     ):(
                                         <>
-                                            <div className="w-120 flex flex-col items-center">
+                                            <div className="w-40 md:w-60 flex flex-col items-center">
                                                 <ImageComponent source={coach} label={""} style={''}/>
-                                                <p>Aucun coach affecté à la salle pour le moment.</p>
+                                                <p className="text-center text-sm md:text-base">Aucun coach affecté à la salle pour le moment.</p>
                                             </div>
                                             <motion.button
                                                 whileTap={{scale: 0.95}}
                                                 onClick={handleAddCoach}
-                                                className="flex items-center bg-orange-500 transition-colors duration-200 text-white py-2 px-5 font-bold  border border-orange-500 hover:bg-orange-600 rounded-lg gap-3"
+                                                className="flex items-center bg-orange-500 transition-colors duration-200 text-white py-2 px-4 md:px-5 font-bold border border-orange-500 hover:bg-orange-600 rounded-lg gap-2 md:gap-3"
                                             >
-                                                <UserPlus className="h-5 w-5  transition-colors duration-200" />
+                                                <UserPlus className="h-4 w-4 md:h-5 md:w-5 transition-colors duration-200" />
                                                 <p>Ajouter un coach</p>
                                             </motion.button>
                                         </>
@@ -3161,21 +3204,21 @@ export default function DashboardPro(){
                             ): filterCoach.map(item => (
                                     <motion.div
                                         key={item.id}
-                                        className="relative shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 flex flex-col bg-white"
+                                        className="relative shadow-lg w-full flex flex-col bg-white rounded-lg overflow-hidden"
                                     >
 
-                                        <div className="border-b border-gray-300 bg-orange-50 h-50 flex items-center justify-center">
-                                            <p className="text-5xl uppercase">{item.nom[0]}</p>
+                                        <div className="border-b border-gray-300 bg-orange-50 h-32 md:h-50 flex items-center justify-center">
+                                            <p className="text-3xl md:text-5xl uppercase">{item.nom[0]}</p>
                                         </div>
 
-                                        <div className="border-b border-gray-300 p-2">
-                                            <div className="font-bold flex gap-2">
+                                        <div className="border-b border-gray-300 p-2 md:p-3">
+                                            <div className="font-bold flex gap-2 text-sm md:text-base">
                                                 <p>{item.nom}</p>
                                                 <p>{item.prenom}</p>
                                             </div>
 
-                                            <div className="flex items-center">
-                                                <div className="text-gray-500 text-sm">
+                                            <div className="flex items-center flex-wrap gap-1">
+                                                <div className="text-gray-500 text-xs md:text-sm">
                                                     {item.competence[0]}
                                                     {item.competence.length > 1 && " ..."}
                                                 </div>
@@ -3207,17 +3250,17 @@ export default function DashboardPro(){
                                                     bg-black/80 backdrop-blur
                                                     text-white
                                                     shadow-lg
-                                                    p-3
+                                                    p-2 md:p-3
                                                     flex
                                                     flex-wrap
-                                                    gap-2
+                                                    gap-1 md:gap-2
                                                     rounded-b-lg
                                                     "
                                             >
                                                 {item.competence.map((comp, index) => (
                                                     <span
                                                         key={index}
-                                                        className="bg-orange-500 text-xs px-2 py-1 rounded-full"
+                                                        className="bg-orange-500 text-[10px] md:text-xs px-2 py-1 rounded-full"
                                                     >
                                                         {comp}
                                                     </span>
@@ -3225,9 +3268,7 @@ export default function DashboardPro(){
                                             </motion.div>
                                         )}
 
-                                        <div className="flex h-10  gap-1">
-                                           
-
+                                        <div className="flex h-10 gap-1">
                                             <motion.button
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={() => {
@@ -3238,15 +3279,15 @@ export default function DashboardPro(){
                                                     });
                                                     setSkills(''); 
                                                 }}
-                                                className="w-1/2 flex items-center justify-center border-r border-gray-300"
+                                                className="w-1/2 flex items-center justify-center border-r border-gray-300 py-2"
                                             >
-                                                <Pencil className="h-5 w-5 text-blue-500" />
+                                                <Pencil className="h-4 w-4 md:h-5 md:w-5 text-blue-500" />
                                             </motion.button>
                                             <motion.button 
                                                 whileTap={{scale: 0.95}}
                                                 onClick={()=>{setDeleteCoach(deleteCoach === item.id ? null : item.id)}}
-                                                className="w-1/2 flex items-center justify-center">
-                                                <Trash className="h-5 w-5 text-red-600" />
+                                                className="w-1/2 flex items-center justify-center py-2">
+                                                <Trash className="h-4 w-4 md:h-5 md:w-5 text-red-600" />
                                             </motion.button>
                                         </div>
 
@@ -3256,22 +3297,22 @@ export default function DashboardPro(){
                                                 animate={{opacity:1, scale:1}}
                                                 transition={{duration: 0.3}}
                                                 className="absolute flex gap-3 flex-col items-center text-center px-2 justify-center z-20 inset-0 bg-black/80 backdrop-blur">
-                                                <p className="text-white">Vous êtes sur le point de supprimer coach <span className="font-bold">{item?.nom} {item?.prenom}</span>.</p>
-                                                <p className="text-white">Confirmer la suppression ?</p>
-                                                <div className=" w-full  flex ">
+                                                <p className="text-white text-xs md:text-sm">Vous êtes sur le point de supprimer coach <span className="font-bold">{item?.nom} {item?.prenom}</span>.</p>
+                                                <p className="text-white text-xs md:text-sm">Confirmer la suppression ?</p>
+                                                <div className="w-full flex">
                                                     <motion.button
                                                         onClick={()=>{setDeleteCoach(null)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className="border border-gray-300 text-gray-800 bg-gray-50 w-full"
+                                                        className="border border-gray-300 text-gray-800 bg-gray-50 w-full py-1 text-sm"
                                                     >Non</motion.button>
                                                     <motion.button
                                                     whileTap={{scale: 0.95}}
                                                     onClick={(e)=>{handleDeleteCoach(e,deleteCoach)}}
                                                     disabled={loadingSupCoach}
-                                                    className="border border-red-600 flex items-center justify-center font-bold text-white bg-red-600 w-full"
+                                                    className="border border-red-600 flex items-center justify-center font-bold text-white bg-red-600 w-full py-1 text-sm"
                                                     >
                                                         {loadingSupCoach ? (
-                                                            <Loader2 className="animate-spin h-5 w-5 text-white" />
+                                                            <Loader2 className="animate-spin h-4 w-4 text-white" />
                                                         ):(
                                                             'Oui'
                                                          )}
@@ -3280,7 +3321,7 @@ export default function DashboardPro(){
                                             </motion.div>
                                         )}
                                         <div className="absolute top-2 left-2">
-                                            <p className="rounded-full bg-orange-500 text-white text-xs px-2 py-1">
+                                            <p className="rounded-full bg-orange-500 text-white text-[10px] md:text-xs px-2 py-1">
                                                 Tel: {item.telephone}
                                             </p>
                                         </div>
@@ -3290,9 +3331,9 @@ export default function DashboardPro(){
                             )}
 
                             {mesCoachError && (
-                                <div className="flex items-center h-150 justify-center gap-2 col-span-6">
+                                <div className="flex items-center h-40 md:h-60 justify-center gap-2 col-span-full">
                                     <XCircle className="text-red-500 h-5 w-5 animate-spin"/>
-                                    <p className="text-red-500 font-bold">{mesCoach.error.message}</p>
+                                    <p className="text-red-500 font-bold text-sm md:text-base">{mesCoach.error.message}</p>
                                 </div>
                             )}
                             
@@ -3302,11 +3343,11 @@ export default function DashboardPro(){
                                     whileHover={{scale: 1.03}}
                                     whileTap={{scale: 0.95}}
                                     onClick={handleAddCoach}
-                                    className={`${search.trim() ? 'hidden' : 'block'} shadow-[0_0_18px_rgba(0,0,0,0.2)] w-50 h-75 flex flex-col gap-3 items-center bg-orange-50 justify-center`}
+                                    className={`${search.trim() ? 'hidden' : 'block'} shadow-lg w-full h-64 flex flex-col gap-3 items-center bg-orange-50 justify-center rounded-lg`}
                                 >
 
-                                    <Plus className="text-gray-500 h-10 w-10"/>
-                                    <span className="text-sm text-gray-500">Ajouter un nouveau coach</span>
+                                    <Plus className="text-gray-500 h-8 w-8 md:h-10 md:w-10"/>
+                                    <span className="text-xs md:text-sm text-gray-500 text-center px-2">Ajouter un nouveau coach</span>
                                 </motion.button>
                             )}
                         </div>
@@ -3316,37 +3357,37 @@ export default function DashboardPro(){
 
             {activeTab === 'cours' &&(
                 <>
-                    <div className="absolute opacity-40 overflow-hidden right-0 w-200">
+                    <div className="absolute opacity-40 overflow-hidden right-0 w-48 md:w-80 lg:w-180 pointer-events-none">
                         <ImageComponent source={course} label={"logo-cours"} style={''}/>
                     </div>
                 
-                    <div className=" relative col-span-4 px-8 py-3 my-5">
+                    <div className="relative lg:col-span-4 px-4 md:px-8 py-3 my-2 md:my-5 overflow-x-auto">
                         <div className="flex flex-col gap-2">
-                            <h1 className="font-bold text-3xl flex items-center">
+                            <h1 className="font-bold text-2xl md:text-3xl flex items-center">
                                 Catalogue des cours
                             </h1>
-                            <p className="text-gray-400 text-[18px]">Planifier vos cours comme vous le sentez</p>
+                            <p className="text-gray-400 text-base md:text-[18px]">Planifier vos cours comme vous le sentez</p>
                         </div>
 
-                        <div className="flex items-center justify-between my-8">
-                            <div className="flex flex-col gap-5">
-                                <div className="flex items-center relative w-90">
-                                    <div className="absolute top-2">
-                                        <Search className="h-5 w-5 text-orange-400 ml-2"/>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between my-4 md:my-8 gap-4">
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-center relative w-full md:w-80">
+                                    <div className="absolute top-2 left-2">
+                                        <Search className="h-5 w-5 text-orange-400"/>
                                     </div>
                                     <input type="text"
                                         value={search}
                                         onChange={(e)=>{setSearch(e.target.value)}}
-                                        className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border w-full"
+                                        className="block p-2 pl-8 w-full text-sm rounded-lg bg-white focus:outline-none border-orange-400 border"
                                         placeholder="Rechercher des infos par page..."
                                     />
                                 </div>
 
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                     <motion.button
                                         whileTap={{scale: 0.95}}
                                         onClick={()=>{setCoursTab('tous')}}
-                                        className={`${coursTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+                                        className={`${coursTab === 'tous' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold text-xs md:text-sm gap-1 md:gap-2 py-1 md:py-2 px-2 md:px-4 rounded-lg border cursor-pointer transition-colors duration-200`}>
 
                                         Tous
                                     </motion.button>
@@ -3355,7 +3396,7 @@ export default function DashboardPro(){
                                         whileTap={{scale: 0.95}}
                                         onClick={()=>{setCoursTab('debutant')}}
 
-                                        className={`${coursTab === 'debutant' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+                                        className={`${coursTab === 'debutant' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold text-xs md:text-sm gap-1 md:gap-2 py-1 md:py-2 px-2 md:px-4 rounded-lg border cursor-pointer transition-colors duration-200`}>
 
                                         Débutant
                                     </motion.button>
@@ -3364,80 +3405,77 @@ export default function DashboardPro(){
                                         whileTap={{scale: 0.95}}
                                         onClick={()=>{setCoursTab('intermediaire')}}
 
-                                        className={`${coursTab === 'intermediaire' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold  text-sm  gap-2 py-2 px-4 rounded-lg border   cursor-pointer transition-colors duration-200`}>
+                                        className={`${coursTab === 'intermediaire' ? 'text-orange-600 bg-orange-100 border-orange-500' : 'bg-gray-200 border border-gray-400 text-black'} font-bold text-xs md:text-sm gap-1 md:gap-2 py-1 md:py-2 px-2 md:px-4 rounded-lg border cursor-pointer transition-colors duration-200`}>
 
                                         Intermédiare
                                     </motion.button>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-3">
                                 <motion.button
                                     whileTap={{scale: 0.95}}
                                     onClick={()=>{setSideBar(true)}}
-                                    className={`flex font-bold text-white text-sm items-center bg-blue-500 border-blue-500 hover:bg-blue-600 gap-2 py-2 px-4 rounded-lg  border-2  transition-all duration-200`}>
-                                    <Eye className="h-5 w-5 "/>
+                                    className={`flex font-bold text-white text-xs md:text-sm items-center bg-blue-500 border-blue-500 hover:bg-blue-600 gap-1 md:gap-2 py-1 md:py-2 px-3 md:px-4 rounded-lg border-2 transition-all duration-200`}>
+                                    <Eye className="h-4 w-4 md:h-5 md:w-5"/>
                                     Consulter les cours programmés
                                 </motion.button>
                                 <motion.button
                                     whileTap={{scale: 0.95}}
                                     onClick={()=>{setModalAddCours(true), setNiveaux('debutant')}}
                                     disabled={daysRemaining < 0}
-                                    className={`flex font-bold text-white text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-500  border-orange-500 hover:bg-orange-600'}  gap-2 py-2 px-4 rounded-lg  border-2  transition-colors duration-200`}>
-                                    <Plus className="h-5 w-5 "/>
+                                    className={`flex font-bold text-white text-xs md:text-sm items-center ${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-500 border-orange-500 hover:bg-orange-600'} gap-1 md:gap-2 py-1 md:py-2 px-3 md:px-4 rounded-lg border-2 transition-colors duration-200`}>
+                                    <Plus className="h-4 w-4 md:h-5 md:w-5"/>
                                     Ajouter un cours
                                 </motion.button>
                             </div>
                         </div>
 
-                        <div className={`grid grid-cols-4 bg-white relative h-180 overflow-y-auto scrollbar-hide p-1 `}>
-                            <div className=" bg-white col-span-4 mb-10 rounded-lg  ">
-                                
-
-                                <table className=" w-full text-center  " style={{ borderCollapse: "collapse" }}>
+                        <div className="bg-white relative overflow-x-auto rounded-lg shadow">
+                            <div className="min-w-[700px]">
+                                <table className="w-full text-center" style={{ borderCollapse: "collapse" }}>
                                     <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
                                         <tr >
-                                            <th className=" p-3 text-left">Intitulé du cours</th>
-                                            <th className=" p-3">Niveau</th>
-                                            <th className=" p-3">Créé le</th>
-                                            <th className=" p-3">Modifié le</th>
-                                            <th className=" p-3">Actions</th>
+                                            <th className="p-3 text-left">Intitulé du cours</th>
+                                            <th className="p-3">Niveau</th>
+                                            <th className="p-3 hidden md:table-cell">Créé le</th>
+                                            <th className="p-3 hidden md:table-cell">Modifié le</th>
+                                            <th className="p-3">Actions</th>
                                         </tr>
                                     </thead>
 
                                     <tbody className="">
                                         {coursLoading ? (
                                             [1,2,3,4,5,6,7,8,9,10].map(item =>(
-
                                                 <SkeletonCours key={item}/>
                                             ))
                                         ): CoursFiltres.length === 0 ? (
-                                            <tr className="h-170">
-                                                <td colSpan={5} className={` py-6  text-center text-sm text-gray-500`}>
+                                            <tr className="h-40 md:h-60">
+                                                <td colSpan={5} className={`py-6 text-center text-sm text-gray-500`}>
                                                     <p className="flex items-center justify-center">
                                                     {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun cours enregistré"}
                                                     </p>
                                                 </td>
                                             </tr>
                                         ): CoursFiltres.map(item => (
-                                            <tr key={item.id} className="text-sm p-2 border-b border-gray-200">
+                                            <tr key={item.id} className="text-xs md:text-sm p-2 border-b border-gray-200">
 
-                                                <td className="flex items-center  font-bold  gap-2 py-5 px-3">
+                                                <td className="flex items-center font-bold gap-2 py-3 md:py-5 px-3">
                                                     <span className="rounded-full bg-gray-200 flex items-center p-2"><File className="h-4 w-4"/></span>
                                                     {item?.nom_cours || 'N/A' }
 
                                                 </td>
-                                                <td className=" px-3 py-5">{item?.niveaux || 'N/A'}</td>
-                                                <td className=" px-3 py-5">{formatDate(item?.created_at) || 'N/A'}</td>
-                                                <td className=" px-3 py-5">{formatDate(item?.updated_at) || 'N/A'}</td>
+                                                <td className="px-3 py-3 md:py-5">{item?.niveaux || 'N/A'}</td>
+                                                <td className="px-3 py-3 md:py-5 hidden md:table-cell">{formatDate(item?.created_at) || 'N/A'}</td>
+                                                <td className="px-3 py-3 md:py-5 hidden md:table-cell">{formatDate(item?.updated_at) || 'N/A'}</td>
                                                 
 
-                                                <td className="flex justify-center py-5 items-center gap-2 px-3">
+                                                <td className="flex justify-center py-3 md:py-5 items-center gap-2 px-3">
                                                     <motion.button
                                                         type="button"
                                                         disabled={daysRemaining < 0}
                                                         onClick={()=>{setModalProgram(true), setProgram(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className={`border ${daysRemaining < 0 ? 'bg-blue-300' : 'cursor-pointer bg-blue-500 '}  border-blue-100 rounded-lg text-white font-bold p-1 px-3`}>
+                                                        className={`border ${daysRemaining < 0 ? 'bg-blue-300' : 'cursor-pointer bg-blue-500'} border-blue-100 rounded-lg text-white font-bold p-1 px-2 md:px-3 text-xs md:text-sm`}>
                                                         Programmer
                                                     </motion.button>
                                                     <motion.button
@@ -3445,17 +3483,17 @@ export default function DashboardPro(){
                                                         disabled={daysRemaining < 0}
                                                         onClick={()=>{setModalUpCours(true), setCoursToUp(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className={`border  ${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm `}>
-                                                        <Pencil className="text-white h-4 w-4"/>
+                                                        className={`border ${daysRemaining < 0 ? 'bg-orange-300' : 'bg-orange-500 cursor-pointer'} border-orange-100 p-1 rounded-sm`}>
+                                                        <Pencil className="text-white h-3 w-3 md:h-4 md:w-4"/>
                                                     </motion.button>
                                                     <motion.button
                                                         type="button"
                                                         disabled={daysRemaining < 0}
                                                         onClick={()=>{setModalSupCours(true), setCoursToDelete(item)}}
                                                         whileTap={{scale: 0.95}}
-                                                        className={`border  border-red-100 ${daysRemaining < 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
+                                                        className={`border border-red-100 ${daysRemaining < 0 ? ' bg-red-300' : ' bg-red-600 cursor-pointer'} p-1 rounded-sm`}
                                                     >
-                                                        <Trash className="h-4 w-4 text-white" />
+                                                        <Trash className="h-3 w-3 md:h-4 md:w-4 text-white" />
                                                     </motion.button>
                                                 </td>
                                             </tr>
@@ -3463,8 +3501,8 @@ export default function DashboardPro(){
 
                                         {coursError && (
                                             <tr className="">
-                                                <td colSpan={5} className="py-6 h-170 text-center  text-red-600">
-                                                    <p className="flex items-center justify-center gap-2 ">
+                                                <td colSpan={5} className="py-6 h-40 md:h-60 text-center text-red-600">
+                                                    <p className="flex items-center justify-center gap-2">
                                                     <XCircle className="animate-spin text-red-600" />
                                                     {mesCours.error.message}
                                                     </p>
@@ -3477,14 +3515,14 @@ export default function DashboardPro(){
                             </div>
 
                             {coursSuccess && (
-                                <div className={`flex ${coursLoading || coursError ? 'hidden' : 'block'} absolute -bottom-17 w-full py-3 px-10 bg-white items-center justify-between`}>
+                                <div className={`flex ${coursLoading || coursError ? 'hidden' : 'block'} py-3 px-4 md:px-10 bg-white items-center justify-between border-t flex-col md:flex-row gap-2`}>
                                     <div>
-                                        <div className="text-sm text-gray-400">
+                                        <div className="text-xs md:text-sm text-gray-400">
                                             Page <span className="font-bold text-black">{mesCours.data?.cours?.current_page}</span> sur <span className="font-bold text-black">{mesCours.data?.cours?.last_page}</span>
                                         </div>
                                     </div>
 
-                                    <div className="flex text-sm items-center gap-2">
+                                    <div className="flex text-xs md:text-sm items-center gap-2">
                                         <motion.button
                                         disabled={pageCours === 1}
                                         onClick={()=>{setPageCours(p => p - 1)}}
@@ -3508,54 +3546,54 @@ export default function DashboardPro(){
             )}
 
             {activeTab === 'settings' && (
-                <div className="relative col-span-4 px-8 py-3 my-5 ">
-                    <div className="flex flex-col gap-2 ">
-                        <h1 className="font-bold text-3xl">Paramètres Généraux</h1>
-                        <p className="text-gray-400 text-[18px]">Gérez vos informations de façon générale.</p>
+                <div className="relative lg:col-span-4 px-4 md:px-8 py-3 my-2 md:my-5 overflow-x-auto">
+                    <div className="flex flex-col gap-2">
+                        <h1 className="font-bold text-2xl md:text-3xl">Paramètres Généraux</h1>
+                        <p className="text-gray-400 text-base md:text-[18px]">Gérez vos informations de façon générale.</p>
                     </div>
 
-                    <div className="flex items-center justify-start gap-5 my-2">
+                    <div className="flex items-center justify-start gap-2 md:gap-5 my-4 overflow-x-auto pb-2">
                         <button 
                             onClick={()=>{setParamstab('salle')}}
-                            className={`border-b rounded-lg p-2 ${paramsTab === 'salle' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 text-sm md:text-base whitespace-nowrap ${paramsTab === 'salle' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer font-bold transition-all duration-200`}
                         >Informations de la salle</button>
                         <button 
                             onClick={()=>{setParamstab('perso')}}
-                            className={`border-b rounded-lg p-2 ${paramsTab === 'perso' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 text-sm md:text-base whitespace-nowrap ${paramsTab === 'perso' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer font-bold transition-all duration-200`}
                         >Informations personnelles</button>
                         <button 
                             onClick={()=>{setParamstab('visuel')}}
-                            className={`border-b rounded-lg p-2 ${paramsTab === 'visuel' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 text-sm md:text-base whitespace-nowrap ${paramsTab === 'visuel' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer font-bold transition-all duration-200`}
                         >Identité visuelle</button>
                         <button 
                             onClick={()=>{setParamstab('tarif')}}
-                            className={`border-b rounded-lg p-2 ${paramsTab === 'tarif' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 text-sm md:text-base whitespace-nowrap ${paramsTab === 'tarif' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer font-bold transition-all duration-200`}
                         >Gérer vos tarifs</button>
                         <button 
                             onClick={()=>{setParamstab('activity')}}
-                            className={`border-b rounded-lg p-2 ${paramsTab === 'activity' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 text-sm md:text-base whitespace-nowrap ${paramsTab === 'activity' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer font-bold transition-all duration-200`}
                         >Mes activités</button>
                         <button 
                             onClick={()=>{setHistoryP(!historyP)}}
-                            className={`border-b rounded-lg p-2 ${historyP ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 text-sm md:text-base whitespace-nowrap ${historyP ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer font-bold transition-all duration-200`}
                         >Historique de connexion</button>
                         <button 
                             onClick={()=>{setParamstab('support')}}
-                            className={`border-b rounded-lg p-2 ${paramsTab === 'support' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer  font-bold transition-all duration-200`}
+                            className={`border-b rounded-lg p-2 text-sm md:text-base whitespace-nowrap ${paramsTab === 'support' ? 'border-orange-500 text-orange-600' : 'text-gray-400 hover:text-orange-600'} cursor-pointer font-bold transition-all duration-200`}
                         >Support GymPlus</button>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-2 ">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6">
                         {paramsTab === 'salle' && (
                             <>
-                                <div className="flex col-span-2 mt-15 p-4">
-                                        <div className="text-gray-500 flex flex-col gap-8">
-                                            <p>
+                                <div className="lg:col-span-2 mt-8 p-3 md:p-4">
+                                        <div className="text-gray-500 flex flex-col gap-4 md:gap-8">
+                                            <p className="text-sm md:text-base">
                                                 Les informations ci-contre correspondent aux détails principaux de votre salle.
                                                 Merci de vérifier qu’elles sont correctes et à jour :
                                             </p>
 
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex flex-col gap-2 text-sm md:text-base">
                                                 <p>
                                                 <span className="font-bold">Nom de la salle :</span> Nom officiel de votre établissement.
                                                 </p>
@@ -3570,11 +3608,11 @@ export default function DashboardPro(){
                                                 </p>
                                             </div>
 
-                                            <p>
+                                            <p className="text-sm md:text-base">
                                             Ces informations sont utilisées pour l’identification, la gestion administrative et l’affichage public de votre salle sur la plateforme.
                                             </p>
 
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex flex-col gap-2 text-sm md:text-base">
                                                 <p>
                                                 <span className="font-bold">Date de création :</span> {formatDate(infosSalle.created_at)}
                                                 </p>
@@ -3583,47 +3621,46 @@ export default function DashboardPro(){
                                                 </p>
                                             </div>
 
-                                            <p className="text-red-500">
+                                            <p className="text-red-500 text-sm md:text-base">
                                             En cas d’erreur, veuillez procéder à la modification afin de garantir l’exactitude des données.
                                             </p>
                                         </div>
-                                        <div className="bg-gray-300 h-120 w-[2px]"></div>
                                 </div>
                                 
-                                <div className="col-span-2">
+                                <div className="lg:col-span-2">
                                     {infosLoading ? (
-                                        <div className=" p-4 mt-15 flex flex-col gap-5 animate-pulse">
+                                        <div className="p-4 mt-8 flex flex-col gap-5 animate-pulse">
 
                                             <div className="flex flex-col gap-2 my-3">
-                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-5 bg-gray-200 rounded w-1/3"></div>
                                                 <div className="h-10 bg-gray-200 rounded-lg"></div>
                                             </div>
                                             <div className="flex flex-col gap-2 my-3">
-                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-5 bg-gray-200 rounded w-1/3"></div>
                                                 <div className="h-10 bg-gray-200 rounded-lg"></div>
                                             </div>
 
-                                            <div className="flex items-center justify-between gap-5">
+                                            <div className="flex flex-col md:flex-row items-center justify-between gap-5">
                                                 <div className="flex flex-col gap-2 my-3 w-full">
-                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-5 bg-gray-200 rounded w-1/3"></div>
                                                     <div className="h-10 bg-gray-200 rounded-lg"></div>
                                                 </div>
 
                                                 <div className="flex flex-col gap-2 my-3 w-full">
-                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-5 bg-gray-200 rounded w-1/3"></div>
                                                     <div className="h-10 bg-gray-200 rounded-lg"></div>
                                                 </div>
                                             </div>
 
                                             <div className="flex items-center gap-2">
-                                                <div className="h-10 bg-gray-200 rounded-lg w-30"></div>
+                                                <div className="h-10 bg-gray-200 rounded-lg w-24"></div>
                                             </div>
                                         </div>
                                     ):(
-                                        <form onSubmit={UpdateInfos} className=" p-4 mt-15 flex flex-col gap-5 text-xl">
+                                        <form onSubmit={UpdateInfos} className="p-4 mt-8 flex flex-col gap-5">
                                             
                                             <div className="flex flex-col gap-2 my-3">
-                                                <label className="text-gray-400 flex gap-1">Nom de la salle
+                                                <label className="text-gray-400 flex gap-1 text-sm md:text-base">Nom de la salle
                                                     <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
                                                 </label>
                                                 <input type="text"
@@ -3631,22 +3668,22 @@ export default function DashboardPro(){
                                                     onChange={(e)=>{ setNomSalle(e.target.value),update_infos.reset()}}
                                                     disabled={!showButtonSalle}
                                                     placeholder={!showButtonSalle ? infosSalle.nom_salle : 'Entrez le nouveau nom de votre salle'}
-                                                    className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                    className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none text-sm md:text-base`}
                                                 />
                                             </div>
 
                                             <div className="flex flex-col gap-2 my-3">
-                                                <label className="text-gray-400">Adresse</label>
+                                                <label className="text-gray-400 text-sm md:text-base">Adresse</label>
                                                 <input type="text"
                                                     disabled
                                                     placeholder={`${infosSalle.pays_salle} ${infosSalle.region_salle}`}
-                                                    className="border bg-gray-200 text-gray-500 border-gray-300 p-2 pl-3 font-semibold rounded-lg focus:outline-none"
+                                                    className="border bg-gray-200 text-gray-500 border-gray-300 p-2 pl-3 font-semibold rounded-lg focus:outline-none text-sm md:text-base"
                                                 />
                                             </div>
 
-                                            <div className="flex items-center justify-between gap-5">
+                                            <div className="flex flex-col md:flex-row items-center justify-between gap-5">
                                                 <div className="flex flex-col gap-2 my-3 w-full">
-                                                    <label className="text-gray-400 flex gap-1">Pays
+                                                    <label className="text-gray-400 flex gap-1 text-sm md:text-base">Pays
                                                         <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
                                                     </label>
                                                     <input type="text"
@@ -3654,12 +3691,12 @@ export default function DashboardPro(){
                                                         onChange={(e)=>{ setPaysSalle(e.target.value),update_infos.reset()}}
                                                         disabled={!showButtonSalle}
                                                         placeholder={!showButtonSalle ? infosSalle.pays_salle : 'Entrez le pays où se trouve la salle'}
-                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none text-sm md:text-base`}
                                                     />
                                                 </div>
 
                                                 <div className="flex flex-col gap-2 my-3 w-full">
-                                                    <label className="text-gray-400 flex gap-1">Région
+                                                    <label className="text-gray-400 flex gap-1 text-sm md:text-base">Région
                                                         <span className={`${showButtonSalle ? 'block' : 'hidden'} text-orange-600`}>*</span>
                                                     </label>
                                                     <input type="text"
@@ -3667,48 +3704,47 @@ export default function DashboardPro(){
                                                         onChange={(e)=> {setRegion(e.target.value), update_infos.reset()}}
                                                         disabled={!showButtonSalle}
                                                         placeholder={!showButtonSalle ? infosSalle.region_salle : 'Entrez la région'}
-                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonSalle ? 'font-semibold' : ''} rounded-lg focus:outline-none text-sm md:text-base`}
                                                     />
                                                 </div>
                                             </div>
 
                                             
 
-                                            <div className="flex items-center gap-2" >
+                                            <div className="flex flex-wrap items-center gap-2">
                                                 <div className={`${showButtonSalle ? 'hidden' : ''}`}>
-
-                                                <motion.button
-                                                    type="button"
-                                                    whileTap={{scale:0.95}}
-                                                    onClick={()=>{setShowButtonSalle(true) }}
-                                                    className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
-                                                >
-                                                    Modifier
-                                                </motion.button>
-                                                </div>
-                                                {showButtonSalle && (
-                                                    <div className={`${successUpdate ? setShowButtonSalle(false) : 'block'} gap-2 flex items-center`}>
                                                     <motion.button
                                                         type="button"
                                                         whileTap={{scale:0.95}}
-                                                        onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPaysSalle(''), setRegion('')}}
-                                                        className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
+                                                        onClick={()=>{setShowButtonSalle(true) }}
+                                                        className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg text-sm md:text-base"
                                                     >
-                                                        Annuler
+                                                        Modifier
                                                     </motion.button>
-                                                    <motion.button
-                                                        type="submit"
-                                                        whileTap={{scale:0.95}}
-                                                        disabled={updateLoading || !nom_salle.trim() || !pays_salle.trim() || !region.trim()}
-                                                        className={`my-3 ${!nom_salle.trim() || !pays_salle.trim() || !region.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
-                                                    >
-                                                        {updateLoading ? (
-                                                            <Loader2 className="animate-spin"/>
-                                                        ):(
-                                                            'Enregistrer'
-                                                        )}
+                                                </div>
+                                                {showButtonSalle && (
+                                                    <div className={`${successUpdate ? setShowButtonSalle(false) : 'block'} gap-2 flex flex-wrap items-center`}>
+                                                        <motion.button
+                                                            type="button"
+                                                            whileTap={{scale:0.95}}
+                                                            onClick={()=> {setShowButtonSalle(false), setNomSalle(''), setPaysSalle(''), setRegion('')}}
+                                                            className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg text-sm md:text-base"
+                                                        >
+                                                            Annuler
+                                                        </motion.button>
+                                                        <motion.button
+                                                            type="submit"
+                                                            whileTap={{scale:0.95}}
+                                                            disabled={updateLoading || !nom_salle.trim() || !pays_salle.trim() || !region.trim()}
+                                                            className={`my-3 ${!nom_salle.trim() || !pays_salle.trim() || !region.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg text-sm md:text-base`}
+                                                        >
+                                                            {updateLoading ? (
+                                                                <Loader2 className="animate-spin h-4 w-4"/>
+                                                            ):(
+                                                                'Enregistrer'
+                                                            )}
 
-                                                    </motion.button>
+                                                        </motion.button>
                                                     </div>
                                                 )}
                                             </div>
@@ -3716,9 +3752,9 @@ export default function DashboardPro(){
                                     )}
 
                                     {infoError && (
-                                        <div className=" p-4 mt-15 h-138 flex items-center gap-2 justify-center">
+                                        <div className="p-4 mt-8 flex items-center gap-2 justify-center">
                                             <XCircle className="animate-spin text-red-600 h-5 w-5"/>
-                                            <p className="text-red-600">{infos.error.message}</p>
+                                            <p className="text-red-600 text-sm md:text-base">{infos.error.message}</p>
                                         </div>
                                     )}
                                 </div>
@@ -3728,13 +3764,13 @@ export default function DashboardPro(){
 
                         {paramsTab === 'visuel' && (
                             <>
-                                <div className="flex col-span-2 mt-15 p-4">
-                                    <div className="text-gray-500 flex flex-col gap-8">
-                                        <p>
+                                <div className="lg:col-span-2 mt-8 p-3 md:p-4">
+                                    <div className="text-gray-500 flex flex-col gap-4 md:gap-8">
+                                        <p className="text-sm md:text-base">
                                             Cette section vous permet de personnaliser l’image de votre salle et de renforcer votre professionnalisme.
                                         </p>
 
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col gap-2 text-sm md:text-base">
                                             <p>
                                             <span className="font-bold">Identité de votre salle :</span> Ajoutez des éléments visuels (logo, couleurs, bannière…) afin de représenter votre marque. Une identité visuelle claire permet de vous démarquer des autres salles et de renforcer votre crédibilité auprès de vos clients.
                                             </p>
@@ -3745,23 +3781,22 @@ export default function DashboardPro(){
                                             
                                         </div>
 
-                                        <p>
+                                        <p className="text-sm md:text-base">
                                             Ces éléments sont facultatifs, mais fortement recommandés pour valoriser votre image et inspirer confiance.
                                         </p>
                                     </div>
-                                    <div className="bg-gray-300 h-100 w-[2px]"></div>
                                 </div>
-                                <div className="col-span-2 mt-15 flex items-center gap-5">
-                                    <div className="border border-gray-300 rounded-lg p-4">
-                                        <p className="font-semibold text-xl ">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
-                                        <p className="text-md mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
+                                <div className="lg:col-span-2 mt-8 flex flex-col md:flex-row items-center gap-5">
+                                    <div className="border border-gray-300 rounded-lg p-4 w-full">
+                                        <p className="font-semibold text-lg md:text-xl">Identité de votre salle <span className="text-sm">(optionnel)</span></p>
+                                        <p className="text-sm md:text-base mb-5 text-gray-400">Démarquez-vous des autres grâce à votre identité visuelle</p>
                                         <form className="flex flex-col relative items-center gap-4">
 
 
                                             <motion.div
                                                 whileHover={{ scale: 1.08 }}
                                                 whileTap={{ scale: 0.95 }}
-                                                className="rounded-full w-50 h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
+                                                className="rounded-full w-32 h-32 md:w-50 md:h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
                                                 onClick={() => logoInputRef.current.click()}
                                             >
                                                 {preview ? (
@@ -3781,8 +3816,8 @@ export default function DashboardPro(){
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                                         <div className="flex flex-col items-center">
-                                                        <PlusSquare size={50} />
-                                                        <span className="font-bold">Ajouter votre logo</span>
+                                                        <PlusSquare size={30} className="md:size-50" />
+                                                        <span className="font-bold text-xs md:text-sm">Ajouter votre logo</span>
                                                         </div>
                                                     </div>
                                                 )}
@@ -3812,7 +3847,7 @@ export default function DashboardPro(){
                                                         type="submit"
                                                         onClick={(e)=>{infosSalle?.logo_salle ? handlePostLogo(e, 'PUT') : handlePostLogo(e, 'POST')}}
                                                         disabled={logoLoading || logoEditLoading }
-                                                        className="px-4 py-1 bg-blue-500 text-white rounded"
+                                                        className="px-4 py-1 bg-blue-500 text-white rounded text-sm"
                                                     >
                                                         {logoLoading || logoEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
 
@@ -3838,8 +3873,8 @@ export default function DashboardPro(){
                                             )}
 
                                             {logoModal && (
-                                                <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
-                                                    <div className="flex items-center gap-2  animate-pulse">
+                                                <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur p-4 text-center">
+                                                    <div className="flex items-center gap-2 animate-pulse">
                                                         <AlertTriangle className="h-8 w-8 text-red-500" />
                                                         <p className="font-semibold text-red-500">Cette action est irreversible !</p>
 
@@ -3868,14 +3903,14 @@ export default function DashboardPro(){
                                         </form>
                                     </div>
 
-                                    <div className=" border border-gray-300 rounded-lg p-4">
-                                        <p className="font-semibold text-xl ">Cachet / Signature <span className="text-sm">(optionnel)</span></p>
-                                        <p className="text-md mb-5 text-gray-400">Scannez votre signature pour les marquer sur vos factures</p>
+                                    <div className="border border-gray-300 rounded-lg p-4 w-full">
+                                        <p className="font-semibold text-lg md:text-xl">Cachet / Signature <span className="text-sm">(optionnel)</span></p>
+                                        <p className="text-sm md:text-base mb-5 text-gray-400">Scannez votre signature pour les marquer sur vos factures</p>
                                         <form className="flex flex-col relative items-center gap-4">
                                             <motion.div
                                                 whileHover={{ scale: 1.08 }}
                                                 whileTap={{ scale: 0.95 }}
-                                                className="rounded-lg w-full h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
+                                                className="rounded-lg w-full h-32 md:h-50 overflow-hidden bg-orange-400/20 border cursor-pointer"
                                                 onClick={() => signInputRef.current.click()}
                                             >
                                                 {previewSign ? (
@@ -3895,8 +3930,8 @@ export default function DashboardPro(){
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                                         <div className="flex flex-col items-center">
-                                                        <PlusSquare size={50} />
-                                                        <span className="font-bold">Ajoutervotre signature/cachet</span>
+                                                        <PlusSquare size={30} className="md:size-50" />
+                                                        <span className="font-bold text-xs md:text-sm text-center">Ajouter votre signature/cachet</span>
                                                         </div>
                                                     </div>
                                                 )}
@@ -3926,7 +3961,7 @@ export default function DashboardPro(){
                                                         type="submit"
                                                         onClick={(e)=>{infosSalle?.cachet_signer ? handlePostSign(e, 'PUT') : handlePostSign(e, 'POST')}}
                                                         disabled={signLoading || signEditLoading }
-                                                        className="px-4 py-1 bg-blue-500 text-white rounded"
+                                                        className="px-4 py-1 bg-blue-500 text-white rounded text-sm"
                                                     >
                                                         {signLoading || signEditLoading ? <Loader2 className="animate-spin h-5 w-5"/> : "Enregistrer"}
 
@@ -3952,8 +3987,8 @@ export default function DashboardPro(){
                                             )}
 
                                             {signModal && (
-                                                <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur">
-                                                    <div className="flex items-center gap-2  animate-pulse">
+                                                <div className="absolute flex flex-col gap-5 items-center justify-center inset-0 bg-black/80 backdrop-blur p-4 text-center">
+                                                    <div className="flex items-center gap-2 animate-pulse">
                                                         <AlertTriangle className="h-8 w-8 text-red-500" />
                                                         <p className="font-semibold text-red-500">Cette action est irreversible !</p>
 
@@ -3987,13 +4022,13 @@ export default function DashboardPro(){
 
                         {paramsTab === 'perso' && (
                             <>
-                                <div className="flex gap-2 col-span-2 mt-15 p-4">
-                                        <div className="text-gray-500 flex flex-col gap-8">
-                                            <p>
+                                <div className="lg:col-span-2 mt-8 p-3 md:p-4">
+                                        <div className="text-gray-500 flex flex-col gap-4 md:gap-8">
+                                            <p className="text-sm md:text-base">
                                                 Les éléments ci-contre correspondent à vos informations personnelles associées à votre compte. Merci de vous assurer qu’elles sont exactes et régulièrement mises à jour :
                                             </p>
 
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex flex-col gap-2 text-sm md:text-base">
                                                 <p>
                                                 <span className="font-bold">Prénom :</span> Votre prénom tel qu’utilisé pour l’identification sur la plateforme.
                                                 </p>
@@ -4011,45 +4046,44 @@ export default function DashboardPro(){
                                                 </p>
                                             </div>
 
-                                            <p>
+                                            <p className="text-sm md:text-base">
                                             Ces informations sont confidentielles et contribuent à la sécurité ainsi qu’au bon fonctionnement de votre compte.
                                             </p>
 
-                                            <p className="text-red-500">
+                                            <p className="text-red-500 text-sm md:text-base">
                                             En cas de changement, veillez à les mettre à jour rapidement.
                                             </p>
                                         </div>
-                                        <div className="bg-gray-300 h-138 w-[2px]"></div>
                                 </div>
-                                <div className="col-span-2">
+                                <div className="lg:col-span-2">
                                     {infosLoading ? (
-                                        <div className="p-4 mt-15 flex flex-col gap-5 animate-pulse">
+                                        <div className="p-4 mt-8 flex flex-col gap-5 animate-pulse">
 
-                                            <div className="flex items-center justify-between gap-5">
+                                            <div className="flex flex-col md:flex-row items-center justify-between gap-5">
                                                 <div className="flex flex-col gap-2 my-3 w-full">
-                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-5 bg-gray-200 rounded w-1/3"></div>
                                                     <div className="h-10 bg-gray-200 rounded-lg"></div>
                                                 </div>
 
                                                 <div className="flex flex-col gap-2 my-3 w-full">
-                                                    <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                    <div className="h-5 bg-gray-200 rounded w-1/3"></div>
                                                     <div className="h-10 bg-gray-200 rounded-lg"></div>
                                                 </div>
                                             </div>
 
                                             <div className="flex flex-col gap-2 my-3">
-                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-5 bg-gray-200 rounded w-1/3"></div>
                                                 <div className="h-10 bg-gray-200 rounded-lg"></div>
                                             </div>
                                             <div className="flex flex-col gap-2 my-3">
-                                                <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                                                <div className="h-5 bg-gray-200 rounded w-1/3"></div>
                                                 <div className="h-10 bg-gray-200 rounded-lg"></div>
                                             </div>
 
 
 
                                             <div className="my-3">
-                                                <div className="h-10 bg-gray-200 rounded w-1/3"></div>
+                                                <div className="h-10 bg-gray-200 rounded w-1/2"></div>
                                             </div>
 
                                             <div className="flex items-center gap-2">
@@ -4057,11 +4091,11 @@ export default function DashboardPro(){
                                             </div>
                                         </div>
                                     ):(
-                                        <form onSubmit={UpdatePerso} className=" p-4 mt-15 flex flex-col gap-5 text-xl">
+                                        <form onSubmit={UpdatePerso} className="p-4 mt-8 flex flex-col gap-5">
 
-                                            <div className="flex items-center justify-between gap-5">
+                                            <div className="flex flex-col md:flex-row items-center justify-between gap-5">
                                                 <div className="flex flex-col gap-2 my-3 w-full">
-                                                    <label className="text-gray-400 flex gap-1">Prénom
+                                                    <label className="text-gray-400 flex gap-1 text-sm md:text-base">Prénom
                                                         <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
                                                     </label>
                                                     <input type="text"
@@ -4069,12 +4103,12 @@ export default function DashboardPro(){
                                                         onChange={(e)=>{ setPrenomPerso(e.target.value),update_infos_perso.reset()}}
                                                         disabled={!showButtonProfil}
                                                         placeholder={!showButtonProfil ? infosUser.prenom : 'Entrez votre prénom'}
-                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none text-sm md:text-base`}
                                                     />
                                                 </div>
 
                                                 <div className="flex flex-col gap-2 my-3 w-full">
-                                                    <label className="text-gray-400 flex gap-1">Nom
+                                                    <label className="text-gray-400 flex gap-1 text-sm md:text-base">Nom
                                                         <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
                                                     </label>
                                                     <input type="text"
@@ -4082,12 +4116,12 @@ export default function DashboardPro(){
                                                         onChange={(e)=> {setNomPerso(e.target.value), update_infos_perso.reset()}}
                                                         disabled={!showButtonProfil}
                                                         placeholder={!showButtonProfil ? infosUser.name : 'Entrez votre nom'}
-                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                        className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none text-sm md:text-base`}
                                                     />
                                                 </div>
                                             </div>
                                             <div className="flex flex-col gap-2 my-3 w-full">
-                                                <label className="text-gray-400 flex gap-1">Numéro de téléphone
+                                                <label className="text-gray-400 flex gap-1 text-sm md:text-base">Numéro de téléphone
                                                     <span className={`${showButtonProfil ? 'block' : 'hidden'} text-orange-600`}>*</span>
                                                 </label>
                                                 <input type="tel"
@@ -4095,74 +4129,74 @@ export default function DashboardPro(){
                                                     onChange={(e)=>{ setTelPerso(e.target.value),update_infos_perso.reset()}}
                                                     disabled={!showButtonProfil}
                                                     placeholder={!showButtonProfil ? infosUser.telephone : 'Entrez votre numéro de telephone'}
-                                                    className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none`}
+                                                    className={`border border-gray-300 p-2 pl-3 ${!showButtonProfil ? 'font-semibold' : ''} rounded-lg focus:outline-none text-sm md:text-base`}
                                                 />
                                             </div>
 
                                             <div className="flex flex-col gap-2 my-3 w-full">
-                                                <label className="text-gray-400">Adresse e-mail </label>
+                                                <label className="text-gray-400 text-sm md:text-base">Adresse e-mail </label>
                                                 <input type="email"
                                                     disabled
                                                     placeholder={infosUser.email}
-                                                    className="border bg-gray-200 text-gray-500 border-gray-300 p-2 pl-3 font-semibold rounded-lg focus:outline-none"
+                                                    className="border bg-gray-200 text-gray-500 border-gray-300 p-2 pl-3 font-semibold rounded-lg focus:outline-none text-sm md:text-base"
                                                 />
                                             </div>
 
-                                            <div className="flex items-center gap-2" >
+                                            <div className="flex flex-wrap items-center gap-2">
                                                 <motion.button
                                                 whileTap={{scale:0.95}}
                                                 type="button"
                                                     onClick={()=>{setShowPasswordChange(!showPasswordChange)}}
                                                     disabled={showButtonProfil}
-                                                    className={`${showButtonProfil ? 'bg-gray-200 text-gray-400 border-gray-200' : 'bg-tranparent border-gray-300 cursor-pointer'}  border-2 rounded-lg py-2 px-4 my-3`}
+                                                    className={`${showButtonProfil ? 'bg-gray-200 text-gray-400 border-gray-200' : 'bg-transparent border-gray-300 cursor-pointer'} border-2 rounded-lg py-2 px-4 my-3 text-sm md:text-base`}
                                                 >
                                                     {showPasswordChange ? 'Annuler le changement' : 'Changer le mot de passe'}
                                                 </motion.button>
 
                                                 {showPasswordChange && (
-                                                    <div className={`flex items-center gap-2 my-3 ${passwordSuccess ? setShowPasswordChange(false) : 'block'}`}>
+                                                    <div className={`flex flex-wrap items-center gap-2 my-3 ${passwordSuccess ? setShowPasswordChange(false) : 'block'}`}>
                                                         <input type="password"
                                                             placeholder="nouveau mot de passe"
                                                             value={password}
                                                             onChange={(e)=>{setPassword(e.target.value), updatePassword.reset()}}
-                                                            className="border py-2 px-4 rounded-lg focus:outline-none"
+                                                            className="border py-2 px-4 rounded-lg focus:outline-none text-sm md:text-base"
                                                         />
                                                         <motion.button
                                                             type="submit"
                                                             disabled={changePasswordLoading || !password.trim()}
                                                             onClick={(e)=>UpdatePerso(e, 'PASSWORD')}
                                                             whileTap={{scale:0.95}}
-                                                            className={`border ${!password.trim() ? 'bg-gray-200 border-gray-300' : 'bg-green-200 border-green-500 cursor-pointer'}  py-2 px-2 rounded-lg `}
+                                                            className={`border ${!password.trim() ? 'bg-gray-200 border-gray-300' : 'bg-green-200 border-green-500 cursor-pointer'} py-2 px-2 rounded-lg`}
                                                         >
                                                             {changePasswordLoading ? (
-                                                                <Loader2 className="h-7 w-7 text-green-600 animate-spin"/>
+                                                                <Loader2 className="h-5 w-5 md:h-7 md:w-7 text-green-600 animate-spin"/>
                                                             ):(
-                                                                <CheckCircle2 className={`h-7 w-7 ${!password.trim() ? 'text-gray-400' : 'text-green-600'}`} />
+                                                                <CheckCircle2 className={`h-5 w-5 md:h-7 md:w-7 ${!password.trim() ? 'text-gray-400' : 'text-green-600'}`} />
                                                             )}
 
                                                         </motion.button>
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="flex items-center gap-2" >
+                                            <div className="flex flex-wrap items-center gap-2">
                                                 <div className={`${showButtonProfil ? 'hidden' : ''}`}>
                                                     <motion.button
                                                         type="button"
                                                         whileTap={{scale:0.95}}
                                                         disabled={showPasswordChange}
                                                         onClick={()=>{setShowButtonProfil(true) }}
-                                                        className={`my-3 ${showPasswordChange ? 'bg-gray-200  text-gray-400 border-gray-200' : 'cursor-pointer bg-gray-300 border-gray-200 text-black/80'} border font-semibold py-2 px-4 rounded-lg`}
+                                                        className={`my-3 ${showPasswordChange ? 'bg-gray-200 text-gray-400 border-gray-200' : 'cursor-pointer bg-gray-300 border-gray-200 text-black/80'} border font-semibold py-2 px-4 rounded-lg text-sm md:text-base`}
                                                     >
                                                         Modifier
                                                     </motion.button>
                                                 </div>
                                                 {showButtonProfil && (
-                                                    <div className={`${persoSuccess ? setShowButtonProfil(false) : 'block flex items-center gap-2'}`}>
+                                                    <div className={`${persoSuccess ? setShowButtonProfil(false) : 'block flex flex-wrap items-center gap-2'}`}>
                                                         <motion.button
                                                             type="button"
                                                             whileTap={{scale:0.95}}
                                                             onClick={()=>{setShowButtonProfil(false), setNomPerso(''), setPrenomPerso(''), setTelPerso('')}}
-                                                            className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
+                                                            className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg text-sm md:text-base"
                                                         >
                                                             Annuler
                                                         </motion.button>
@@ -4170,7 +4204,7 @@ export default function DashboardPro(){
                                                             type="submit"
                                                             whileTap={{scale:0.95}}
                                                             disabled={persoLoading || !nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim()}
-                                                            className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg`}
+                                                            className={`my-3 ${!nomPerso.trim() || !prenomPerso.trim() || !telPerso.trim() ? 'bg-orange-200 border-orange-200 ' : 'bg-orange-500 cursor-pointer border-orange-500 '} border text-white font-semibold py-2 px-4 rounded-lg text-sm md:text-base`}
                                                         >
                                                             {persoLoading ? (
                                                                 <Loader2 className="h-5 w-5 animate-spin"/>
@@ -4187,9 +4221,9 @@ export default function DashboardPro(){
                                     )}
 
                                     {infoError && (
-                                        <div className=" p-4 mt-15 h-138 flex items-center gap-2 justify-center">
+                                        <div className="p-4 mt-8 flex items-center gap-2 justify-center">
                                             <XCircle className="animate-spin text-red-600 h-5 w-5"/>
-                                            <p className="text-red-600">{infos.error.message}</p>
+                                            <p className="text-red-600 text-sm md:text-base">{infos.error.message}</p>
                                         </div>
                                     )}
                                 </div>
@@ -4198,16 +4232,16 @@ export default function DashboardPro(){
 
                         {paramsTab === 'tarif' && (
                             <>
-                                <div className="flex col-span-2 mt-15 p-4">
-                                    <div className="text-gray-500 flex flex-col gap-8">
-                                        <p>
+                                <div className="lg:col-span-2 mt-8 p-3 md:p-4">
+                                    <div className="text-gray-500 flex flex-col gap-4 md:gap-8">
+                                        <p className="text-sm md:text-base">
                                             Cette section vous permet de définir et personnaliser les formules tarifaires proposées par votre salle.
                                         </p>
-                                        <p>
+                                        <p className="text-sm md:text-base">
                                             Vous pouvez configurer vos prix selon différentes périodes d’abonnement :
                                         </p>
 
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col gap-2 text-sm md:text-base">
                                             <p>
                                             <span className="font-bold">Mensuel :</span> Tarif appliqué pour un abonnement d’un mois.
                                             </p>
@@ -4220,15 +4254,14 @@ export default function DashboardPro(){
                                             
                                         </div>
 
-                                        <p>
+                                        <p className="text-sm md:text-base">
                                             La personnalisation des tarifs vous permet d’adapter vos offres à votre stratégie commerciale et aux besoins de vos adhérents.
                                         </p>
                                     </div>
-                                    <div className="bg-gray-300 h-130 w-[2px]"></div>
                                 </div>
-                                <form onSubmit={sendTarif} className=" col-span-2 mt-15 text-xl">
+                                <form onSubmit={sendTarif} className="lg:col-span-2 mt-8">
 
-                                    <div className="flex items-center justify-end gap-2 mb-5">
+                                    <div className="flex items-center justify-end gap-2 mb-5 flex-wrap">
 
                                         <div className="flex items-center gap-2">
                                             <div>
@@ -4238,9 +4271,9 @@ export default function DashboardPro(){
                                                         whileTap={{scale:0.95}}
                                                         onClick={FormMensuel}
                                                         disabled={daysRemaining < 0}
-                                                        className={`${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 border-orange-600'} px-5 py-3 rounded-lg shadow-lg border `}
+                                                        className={`${daysRemaining < 0 ? 'bg-orange-300 border-orange-300' : 'bg-orange-600 border-orange-600'} px-3 md:px-5 py-2 md:py-3 rounded-lg shadow-lg border`}
                                                     >
-                                                        {showFormTarif ? <X className="text-white"/> : <Plus className="text-white"/>}
+                                                        {showFormTarif ? <X className="text-white h-4 w-4 md:h-6 md:w-6"/> : <Plus className="text-white h-4 w-4 md:h-6 md:w-6"/>}
                                                     </motion.button>
                                                 </div>
                                                 <div>
@@ -4250,21 +4283,21 @@ export default function DashboardPro(){
                                                             disabled={action === "PUT" ? loadingTarifUp : loadingTarifDel}
                                                             onClick={(e) =>{editMois && editAn && editTrim ? setShowModalTrash(true) : sendTarif(e, "PUT")}}
                                                             whileTap={{scale:0.95}}
-                                                            className={`px-5 py-3 flex item-center gap-2 rounded-lg shadow-lg border ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
+                                                            className={`px-3 md:px-5 py-2 md:py-3 flex items-center gap-2 rounded-lg shadow-lg border text-sm md:text-base ${editMois && editAn && editTrim ? 'bg-red-500 border-red-500' : 'bg-green-200 border-green-500'} `}
                                                         >
                                                             {editMois && editAn && editTrim ? (
                                                                 <>
-                                                                <span className="  text-white font-bold">Supprimer tous les enregistrements</span>
-                                                                <Trash className=" text-white"/>
+                                                                <span className="text-white font-bold hidden md:inline">Supprimer tous les enregistrements</span>
+                                                                <Trash className="text-white h-4 w-4"/>
                                                                 </>
                                                             ): loadingTarifUp 
                                                                 ? <>
-                                                                    <span className="  text-green-600">En cours...</span>
-                                                                    <Loader2 className="text-green-600 animate-spin"/> 
+                                                                    <span className="text-green-600 hidden md:inline">En cours...</span>
+                                                                    <Loader2 className="text-green-600 animate-spin h-4 w-4"/> 
                                                                     </>
                                                                 : <>
-                                                                    <span className="  text-green-600 font-bold">Enregister les modifications</span>
-                                                                    <CheckCircle2 className="text-green-600"/>
+                                                                    <span className="text-green-600 font-bold hidden md:inline">Enregister les modifications</span>
+                                                                    <CheckCircle2 className="text-green-600 h-4 w-4"/>
                                                                 </>
 
                                                             }
@@ -4278,12 +4311,12 @@ export default function DashboardPro(){
                                                     type="submit"
                                                     whileTap={{scale:0.95}}
                                                     disabled={loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim()}
-                                                    className={`px-5 py-3 rounded-lg shadow-lg border ${loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim() ? 'bg-gray-300 border-gray-400' : 'bg-green-200 border-green-600'}`}
+                                                    className={`px-3 md:px-5 py-2 md:py-3 rounded-lg shadow-lg border ${loadingTarif || !mensuel.trim() || !trimestriel.trim() || !annuel.trim() ? 'bg-gray-300 border-gray-400' : 'bg-green-200 border-green-600'}`}
                                                 >
                                                     {loadingTarif ? (
-                                                        <Loader2 className="text-green-600 animate-spin"/>
+                                                        <Loader2 className="text-green-600 animate-spin h-4 w-4"/>
                                                     ):(
-                                                        <Check className="text-green-600"/>
+                                                        <Check className="text-green-600 h-4 w-4"/>
                                                     )}
                                                 </motion.button>
                                                 </div>
@@ -4294,19 +4327,19 @@ export default function DashboardPro(){
                                     <div className="grid grid-cols-1 gap-5">
 
                                         
-                                        <div className="border border-gray-400 p-2 ">
+                                        <div className="border border-gray-400 p-2 rounded">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center justify-between">
-                                                    <span className="font-bold">Mensuel</span>
-                                                    <hr className=" w-140 text-gray-400 "/>
+                                                    <span className="font-bold text-sm md:text-base">Mensuel</span>
+                                                    <hr className="w-full mx-2 text-gray-400"/>
 
-                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                    <Calendar1 className="text-gray-400 h-5 w-5 md:h-7 md:w-7"/>
                                                 </div>
                                                 {(!prix_mensuel && !showFormTarif) && (
                                                     <input
                                                         type="tel"
                                                         disabled={!showFormTarif}
-                                                        className="border w-full  my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500"
+                                                        className="border w-full my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500 text-sm md:text-base"
                                                         placeholder="Tarif non défini"
                                                     />
                                                 )}
@@ -4321,18 +4354,18 @@ export default function DashboardPro(){
                                                                 type="tel"
                                                                 value={mensuel}
                                                                 onChange={(e)=>{setMensuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
-                                                                className={`border w-full ${editMois ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400 '}  pl-3 focus:outline-none p-2`}
+                                                                className={`border w-full ${editMois ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400'} pl-3 focus:outline-none p-2 text-sm md:text-base`}
                                                                 placeholder={editMois ? `${prix_mensuel} XOF` : 'Saisissez un nouveau tarif mensuel'}
                                                                 disabled={editMois}
                                                             />
-                                                            <div >
+                                                            <div>
                                                                 <motion.button
                                                                     type="button"
                                                                     onClick={()=>{setEditMois(!editMois), setMensuel('')}}
                                                                     whileTap={{scale:0.95}}
-                                                                    className="border p-3 rounded-lg bg-orange-600 border-orange-600"
+                                                                    className="border p-2 md:p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
-                                                                    {editMois ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                    {editMois ? <Edit className="h-4 w-4 md:h-5 md:w-5 text-white"/> : <X className="h-4 w-4 md:h-5 md:w-5 text-white"/>}
                                                                 </motion.button>
                                                             </div>
                                                         </>
@@ -4342,7 +4375,7 @@ export default function DashboardPro(){
                                                             type="tel"
                                                             value={mensuel}
                                                             onChange={(e)=>{setMensuel(e.target.value)}}
-                                                            className="border w-full  border-gray-400 pl-3 focus:outline-none p-2"
+                                                            className="border w-full border-gray-400 pl-3 focus:outline-none p-2 text-sm md:text-base"
                                                             placeholder="Saisissez le tarif par mois"
                                                         />
                                                     )}
@@ -4353,19 +4386,19 @@ export default function DashboardPro(){
                                             )}
                                         </div>
 
-                                        <div className="border border-gray-400 p-2 ">
+                                        <div className="border border-gray-400 p-2 rounded">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center justify-between">
-                                                    <span className="font-bold">Trimestriel</span>
-                                                    <hr className=" w-135 text-gray-400 "/>
+                                                    <span className="font-bold text-sm md:text-base">Trimestriel</span>
+                                                    <hr className="w-full mx-2 text-gray-400"/>
 
-                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                    <Calendar1 className="text-gray-400 h-5 w-5 md:h-7 md:w-7"/>
                                                 </div>
                                                 {(!prix_trimestriel && !showFormTarif) && (
                                                     <input
                                                         type="tel"
                                                         disabled={!showFormTarif}
-                                                        className="border w-full  my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500"
+                                                        className="border w-full my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500 text-sm md:text-base"
                                                         placeholder="Tarif non défini"
                                                     />
                                                 )}
@@ -4380,18 +4413,18 @@ export default function DashboardPro(){
                                                                 type="tel"
                                                                 value={trimestriel}
                                                                 onChange={(e)=>{setTrimestriel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
-                                                                className={`border w-full ${editTrim ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
+                                                                className={`border w-full ${editTrim ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400'} pl-3 focus:outline-none p-2 text-sm md:text-base`}
                                                                 placeholder={editTrim ? `${prix_trimestriel} XOF` : 'Saisissez un nouveau tarif trimestriel'}
                                                                 disabled={editTrim}
                                                             />
-                                                            <div >
+                                                            <div>
                                                                 <motion.button
                                                                     type="button"
                                                                     onClick={()=>{setEditTrim(!editTrim), setTrimestriel('')}}
                                                                     whileTap={{scale:0.95}}
-                                                                    className="border p-3 rounded-lg bg-orange-600 border-orange-600"
+                                                                    className="border p-2 md:p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
-                                                                    {editTrim ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                    {editTrim ? <Edit className="h-4 w-4 md:h-5 md:w-5 text-white"/> : <X className="h-4 w-4 md:h-5 md:w-5 text-white"/>}
                                                                 </motion.button>
                                                             </div>
                                                         </>
@@ -4401,7 +4434,7 @@ export default function DashboardPro(){
                                                             type="tel"
                                                             value={trimestriel}
                                                             onChange={(e)=>{setTrimestriel(e.target.value)}}
-                                                            className="border w-full  border-gray-400 pl-3 focus:outline-none p-2"
+                                                            className="border w-full border-gray-400 pl-3 focus:outline-none p-2 text-sm md:text-base"
                                                             placeholder="Saisissez le tarif par trimestre"
                                                         />
                                                     )}
@@ -4412,19 +4445,19 @@ export default function DashboardPro(){
                                             )}
                                         </div>
 
-                                        <div className="border border-gray-400 p-2 ">
+                                        <div className="border border-gray-400 p-2 rounded">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center justify-between">
-                                                    <span className="font-bold">Annuel</span>
-                                                    <hr className=" w-144 text-gray-400 "/>
+                                                    <span className="font-bold text-sm md:text-base">Annuel</span>
+                                                    <hr className="w-full mx-2 text-gray-400"/>
 
-                                                    <Calendar1 className="text-gray-400 h-7 w-7"/>
+                                                    <Calendar1 className="text-gray-400 h-5 w-5 md:h-7 md:w-7"/>
                                                 </div>
                                                 {(!prix_annuel && !showFormTarif) && (
                                                     <input
                                                         type="tel"
                                                         disabled={!showFormTarif}
-                                                        className="border w-full  my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500"
+                                                        className="border w-full my-5 border-gray-400 pl-3 focus:outline-none p-2 bg-gray-200 text-gray-500 text-sm md:text-base"
                                                         placeholder="Tarif non défini"
                                                     />
                                                 )}
@@ -4439,18 +4472,18 @@ export default function DashboardPro(){
                                                                 type="tel"
                                                                 value={annuel}
                                                                 onChange={(e)=>{setAnnuel(e.target.value), tarif.reset(), tarifUpdate.reset()}}
-                                                                className={`border w-full ${editAn ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400'}  pl-3 focus:outline-none p-2`}
+                                                                className={`border w-full ${editAn ? 'bg-gray-200 text-gray-500 border-gray-400 font-semibold' : 'border-gray-400'} pl-3 focus:outline-none p-2 text-sm md:text-base`}
                                                                 placeholder={editAn ? `${prix_annuel} XOF` : 'Saisissez un nouveau tarif annuel'}
                                                                 disabled={editAn}
                                                             />
-                                                            <div >
+                                                            <div>
                                                                 <motion.button
                                                                     type="button"
                                                                     onClick={()=>{setEditAn(!editAn), setAnnuel('')}}
                                                                     whileTap={{scale:0.95}}
-                                                                    className="border p-3 rounded-lg bg-orange-600 border-orange-600"
+                                                                    className="border p-2 md:p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
-                                                                    {editAn ? <Edit className="h-5 w-5 text-white"/> : <X className="h-5 w-5 text-white"/>}
+                                                                    {editAn ? <Edit className="h-4 w-4 md:h-5 md:w-5 text-white"/> : <X className="h-4 w-4 md:h-5 md:w-5 text-white"/>}
                                                                 </motion.button>
                                                             </div>
                                                         </>
@@ -4460,7 +4493,7 @@ export default function DashboardPro(){
                                                             type="tel"
                                                             value={annuel}
                                                             onChange={(e)=>{setAnnuel(e.target.value)}}
-                                                            className="border w-full  border-gray-400 pl-3 focus:outline-none p-2"
+                                                            className="border w-full border-gray-400 pl-3 focus:outline-none p-2 text-sm md:text-base"
                                                             placeholder="Saisissez le tarif par an"
                                                         />
                                                     )}
@@ -4480,7 +4513,7 @@ export default function DashboardPro(){
                                 initial={{opacity: 0, y:0}}
                                 animate={{ opacity: 1, y:5}}
                                 transition={{duration:0.4}}
-                                className="absolute z-20 top-34 right-65 bg-white shadow-lg border border-gray-300 rounded-lg px-4 py-1 overflow-y-auto h-100">
+                                className="absolute z-20 top-34 right-4 md:right-65 bg-white shadow-lg border border-gray-300 rounded-lg px-4 py-1 overflow-y-auto h-80 w-64 md:w-auto">
                                 
                                 {historyLoading ? (
                                     <Loader2 className="animate-spin flex items-center justify-center"/>
@@ -4490,20 +4523,20 @@ export default function DashboardPro(){
                                     <p>Pas d'historique de connexion </p>
                                 ):dataHistory.map((item, index) => (
                                     <div key={index} className="my-3">
-                                        <p className="text-sm bg-orange-100">Date : {item?.date || 'N/A'}, il y'a {item?.depuis || 'N/A'}</p>
+                                        <p className="text-xs md:text-sm bg-orange-100 p-1">Date : {item?.date || 'N/A'}, il y'a {item?.depuis || 'N/A'}</p>
                                     </div>
                                 ))}
                             </motion.div>
                         )}
 
                         {paramsTab === 'support' && (
-                            <div className="col-span-4 h-200 flex items-center justify-center">
+                            <div className="lg:col-span-4 h-64 md:h-80 lg:h-96 flex items-center justify-center">
                                 <div className="flex relative flex-col items-center">
-                                    <div className="absolute z-10 inset-0 text-[75px] font-bold text-orange-500 opacity-40 flex items-center justify-center">
+                                    <div className="absolute z-10 inset-0 text-lg md:text-2xl lg:text-[75px] font-bold text-orange-500 opacity-40 flex items-center justify-center text-center p-4">
                                         <p>gymplus2025.gym@gmail.com</p>
                                     </div>
-                                    <ImageComponent source={support} style={"w-200"} label={''} />
-                                    <p><span className="italic text-gray-500 text-xl">Service ouvert 24h/7j</span></p>
+                                    <ImageComponent source={support} style={"w-40 md:w-60 lg:w-200"} label={''} />
+                                    <p><span className="italic text-gray-500 text-sm md:text-xl">Service ouvert 24h/7j</span></p>
                                 </div>
                             </div>
                         )}
@@ -4511,312 +4544,271 @@ export default function DashboardPro(){
 
                         {paramsTab === 'activity' && (
                             <>
-                                <div className=" mt-10 p-4 bg-white overflow-y-auto h-200 sticky top-0 scrollbar-hide shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg flex flex-col gap-5">
-                                    <div className="flex flex-col gap-1">
-                                        <div className="flex items-center gap-2">
-                                            <NotebookPen  className="h-7 w-7" fill="rgba(255,100,0,0.8)" stroke="white"/>
-                                            <p className="text-2xl font-bold">Créer une Activité</p>
-                                        </div>
-                                        <p className="text-sm text-gray-400 ">Une fois l'activité publiée, vous pouvez l'envoyer directement à vos adhérants. Ils seront notifiés via leur adresse e-email.</p>
-                                    </div>
-
-                                    <div className="flex flex-col gap-4">
-
-                                        <div className="flex flex-col gap-2">
-                                            <label>Nom de l'activité <span className="text-red-500 font-bold">*</span></label>
-                                            <Input type={'text'} placeholder={'Ex: Yoga Flow Matinal'} value={nom_activite}
-                                                onChange={(e)=>{setNomActivite(e.target.value)}}
-                                                className={'p-4 w-full block rounded-lg bg-gray-100 focus:outline-none'}
-                                            />
-                                        </div>
-
-                                        <div className="flex flex-col gap-2">
-                                            <label>Description <span className="text-red-500 font-bold">*</span></label>
-                                            <textarea type="text" cols="30" rows="5"
-                                            value={descriptions}
-                                            onChange={(e)=>{setDescription(e.target.value)}} 
-                                                placeholder="Décrivez l'activité en quelques mots... " 
-                                                className="w-full block rounded-lg bg-gray-100 focus:outline-none p-4"    
-                                            />
-                                        </div>
-
-                                        <div className="flex items-center justify-between gap-2">
-
-                                            <div className="flex flex-col w-full gap-2">
-                                                <label>Date <span className="text-red-500 font-bold">*</span></label>
-                                                <Input type='date' value={date_activite} onChange={(e)=>{setDateActivite(e.target.value)}} 
-                                                    className="p-4 w-full rounded-lg bg-gray-100 focus:outline-none"
-                                                />
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:col-span-4 mt-6">
+                                    
+                                    {/* Colonne 1 : Formulaire (sticky sur desktop) */}
+                                    <div className="lg:sticky lg:top-6 h-fit">
+                                        <div className="bg-white p-4 md:p-5 rounded-lg shadow-md">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-2">
+                                                    <NotebookPen className="h-6 w-6 md:h-7 md:w-7" fill="rgba(255,100,0,0.8)" stroke="white"/>
+                                                    <p className="text-xl md:text-2xl font-bold">Créer une Activité</p>
+                                                </div>
+                                                <p className="text-xs md:text-sm text-gray-400">Une fois l'activité publiée, vous pouvez l'envoyer directement à vos adhérants. Ils seront notifiés via leur adresse e-email.</p>
                                             </div>
 
-                                            <div className="flex flex-col w-full gap-2">
-                                                <label>Heure <span className="text-red-500 font-bold">*</span></label>
-                                                <Input type='time' value={heure_activite} onChange={(e)=>{setHeureActivite(e.target.value)}} 
-                                                    className="p-4 w-full rounded-lg bg-gray-100 focus:outline-none"
-                                                />
-                                            </div>
-                                        </div>
+                                            <div className="flex flex-col gap-4 mt-4">
 
-                                        <div className="flex flex-col w-full gap-2">
-                                            <div className="flex items-center justify-between">
-                                                <label>Image de l'activité <span className="text-red-500 font-bold">*</span></label>
-                                                {previewActivity && (
-                                                    <button className="text-xs bg-red-600 text-white px-1 rounded-sm font-bold top-2 right-2"
-                                                        type="button"
-                                                        onClick={()=>{setPreviewActivity(null)}}
-                                                    >
-                                                        supprimer
-                                                    </button>
-                                                )}
-                                            </div>
-                                            
-                                            
-                                             <div
-                                                className="w-full relative rounded-lg h-50 border-2 border-dotted border-gray-400 overflow-hidden bg-gray-100 cursor-pointer"
-                                                onClick={() => activityInputRef.current.click()}
-                                            >
-                                                {previewActivity ? (
-                                                    <div className="relative w-full h-full">
-                                                        <ImageComponent source={previewActivity} style={"w-full h-full object-cover"} label={'preview'} />
-                                                        <div className="absolute w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
-                                                            
-                                                        </div>
-                                                        
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-sm md:text-base">Nom de l'activité <span className="text-red-500 font-bold">*</span></label>
+                                                    <Input type={'text'} placeholder={'Ex: Yoga Flow Matinal'} value={nom_activite}
+                                                        onChange={(e)=>{setNomActivite(e.target.value)}}
+                                                        className={'p-3 md:p-4 w-full block rounded-lg bg-gray-100 focus:outline-none text-sm md:text-base'}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-sm md:text-base">Description <span className="text-red-500 font-bold">*</span></label>
+                                                    <textarea type="text" cols="30" rows="5"
+                                                    value={descriptions}
+                                                    onChange={(e)=>{setDescription(e.target.value)}} 
+                                                        placeholder="Décrivez l'activité en quelques mots... " 
+                                                        className="w-full block rounded-lg bg-gray-100 focus:outline-none p-3 md:p-4 text-sm md:text-base"    
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+
+                                                    <div className="flex flex-col w-full gap-2">
+                                                        <label className="text-sm md:text-base">Date <span className="text-red-500 font-bold">*</span></label>
+                                                        <Input type='date' value={date_activite} onChange={(e)=>{setDateActivite(e.target.value)}} 
+                                                            className="p-3 md:p-4 w-full rounded-lg bg-gray-100 focus:outline-none text-sm md:text-base"
+                                                        />
                                                     </div>
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                        <div className="flex flex-col gap-2 items-center">
-                                                            <UploadCloud size={40}  />
-                                                            <span className="text-sm">Cliquez pour parcourir</span>
-                                                            <span className="text-xs text-gray-400">jpg, png, jpeg | max:5MB</span>
-                                                        </div>
+
+                                                    <div className="flex flex-col w-full gap-2">
+                                                        <label className="text-sm md:text-base">Heure <span className="text-red-500 font-bold">*</span></label>
+                                                        <Input type='time' value={heure_activite} onChange={(e)=>{setHeureActivite(e.target.value)}} 
+                                                            className="p-3 md:p-4 w-full rounded-lg bg-gray-100 focus:outline-none text-sm md:text-base"
+                                                        />
                                                     </div>
-                                                )}
+                                                </div>
 
-                                                
-                                            </div>
-
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                ref={activityInputRef}
-                                                hidden
-                                                onChange={handleImgActivity}
-                                            />
-                                        </div>
-
-                                    </div>
-
-                                    <div className="flex flex-col gap-2">
-                                        <label>Statut <span className="text-red-500 font-bold">*</span></label>
-                                        <div className="flex items-center w-full justify-between  bg-gray-100 rounded-lg">
-                                            <button 
-                                                onClick={()=>{setStatus('publie')}}
-                                                className={`text-sm ${status === 'publie' ? 'text-white bg-blue-500' : ''}  cursor-pointer transition-all duration-200  rounded-lg w-full px-4 py-2`}>
-                                                publier maintenant
-                                            </button>
-                                            <button 
-                                                onClick={()=>{setStatus('attente')}}
-                                                className={` ${status === 'attente' ? 'text-white bg-blue-500' : ''} text-sm rounded-lg w-full px-4 py-2 cursor-pointer transition-all duration-200 `}>
-                                                mettre en attente
-                                            </button>
-                                        </div>
-                                    </div>
-
-
-                                    <button
-                                        onClick={handleActivity}
-                                        disabled={activityLoading || !validateFieldActivity() || daysRemaining < 0}
-                                        className={`w-full p-4 font-bold text-white ${(!validateFieldActivity() || daysRemaining < 0) ? 'bg-orange-300' : 'bg-orange-500 hover:bg-orange-600 '} flex items-center gap-2 justify-center rounded-lg`}
-                                    >
-                                        {activityLoading ? (
-                                            <Loader2 className="h-6 w-6 animate-spin text-white"/>
-                                        ):(
-                                            <>
-                                            <Save className="h-6 w-6"/>
-                                            <p>Enregistrer l'activité</p>
-                                            </>
-                                        )}
-                                    </button>
-
-                                </div>
-
-                                <div className="flex flex-col gap-8 px-4 col-span-3 mt-10 h-200">
-                                    <div className="bg-white w-full flex items-center justify-between shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg p-4">
-                                        <p className="text-xl">Filtrer par statut :</p>
-                                        <div className="flex items-center gap-4">
-                                            <motion.button
-                                            whileTap={{scale: 0.95}}
-                                                onClick={(e)=>{setActivityTab('tous')}}
-                                                className={`py-1 px-4 ${activityTab === 'tous' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
-                                            >
-                                                Tous
-                                            </motion.button>
-                                            <motion.button
-                                            whileTap={{scale: 0.95}}
-                                                onClick={(e)=>{setActivityTab('publie')}}
-                                                className={`py-1 px-4 ${activityTab === 'publie' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
-                                            >
-                                                Publiées
-                                            </motion.button>
-                                            <motion.button
-                                            whileTap={{scale: 0.95}}
-                                                onClick={(e)=>{setActivityTab('attente')}}
-                                                className={`py-1 px-4 ${activityTab === 'attente' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
-                                            >
-                                                En attente
-                                            </motion.button>
-                                            <motion.button
-                                            whileTap={{scale: 0.95}}
-                                                onClick={(e)=>{setActivityTab('annule')}}
-                                                className={`py-1 px-4 ${activityTab === 'annule' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
-                                            >
-                                                Annulées
-                                            </motion.button>
-                                            <motion.button
-                                            whileTap={{scale: 0.95}}
-                                                onClick={(e)=>{setActivityTab('passe')}}
-                                                className={`py-1 px-4 ${activityTab === 'passe' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'}  transition-all duration-200 rounded-lg font-semibold`}
-                                            >
-                                                Passées
-                                            </motion.button>
-                                        </div>
-                                    </div>
-
-                                    <div className="overflow-y-auto grid grid-cols-2 gap-8 p-1 scrollbar-hide">
-                                        {loadingActivity ? (
-                                            [1,2,3,4].map(item => (
-                                                <SkeletonActivity key={item}/>
-                                            ))
-                                        ): filteredActiviy.length === 0 ? (
-                                            <div className="flex relative col-span-2 items-center justify-center mx-auto h-165 w-165 flex-col gap-2">
-                                                <ImageComponent source={nodata} style={"w-full h-full"} label={"logo"}/>
-                                                <div className="absolute bottom-20 text-xl text-gray-400 flex items-center justify-center">Aucune activité pour le moment</div>
-                                            </div>
-                                        ): filteredActiviy.map(item => (
-                                             <div key={item.id} className=" relative shadow-[0_0_5px_rgba(0,0,0,0.4)] rounded-lg bg-white">
-
-                                                <motion.div 
-                                                    onClick={()=>{setModalImage(true),setShowImage(item)}}
-                                                    className="h-60 w-full relative">
-                                                    <ImageComponent source={`${documentUrl}${item?.images_activte}`} style={"w-full h-full object-cover cursor-pointer"} label={'img-activity'} />
-                                                    <p className="absolute rounded-full top-5 left-5 bg-white py-1 px-4 uppercase font-bold">
-                                                        {item?.ispast ? (
-                                                            'passée'
-                                                        ):(
-                                                            item?.status || 'N/A'
+                                                <div className="flex flex-col w-full gap-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <label className="text-sm md:text-base">Image de l'activité <span className="text-red-500 font-bold">*</span></label>
+                                                        {previewActivity && (
+                                                            <button className="text-xs bg-red-600 text-white px-1 rounded-sm font-bold"
+                                                                type="button"
+                                                                onClick={()=>{setPreviewActivity(null)}}
+                                                            >
+                                                                supprimer
+                                                            </button>
                                                         )}
-                                                    </p>
+                                                    </div>
                                                     
-                                                </motion.div>
-
-                                                {item?.status === 'publie' && (
-                                                    <motion.button
-                                                        whileTap={{scale: 0.95}}
-                                                        disabled={item?.ispast || daysRemaining < 0}
-                                                        onClick={(e)=>{handleSendActivity(e, item.id)}}
-                                                        className={`absolute ${(item?.ispast || daysRemaining < 0) ? 'bg-orange-300' : 'hover:scale-105 transition-transform bg-orange-600' }  rounded-full top-5 right-5  text-white py-1 px-4 uppercase font-bold`}
+                                                    <div
+                                                        className="w-full relative rounded-lg h-40 md:h-48 border-2 border-dotted border-gray-400 overflow-hidden bg-gray-100 cursor-pointer"
+                                                        onClick={() => activityInputRef.current.click()}
                                                     >
-                                                        {sendLoading ? (
-                                                            <div className="flex items-center">
-                                                                <p>Envoie en cours...</p>
-                                                                <Loader2 className="text-white h-5 w-5"/>
+                                                        {previewActivity ? (
+                                                            <div className="relative w-full h-full">
+                                                                <ImageComponent source={previewActivity} style={"w-full h-full object-cover"} label={'preview'} />
+                                                                <div className="absolute w-full h-full flex items-center justify-center hover:backdrop-blur-[2px] overflow-hidden font-bold inset-0 text-xl">
+                                                                </div>
                                                             </div>
-                                                        ):(
-                                                            'Envoyez aux adhérants'
+                                                        ) : (
+                                                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                                <div className="flex flex-col gap-2 items-center">
+                                                                    <UploadCloud size={30} className="md:size-10" />
+                                                                    <span className="text-xs md:text-sm">Cliquez pour parcourir</span>
+                                                                    <span className="text-[10px] md:text-xs text-gray-400">jpg, png, jpeg | max:5MB</span>
+                                                                </div>
+                                                            </div>
                                                         )}
-                                                    </motion.button>
-                                                )}
+                                                    </div>
 
-                                                <div className="p-8 flex flex-col gap-5">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        ref={activityInputRef}
+                                                        hidden
+                                                        onChange={handleImgActivity}
+                                                    />
+                                                </div>
 
-                                                    <div className="w-full flex items-center justify-between">
-                                                        <p className="font-bold text-xl">
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-sm md:text-base">Statut <span className="text-red-500 font-bold">*</span></label>
+                                                    <div className="flex items-center w-full justify-between bg-gray-100 rounded-lg">
+                                                        <button 
+                                                            onClick={()=>{setStatus('publie')}}
+                                                            className={`text-xs md:text-sm ${status === 'publie' ? 'text-white bg-blue-500' : ''} cursor-pointer transition-all duration-200 rounded-lg w-full px-4 py-2`}>
+                                                            publier maintenant
+                                                        </button>
+                                                        <button 
+                                                            onClick={()=>{setStatus('attente')}}
+                                                            className={`${status === 'attente' ? 'text-white bg-blue-500' : ''} text-xs md:text-sm rounded-lg w-full px-4 py-2 cursor-pointer transition-all duration-200`}>
+                                                            mettre en attente
+                                                        </button>
+                                                    </div>
+                                                </div>
 
-                                                            {item?.nom_activite.length > 22 
-                                                            ? item?.nom_activite.slice(0, 22) + "..." 
-                                                            : item?.nom_activite || 'N/A'}
+                                                <button
+                                                    onClick={handleActivity}
+                                                    disabled={activityLoading || !validateFieldActivity() || daysRemaining < 0}
+                                                    className={`w-full p-3 md:p-4 font-bold text-white ${(!validateFieldActivity() || daysRemaining < 0) ? 'bg-orange-300' : 'bg-orange-500 hover:bg-orange-600'} flex items-center gap-2 justify-center rounded-lg text-sm md:text-base`}
+                                                >
+                                                    {activityLoading ? (
+                                                        <Loader2 className="h-5 w-5 md:h-6 md:w-6 animate-spin text-white"/>
+                                                    ):(
+                                                        <>
+                                                            <Save className="h-5 w-5 md:h-6 md:w-6"/>
+                                                            <p>Enregistrer l'activité</p>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
 
+                                    {/* Colonne 2 et 3 : Filtres + Liste des activités (2 colonnes) avec scroll */}
+                                    <div className="lg:col-span-2 flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-120px)]">
+                                        
+                                        {/* Filtres */}
+                                        <div className="bg-white w-full flex flex-col md:flex-row items-center justify-between shadow-md rounded-lg p-4 gap-4 shrink-0">
+                                            <p className="text-base md:text-xl">Filtrer par statut :</p>
+                                            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
+                                                <motion.button
+                                                    whileTap={{scale: 0.95}}
+                                                    onClick={(e)=>{setActivityTab('tous')}}
+                                                    className={`py-1 px-3 md:px-4 text-xs md:text-sm ${activityTab === 'tous' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'} transition-all duration-200 rounded-lg font-semibold`}
+                                                >
+                                                    Tous
+                                                </motion.button>
+                                                <motion.button
+                                                    whileTap={{scale: 0.95}}
+                                                    onClick={(e)=>{setActivityTab('publie')}}
+                                                    className={`py-1 px-3 md:px-4 text-xs md:text-sm ${activityTab === 'publie' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'} transition-all duration-200 rounded-lg font-semibold`}
+                                                >
+                                                    Publiées
+                                                </motion.button>
+                                                <motion.button
+                                                    whileTap={{scale: 0.95}}
+                                                    onClick={(e)=>{setActivityTab('attente')}}
+                                                    className={`py-1 px-3 md:px-4 text-xs md:text-sm ${activityTab === 'attente' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'} transition-all duration-200 rounded-lg font-semibold`}
+                                                >
+                                                    En attente
+                                                </motion.button>
+                                                <motion.button
+                                                    whileTap={{scale: 0.95}}
+                                                    onClick={(e)=>{setActivityTab('annule')}}
+                                                    className={`py-1 px-3 md:px-4 text-xs md:text-sm ${activityTab === 'annule' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'} transition-all duration-200 rounded-lg font-semibold`}
+                                                >
+                                                    Annulées
+                                                </motion.button>
+                                                <motion.button
+                                                    whileTap={{scale: 0.95}}
+                                                    onClick={(e)=>{setActivityTab('passe')}}
+                                                    className={`py-1 px-3 md:px-4 text-xs md:text-sm ${activityTab === 'passe' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'} transition-all duration-200 rounded-lg font-semibold`}
+                                                >
+                                                    Passées
+                                                </motion.button>
+                                            </div>
+                                        </div>
+
+                                        {/* Grille des activités : 2 colonnes sur tablette/desktop, 1 sur mobile */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+                                            {loadingActivity ? (
+                                                [1,2,3,4,5,6].map(item => (
+                                                    <SkeletonActivity key={item}/>
+                                                ))
+                                            ) : filteredActiviy.length === 0 ? (
+                                                <div className="flex flex-col col-span-1 md:col-span-2 items-center justify-center py-20 gap-4">
+                                                    <div className="w-48 h-48 md:w-64 md:h-64">
+                                                        <ImageComponent source={nodata} style={"w-full h-full object-contain"} label={"logo"}/>
+                                                    </div>
+                                                    <p className="text-base md:text-xl text-gray-400 text-center">Aucune activité pour le moment</p>
+                                                </div>
+                                            ) : filteredActiviy.map(item => (
+                                                <div key={item.id} className="relative shadow-md rounded-lg bg-white overflow-hidden">
+
+                                                    <motion.div 
+                                                        onClick={()=>{setModalImage(true); setShowImage(item)}}
+                                                        className="h-48 md:h-56 w-full relative cursor-pointer">
+                                                        <ImageComponent source={`${documentUrl}${item?.images_activte}`} style={"w-full h-full object-cover"} label={'img-activity'} />
+                                                        <p className="absolute rounded-full top-3 left-3 bg-white/90 backdrop-blur-sm py-0.5 px-2 md:py-1 md:px-3 uppercase font-bold text-[10px] md:text-xs shadow">
+                                                            {item?.ispast ? 'passée' : (item?.status || 'N/A')}
                                                         </p>
-                                                        <div className="flex items-center gap-2">
-                                                            <button
-                                                            title="Voir plus"
-                                                                onClick={()=>{
-                                                                    setDetailActivity(true)
-                                                                    setActivityToDelete(item)
-                                                                }}
-                                                            >
-                                                                <Eye className="h-6 w-6 hover:text-gray-500 transition-colors duration-200"/>
-                                                            </button>
-                                                            <button
-                                                            title="Modifier l'activité"
-                                                                disabled={daysRemaining < 0}
-                                                                onClick={()=>{
-                                                                    setModalUpActivity(true)
-                                                                    setActivityToUp(item)
-                                                                }}
-                                                            >
-                                                                <Edit className="h-5 w-5 hover:text-blue-500 transition-colors duration-200" />
-                                                            </button>
-                                                            <button
-                                                            title="Supprimer l'activité"
-                                                                disabled={daysRemaining < 0}
-                                                                onClick={()=>{
-                                                                    setModalSupActivity(true)
-                                                                    setActivityToDelete(item)
-                                                                }}
-                                                            >
-                                                                <Trash2 className="h-5 w-5 hover:text-red-500 transition-colors duration-200"/>
-                                                            </button>
-                                                            <button
-                                                                onClick={(e)=>{
-                                                                    setSelectActivity(selectActivity === item.id ? null : item.id)
-                                                                    handleSwhitchActivity(e, selectActivity)
-                                                                }}
-                                                                disabled={daysRemaining < 0 || swhitchLoading}
-                                                                title="Changer de statut"
-                                                            >
-                                                                {swhitchLoading ? (
-                                                                    <Loader2 className="h-5 w-5 animate-spin transition-colors duration-200"/>
-                                                                ):(
-                                                                    <ArrowDownUpIcon className="h-5 w-5 hover:text-gray-500 transition-colors duration-200"/>
-                                                                )}
-                                                            </button>
+                                                    </motion.div>
+
+                                                    {item?.status === 'publie' && !item?.ispast && daysRemaining >= 0 && (
+                                                        <motion.button
+                                                            whileTap={{scale: 0.95}}
+                                                            disabled={sendLoading}
+                                                            onClick={(e)=>{handleSendActivity(e, item.id)}}
+                                                            className="absolute top-3 right-3 bg-orange-600 hover:bg-orange-700 rounded-full text-white py-0.5 px-2 md:py-1 md:px-3 text-[10px] md:text-xs font-bold shadow"
+                                                        >
+                                                            {sendLoading ? (
+                                                                <Loader2 className="animate-spin h-3 w-3 md:h-4 md:w-4"/>
+                                                            ) : 'Envoyer'}
+                                                        </motion.button>
+                                                    )}
+
+                                                    <div className="p-4 md:p-5 flex flex-col gap-3">
+
+                                                        <div className="w-full flex flex-wrap items-start justify-between gap-2">
+                                                            <p className="font-bold text-base md:text-lg flex-1 break-words">
+                                                                {item?.nom_activite?.length > 25 
+                                                                    ? item?.nom_activite.slice(0, 25) + "..." 
+                                                                    : item?.nom_activite || 'N/A'}
+                                                            </p>
+                                                            <div className="flex items-center gap-1 shrink-0">
+                                                                <button onClick={()=>{setDetailActivity(true); setActivityToDelete(item)}}>
+                                                                    <Eye className="h-4 w-4 md:h-5 md:w-5 hover:text-gray-500 transition-colors"/>
+                                                                </button>
+                                                                <button onClick={()=>{setModalUpActivity(true); setActivityToUp(item)}} disabled={daysRemaining < 0}>
+                                                                    <Edit className={`h-4 w-4 md:h-5 md:w-5 ${daysRemaining < 0 ? 'text-gray-300' : 'hover:text-blue-500'} transition-colors`}/>
+                                                                </button>
+                                                                <button onClick={()=>{setModalSupActivity(true); setActivityToDelete(item)}} disabled={daysRemaining < 0}>
+                                                                    <Trash2 className={`h-4 w-4 md:h-5 md:w-5 ${daysRemaining < 0 ? 'text-gray-300' : 'hover:text-red-500'} transition-colors`}/>
+                                                                </button>
+                                                                <button onClick={(e)=>{setSelectActivity(selectActivity === item.id ? null : item.id); handleSwhitchActivity(e, selectActivity)}} disabled={daysRemaining < 0 || swhitchLoading}>
+                                                                    {swhitchLoading ? (
+                                                                        <Loader2 className="h-4 w-4 animate-spin"/>
+                                                                    ) : (
+                                                                        <ArrowDownUpIcon className={`h-4 w-4 md:h-5 md:w-5 ${daysRemaining < 0 ? 'text-gray-300' : 'hover:text-gray-500'} transition-colors`}/>
+                                                                    )}
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
 
-                                                    <div>
+                                                        <p className="text-sm md:text-base text-gray-600 break-words line-clamp-2">
+                                                            {item?.descriptions || 'N/A'}
+                                                        </p>
 
-                                                        {item?.descriptions.length > 50 
-                                                        ? item?.descriptions.slice(0, 50) + "..." 
-                                                        : item?.descriptions || 'N/A'}
+                                                        <hr className="border-gray-200"/>
 
-                                                    </div>
-
-                                                    <hr className="text-gray-300 w-full h-1"/>
-
-                                                    <div className="flex items-center justify-between w-full">
-                                                        <div className=" flex items-center gap-2">
-                                                            <Calendar1 className="h-6 w-6 text-blue-600"/>
-                                                            <p className="font-bold text-[18px]">{item?.date_activite || 'N/A'}</p>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <Timer className="h-7 w-7 text-blue-600"/>
-                                                            <p className="font-bold text-[18px]">{item?.heure_activite || 'N/A'}</p>
+                                                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <Calendar1 className="h-5 w-5 text-blue-500 shrink-0"/>
+                                                                <span className="font-medium text-sm">{item?.date_activite || 'N/A'}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <Timer className="h-5 w-5 text-blue-500 shrink-0"/>
+                                                                <span className="font-medium text-sm">{item?.heure_activite || 'N/A'}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
 
-                                        
-                                        {errorgActivity && (
-                                            <div className="col-span-2 items-center justify-center mx-auto h-165 w-165 flex items-center gap-2">
-                                                <XCircle className="h-5 w-5 text-red-600 animate-spin"/>
-                                                <p className="text-red-600 font-bold">Erreur lors de la récupération de vos activités</p>
-                                            </div>
-                                        )}
-                                        
+                                            {errorgActivity && (
+                                                <div className="flex col-span-1 md:col-span-2 items-center justify-center gap-2 py-20">
+                                                    <XCircle className="h-6 w-6 text-red-500 animate-spin"/>
+                                                    <p className="text-red-500 font-medium">Erreur lors de la récupération de vos activités</p>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </>
@@ -4830,22 +4822,22 @@ export default function DashboardPro(){
             {modalImage && (
                 <motion.div 
                     
-                    className="bg-black/50 absolute inset-0 flex items-center justify-center">
+                    className="bg-black/50 absolute inset-0 flex items-center justify-center z-50 p-4">
                     
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1}}
                         transition={{duration:0.3}}
-                        className="w-200 h-200"
+                        className="w-64 h-64 md:w-96 md:h-96 lg:w-200 lg:h-200"
 
                     >
                         
-                        <ImageComponent source={`${documentUrl}${showImage?.images_activte}`} label={'image'} style={'w-full h-full object-fit '}/>
+                        <ImageComponent source={`${documentUrl}${showImage?.images_activte}`} label={'image'} style={'w-full h-full object-cover '}/>
                     </motion.div>
                     <button 
-                            className="absolute top-10 right-20 text-gray-300 hover:text-gray-400 transition-all duration-200"
+                            className="absolute top-4 right-4 md:top-10 md:right-20 text-gray-300 hover:text-gray-400 transition-all duration-200"
                             onClick={()=>{setModalImage(false)}}>
-                            <XCircle className="h-10 w-10 "/>
+                            <XCircle className="h-8 w-8 md:h-10 md:w-10"/>
                         </button>
                 </motion.div>
             )}
@@ -4855,8 +4847,8 @@ export default function DashboardPro(){
                      initial = {{opacity: 0, x: -80}}
                     animate = {{opacity: 1, x: 0}}
                     transition={{duration: 0.2}}
-                    className="bg-white shadow-[0_0_30px_rgba(0,255,0,0.5)] border border-green-500 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute bottom-22 left-5 w-84 h-12 ">
-                    <p className="text-sm text-green-500 font-semibold">Mise à niveau réussie</p>
+                    className="bg-white shadow-[0_0_30px_rgba(0,255,0,0.5)] border border-green-500 rounded-lg z-50 px-4 md:px-10 flex flex-col justify-center gap-4 text-center absolute bottom-4 md:bottom-8 left-4 md:left-5 w-64 md:w-84 h-10 md:h-12">
+                    <p className="text-xs md:text-sm text-green-500 font-semibold">Mise à niveau réussie</p>
 
                 </motion.div>
             )}
@@ -4866,8 +4858,8 @@ export default function DashboardPro(){
                       initial = {{opacity: 0, x: -80}}
                     animate = {{opacity: 1, x: 0}}
                     transition={{duration: 0.2}}
-                    className="bg-white shadow-[0_0_30px_rgba(255,0,0,0.5)] border border-red-500 rounded-lg z-20 px-10  flex flex-col justify-center gap-4 text-center absolute bottom-8 left-5 w-84 h-12 ">
-                    <p className="text-sm text-red-500 font-semibold">{misNiveau.error.message}</p>
+                    className="bg-white shadow-[0_0_30px_rgba(255,0,0,0.5)] border border-red-500 rounded-lg z-50 px-4 md:px-10 flex flex-col justify-center gap-4 text-center absolute bottom-4 md:bottom-8 left-4 md:left-5 w-64 md:w-84 h-10 md:h-12">
+                    <p className="text-xs md:text-sm text-red-500 font-semibold">{misNiveau.error.message}</p>
 
                 </motion.div>
             )}
@@ -4889,82 +4881,82 @@ export default function DashboardPro(){
             )}
 
             {showAdd && (
-                <div className="col-span-4 px-8 py-3 my-5 overflow-y-auto">
+                <div className="lg:col-span-4 px-4 md:px-8 py-3 my-2 md:my-5 overflow-y-auto">
                     <button
                         onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
-                    className="flex items-center cursor-pointer justify-center gap-2">
+                    className="flex items-center cursor-pointer justify-center gap-2 mb-4">
                         <ArrowLeft className="h-5 w-5 text-orange-500" />
                         <span className="text-orange-500 text-sm">Retour à la liste des adhérants</span>
                     </button>
 
-                    <div className="my-5 font-bold text-3xl">Ajout d'adherant <br />
-                        <span className="text-gray-400 text-sm">Remplissez le formulaire ci-dessous pour enregistrer vos adhérants</span>
+                    <div className="my-5 font-bold text-2xl md:text-3xl">Ajout d'adherant <br />
+                        <span className="text-gray-400 text-xs md:text-sm">Remplissez le formulaire ci-dessous pour enregistrer vos adhérants</span>
                     </div>
 
-                    <div className="my-10">
+                    <div className="my-6 md:my-10">
 
-                        <form onSubmit={handleAdd} className="grid grid-cols-4 gap-5 rounded-lg  px-8 py-5">
+                        <form onSubmit={handleAdd} className="flex flex-col gap-6 rounded-lg px-2 md:px-8 py-5">
 
-                            <div className="col-span-4 w-full flex gap-10 justify-between">
+                            <div className="w-full flex flex-col lg:flex-row gap-6 justify-between">
                                 
-                                <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
-                                    <div className="flex items-center gap-2 text-xl font-bold mb-5">
-                                        <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                <div className="lg:w-1/2 w-full bg-white py-5 px-4 md:px-8 rounded-lg shadow-lg">
+                                    <div className="flex items-center gap-2 text-lg md:text-xl font-bold mb-5">
+                                        <User className="h-8 w-8 md:h-10 md:w-10 border rounded-full bg-orange-500 text-white p-2"/>
                                         Informations personnelles de l'adhérant
                                     </div>
                                     <div className="flex-col flex gap-2 mb-5">
-                                        <label className="font-bold text-lg">Nom <span className="text-red-600">*</span></label>
+                                        <label className="font-bold text-base md:text-lg">Nom <span className="text-red-600">*</span></label>
                                         <Input
                                             type={'text'}
                                             value={nom}
                                             onChange={(e)=>{setNom(e.target.value), addAdh.reset()}}
-                                            className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                            className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                             placeholder={'Nom de l\'adhérant'}
                                         />
                                     </div>
 
                                     <div className="flex-col flex gap-2 mb-5">
-                                        <label className="font-bold text-lg">Prénom <span className="text-red-600">*</span></label>
+                                        <label className="font-bold text-base md:text-lg">Prénom <span className="text-red-600">*</span></label>
                                         <Input
                                             type={'text'}
                                             value={prenom}
                                             onChange={(e)=>{setPrenom(e.target.value), addAdh.reset()}}
-                                            className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                            className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                             placeholder={'Prenom de l\'adhérant'}
                                         />
                                     </div>
                                     <div className="flex-col flex gap-2 mb-5">
-                                        <label className="font-bold text-lg">Adresse e-mail <span className="text-red-600">*</span></label>
+                                        <label className="font-bold text-base md:text-lg">Adresse e-mail <span className="text-red-600">*</span></label>
                                         <Input
                                             type={'email'}
                                             value={email}
                                             onChange={(e)=>{setEmail(e.target.value), addAdh.reset()}}
-                                            className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                            className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                             placeholder={'Email de l\'adhérant'}
                                         />
                                     </div>
 
                                     <div className="flex-col flex gap-2 mb-5">
-                                        <label className="font-bold text-lg">Numéro de téléphone <span className="text-red-600">*</span></label>
+                                        <label className="font-bold text-base md:text-lg">Numéro de téléphone <span className="text-red-600">*</span></label>
                                         <Input
                                             type={'tel'}
                                             value={tel}
                                             onChange={(e)=>{setTel(e.target.value), addAdh.reset()}}
-                                            className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                            className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                             placeholder={'Numéro de l\'adhérant'}
                                         />
                                     </div>
                                 </div>
 
                                 
-                                <div className="col-span-2 w-full bg-white py-5 px-8 rounded-lg shadow-lg">
-                                    <div className="flex items-center gap-2 text-xl font-bold mb-5">
-                                        <Plus className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                <div className="lg:w-1/2 w-full bg-white py-5 px-4 md:px-8 rounded-lg shadow-lg">
+                                    <div className="flex items-center gap-2 text-lg md:text-xl font-bold mb-5">
+                                        <Plus className="h-8 w-8 md:h-10 md:w-10 border rounded-full bg-orange-500 text-white p-2"/>
                                         Type d'abonnement
                                     </div>
 
-                                    <div className="flex-col flex gap-2 mb-5 ">
-                                        <label className="font-bold text-lg">Abonnement <span className="text-red-600">*</span></label>
+                                    <div className="flex-col flex gap-2 mb-5">
+                                        <label className="font-bold text-base md:text-lg">Abonnement <span className="text-red-600">*</span></label>
 
 
                                         <select
@@ -4975,7 +4967,7 @@ export default function DashboardPro(){
                                                 setShowPrix(!!value)
                                                 addAdh.reset()
                                             }}
-                                            className="border-3 border-orange-500 p-2 border-dotted text-md"
+                                            className="border-3 border-orange-500 p-2 border-dotted text-sm md:text-md"
                                             >
                                             <option value="">-- Choisir --</option>
                                             <option value="mensuel">Mensuel</option>
@@ -4989,16 +4981,16 @@ export default function DashboardPro(){
 
 
                                         {showPrix && (
-                                        <div className="flex-col flex gap-2 ">
+                                        <div className="flex-col flex gap-2">
                                             {loading ? (
                                             <Loader2 className="h-5 w-5 animate-spin" />
                                             ) : (
                                             <>
-                                                <label className="font-bold text-lg">Prix <span className="text-red-600">*</span></label>
+                                                <label className="font-bold text-base md:text-lg">Prix <span className="text-red-600">*</span></label>
                                                 <select
                                                 value={montant}
                                                 onChange={(e) => {setMontant(e.target.value), addAdh.reset()}}
-                                                className="border-3 border-orange-500 p-2 border-dotted text-md"
+                                                className="border-3 border-orange-500 p-2 border-dotted text-sm md:text-md"
                                                 >
                                                 <option value="">-- Choisir --</option>
                                                     {plan === "mensuel" && (
@@ -5024,15 +5016,15 @@ export default function DashboardPro(){
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between h-30 w-full mt-15 col-span-4">
-                                <div className="flex flex-col items-center col-span-4 w-full">
+                            <div className="flex items-center justify-between h-20 w-full mt-8 lg:mt-15">
+                                <div className="flex flex-col items-center w-full">
                                     
                                 </div>
-                                <div className="flex justify-end items-center gap-2 w-full">
+                                <div className="flex justify-end items-center gap-3 w-full">
                                     <motion.button
                                         onClick={()=>{setShowAdd(false), setActiveTab('adherant')}}
                                         whileTap={{scale: 0.95}}
-                                        className='flex items-center justify-center cursor-pointer text-black/80 border rounded-lg bg-gray-300  border-gray-300 font-bold  text-xl py-3 px-5'
+                                        className='flex items-center justify-center cursor-pointer text-black/80 border rounded-lg bg-gray-300 border-gray-300 font-bold text-base md:text-xl py-2 px-4 md:py-3 md:px-5'
 
                                     >
                                         Annuler
@@ -5041,7 +5033,7 @@ export default function DashboardPro(){
                                     <motion.button
                                         whileTap={{scale: 0.95}}
                                         disabled={loadingAdherant || !nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim()}
-                                        className={`flex items-center justify-center  border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-orange-200 text-gray-500 border-orange-200' : 'bg-orange-600 text-white cursor-pointer '} font-bold  text-xl py-3 px-5`}
+                                        className={`flex items-center justify-center border rounded-lg ${!nom.trim() || !prenom.trim() || !email.trim() || !tel.trim() || !plan.trim() || !montant.trim() ? 'bg-orange-200 text-gray-500 border-orange-200' : 'bg-orange-600 text-white cursor-pointer'} font-bold text-base md:text-xl py-2 px-4 md:py-3 md:px-5`}
 
                                     >
                                         {loadingAdherant ? (
@@ -5173,55 +5165,56 @@ export default function DashboardPro(){
             )}
 
             {modalUpAdherant && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center z-50 justify-center p-4">
                    
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
+                        className="w-full max-w-md"
                     >
-                        <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
+                        <form className=" bg-white py-5 px-4 md:px-8 rounded-lg shadow-lg">
                             <div className="mb-10">
-                                <div className="flex items-center gap-2 text-xl font-bold mb-5">
-                                    <User className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                <div className="flex items-center gap-2 text-lg md:text-xl font-bold mb-5">
+                                    <User className="h-8 w-8 md:h-10 md:w-10 border rounded-full bg-orange-500 text-white p-2"/>
                                     Informations personnelles de l'adhérant
                                 </div>
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Nom </label>
+                                    <label className="font-bold text-base md:text-lg">Nom </label>
                                     <Input
                                         type={'text'}
                                         value={adhToUp?.name}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, name: e.target.value }), updateAdh.reset()}}
-                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                        className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                     />
                                 </div>
 
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Prénom </label>
+                                    <label className="font-bold text-base md:text-lg">Prénom </label>
                                     <Input
                                         type={'text'}
                                         value={adhToUp?.prenom}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, prenom: e.target.value }), updateAdh.reset()}}
-                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                     />
                                 </div>
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Adresse e-mail </label>
+                                    <label className="font-bold text-base md:text-lg">Adresse e-mail </label>
                                     <Input
                                         type={'email'}
                                         value={adhToUp?.email}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, email: e.target.value }), updateAdh.reset()}}
-                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                     />
                                 </div>
 
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Numéro de téléphone </label>
+                                    <label className="font-bold text-base md:text-lg">Numéro de téléphone </label>
                                     <Input
                                         type={'tel'}
                                         value={adhToUp?.telephone}
                                         onChange={(e)=>{setAdhToUp({ ...adhToUp, telephone: e.target.value }), updateAdh.reset()}}
-                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                     />
                                 </div>
                             </div>
@@ -5230,7 +5223,7 @@ export default function DashboardPro(){
                                 <button
                                 type="button"
                                     onClick={()=>{setModalUpAdherant(false)}}
-                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200 text-sm md:text-base"
                                 >
                                     Annuler
                                 </button>
@@ -5238,10 +5231,10 @@ export default function DashboardPro(){
                                 type="submit"
                                 onClick={(e)=>{updateAdhUp(e, adhToUp)}}
                                 disabled={loadingUpdateAdh}
-                                    className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200"
+                                    className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200 text-sm md:text-base"
                                 >
                                     {loadingUpdateAdh ?(
-                                        <Loader2 className="animate-spin"/>
+                                        <Loader2 className="animate-spin h-4 w-4"/>
                                     ):(
                                         'Modifier'
                                     )}
@@ -5254,44 +5247,45 @@ export default function DashboardPro(){
             )}
 
             {modalAddCours && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                <div className="absolute inset-0 bg-black/50 backdrop-blur z-50 flex flex-col items-center justify-center p-4">
                     
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
+                        className="w-full max-w-md"
                     >
-                        <div className=" bg-white flex flex-col gap-5 justify-between py-5 px-8 h-100 w-100 rounded-lg shadow-lg">
+                        <div className=" bg-white flex flex-col gap-5 justify-between py-5 px-4 md:px-8 h-auto rounded-lg shadow-lg">
                             <div className="">
-                                <div className="flex flex-col gap-1 opacity-50 text-xl font-bold mb-5">
+                                <div className="flex flex-col gap-1 opacity-50 text-lg md:text-xl font-bold mb-5">
                                     Ajouter un nouveau cours
                                     <p className="text-gray-400 text-xs">Ajouter un ou plusieurs cours à la suite après un ajout réussi.</p>
                                 </div>
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Intitulé du cours</label>
+                                    <label className="font-bold text-base md:text-lg">Intitulé du cours</label>
                                     <Input
                                         type={'text'}
                                         value={nomCours}
                                         onChange={(e)=>{setNomCours(e.target.value)}}
-                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                        className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                         placeholder={'saisissez le nom du cours'}
                                     />
                                 </div>
 
                                 <div className="flex-col flex gap-2">
-                                    <label className="font-bold text-lg">Niveau du cours </label>
-                                    <div className="flex items-center justify-between border rounded-lg bg-orange-50  border-orange-500">
+                                    <label className="font-bold text-base md:text-lg">Niveau du cours </label>
+                                    <div className="flex items-center justify-between border rounded-lg bg-orange-50 border-orange-500">
                                         <button
                                             type="button"
                                             onClick={()=>{setNiveaux('debutant')}}
-                                            className={`${niveaux === 'debutant' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
+                                            className={`${niveaux === 'debutant' ? 'bg-orange-500 font-bold text-white' : ''} p-2 w-full rounded-lg transition-colors duration-200 text-sm md:text-base`}
                                         >
                                             Débutant
                                         </button>
                                         <button 
                                             type="button"
                                             onClick={()=>{setNiveaux('intermediaire')}}
-                                            className={`${niveaux === 'intermediaire' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
+                                            className={`${niveaux === 'intermediaire' ? 'bg-orange-500 font-bold text-white' : ''} p-2 w-full rounded-lg transition-colors duration-200 text-sm md:text-base`}
                                         >
                                             Intermédiare
                                         </button>
@@ -5304,17 +5298,17 @@ export default function DashboardPro(){
                                 <button
                                 type="button"
                                     onClick={()=>{setModalAddCours(false), setNiveaux(null), setNomCours('')}}
-                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200 text-sm md:text-base"
                                 >
                                     Annuler
                                 </button>
                                 <button
                                     onClick={handleAddCours}
                                     disabled={loadingAddCours || !niveaux}
-                                    className={`${!niveaux ? 'bg-orange-200 border-orange-200' : 'border-orange-400 bg-orange-500 hover:bg-transparent hover:text-black'} border py-1 px-3 text-white font-semibold transition-colors duration-200`}
+                                    className={`${!niveaux ? 'bg-orange-200 border-orange-200' : 'border-orange-400 bg-orange-500 hover:bg-transparent hover:text-black'} border py-1 px-3 text-white font-semibold transition-colors duration-200 text-sm md:text-base`}
                                 >
                                     {loadingAddCours ?(
-                                        <Loader2 className="animate-spin"/>
+                                        <Loader2 className="animate-spin h-4 w-4"/>
                                     ):(
                                         'Enregistrer'
                                     )}
@@ -5327,43 +5321,44 @@ export default function DashboardPro(){
             )}
 
             {modalUpCours && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center z-50 justify-center p-4">
                     
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
+                        className="w-full max-w-md"
                     >
-                        <div className=" bg-white flex flex-col gap-5 justify-between py-5 px-8 h-90 w-100 rounded-lg shadow-lg">
+                        <div className=" bg-white flex flex-col gap-5 justify-between py-5 px-4 md:px-8 h-auto rounded-lg shadow-lg">
                             <div className="">
-                                <div className="flex items-center gap-1 text-xl font-bold opacity-50 mb-5">
+                                <div className="flex items-center gap-1 text-lg md:text-xl font-bold opacity-50 mb-5">
                                     Modifier le cours
                                 </div>
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Intitulé du cours</label>
+                                    <label className="font-bold text-base md:text-lg">Intitulé du cours</label>
                                     <Input
                                         type={'text'}
                                         value={coursToUp?.nom_cours}
                                         onChange={(e)=>{setCoursToUp({ ...coursToUp, nom_cours: e.target.value }), updateCours.reset()}}
-                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                        className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                     />
                                 </div>
 
                                 <div className="flex-col flex gap-2">
-                                    <label className="font-bold text-lg">Niveau de cours </label>
+                                    <label className="font-bold text-base md:text-lg">Niveau de cours </label>
                                     
-                                    <div className="flex items-center justify-between border rounded-lg bg-orange-50  border-orange-500">
+                                    <div className="flex items-center justify-between border rounded-lg bg-orange-50 border-orange-500">
                                         <button
                                             type="button"
                                             onClick={(e)=>{setNiveaux('debutant'),  setCoursToUp({...coursToUp,niveaux: 'debutant'})}}
-                                            className={`${coursToUp?.niveaux === 'debutant' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
+                                            className={`${coursToUp?.niveaux === 'debutant' ? 'bg-orange-500 font-bold text-white' : ''} p-2 w-full rounded-lg transition-colors duration-200 text-sm md:text-base`}
                                         >
                                             Débutant
                                         </button>
                                         <button 
                                             type="button"
                                             onClick={(e)=>{setNiveaux('intermediaire'),  setCoursToUp({...coursToUp,niveaux: 'intermediaire'})}}
-                                            className={`${coursToUp?.niveaux === 'intermediaire' ? 'bg-orange-500 font-bold text-white' : ''}  p-2 w-full rounded-lg transition-colors duration-200`}
+                                            className={`${coursToUp?.niveaux === 'intermediaire' ? 'bg-orange-500 font-bold text-white' : ''} p-2 w-full rounded-lg transition-colors duration-200 text-sm md:text-base`}
                                         >
                                             Intermédiare
                                         </button>
@@ -5371,13 +5366,13 @@ export default function DashboardPro(){
                                 </div>
                             </div>
                             {errorUpdateCours && (
-                                <p className="text-red-500 flex gap-1 font-bold text-sm"><XCircle className="h-5 w-5 text-red-500"/>{updateCours.error.message}</p>
+                                <p className="text-red-500 flex gap-1 font-bold text-xs md:text-sm"><XCircle className="h-4 w-4 md:h-5 md:w-5 text-red-500"/>{updateCours.error.message}</p>
                             )}
                             <div className=" flex justify-end items-center gap-2">
                                 <button
                                 type="button"
                                     onClick={()=>{setModalUpCours(false)}}
-                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200 text-sm md:text-base"
                                 >
                                     Annuler
                                 </button>
@@ -5385,10 +5380,10 @@ export default function DashboardPro(){
                                 type="submit"
                                 onClick={(e)=>{updateCoursUp(e, coursToUp)}}
                                 disabled={loadingUpdateCours}
-                                    className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200"
+                                    className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200 text-sm md:text-base"
                                 >
                                     {loadingUpdateCours ?(
-                                        <Loader2 className="animate-spin"/>
+                                        <Loader2 className="animate-spin h-4 w-4"/>
                                     ):(
                                         'Modifier'
                                     )}
@@ -5401,36 +5396,37 @@ export default function DashboardPro(){
             )}
 
             {reabonnerModal && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                <div className="absolute z-50 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center p-4">
                     
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
+                        className="w-full max-w-md"
                     >
-                        <form className=" bg-white py-5 px-8 rounded-lg shadow-lg">
+                        <form className=" bg-white py-5 px-4 md:px-8 rounded-lg shadow-lg">
                             <div className="mb-10">
-                                <div className="flex items-center gap-2 text-xl font-bold mb-5">
-                                    <WalletCards className="h-10 w-10 border rounded-full bg-orange-500 text-white p-2"/>
+                                <div className="flex items-center gap-2 text-lg md:text-xl font-bold mb-5">
+                                    <WalletCards className="h-8 w-8 md:h-10 md:w-10 border rounded-full bg-orange-500 text-white p-2"/>
                                     Renouvellement de l'abonnement
                                 </div>
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Adresse e-mail </label>
+                                    <label className="font-bold text-base md:text-lg">Adresse e-mail </label>
                                     <Input
                                         type={'email'}
                                         value={reabonner?.email}
                                         onChange={(e)=>{setReabonner({ ...reabonner, email: e.target.value }), reabAdh.reset()}}
-                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                     />
                                 </div>
 
-                                <div className="flex-col flex gap-2 ">
-                                    <label className="font-bold">Abonnement</label>
+                                <div className="flex-col flex gap-2">
+                                    <label className="font-bold text-base md:text-lg">Abonnement</label>
                                     <select
                                         value={reabonner?.plan}
                                         onChange={(e)=>{setReabonner({ ...reabonner, plan: e.target.value }), reabAdh.reset()}}
 
-                                        className="border-4 border-gray-300 p-2 border-dotted text-sm"
+                                        className="border-4 border-gray-300 p-2 border-dotted text-sm md:text-base"
                                         >
                                         <option value="">-- Choisir --</option>
                                         <option value="mensuel">Mensuel</option>
@@ -5444,7 +5440,7 @@ export default function DashboardPro(){
                                 <button
                                     type="button"
                                     onClick={()=>{setReabonnerModal(false)}}
-                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200 text-sm md:text-base"
                                 >
                                     Annuler
                                 </button>
@@ -5452,10 +5448,10 @@ export default function DashboardPro(){
                                     type="submit"
                                     onClick={(e)=>{handleReabonner(e, reabonner)}}
                                     disabled={reabLoading}
-                                    className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200"
+                                    className="border py-1 px-3 border-orange-400 bg-orange-500 hover:text-black text-white font-semibold hover:bg-transparent transition-colors duration-200 text-sm md:text-base"
                                 >
                                     {reabLoading ?(
-                                        <Loader2 className="animate-spin"/>
+                                        <Loader2 className="animate-spin h-4 w-4"/>
                                     ):(
                                         'Confirmer'
                                     )}
@@ -5468,64 +5464,64 @@ export default function DashboardPro(){
             )}
 
             {detailAdherant && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur items-center h-screen justify-center flex ">
+                <div className="absolute z-50 inset-0 bg-black/50 backdrop-blur items-center h-screen justify-center flex p-4">
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
-                        className=" relative flex flex-col gap-5 p-8 w-100  bg-white">
-                        <h1 className="text-xl font-bold">Détails de l'adhérant</h1>
+                        className=" relative flex flex-col gap-5 p-6 md:p-8 w-full max-w-md bg-white rounded-lg">
+                        <h1 className="text-lg md:text-xl font-bold">Détails de l'adhérant</h1>
                         <div className="flex flex-col gap-1">
-                            <h2 className="text-gray-400">Informations personnelles</h2>
-                            <div className="flex items-center gap-1 text-sm">
+                            <h2 className="text-gray-400 text-sm md:text-base">Informations personnelles</h2>
+                            <div className="flex items-center gap-1 text-xs md:text-sm">
                                 <p className="font-semibold">Nom :</p>
                                 <p>{adhToUp?.name}</p>
                             </div>
-                            <div className="flex items-center gap-1 text-sm">
+                            <div className="flex items-center gap-1 text-xs md:text-sm">
                                 <p className="font-semibold">Prénom :</p>
                                 <p>{adhToUp?.prenom}</p>
                             </div>
-                            <div className="flex items-center gap-1 text-sm">
+                            <div className="flex items-center gap-1 text-xs md:text-sm">
                                 <p className="font-semibold">Adresse e-mail :</p>
                                 <p>{adhToUp?.email}</p>
                             </div>
-                            <div className="flex items-center gap-1 text-sm">
+                            <div className="flex items-center gap-1 text-xs md:text-sm">
                                 <p className="font-semibold">Numéro de téléphone :</p>
                                 <p>{adhToUp?.telephone}</p>
                             </div>
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <h2 className="text-gray-400">Informations sur l'abonnement</h2>
-                            <div className="flex items-center gap-1 text-sm">
+                            <h2 className="text-gray-400 text-sm md:text-base">Informations sur l'abonnement</h2>
+                            <div className="flex items-center gap-1 text-xs md:text-sm">
                                 <p className="font-semibold">Forfait choisie :</p>
                                 <p>{adhToUp?.dernier_abonnement?.plan}</p>
                             </div>
-                            <div className="flex items-center gap-1 text-sm">
+                            <div className="flex items-center gap-1 text-xs md:text-sm">
                                 <p className="font-semibold">Montant payé :</p>
                                 <p>{adhToUp?.dernier_abonnement?.montant}</p>
                             </div>
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <h2 className="text-gray-400">Informations sur le délai de l'abonnement</h2>
-                            <div className="flex items-center gap-1 text-sm">
+                            <h2 className="text-gray-400 text-sm md:text-base">Informations sur le délai de l'abonnement</h2>
+                            <div className="flex items-center gap-1 text-xs md:text-sm">
                                 <p className="font-semibold">Abonné le</p>
                                 <p>{formatDate(adhToUp?.dernier_abonnement?.debut)}</p>
                             </div>
-                            <div className="flex items-center gap-1 text-sm">
+                            <div className="flex items-center gap-1 text-xs md:text-sm">
                                 <p className="font-semibold">Prend fin le</p>
                                 <p>{formatDate(adhToUp?.dernier_abonnement?.fin)}</p>
                             </div>
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <h2 className="text-gray-400">Informations d'inscription</h2>
-                            <div className="flex items-center gap-1 text-sm">
+                            <h2 className="text-gray-400 text-sm md:text-base">Informations d'inscription</h2>
+                            <div className="flex items-center gap-1 text-xs md:text-sm">
                                 <p className="font-semibold">Créé le</p>
                                 <p>{formatDate(adhToUp?.created_at)}</p>
                             </div>
-                            <div className="flex items-center gap-1 text-sm">
+                            <div className="flex items-center gap-1 text-xs md:text-sm">
                                 <p className="font-semibold">Mis à jour</p>
                                 <p>{formatDate(adhToUp?.updated_at)}</p>
                             </div>
@@ -5533,29 +5529,29 @@ export default function DashboardPro(){
 
                         {adhToUp?.dernier_abonnement?.actif ? (
                             <div className="flex items-center bg-green-200 border border-green-200 p-1 rounded-lg justify-center gap-1">
-                                <Circle className="text-green-500 bg-green-500 animate-pulse rounded-full"/>
-                                <p className="font-semibold text-green-500">Abonnement en cours</p>
+                                <Circle className="text-green-500 bg-green-500 animate-pulse rounded-full h-2 w-2"/>
+                                <p className="font-semibold text-green-500 text-xs md:text-sm">Abonnement en cours</p>
                             </div>
                         ):adhToUp?.dernier_abonnement?.date_suspension !== null ? (
                             <div className="flex items-center bg-yellow-200 border border-yellow-200 p-1 rounded-lg justify-center gap-1">
-                                <Circle className="text-yellow-500 bg-yellow-500 animate-pulse rounded-full"/>
-                                <p className="text-yellow-500 font-semibold">Abonnement suspendu</p>
+                                <Circle className="text-yellow-500 bg-yellow-500 animate-pulse rounded-full h-2 w-2"/>
+                                <p className="text-yellow-500 font-semibold text-xs md:text-sm">Abonnement suspendu</p>
                             </div>
                         ):(
                             <div className="flex items-center bg-red-200 border border-red-200 p-1 rounded-lg justify-center gap-1">
-                                <Circle className="text-red-500 bg-red-500 animate-pulse rounded-full"/>
-                                <p className="text-red-500 font-semibold">Abonnement expiré</p>
+                                <Circle className="text-red-500 bg-red-500 animate-pulse rounded-full h-2 w-2"/>
+                                <p className="text-red-500 font-semibold text-xs md:text-sm">Abonnement expiré</p>
                             </div>
                         )}
 
 
-                        <div className="flex absolute top-0 right-0  items-center justify-center">
+                        <div className="flex absolute top-2 right-2 md:top-3 md:right-3 items-center justify-center">
                             <motion.button
                             whileTap={{scale:0.95}}
                                 type="button"
                                 onClick={()=>{setDetailAdherant(false)}}
                             >
-                                <X className="text-gray-400 hover:text-gray-500 transition-colors duration-200 h-8 w-8"/>
+                                <X className="text-gray-400 hover:text-gray-500 transition-colors duration-200 h-6 w-6 md:h-8 md:w-8"/>
                             </motion.button>
                         </div>
                     </motion.div>
@@ -5563,60 +5559,61 @@ export default function DashboardPro(){
             )}
 
             {modalCoach && (
-                <div className="absolute z-30 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                <div className="absolute z-50 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center p-4">
                    
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
+                        className="w-full max-w-lg"
                     >
-                        <div className=" bg-white/90 flex flex-col gap-8 justify-between py-5 px-8 w-128 rounded-lg shadow-lg">
+                        <div className=" bg-white/90 flex flex-col gap-6 justify-between py-5 px-4 md:px-8 rounded-lg shadow-lg">
                             <div className="">
-                                <div className="flex flex flex-col gap-1 opacity-50 text-xl font-bold mb-5">
+                                <div className="flex flex-col gap-1 opacity-50 text-lg md:text-xl font-bold mb-5">
                                     Ajouter un nouveau coach
                                         <p className="text-gray-400 text-xs">Ajouter un ou plusieurs coachs à la suite après un ajout réussi.</p>
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="flex-col flex gap-2 mb-5">
-                                        <label className="font-bold text-lg">Nom </label>
+                                <div className="flex flex-col sm:flex-row items-center gap-4">
+                                    <div className="flex-col flex gap-2 mb-5 w-full">
+                                        <label className="font-bold text-base md:text-lg">Nom </label>
                                         <Input
                                             type={'text'}
                                             value={nomCoach}
                                             onChange={(e)=>{setNomCoach(e.target.value)}}
-                                            className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                            className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                             placeholder={'saisissez son nom'}
                                         />
                                     </div>
-                                    <div className="flex-col flex gap-2 mb-5">
-                                        <label className="font-bold text-lg">Prénom </label>
+                                    <div className="flex-col flex gap-2 mb-5 w-full">
+                                        <label className="font-bold text-base md:text-lg">Prénom </label>
                                         <Input
                                             type={'text'}
                                             value={prenomCoach}
                                             onChange={(e)=>{setPrenomCoach(e.target.value)}}
-                                            className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                            className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                             placeholder={'saisissez son prenom'}
                                         />
                                     </div>
                                 </div>
                                 
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Téléphone <span className="text-red-500 text-xs">(maximum 8 chiffres)</span> </label>
+                                    <label className="font-bold text-base md:text-lg">Téléphone <span className="text-red-500 text-xs">(maximum 8 chiffres)</span> </label>
                                     <Input
                                         type={'text'}
                                         value={telCoach}
                                         onChange={(e)=>{setTelCoach(e.target.value)}}
-                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                         placeholder={'saisissez son numéro de telephone'}
                                     />
                                 </div>
 
                                 <div className="relative flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Spécialité(s) </label>
+                                    <label className="font-bold text-base md:text-lg">Spécialité(s) </label>
                                     <Input
                                         type={'text'}
                                         value={skills}
                                         onChange={(e)=>{setSkills(e.target.value)}}
-                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                         placeholder={'saisissez sa ou ses sompétence(s)...'}
                                     />
 
@@ -5626,21 +5623,21 @@ export default function DashboardPro(){
                                         whileTap={{scale: 0.95}}
                                         className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
                                     >
-                                        <SquarePlus />
+                                        <SquarePlus className="h-4 w-4 md:h-5 md:w-5" />
                                     </motion.button>
                                 </div>
 
                                 {skillsCoach.length > 0 && (
-                                    <div className="grid grid-cols-3  gap-3 ">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                         {skillsCoach.map((item,index) =>(
                                             
-                                            <p key={index}  className=" relative text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
+                                            <p key={index} className="relative text-xs md:text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
                                                 {item}
                                                 <button
                                                     onClick={()=>{removeSkills(index)}}
                                                     className="absolute -top-1 -right-1 border bg-red-600 rounded-full"
                                                 >
-                                                    <X className="h-3 w-3 text-white" />
+                                                    <X className="h-2 w-2 md:h-3 md:w-3 text-white" />
                                                 </button>
                                             </p>
                                             
@@ -5654,17 +5651,17 @@ export default function DashboardPro(){
                                 <button
                                 type="button"
                                     onClick={handleCancel}
-                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200 text-sm md:text-base"
                                 >
                                     Annuler
                                 </button>
                                 <button
                                     onClick={handleSubmit}
                                     disabled={coachLoading || !validation()}
-                                    className={`border py-1 px-3 ${!validation() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'}   text-white font-semibold  transition-colors duration-200`}
+                                    className={`border py-1 px-3 ${!validation() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'} text-white font-semibold transition-colors duration-200 text-sm md:text-base`}
                                 >
                                     {coachLoading ?(
-                                        <Loader2 className="animate-spin"/>
+                                        <Loader2 className="animate-spin h-4 w-4"/>
                                     ):(
                                         'Enregistrer'
                                     )}
@@ -5677,58 +5674,58 @@ export default function DashboardPro(){
             )}
 
             {selectCoach && (
-                <div className="absolute z-30 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                <div className="absolute z-50 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center p-4">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.75 }}
                         animate={{ opacity: 1, scale: 1.15 }}
                         transition={{ duration: 0.4 }}
-                        className=" bg-white/90 flex flex-col gap-8 justify-between py-5 px-8 w-128 rounded-lg shadow-lg"
+                        className="w-full max-w-lg bg-white/90 flex flex-col gap-6 justify-between py-5 px-4 md:px-8 rounded-lg shadow-lg"
                     >
                         <div className="">
-                            <div className="flex items-center gap-2 text-xl opacity-50 font-bold mb-5">
+                            <div className="flex items-center gap-2 text-lg md:text-xl opacity-50 font-bold mb-5">
                                 Modifier le coach 
                             </div>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Nom </label>
+                            <div className="flex flex-col sm:flex-row items-center gap-4">
+                                <div className="flex-col flex gap-2 mb-5 w-full">
+                                    <label className="font-bold text-base md:text-lg">Nom </label>
                                     <Input
                                         type={'text'}
                                         value={coachEdit?.nom}
                                         onChange={(e)=>{setCoachEdit({...coachEdit, nom: e.target.value})}}
-                                        className={'border focus:outline-none  border-orange-500 text-md p-2 rounded-lg'}
+                                        className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                         placeholder={'saisissez son nom'}
                                     />
                                 </div>
-                                <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-lg">Prénom </label>
+                                <div className="flex-col flex gap-2 mb-5 w-full">
+                                    <label className="font-bold text-base md:text-lg">Prénom </label>
                                     <Input
                                         type={'text'}
                                         value={coachEdit?.prenom}
                                         onChange={(e)=>{setCoachEdit({...coachEdit, prenom: e.target.value})}}
-                                        className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                        className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                         placeholder={'saisissez son prenom'}
                                     />
                                 </div>
                             </div>
                             
                             <div className="flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-lg">Téléphone <span className="text-red-500 text-xs">(maximum 8 chiffres)</span> </label>
+                                <label className="font-bold text-base md:text-lg">Téléphone <span className="text-red-500 text-xs">(maximum 8 chiffres)</span> </label>
                                 <Input
                                     type={'text'}
                                     value={coachEdit?.telephone}
                                     onChange={(e)=>{setCoachEdit({...coachEdit, telephone:e.target.value})}}
-                                    className={'border focus:outline-none border-orange-500 text-md p-2 rounded-lg'}
+                                    className={'border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg'}
                                     placeholder={'saisissez son numéro de telephone'}
                                 />
                             </div>
 
                             <div className="relative flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-lg">Spécialité(s)</label>
+                                <label className="font-bold text-base md:text-lg">Spécialité(s)</label>
                                 <Input
                                     type="text"
                                     value={skills}
                                     onChange={(e) => setSkills(e.target.value)}
-                                    className="border focus:outline-none border-orange-500 text-md p-2 rounded-lg"
+                                    className="border focus:outline-none border-orange-500 text-sm md:text-md p-2 rounded-lg"
                                     placeholder="saisissez sa ou ses compétence(s)..."
                                 />
                                 <motion.button
@@ -5737,21 +5734,21 @@ export default function DashboardPro(){
                                     whileTap={{ scale: 0.95 }}
                                     className="absolute top-9 rounded-tr-lg rounded-br-lg right-0 bg-orange-500 border-orange-500 text-white border p-2"
                                 >
-                                    <SquarePlus />
+                                    <SquarePlus className="h-4 w-4 md:h-5 md:w-5" />
                                 </motion.button>
                             </div>
                             
                             {coachEdit?.competence.length > 0 && (
-                                <div className="grid grid-cols-3  gap-3 ">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                     {coachEdit?.competence.map((item,index) =>(
                                         
-                                        <p key={index}  className=" relative text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
+                                        <p key={index} className="relative text-xs md:text-sm flex items-center justify-center uppercase border px-2 rounded-sm bg-orange-100 text-orange-600 font-bold">
                                             {item}
                                             <button
                                                 onClick={()=>{removeSkillsC(index)}}
                                                 className="absolute -top-1 -right-1 border bg-red-600 rounded-full"
                                             >
-                                                <X className="h-3 w-3 text-white" />
+                                                <X className="h-2 w-2 md:h-3 md:w-3 text-white" />
                                             </button>
                                         </p>
                                         
@@ -5765,17 +5762,17 @@ export default function DashboardPro(){
                             <button
                             type="button"
                                 onClick={()=>{setSelectCoach(null), setCoachEdit(null), setSkills('')}}
-                                className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+                                className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200 text-sm md:text-base"
                             >
                                 Annuler
                             </button>
                             <button
                                 onClick={(e)=>{handleModifCoach(e)}}
                                 disabled={modifCoachLoading || !validationModif()}
-                                className={`border py-1 px-3 ${!validationModif() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'}   text-white font-semibold  transition-colors duration-200`}
+                                className={`border py-1 px-3 ${!validationModif() ? 'border-orange-200 bg-orange-200' : 'border-orange-400 bg-orange-500 hover:text-black hover:bg-transparent'} text-white font-semibold transition-colors duration-200 text-sm md:text-base`}
                             >
                                 {modifCoachLoading ?(
-                                    <Loader2 className="animate-spin"/>
+                                    <Loader2 className="animate-spin h-4 w-4"/>
                                 ):(
                                     'Modifier'
                                 )}
@@ -5787,370 +5784,367 @@ export default function DashboardPro(){
             )}
 
             {modalProgram && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                <div className="absolute inset-0 z-50 bg-black/50 backdrop-blur flex flex-col items-center justify-center p-4 overflow-y-auto">
                     
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.15}}
                         transition={{duration:0.4}}
+                        className="bg-white flex flex-col justify-between py-5 px-4 md:px-8 h-auto max-h-[90vh] w-full max-w-3xl rounded-lg shadow-lg overflow-y-auto"
                     >
-                        <div className=" bg-white flex flex-col justify-between py-5 px-8 h-180 w-150 rounded-lg shadow-lg">
-                           
-                            <div className="flex flex-col gap-1 opacity-50 text-xl font-bold">
-                                Programmer le cours de {program?.nom_cours || 'N/A'}
-                                <p className="text-gray-400 text-xs">Programmer un ou plusieurs cours à la suite après un ajout réussi.</p>
-                            </div>
+                       
+                        <div className="flex flex-col gap-1 opacity-50 text-lg md:text-xl font-bold">
+                            Programmer le cours de {program?.nom_cours || 'N/A'}
+                            <p className="text-gray-400 text-xs">Programmer un ou plusieurs cours à la suite après un ajout réussi.</p>
+                        </div>
 
-                            <div className="grid grid-cols-4 gap-2">
-                                <div className="relative col-span-3">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 my-4">
+                            <div className="relative md:col-span-3">
 
-                                    <div
-                                        onClick={()=>{
-                                            setModalSelect(!modalSelect)
-                                            setModalSelectCoach(false)
-                                        }}
-                                        className="border border-gray-400 p-2 cursor-pointer text-gray-500 bg-gray-200"
-                                    >
-                                        {adherantChoice.length > 0 ?
-                                            'Ajouter un autre adhérant...'
-                                        :
-                                            'Quel(s) adhérant(s) pour ce cours ?'
-                                        }
-                                    </div>
-
-                                    <div className="my-2">
-                                        <p className="text-gray-400 text-sm">
-                                            {adherantChoice.length > 0 ? 
-                                                `${adherantChoice.length > 9 ? adherantChoice.length : `0${adherantChoice.length}`} adhérant${adherantChoice.length > 1 ? 's' : ''} sélectionné${adherantChoice.length > 1 ? 's' : ''}`
-                                            :   
-                                                'Aucun adhérant sélectionné'
-                                            }
-                                        </p>
-                                    </div>
-
-                                    {adherantChoice.length > 0 && (
-                                        <div
-                                            onClick={null}
-                                            className={` my-2 grid grid-cols-4 gap-2 ${adherantChoice.length > 8 ? 'border border-orange-500 p-2 overflow-auto h-20' : ''}`}
-                                        >
-                                            {adherantChoice.map(item => (
-                                                <motion.div
-                                                    initial={{opacity:0, scale:0.75}}
-                                                    animate={{opacity:1, scale:0.95}}
-                                                    transition={{duration:0.4}}
-                                                    key={item.id}  
-                                                    className=" relative rounded-lg border border-orange-400 px-2 py-1 text-gray-600 text-xs font-bold bg-orange-200"
-                                                >
-                                                    {item?.name || 'N/A'} {item?.prenom || 'N/A'}
-                                                    <motion.button
-                                                        onClick={()=>{
-                                                            setAdherantChoice(adherantChoice.filter(i => i.id !== item.id))
-                                                            setAdherantChoiceId(adherantChoiceId.filter(index => index !== item.id))
-                                                        }}
-                                                        className="absolute top-0 right-0 bg-red-300 rounded-full"
-                                                    >
-                                                        <XCircle className="h-3 w-3 text-red-600"/>
-                                                    </motion.button>
-                                                </motion.div>
-                                            ))}   
-                                            
-                                        </div>
-                                    )}
-                                    
-
-                                    {modalSelect && (
-                                        <motion.div
-                                            initial={{opacity:0, y:-5}}
-                                            animate={{opacity:1, y:2}}
-                                            transition={{duration: 0.5}}
-                                            className="absolute top-10 inset-x-0 border border-gray-400 bg-gray-200 overflow-auto h-100 z-10"
-                                        >
-                                            {loadingAdh ? (
-                                                [1,2,3,4,5,6,7,8,9,10].map(item => (
-                                                    <div key={item}
-                                                        className="p-2 flex items-center gap-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
-                                                    >
-                                                        <p className="w-15 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
-                                                        <p className="w-25 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
-                                                    </div>
-                                                ))
-                                            ):AdherantProgram.length === 0 ? (
-                                                <div
-                                                    className="flex items-center justify-center gap-2 transition-all h-100"
-                                                >
-                                                    <p className="text-gray-400 text-sm">Aucun adhérant inscrit dans votre salle</p>
-                                                </div>
-                                            ):AdherantProgram.map(item => (
-                                                <button
-                                                    key={item.id}
-                                                    disabled={adherantChoice.includes(item)}
-                                                    onClick={()=>{
-                                                        if(adherantChoice.includes(item)){
-                                                            alert('deja la')
-                                                            return
-                                                        } else {
-                                                            setAdherantChoiceId([...adherantChoiceId, item.id])
-                                                            setAdherantChoice([...adherantChoice, item])
-                                                            setModalSelect(false)
-                                                        }
-                                                    }}
-                                                    className={`p-2 flex ${adherantChoice.includes(item) ? 'bg-gray-100 text-gray-400' : 'cursor-pointer hover:bg-white'} flex-col w-full text-left  transition-all border-b border-gray-400`}
-                                                >
-                                                    <p className="flex items-center justify-between">
-                                                        <span>{item?.name || 'N/A'} {item?.prenom || 'N/A'}</span>
-
-                                                        {adherantChoice.includes(item) && (
-                                                            <span className="text-xs italic text-gray-400">Déjà sélectionné</span>
-                                                        )}
-                                                    </p>
-
-                                                </button>
-                                            ))}
-
-                                            {AdherantProgram.length >= 0 && (
-                                                <div className="flex justify-between p-2 bg-gray-400 items-center">
-                                                    <button
-                                                        disabled={page===1}
-                                                        onClick={()=>{setPage(p=>p-1)}}
-                                                    >
-                                                        <ArrowLeft className="h-5 w-5"/>
-                                                    </button>
-
-                                                    <span>
-                                                        {page}/{mesAdh.data?.adherents?.last_page || 1}
-                                                    </span>
-
-                                                    <button
-                                                        disabled={page===mesAdh.data?.adherents?.last_page}
-                                                        onClick={()=>{setPage(p=>p+1)}}
-                                                    >
-                                                        <ArrowRight className="h-5 w-5"/>
-                                                    </button>
-                                                </div>
-                                            )}
-
-                                            {errorAdh && (
-                                                <div
-                                                    className="flex flex-col items-center justify-center gap-2 transition-all h-100"
-                                                >   
-                                                    <XCircle className="h-8 w-8 text-red-500"/>
-                                                    <p className=" text-center text-sm text-red-500">{mesAdh.error.message}</p>
-                                                </div>
-                                            )}
-                                        </motion.div>
-                                    )}
-                                    
+                                <div
+                                    onClick={()=>{
+                                        setModalSelect(!modalSelect)
+                                        setModalSelectCoach(false)
+                                    }}
+                                    className="border border-gray-400 p-2 cursor-pointer text-gray-500 bg-gray-200 text-sm md:text-base"
+                                >
+                                    {adherantChoice.length > 0 ?
+                                        'Ajouter un autre adhérant...'
+                                    :
+                                        'Quel(s) adhérant(s) pour ce cours ?'
+                                    }
                                 </div>
 
-                                <div  className="relative flex flex-col">
-                                    
-                                    
+                                <div className="my-2">
+                                    <p className="text-gray-400 text-xs md:text-sm">
+                                        {adherantChoice.length > 0 ? 
+                                            `${adherantChoice.length > 9 ? adherantChoice.length : `0${adherantChoice.length}`} adhérant${adherantChoice.length > 1 ? 's' : ''} sélectionné${adherantChoice.length > 1 ? 's' : ''}`
+                                        :   
+                                            'Aucun adhérant sélectionné'
+                                        }
+                                    </p>
+                                </div>
+
+                                {adherantChoice.length > 0 && (
                                     <div
-                                        onClick={()=>{
-                                            setModalSelectCoach(!modalSelectCoach)
-                                            setModalSelect(false)
-                                        }}
-                                        className={`${!coachChoice ? 'border-gray-400 text-gray-500 bg-gray-200' : ' border-orange-400 text-gray-600 bg-orange-200' } border w-full flex items-center justify-center cursor-pointer `}
+                                        className={`my-2 grid grid-cols-2 sm:grid-cols-3 gap-2 ${adherantChoice.length > 8 ? 'border border-orange-500 p-2 overflow-auto h-24' : ''}`}
                                     >
+                                        {adherantChoice.map(item => (
+                                            <motion.div
+                                                initial={{opacity:0, scale:0.75}}
+                                                animate={{opacity:1, scale:0.95}}
+                                                transition={{duration:0.4}}
+                                                key={item.id}  
+                                                className="relative rounded-lg border border-orange-400 px-2 py-1 text-gray-600 text-[10px] md:text-xs font-bold bg-orange-200"
+                                            >
+                                                {item?.name || 'N/A'} {item?.prenom || 'N/A'}
+                                                <motion.button
+                                                    onClick={()=>{
+                                                        setAdherantChoice(adherantChoice.filter(i => i.id !== item.id))
+                                                        setAdherantChoiceId(adherantChoiceId.filter(index => index !== item.id))
+                                                    }}
+                                                    className="absolute top-0 right-0 bg-red-300 rounded-full"
+                                                >
+                                                    <XCircle className="h-3 w-3 text-red-600"/>
+                                                </motion.button>
+                                            </motion.div>
+                                        ))}   
                                         
-                                        {!coachChoice ?
-                                            <div className="flex flex-col items-center text-center">
-                                                <User className="h-5 w-5" />
-                                                Associer un coach
-                                            </div>
-                                            
-                                        :
-                                            <div className="flex uppercase font-bold flex-col  items-center text-xs py-1 text-center">
-                                                <span>{coachChoice?.nom || 'N/A'}</span>
-                                                <span>{coachChoice?.prenom || 'N/A'}</span>
-                                            </div>
-                                        }
                                     </div>
-                                    {coachChoice && (
-                                        <p className="text-[10px] text-gray-400">NB: Cliquez à nouveau pour changer de coach</p>
-                                    )}
-
-                                    {modalSelectCoach && (
-                                        <motion.div
-                                            initial={{opacity:0, y:-5}}
-                                            animate={{opacity:1, y:2}}
-                                            transition={{duration: 0.5}}
-                                            className={`absolute ${!coachChoice ? 'top-17' : 'top-9'} inset-x-0 border border-gray-400 bg-gray-200 overflow-auto h-50 z-10`}
-                                        >
-                                            {coachLoading ? (
-                                                [1,2,3,4,5].map(item => (
-                                                    <div key={item}
-                                                        className="p-2 flex items-center gap-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
-                                                    >
-                                                        <p className="w-15 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
-                                                        <p className="w-25 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
-                                                    </div>
-                                                ))
-                                            ):mes_coach.length === 0 ? (
-                                                <div
-                                                    className="flex items-center justify-center gap-2 transition-all h-50"
-                                                >
-                                                    <p className="text-gray-400 text-sm">Aucun coach inscrit dans votre salle</p>
-                                                </div>
-                                            ):mes_coach.map(item => (
-                                                <div
-                                                    key={item.id}
-                                                    onClick={()=>{
-                                                        setCoachChoice(item)
-                                                        setCoachChoiceId(item.id)
-                                                        setModalSelectCoach(false)
-                                                    }}
-                                                    className="p-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
-                                                >
-                                                    {item?.nom || 'N/A'} {item?.prenom || 'N/A'}
-                                                </div>
-                                            ))}
-
-                                            
-                                            {coachError && (
-                                                <div
-                                                    className="flex flex-col items-center justify-center gap-2 transition-all h-50"
-                                                >   
-                                                    <XCircle className="h-8 w-8 text-red-500"/>
-                                                    <p className=" text-center text-sm text-red-500">{mes_coach.error.message}</p>
-                                                </div>
-                                            )}
-                                        </motion.div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="w-full flex flex-col gap-3">
-                                <p className="text-gray-500 flex items-center gap-2"><Calendar1 className="h-5 w-5"/>Quels jours ?</p>
-                                <div className="grid grid-cols-4  gap-2">
-                                    {dateChoice.map((date,index) => (
-                                        <button
-                                        key={index}
-                                        className={`${jours.includes(date) ? 'border-orange-400 bg-orange-200 text-gray-600 font-bold' : 'border-gray-400 bg-gray-200 text-gray-500'} transition-all duration-200 border `}
-                                        onClick={()=>{
-                                            if(jours.includes(date)){
-                                                setJours(jours.filter(i => i !== date))
-                                            } else {
-                                                setJours([...jours, date])
-                                            }
-                                        }}
-                                        >{date}</button>
-                                    ))}
-                                </div>
-                                <div>
-                                    {jours.length === 0 ? (
-                                        <p className="text-gray-400 text-sm">Aucun jour sélectionné</p>
-                                    ):(
-                                        <div className="text-sm text-orange-500 ">
-                                            <p className="text-gray-400 ">
-                                                Jour{jours.length > 1 ? 's' : ''} programmé{jours.length > 1 ? 's' : ''}: 
-                                            </p>
-                                            [
-                                                {jours.map((item,index) => (
-                                                    <span className='px-1' key={index}>{item},</span>
-                                                ))}]
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="w-full flex flex-col gap-3">
-                                <p className="text-gray-500 flex items-center gap-2"><Clock className="h-5 w-5"/>Quelles heures ?</p>
-                                <div className="flex items-center justify-between gap-2">
-                                    <div className="w-full border border-gray-400 bg-gray-200 flex flex-col justify-center items-center py-2">
-                                        <p className="text-gray-500">Début</p>
-                                        <input type="time" value={heure} 
-                                            onChange={(e)=>{
-                                                setHoraire([...horaire, {heure: e.target.value}])
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="w-full border border-gray-400 bg-gray-200 flex flex-col justify-center items-center py-2">
-                                        <p className="text-gray-500">Fin</p>
-                                        <input type="time" value={heureFin} 
-                                            onChange={(e)=>{
-                                                setHoraire([...horaire, {heureFin: e.target.value}])
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    {horaire.length === 0 ? (
-                                        <p className="text-sm text-gray-400">Horaires non définis</p>
-                                    ): horaire.length === 1 ? (
-                                        horaire.find(h => h.heure) ? (
-                                            <p className="text-sm text-gray-400 flex items-center gap-2">À partir de 
-                                                <span className="text-orange-500">{horaire.find(h => h.heure)?.heure || "N/A"} </span>
-                                            </p>
-                                        ):<p className="text-sm text-gray-400">Horaires non définis</p>
-                                    ):( 
-                                        <p className="text-sm text-gray-400 flex items-center gap-2">De 
-                                            <span className="text-orange-500 flex items-center gap-2">
-                                                {horaire.find(h => h.heure)?.heure || "N/A"} 
-                                                {" "}<span className="text-sm text-gray-400">À</span>{" "}
-                                                {horaire.find(h => h.heureFin)?.heureFin || "N/A"}
-                                            </span>
-                                        </p>
-                                    )}
-                                    
-                                    
-                                </div>
-                            </div>
-
-                            <div className=" flex justify-between items-center">
+                                )}
                                 
-                                <div className="flex items-center justify-end w-full gap-2">
-                                    <button
-                                    type="button"
-                                        onClick={()=>{
-                                            setModalProgram(false), 
-                                            setSelectAdherant(null), 
-                                            setAdherantChoice([]), 
-                                            setAdherantChoiceId([]),
-                                            setJours([]),
-                                            setHeure(null),
-                                            setHeureFin(null)
-                                            setHoraire([])
-                                            setCoachChoice(null)
-                                            setCoachChoiceId(null)
-                                        }}
-                                        className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200"
+
+                                {modalSelect && (
+                                    <motion.div
+                                        initial={{opacity:0, y:-5}}
+                                        animate={{opacity:1, y:2}}
+                                        transition={{duration: 0.5}}
+                                        className="absolute top-10 inset-x-0 border border-gray-400 bg-gray-200 overflow-auto max-h-60 z-10"
                                     >
-                                        Annuler
-                                    </button>
-                                    <button
-                                        onClick={(e)=>{handleProgram(e)}}
-                                        disabled={
-                                            programLoading ||
-                                            adherantChoice.length === 0 ||
-                                            !coachChoice ||
-                                            jours.length === 0 ||
-                                            horaire.length === 0
-                                        }
-                                        className={`
-                                            ${
-                                                    programLoading ||
-                                                    adherantChoice.length === 0 ||
-                                                    !coachChoice ||
-                                                    jours.length === 0 ||
-                                                    horaire.length === 0
-                                                ?
-                                                    'border-orange-200 bg-orange-200'
-                                                :
-                                                    'border-orange-400 bg-orange-500 hover:bg-transparent hover:text-black'
-                                            }
-                                             border py-1 px-3 text-white font-semibold transition-colors duration-200
-                                        `}
-                                    >
-                                        {programLoading ?(
-                                            <Loader2 className="animate-spin"/>
-                                        ):(
-                                            'Programmer'
+                                        {loadingAdh ? (
+                                            [1,2,3,4,5,6,7,8,9,10].map(item => (
+                                                <div key={item}
+                                                    className="p-2 flex items-center gap-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400"
+                                                >
+                                                    <p className="w-15 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
+                                                    <p className="w-25 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
+                                                </div>
+                                            ))
+                                        ):AdherantProgram.length === 0 ? (
+                                            <div
+                                                className="flex items-center justify-center gap-2 transition-all h-32"
+                                            >
+                                                <p className="text-gray-400 text-xs md:text-sm">Aucun adhérant inscrit dans votre salle</p>
+                                            </div>
+                                        ):AdherantProgram.map(item => (
+                                            <button
+                                                key={item.id}
+                                                disabled={adherantChoice.includes(item)}
+                                                onClick={()=>{
+                                                    if(adherantChoice.includes(item)){
+                                                        alert('deja la')
+                                                        return
+                                                    } else {
+                                                        setAdherantChoiceId([...adherantChoiceId, item.id])
+                                                        setAdherantChoice([...adherantChoice, item])
+                                                        setModalSelect(false)
+                                                    }
+                                                }}
+                                                className={`p-2 flex ${adherantChoice.includes(item) ? 'bg-gray-100 text-gray-400' : 'cursor-pointer hover:bg-white'} flex-col w-full text-left transition-all border-b border-gray-400 text-xs md:text-sm`}
+                                            >
+                                                <p className="flex items-center justify-between">
+                                                    <span>{item?.name || 'N/A'} {item?.prenom || 'N/A'}</span>
+
+                                                    {adherantChoice.includes(item) && (
+                                                        <span className="text-xs italic text-gray-400">Déjà sélectionné</span>
+                                                    )}
+                                                </p>
+
+                                            </button>
+                                        ))}
+
+                                        {AdherantProgram.length >= 0 && (
+                                            <div className="flex justify-between p-2 bg-gray-400 items-center text-xs md:text-sm">
+                                                <button
+                                                    disabled={page===1}
+                                                    onClick={()=>{setPage(p=>p-1)}}
+                                                >
+                                                    <ArrowLeft className="h-4 w-4 md:h-5 md:w-5"/>
+                                                </button>
+
+                                                <span>
+                                                    {page}/{mesAdh.data?.adherents?.last_page || 1}
+                                                </span>
+
+                                                <button
+                                                    disabled={page===mesAdh.data?.adherents?.last_page}
+                                                    onClick={()=>{setPage(p=>p+1)}}
+                                                >
+                                                    <ArrowRight className="h-4 w-4 md:h-5 md:w-5"/>
+                                                </button>
+                                            </div>
                                         )}
 
-                                    </button>
+                                        {errorAdh && (
+                                            <div
+                                                className="flex flex-col items-center justify-center gap-2 transition-all h-32"
+                                            >   
+                                                <XCircle className="h-8 w-8 text-red-500"/>
+                                                <p className="text-center text-xs md:text-sm text-red-500">{mesAdh.error.message}</p>
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                )}
+                                
+                            </div>
+
+                            <div className="relative flex flex-col">
+                                <div
+                                    onClick={()=>{
+                                        setModalSelectCoach(!modalSelectCoach)
+                                        setModalSelect(false)
+                                    }}
+                                    className={`${!coachChoice ? 'border-gray-400 text-gray-500 bg-gray-200' : 'border-orange-400 text-gray-600 bg-orange-200'} border w-full flex items-center justify-center cursor-pointer p-2 text-xs md:text-sm`}
+                                >
+                                    
+                                    {!coachChoice ?
+                                        <div className="flex flex-col items-center text-center">
+                                            <User className="h-4 w-4 md:h-5 md:w-5" />
+                                            Associer un coach
+                                        </div>
+                                        
+                                    :
+                                        <div className="flex uppercase font-bold flex-col items-center text-[10px] md:text-xs py-1 text-center">
+                                            <span>{coachChoice?.nom || 'N/A'}</span>
+                                            <span>{coachChoice?.prenom || 'N/A'}</span>
+                                        </div>
+                                    }
                                 </div>
+                                {coachChoice && (
+                                    <p className="text-[8px] md:text-[10px] text-gray-400">NB: Cliquez à nouveau pour changer de coach</p>
+                                )}
+
+                                {modalSelectCoach && (
+                                    <motion.div
+                                        initial={{opacity:0, y:-5}}
+                                        animate={{opacity:1, y:2}}
+                                        transition={{duration: 0.5}}
+                                        className={`absolute ${!coachChoice ? 'top-12 md:top-17' : 'top-8 md:top-9'} inset-x-0 border border-gray-400 bg-gray-200 overflow-auto max-h-40 z-10`}
+                                    >
+                                        {coachLoading ? (
+                                            [1,2,3,4,5].map(item => (
+                                                <div key={item}
+                                                    className="p-2 flex items-center gap-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400 text-xs md:text-sm"
+                                                >
+                                                    <p className="w-15 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
+                                                    <p className="w-25 bg-gray-400 rounded-lg h-5 animate-pulse"></p>
+                                                </div>
+                                            ))
+                                        ):mes_coach.length === 0 ? (
+                                            <div
+                                                className="flex items-center justify-center gap-2 transition-all h-32"
+                                            >
+                                                <p className="text-gray-400 text-xs md:text-sm">Aucun coach inscrit dans votre salle</p>
+                                            </div>
+                                        ):mes_coach.map(item => (
+                                            <div
+                                                key={item.id}
+                                                onClick={()=>{
+                                                    setCoachChoice(item)
+                                                    setCoachChoiceId(item.id)
+                                                    setModalSelectCoach(false)
+                                                }}
+                                                className="p-2 cursor-pointer hover:bg-white transition-all border-b border-gray-400 text-xs md:text-sm"
+                                            >
+                                                {item?.nom || 'N/A'} {item?.prenom || 'N/A'}
+                                            </div>
+                                        ))}
+
+                                        
+                                        {coachError && (
+                                            <div
+                                                className="flex flex-col items-center justify-center gap-2 transition-all h-32"
+                                            >   
+                                                <XCircle className="h-8 w-8 text-red-500"/>
+                                                <p className="text-center text-xs md:text-sm text-red-500">{mes_coach.error.message}</p>
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="w-full flex flex-col gap-3">
+                            <p className="text-gray-500 flex items-center gap-2 text-sm md:text-base"><Calendar1 className="h-4 w-4 md:h-5 md:w-5"/>Quels jours ?</p>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                {dateChoice.map((date,index) => (
+                                    <button
+                                    key={index}
+                                    className={`${jours.includes(date) ? 'border-orange-400 bg-orange-200 text-gray-600 font-bold' : 'border-gray-400 bg-gray-200 text-gray-500'} transition-all duration-200 border p-1 text-xs md:text-sm`}
+                                    onClick={()=>{
+                                        if(jours.includes(date)){
+                                            setJours(jours.filter(i => i !== date))
+                                        } else {
+                                            setJours([...jours, date])
+                                        }
+                                    }}
+                                    >{date}</button>
+                                ))}
+                            </div>
+                            <div>
+                                {jours.length === 0 ? (
+                                    <p className="text-gray-400 text-xs md:text-sm">Aucun jour sélectionné</p>
+                                ):(
+                                    <div className="text-xs md:text-sm text-orange-500">
+                                        <p className="text-gray-400">
+                                            Jour{jours.length > 1 ? 's' : ''} programmé{jours.length > 1 ? 's' : ''}: 
+                                        </p>
+                                        [
+                                            {jours.map((item,index) => (
+                                                <span className='px-1' key={index}>{item},</span>
+                                            ))}]
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="w-full flex flex-col gap-3">
+                            <p className="text-gray-500 flex items-center gap-2 text-sm md:text-base"><Clock className="h-4 w-4 md:h-5 md:w-5"/>Quelles heures ?</p>
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                                <div className="w-full border border-gray-400 bg-gray-200 flex flex-col justify-center items-center py-2">
+                                    <p className="text-gray-500 text-xs md:text-sm">Début</p>
+                                    <input type="time" value={heure} 
+                                        onChange={(e)=>{
+                                            setHoraire([...horaire, {heure: e.target.value}])
+                                        }}
+                                        className="text-xs md:text-sm"
+                                    />
+                                </div>
+                                <div className="w-full border border-gray-400 bg-gray-200 flex flex-col justify-center items-center py-2">
+                                    <p className="text-gray-500 text-xs md:text-sm">Fin</p>
+                                    <input type="time" value={heureFin} 
+                                        onChange={(e)=>{
+                                            setHoraire([...horaire, {heureFin: e.target.value}])
+                                        }}
+                                        className="text-xs md:text-sm"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                {horaire.length === 0 ? (
+                                    <p className="text-xs md:text-sm text-gray-400">Horaires non définis</p>
+                                ): horaire.length === 1 ? (
+                                    horaire.find(h => h.heure) ? (
+                                        <p className="text-xs md:text-sm text-gray-400 flex items-center gap-2">À partir de 
+                                            <span className="text-orange-500">{horaire.find(h => h.heure)?.heure || "N/A"} </span>
+                                        </p>
+                                    ):<p className="text-xs md:text-sm text-gray-400">Horaires non définis</p>
+                                ):( 
+                                    <p className="text-xs md:text-sm text-gray-400 flex flex-wrap items-center gap-2">De 
+                                        <span className="text-orange-500 flex items-center gap-2">
+                                            {horaire.find(h => h.heure)?.heure || "N/A"} 
+                                            <span className="text-xs md:text-sm text-gray-400">À</span>
+                                            {horaire.find(h => h.heureFin)?.heureFin || "N/A"}
+                                        </span>
+                                    </p>
+                                )}
+                                
+                                
+                            </div>
+                        </div>
+
+                        <div className="flex justify-between items-center mt-4">
+                            <div className="flex items-center justify-end w-full gap-2">
+                                <button
+                                type="button"
+                                    onClick={()=>{
+                                        setModalProgram(false), 
+                                        setSelectAdherant(null), 
+                                        setAdherantChoice([]), 
+                                        setAdherantChoiceId([]),
+                                        setJours([]),
+                                        setHeure(null),
+                                        setHeureFin(null)
+                                        setHoraire([])
+                                        setCoachChoice(null)
+                                        setCoachChoiceId(null)
+                                    }}
+                                    className="border py-1 px-3 border-gray-400 bg-gray-200 font-semibold hover:bg-transparent transition-colors duration-200 text-sm md:text-base"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    onClick={(e)=>{handleProgram(e)}}
+                                    disabled={
+                                        programLoading ||
+                                        adherantChoice.length === 0 ||
+                                        !coachChoice ||
+                                        jours.length === 0 ||
+                                        horaire.length === 0
+                                    }
+                                    className={`
+                                        ${
+                                                programLoading ||
+                                                adherantChoice.length === 0 ||
+                                                !coachChoice ||
+                                                jours.length === 0 ||
+                                                horaire.length === 0
+                                            ?
+                                                'border-orange-200 bg-orange-200'
+                                            :
+                                                'border-orange-400 bg-orange-500 hover:bg-transparent hover:text-black'
+                                        }
+                                         border py-1 px-3 text-white font-semibold transition-colors duration-200 text-sm md:text-base
+                                    `}
+                                >
+                                    {programLoading ?(
+                                        <Loader2 className="animate-spin h-4 w-4"/>
+                                    ):(
+                                        'Programmer'
+                                    )}
+
+                                </button>
                             </div>
                         </div>
                     </motion.div>
@@ -6158,245 +6152,239 @@ export default function DashboardPro(){
             )}
 
             {sideBar && (
-                <div className="absolute grid grid-cols-4 inset-0 bg-black/50 ">
+                <div className="absolute inset-0 bg-black/50 z-50">
                     
-                    <div className="">
-                    </div>
-                    <div className="">
-                    </div>
-                    <motion.div 
-                        
-                        initial={{opacity: 0, x: 150}}
-                        animate={{opacity: 1, x: 0}}
-                        transition={{duration: 0.4}}
-                        className="bg-gray-100 col-span-2 px-8 py-3"
-                    >
-                        <button 
-                            className="flex mt-5 mb-10 items-center gap-2 border border-gray-400 p-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-transparent transition-all duration-200"
-                            onClick={()=>{setSideBar(!sideBar), setFiltreJour('')}}
+                    <div className="grid grid-cols-1 md:grid-cols-4 h-full">
+                        <div className="hidden md:block md:col-span-1"></div>
+                        <div className="hidden md:block md:col-span-1"></div>
+                        <motion.div 
+                            initial={{opacity: 0, x: 150}}
+                            animate={{opacity: 1, x: 0}}
+                            transition={{duration: 0.4}}
+                            className="bg-gray-100 md:col-span-2 px-4 md:px-8 py-3 h-full overflow-y-auto"
                         >
-                            <X className="h-5 w-5"/>
-                            <p className="">Fermer</p>
-                        </button>
+                            <button 
+                                className="flex mt-5 mb-6 md:mb-10 items-center gap-2 border border-gray-400 p-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-transparent transition-all duration-200 text-sm md:text-base"
+                                onClick={()=>{setSideBar(!sideBar), setFiltreJour('')}}
+                            >
+                                <X className="h-4 w-4 md:h-5 md:w-5"/>
+                                <p>Fermer</p>
+                            </button>
 
-                        <div className="mb-5 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <h1 className="font-bold text-3xl ">Cours programmé{programListe.length > 1 ? 's' : ''}</h1>
-                                {programListe.length >= 1 && (
-                                    <p className="text-gay-400 text-3xl">({programListe.length > 9 ? programListe.length : `0${programListe.length}`})</p>
+                            <div className="mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="flex items-center gap-2">
+                                    <h1 className="font-bold text-xl md:text-3xl">Cours programmé{programListe.length > 1 ? 's' : ''}</h1>
+                                    {programListe.length >= 1 && (
+                                        <p className="text-gray-400 text-xl md:text-3xl">({programListe.length > 9 ? programListe.length : `0${programListe.length}`})</p>
+                                    )}
+                                </div>
+                                {programListe && (
+                                    <select onChange={(e)=>{setFiltreJour(e.target.value)}} className="border p-2 rounded-lg border-gray-400 text-sm md:text-base">
+                                        <option value="">Tous</option>
+                                        <option value="lundi">Lundi</option>
+                                        <option value="mardi">Mardi</option>
+                                        <option value="mercredi">Mercredi</option>
+                                        <option value="jeudi">Jeudi</option>
+                                        <option value="vendredi">Vendredi</option>
+                                        <option value="samedi">Samedi</option>
+                                        <option value="dimanche">Dimanche</option>
+                                    </select>
                                 )}
                             </div>
-                            {programListe && (
-                                <select onChange={(e)=>{setFiltreJour(e.target.value)}} className="border p-2 rounded-lg border-gray-400 text-xl">
-                                    <option value="">Tous</option>
-                                    <option value="lundi">Lundi</option>
-                                    <option value="mardi">Mardi</option>
-                                    <option value="mercredi">Mercredi</option>
-                                    <option value="jeudi">Jeudi</option>
-                                    <option value="vendredi">Vendredi</option>
-                                    <option value="samedi">Samedi</option>
-                                    <option value="dimanche">Dimanche</option>
-                                </select>
-                            )}
-                        </div>
-                        
-
-                        <div className=" flex flex-col gap-5 h-205 overflow-y-auto scrollbar-hide">
                             
 
-                            <div className="grid grid-cols-2 gap-5">
-
-                                {loadingCoursListe ? (
-                                    [1,2,3,4].map(item => (
-                                        <SkeletonListeProgram key={item}/>
-                                    ))
-                                ):programListe.length === 0 ? (
-                                    <div className="flex flex-col col-span-2 h-170 items-center justify-center">
-                                        {filtreJour.trim() ? (
-                                            <p className="text-gray-400 text-xl">Pas de cours programmé pour le {filtreJour}</p>
-                                        ):(
-                                            <>
-                                            <ImageComponent source={calendarc} label={""} style={"object-cover w-160 "}/>
-                                            <p className="text-gray-400 text-xl">Vous n'avez pas encore programmé de cours</p>
-                                            </>
-                                        )}
-                                        
-                                    </div>
-                                ): programListe.map((item,index) => (
-                                    <motion.div
-                                    key={index} className="flex flex-col gap-5 border border-orange-500 p-4 rounded-lg bg-white">
-                                        <div className="flex items-center gap-2 ">
-                                            <p>Intitulé :</p>
-                                            <p className="text-xl uppercase font-semibold">{item?.cours?.[0] || 'N/A'}</p>
+                            <div className="flex flex-col gap-5 h-[calc(100vh-150px)] overflow-y-auto scrollbar-hide">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                                    {loadingCoursListe ? (
+                                        [1,2,3,4].map(item => (
+                                            <SkeletonListeProgram key={item}/>
+                                        ))
+                                    ):programListe.length === 0 ? (
+                                        <div className="flex flex-col col-span-2 h-64 md:h-80 items-center justify-center">
+                                            {filtreJour.trim() ? (
+                                                <p className="text-gray-400 text-base md:text-xl">Pas de cours programmé pour le {filtreJour}</p>
+                                            ):(
+                                                <>
+                                                <ImageComponent source={calendarc} label={""} style={"object-cover w-32 md:w-48"}/>
+                                                <p className="text-gray-400 text-base md:text-xl text-center">Vous n'avez pas encore programmé de cours</p>
+                                                </>
+                                            )}
+                                            
                                         </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <Calendar1 className={`${item?.jours.length > 5 ? 'h-7 w-7' : 'h-5 w-5' }  text-gray-400`}/>
-                                            <div className={`flex items-center gap-2 ${item?.jours.length > 5 ? 'overflow-y-auto scrollbar-hide ' : ''}`}>
-                                                {item?.jours.map((jour,index) => (
-                                                    <p key={index} className="font-semibold">
-                                                        {jour}.
-                                                    </p>
-                                                ))}
+                                    ): programListe.map((item,index) => (
+                                        <motion.div
+                                        key={index} className="flex flex-col gap-3 md:gap-5 border border-orange-500 p-3 md:p-4 rounded-lg bg-white">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <p className="text-xs md:text-sm">Intitulé :</p>
+                                                <p className="text-base md:text-xl uppercase font-semibold">{item?.cours?.[0] || 'N/A'}</p>
                                             </div>
-                                        </div>
 
-                                        <div className="flex items-center gap-2">
-                                            <Clock className="h-5 w-5 text-gray-400"/>
-                                            <div className="flex items-center gap-2">
-                                                {item?.horaire?.[0] && (
-                                                <p className="font-semibold">{item?.horaire?.[0] || 'N/A'}</p>
-                                                )}
-                                                {item?.horaire?.[1] && (
-                                                    <p>-</p>
-                                                )}
-                                                {item?.horaire?.[1] && (
-                                                <p className="font-semibold">{item?.horaire?.[1] || 'N/A'}</p>
-                                                )}
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <Calendar1 className="h-5 w-5 text-gray-400"/>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    {item?.jours.map((jour,index) => (
+                                                        <p key={index} className="font-semibold text-xs md:text-sm">
+                                                            {jour}.
+                                                        </p>
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div className="flex flex-col gap-2">
-                                            <div className="flex items-center gap-2">
-                                                <Users2 className="h-5 w-5 text-gray-400"/>
-                                                <p>Participants : </p>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <Clock className="h-5 w-5 text-gray-400"/>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    {item?.horaire?.[0] && (
+                                                    <p className="font-semibold text-xs md:text-sm">{item?.horaire?.[0] || 'N/A'}</p>
+                                                    )}
+                                                    {item?.horaire?.[1] && (
+                                                        <p>-</p>
+                                                    )}
+                                                    {item?.horaire?.[1] && (
+                                                    <p className="font-semibold text-xs md:text-sm">{item?.horaire?.[1] || 'N/A'}</p>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className={`flex items-center gap-2 ${item?.adherent.length > 4 ? 'overflow-y-auto scrollbar-hide ' : ''} text-sm`}>
-                                                {item?.adherent.map(adherant => (
-                                                    <p key={adherant.id} className="font-semibold border px-3 text-center uppercase border-orange-500 text-orange-600">{adherant?.nom || 'N/A'} {adherant?.prenom || 'N/A'}</p>
-                                                ))}
+
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex items-center gap-2">
+                                                    <Users2 className="h-5 w-5 text-gray-400"/>
+                                                    <p className="text-xs md:text-sm">Participants : </p>
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm">
+                                                    {item?.adherent.map(adherant => (
+                                                        <p key={adherant.id} className="font-semibold border px-2 md:px-3 text-center uppercase border-orange-500 text-orange-600 text-[10px] md:text-xs">{adherant?.nom || 'N/A'} {adherant?.prenom || 'N/A'}</p>
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div className="flex items-center justify-center text-sm gap-2 my-5">
-                                            <p>Ce cours est est associé au coach </p>
-                                            <p className="font-semibold uppercase">{item?.coach?.coach?.nom || 'N/A'} {item?.coach?.coach?.prenom || 'N/A'}</p>
-                                        </div>
-                                    </motion.div>
-                                   ))
-                                }
+                                            <div className="flex flex-wrap items-center justify-center gap-2 text-xs md:text-sm my-2 md:my-5">
+                                                <p>Ce cours est associé au coach </p>
+                                                <p className="font-semibold uppercase">{item?.coach?.coach?.nom || 'N/A'} {item?.coach?.coach?.prenom || 'N/A'}</p>
+                                            </div>
+                                        </motion.div>
+                                       ))
+                                    }
 
-                                {errorCoursListe && (
-                                    <div className="flex col-span-2 h-200 gap-2 items-center justify-center">
-                                        <XCircle className="h-5 w-5 animate-spin text-red-500"/>
-                                        <p className="text-red-500">{listeCours.error.message}</p>
-                                    </div>
-                                )}
+                                    {errorCoursListe && (
+                                        <div className="flex col-span-2 h-64 gap-2 items-center justify-center">
+                                            <XCircle className="h-5 w-5 animate-spin text-red-500"/>
+                                            <p className="text-red-500 text-sm md:text-base">{listeCours.error.message}</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    </motion.div>
+                        </motion.div>
+                    </div>
                 </div>
             )}
 
             {detailActivity && (
-                <div className="absolute grid grid-cols-4 inset-0 bg-black/50 ">
+                <div className="absolute inset-0 bg-black/50 z-40">
                     
-                    <div className="">
-                    </div>
-                    <div className="">
-                    </div>
-                    <div className="">
-                    </div>
-                    <motion.div 
-                        
-                        initial={{opacity: 0, x: 150}}
-                        animate={{opacity: 1, x: 0}}
-                        transition={{duration: 0.3}}
-                        className="bg-gray-100 px-8 py-3"
-                    >
-                        <button 
-                            className="flex mt-5 mb-10 items-center gap-2 border border-gray-400 p-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-transparent transition-all duration-200"
-                            onClick={()=>{setDetailActivity(!detailActivity)}}
+                    <div className="grid grid-cols-1 md:grid-cols-4 h-full">
+                        <div className="hidden md:block md:col-span-1"></div>
+                        <div className="hidden md:block md:col-span-1"></div>
+                        <div className="hidden md:block md:col-span-1"></div>
+                        <motion.div 
+                            initial={{opacity: 0, x: 150}}
+                            animate={{opacity: 1, x: 0}}
+                            transition={{duration: 0.3}}
+                            className="bg-gray-100 px-4 md:px-8 py-3 h-full overflow-y-auto"
                         >
-                            <X className="h-5 w-5"/>
-                            <p className="">Fermer</p>
-                        </button>
+                            <button 
+                                className="flex mt-5 mb-6 md:mb-10 items-center gap-2 border border-gray-400 p-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-transparent transition-all duration-200 text-sm md:text-base"
+                                onClick={()=>{setDetailActivity(!detailActivity)}}
+                            >
+                                <X className="h-4 w-4 md:h-5 md:w-5"/>
+                                <p>Fermer</p>
+                            </button>
 
-                        <div className="flex items-center mb-5">
-                            <h1 className="font-bold text-2xl ">{activityToDelete?.nom_activite || 'N/A'}</h1>
-                        </div>
-                        
-
-                        <div className=" flex flex-col gap-5 h-205 overflow-y-auto scrollbar-hide">
-                            
-                            <ImageComponent source={`${documentUrl}${activityToDelete?.images_activte}`} label={'image'} style={'w-full h-full object-fit'}/>
-                            <p className="text-gray-500">{activityToDelete?.descriptions || 'N/A'}</p>
-                            
-                            <div className="flex items-center justify-center">
-                                <Calendar value={new Date(activityToDelete.date_activite )} className={'p-2'}/>
+                            <div className="flex items-center mb-5">
+                                <h1 className="font-bold text-xl md:text-2xl">{activityToDelete?.nom_activite || 'N/A'}</h1>
                             </div>
-                            <div className="flex items-center gap-2 justify-center">
-                                <Timer className="h-6 w-6 text-gray-400" />
-                            <p className="text-center text-xl text-gray-400">Heure : {activityToDelete?.heure_activite || 'N/A'}</p>
-                            </div>
-                        </div>
+                            
 
-                    </motion.div>
+                            <div className="flex flex-col gap-5 h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide">
+                                
+                                <ImageComponent source={`${documentUrl}${activityToDelete?.images_activte}`} label={'image'} style={'w-full h-auto object-fit rounded-lg'}/>
+                                <p className="text-gray-500 text-sm md:text-base">{activityToDelete?.descriptions || 'N/A'}</p>
+                                
+                                <div className="flex items-center justify-center overflow-x-auto">
+                                    <Calendar value={new Date(activityToDelete.date_activite)} className={'p-2 text-sm md:text-base'}/>
+                                </div>
+                                <div className="flex items-center gap-2 justify-center">
+                                    <Timer className="h-5 w-5 md:h-6 md:w-6 text-gray-400"/>
+                                    <p className="text-center text-base md:text-xl text-gray-400">Heure : {activityToDelete?.heure_activite || 'N/A'}</p>
+                                </div>
+                            </div>
+
+                        </motion.div>
+                    </div>
                 </div>
             )}
 
             {modalUpActivity && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+                <div className="absolute z-50 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center p-4 overflow-y-auto">
                    
                     <motion.div
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1.05}}
                         transition={{duration:0.4}}
-                        className="bg-white p-6 rounded-lg flex flex-col gap-5 relative"
+                        className="bg-white p-4 md:p-6 rounded-lg flex flex-col gap-5 relative w-full max-w-2xl max-h-[90vh] overflow-y-auto"
                     >
                             <div className="flex items-center gap-2">
-                                <NotebookPen  className="h-7 w-7" fill="rgba(255,100,0,0.8)" stroke="white"/>
-                                <p className="text-2xl font-bold">Modification de l'activité {activityToUp?.id || 'na'}</p>
+                                <NotebookPen className="h-6 w-6 md:h-7 md:w-7" fill="rgba(255,100,0,0.8)" stroke="white"/>
+                                <p className="text-xl md:text-2xl font-bold">Modification de l'activité {activityToUp?.id || 'na'}</p>
                             </div>
 
                         <div className="flex flex-col gap-4">
-                            <div className="flex gap-2">
-                                <div className="flex flex-col gap-2">
-                                    <label>Nom de l'activité <span className="text-red-500 font-bold">*</span></label>
+                            <div className="flex flex-col md:flex-row gap-3">
+                                <div className="flex flex-col gap-2 w-full">
+                                    <label className="text-sm md:text-base">Nom de l'activité <span className="text-red-500 font-bold">*</span></label>
                                     <Input type={'text'} placeholder={'Ex: Yoga Flow Matinal'}
                                         value={activityToUp?.nom_activite}
                                         onChange={(e)=>{setActivityToUp({...activityToUp, nom_activite: e.target.value})}}
-                                        className={'p-4 w-full block rounded-lg bg-gray-100 focus:outline-none'}
+                                        className={'p-3 md:p-4 w-full block rounded-lg bg-gray-100 focus:outline-none text-sm md:text-base'}
                                     />
                                 </div>
 
-                                <div className="flex flex-col gap-2">
-                                    <label>Description <span className="text-red-500 font-bold">*</span></label>
+                                <div className="flex flex-col gap-2 w-full">
+                                    <label className="text-sm md:text-base">Description <span className="text-red-500 font-bold">*</span></label>
                                     <textarea type="text" cols="30" rows="5"
                                         value={activityToUp?.descriptions}
                                         onChange={(e)=>{setActivityToUp({...activityToUp, descriptions: e.target.value})}} 
                                         placeholder="Décrivez l'activité en quelques mots... " 
-                                        className="w-full block rounded-lg bg-gray-100 focus:outline-none p-4"    
+                                        className="w-full block rounded-lg bg-gray-100 focus:outline-none p-3 md:p-4 text-sm md:text-base"    
                                     />
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between gap-2">
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-3">
 
                                 <div className="flex flex-col w-full gap-2">
-                                    <label>Date <span className="text-red-500 font-bold">*</span></label>
+                                    <label className="text-sm md:text-base">Date <span className="text-red-500 font-bold">*</span></label>
                                     <Input type='date' 
                                         value={activityToUp?.date_activite}
                                         onChange={(e)=>{setActivityToUp({...activityToUp, date_activite: e.target.value})}}
-                                        className="p-4 w-full rounded-lg bg-gray-100 focus:outline-none"
+                                        className="p-3 md:p-4 w-full rounded-lg bg-gray-100 focus:outline-none text-sm md:text-base"
                                     />
                                 </div>
 
                                 <div className="flex flex-col w-full gap-2">
-                                    <label>Heure <span className="text-red-500 font-bold">*</span></label>
+                                    <label className="text-sm md:text-base">Heure <span className="text-red-500 font-bold">*</span></label>
                                     <Input type='time' 
                                         value={activityToUp?.heure_activite}
                                         onChange={(e)=>{setActivityToUp({...activityToUp, heure_activite: e.target.value})}} 
-                                        className="p-4 w-full rounded-lg bg-gray-100 focus:outline-none"
+                                        className="p-3 md:p-4 w-full rounded-lg bg-gray-100 focus:outline-none text-sm md:text-base"
                                     />
                                 </div>
                             </div>
 
                             <div className="flex flex-col w-full gap-2">
-                                <label>Image de l'activité <span className="text-red-500 font-bold">*</span></label>
+                                <label className="text-sm md:text-base">Image de l'activité <span className="text-red-500 font-bold">*</span></label>
                                 
                                     <div
-                                    className="w-full rounded-lg h-50 border-2 border-dotted border-gray-400 overflow-hidden bg-gray-100 cursor-pointer"
+                                    className="w-full rounded-lg h-40 md:h-50 border-2 border-dotted border-gray-400 overflow-hidden bg-gray-100 cursor-pointer"
                                     onClick={() => activityUpInputRef.current.click()}
                                 >
                                     {previewActivityUp ? (
@@ -6428,16 +6416,16 @@ export default function DashboardPro(){
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <label>Statut <span className="text-red-500 font-bold">*</span></label>
-                            <div className="flex items-center w-full justify-between  bg-gray-100 rounded-lg">
+                            <label className="text-sm md:text-base">Statut <span className="text-red-500 font-bold">*</span></label>
+                            <div className="flex items-center w-full justify-between bg-gray-100 rounded-lg">
                                 <button 
                                     onClick={(e)=>{setStatus('publie'), setActivityToUp({...activityToUp, status: 'publie'})}}
-                                    className={`text-sm ${activityToUp?.status === 'publie' ? 'text-white bg-blue-500' : ''}  cursor-pointer transition-all duration-200  rounded-lg w-full px-4 py-2`}>
+                                    className={`text-xs md:text-sm ${activityToUp?.status === 'publie' ? 'text-white bg-blue-500' : ''} cursor-pointer transition-all duration-200 rounded-lg w-full px-4 py-2`}>
                                     publier maintenant
                                 </button>
                                 <button 
                                     onClick={(e)=>{setStatus('attente'), setActivityToUp({...activityToUp, status: 'attente'})}}
-                                    className={` ${activityToUp?.status === 'attente' ? 'text-white bg-blue-500' : ''} text-sm rounded-lg w-full px-4 py-2 cursor-pointer transition-all duration-200 `}>
+                                    className={`${activityToUp?.status === 'attente' ? 'text-white bg-blue-500' : ''} text-xs md:text-sm rounded-lg w-full px-4 py-2 cursor-pointer transition-all duration-200`}>
                                     mettre en attente
                                 </button>
                             </div>
@@ -6447,13 +6435,13 @@ export default function DashboardPro(){
                         <button
                             onClick={(e)=>{handleUpdateActivity(e, activityToUp?.id)}}
                             disabled={loadingUpdateActivity}
-                            className={`w-full p-4 font-bold text-whit bg-orange-600 hover:bg-orange-500 transition-all duration-200 flex items-center gap-2 justify-center rounded-lg`}
+                            className={`w-full p-3 md:p-4 font-bold text-white bg-orange-600 hover:bg-orange-500 transition-all duration-200 flex items-center gap-2 justify-center rounded-lg text-sm md:text-base`}
                         >
                             {loadingUpdateActivity ? (
-                                <Loader2 className="h-6 w-6 animate-spin text-white"/>
+                                <Loader2 className="h-5 w-5 md:h-6 md:w-6 animate-spin text-white"/>
                             ):(
                                 <>
-                                    <Save className="h-6 w-6 text-white"/>
+                                    <Save className="h-5 w-5 md:h-6 md:w-6 text-white"/>
                                     <p className="text-white">Mettre à jour l'activité</p>
                                 </>
                             )}
@@ -6462,9 +6450,9 @@ export default function DashboardPro(){
                         <button
                             type="button"
                             onClick={()=>{setModalUpActivity(false), setActivityToUp(null)}}
-                            className="absolute top-3 right-3"
+                            className="absolute top-2 right-2 md:top-3 md:right-3"
                         >
-                            <X className="h-8 w-8 text-gray-400"/>
+                            <X className="h-6 w-6 md:h-8 md:w-8 text-gray-400"/>
                         </button>
                     </motion.div>
                 </div>
