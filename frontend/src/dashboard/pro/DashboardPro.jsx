@@ -1539,6 +1539,7 @@ export default function DashboardPro(){
         mutationFn: AjouterCours,
 
         onSuccess: (()=>{
+            setModalAddCours(false)
             coursQuery.invalidateQueries(['mes-cours'])
             setTimeout(()=>{
                 cours.reset()
@@ -1622,6 +1623,7 @@ export default function DashboardPro(){
         mutationFn: ProgrammerCours,
 
         onSuccess: (()=>{
+            setModalProgram(false)
             programCoursQuery.invalidateQueries(['liste-cours'])
             setSelectAdherant(null), 
             setAdherantChoice([]), 
@@ -1641,7 +1643,7 @@ export default function DashboardPro(){
 
             setTimeout(()=>{
                 programCours.reset()
-            })
+            }, 4000)
         })
     })
 
@@ -2238,7 +2240,7 @@ export default function DashboardPro(){
                                         <ImageComponent source={infosSalle?.logo_salle} label={"logo"} style={"w-full rounded-full h-full object-cover"}/>
                                     ):(
 
-                                        <p className="text-xl font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <ImageComponent source={logoGym} label={"logo"} className="w-full rounded-full h-full object-cover"/>}</p>
+                                        <p className="text-xl text-center font-bold">{infosSalle?.nom_salle  ? infosSalle?.nom_salle[0].toUpperCase() : <ImageComponent source={logoGym} label={"logo"} className="w-full rounded-full h-full object-cover"/>}</p>
                                     )}
                                 </div>
                             </div>
@@ -4838,7 +4840,7 @@ export default function DashboardPro(){
 
                     >
                         
-                        <ImageComponent source={`${documentUrl}${showImage?.images_activte}`} label={'image'} style={'w-full h-full '}/>
+                        <ImageComponent source={`${documentUrl}${showImage?.images_activte}`} label={'image'} style={'w-full h-full object-fit '}/>
                     </motion.div>
                     <button 
                             className="absolute top-10 right-20 text-gray-300 hover:text-gray-400 transition-all duration-200"
@@ -6317,7 +6319,7 @@ export default function DashboardPro(){
 
                         <div className=" flex flex-col gap-5 h-205 overflow-y-auto scrollbar-hide">
                             
-                            <ImageComponent source={`${documentUrl}${activityToDelete?.images_activte}`} label={'image'} style={'w-full h-full'}/>
+                            <ImageComponent source={`${documentUrl}${activityToDelete?.images_activte}`} label={'image'} style={'w-full h-full object-fit'}/>
                             <p className="text-gray-500">{activityToDelete?.descriptions || 'N/A'}</p>
                             
                             <div className="flex items-center justify-center">

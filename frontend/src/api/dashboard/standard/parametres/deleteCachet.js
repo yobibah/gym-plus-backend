@@ -7,9 +7,8 @@ export async function DeleteCachet() {
     const token = getToken()
 
     const response = await fetch(`${apiUrl}delete-cachet`,{
-        method : "POST",
+        method : "DELETE",
         headers : {
-            "Accept" : "application/json",
             "Authorization" : `Bearer ${token}`
         },
     })

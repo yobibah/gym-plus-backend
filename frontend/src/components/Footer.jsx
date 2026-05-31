@@ -11,10 +11,6 @@ export default function Footer(){
     const [icon, setIcon] = useState(false)
     const [iconConf, setIconConf] = useState(false)
 
-    // function handleTerms(){
-    //    set
-    // }
-
     const year = new Date().getUTCFullYear()
     
 
