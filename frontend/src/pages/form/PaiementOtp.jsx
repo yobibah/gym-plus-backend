@@ -87,43 +87,39 @@ export default function PaiementOtp(){
 
     return(
         <>
-            <div className="absolute inset-y-0 z-20 flex bg-cover bg-center">
-                <img src={form3} alt="image-de-validation-paiement"
-                    className=" "
-                />
+            <div className="fixed inset-0 z-20">
+                <img src={form3} alt="image-de-validation-paiement" className="w-250 h-auto" />
             </div>
 
-            <div  className="relative bg-orange-100/50 z-30 flex justify-center items-center h-screen">
-                <div className="w-full max-w-2xl">
-                    <div className="mb-8 text-center">
-                        <p className="fuzzy-bubbles-bold uppercase text-4xl mb-2">Finalisez votre abonnement</p>
+            <div className="relative bg-orange-100/50 z-30 flex justify-center items-center min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+                <div className="w-full max-w-2xl mx-auto">
+                    <div className="mb-6 sm:mb-8 text-center">
+                        <p className="fuzzy-bubbles-bold uppercase text-2xl sm:text-3xl md:text-4xl mb-2">Finalisez votre abonnement</p>
                     </div>
-                    <div className="flex flex-col gap-3 text-center bg-white border-3 border-gray-100 rounded-xl px-5 py-6 shadow-lg">
+                    <div className="flex flex-col gap-3 text-center bg-white border border-gray-100 rounded-xl px-4 sm:px-5 py-5 sm:py-6 shadow-lg">
                         <div>
-                            <p className="text-gray-600">Composez</p>
-                            <p className="font-bold">*144*4*6*{montant}#</p>
-                            <p className="text-gray-600">sur votre téléphone pour obtenir le code OTP à entrez dans</p>
-                            <p className="text-gray-600">le champ ci-dessous pour valider le paiement</p>
+                            <p className="text-gray-600 text-sm sm:text-base">Composez</p>
+                            <p className="font-bold text-base sm:text-lg md:text-xl">*144*4*6*{montant}#</p>
+                            <p className="text-gray-600 text-sm sm:text-base">sur votre téléphone pour obtenir le code OTP à entrez dans</p>
+                            <p className="text-gray-600 text-sm sm:text-base">le champ ci-dessous pour valider le paiement</p>
                         </div>
-                        <form className="flex flex-col gap-2 px-40">
+                        <form className="flex flex-col gap-2 px-4 sm:px-10 md:px-20 lg:px-40">
                             
                             <input 
                                 type="tel" 
                                 placeholder="code otp"
                                 value={otp}
                                 onChange={(e)=>{setOtp(e.target.value)}}
-                                className="border p-2 rounded-lg text-center border-gray-400 focus:outline-none"
+                                className="border p-2 sm:p-2.5 rounded-lg text-center border-gray-400 focus:outline-none focus:ring-1 focus:ring-orange-600 text-sm sm:text-base"
                             />
 
                             <motion.button
-                            whileTap={{scale:0.95}}
+                                whileTap={{scale:0.95}}
                                 onClick={handlePaymentOtp}
                                 disabled={loading || !otp.trim()}
-                                className={`${!otp.trim() ? 'bg-orange-300 border-orange-300 text-black/30' : 'hover:bg-transparent hover:text-black bg-orange-600 text-white border-orange-600'} flex items-center justify-center border p-2 rounded-lg  font-bold  transition-colors duration-200 `}
-
+                                className={`${!otp.trim() ? 'bg-orange-300 border-orange-300 text-black/30' : 'hover:bg-transparent hover:text-black bg-orange-600 text-white border-orange-600'} flex items-center justify-center border p-2 sm:p-2.5 rounded-lg font-bold transition-colors duration-200 text-sm sm:text-base`}
                             >
                                 {loading ? <Loader2 className="animate-spin h-5 w-5"/> : 'Validez et Terminez' }
-                                
                             </motion.button>
                         </form>
                     </div>

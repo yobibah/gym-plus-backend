@@ -103,7 +103,7 @@ export default function InfosLogin(){
             localStorage.setItem('status_otp', 'otp_verifie')
             localStorage.setItem('tel', tel)
             setTimeout(()=>{
-                otp.reset()
+                code.reset()
             }, 2500)
             setTimeout(()=>{
                 navigate(`/infos-salle?forfait=${choix_forfait.forfait}&prix=${choix_forfait.montant}`)
@@ -143,36 +143,41 @@ export default function InfosLogin(){
 
     return(
         <>
-            <div className="absolute inset-y-0 z-20 flex bg-cover bg-center">
-                <img src={form1} alt=""
-                    className=" "
-                />
+            <div className="fixed inset-0 z-20">
+                <img src={form1} alt="background" className="w-250 h-auto" />
             </div>
-            <div className=" relative z-30 bg-orange-100/50 flex justify-center  items-center h-screen">
-                <div className="">
-                    <div className="mb-8 text-center">
-                        <p className="fuzzy-bubbles-bold uppercase text-4xl mb-2">Inscription</p>
-                        <p className="text-gray-600">Renseignez vos informations personnelles pour commencer.</p>
+            
+            <div className="relative z-30 bg-orange-100/50 flex justify-center items-center min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+                <div className="w-full max-w-4xl mx-auto">
+                    
+                    <div className="mb-6 sm:mb-8 text-center">
+                        <p className="fuzzy-bubbles-bold uppercase text-2xl sm:text-3xl md:text-4xl mb-2">
+                            Inscription
+                        </p>
+                        <p className="text-gray-600 text-sm sm:text-base">
+                            Renseignez vos informations personnelles pour commencer.
+                        </p>
                     </div>
 
-                    <div className="flex items-center justify-between py-5 px-8 mb-8 bg-white border-3 border-gray-100 shadow-lg rounded-xl">
-                        <div>
-                            <p className="text-gray-600 text-sm">Forfait choisi</p>
-                            <p className="fuzzy-bubbles-bold">{forfait}</p>
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 sm:py-5 px-4 sm:px-6 md:px-8 mb-6 sm:mb-8 bg-white border border-gray-100 shadow-lg rounded-xl">
+                        <div className="text-center sm:text-left">
+                            <p className="text-gray-600 text-xs sm:text-sm">Forfait choisi</p>
+                            <p className="fuzzy-bubbles-bold text-base sm:text-lg">{forfait}</p>
                         </div>
                         <div className="relative">
                             <button 
-                                className=" cursor-pointer hover:underline text-orange-600 font-bold text-sm"
+                                className="cursor-pointer hover:underline text-orange-600 font-bold text-xs sm:text-sm"
                                 onClick={()=>{setModalForfait(!modalForfait)}}
-                            >Changer</button>
+                            >
+                                Changer de forfait
+                            </button>
 
                             {modalForfait && (
-                                <>
                                 <motion.div
                                     initial={{ opacity: 0, y: -1 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.5 }}
-                                    className="bg-orange-600 rounded-sm text-white  absolute p-2 font-semibold text-sm -right-4"
+                                    className="bg-orange-600 rounded-sm text-white absolute p-2 font-semibold text-xs sm:text-sm right-0 sm:-right-4 top-full mt-2 z-50 min-w-[120px] shadow-lg"
                                 >
                                     {forfaitList.map(item => (
                                         <p key={item.id}
@@ -183,26 +188,26 @@ export default function InfosLogin(){
                                                 setModalForfait(false)
                                                 )
                                             }}
-                                            className="cursor-pointer transition-colors duration-200 hover:bg-white hover:text-black p-1 rounded-lg"
+                                            className="cursor-pointer transition-colors duration-200 hover:bg-white hover:text-black p-2 rounded-lg"
                                         >{item.forfait}</p>
                                     ))}
-                                </ motion.div>
-                                </>
+                                </motion.div>
                             )}
                         </div>
                     </div>
 
-                    <form onSubmit={otpStep ? handleOtp : handleInfos} className="bg-white border-3 border-gray-100 shadow-lg rounded-xl mb-10">
+                    <form onSubmit={otpStep ? handleOtp : handleInfos} className="bg-white border border-gray-100 shadow-lg rounded-xl mb-6 sm:mb-8 md:mb-10">
                         
-
-                        <div className="py-5 px-8">
-                            <p className="mb-4 fuzzy-bubbles-bold text-xl">Informations personnelles</p>
+                        <div className="py-4 sm:py-5 px-4 sm:px-6 md:px-8">
+                            <p className="mb-4 fuzzy-bubbles-bold text-lg sm:text-xl">
+                                Informations personnelles
+                            </p>
                             
-                            
-
-                            <div className="flex mb-4 items-center justify-between">
-                                <div>
-                                    <label className="text-sm font-semibold mb-1">Nom <span className="text-orange-600">*</span></label>
+                            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                                <div className="flex-1">
+                                    <label className="text-xs sm:text-sm font-semibold mb-1 block">
+                                        Nom <span className="text-orange-600">*</span>
+                                    </label>
                                     <Input 
                                         type={'text'}
                                         value={nom}
@@ -211,12 +216,14 @@ export default function InfosLogin(){
                                         onChange={(e)=>{setNom(e.target.value),
                                             infos.reset()
                                         }}
-                                        className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
+                                        className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-xs sm:text-sm border border-gray-300`}
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="text-sm font-semibold mb-1">Prénom <span className="text-orange-600">*</span></label>
+                                <div className="flex-1">
+                                    <label className="text-xs sm:text-sm font-semibold mb-1 block">
+                                        Prénom <span className="text-orange-600">*</span>
+                                    </label>
                                     <Input 
                                         type={'text'}
                                         value={prenom}
@@ -225,15 +232,15 @@ export default function InfosLogin(){
                                         onChange={(e)=>{setPrenom(e.target.value),
                                             infos.reset()
                                         }}
-                                        className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
-                
-                                    
+                                        className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-xs sm:text-sm border border-gray-300`}
                                     />
                                 </div>
                             </div>
 
                             <div className="mb-4">
-                                <label className="text-sm font-semibold mb-1">Numéro de téléphone <span className="text-orange-600">*</span></label>
+                                <label className="text-xs sm:text-sm font-semibold mb-1 block">
+                                    Numéro de téléphone <span className="text-orange-600">*</span>
+                                </label>
                                 <Input 
                                     type={'tel'}
                                     value={tel}
@@ -243,13 +250,14 @@ export default function InfosLogin(){
                                     onChange={(e)=>{setTel(e.target.value),
                                         infos.reset()
                                     }}
-                                        className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
-                
+                                    className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-xs sm:text-sm border border-gray-300`}
                                 />
                             </div>
 
-                            <div >
-                                <label className="text-sm font-semibold mb-1">Adresse e-mail <span className="text-orange-600">*</span></label>
+                            <div>
+                                <label className="text-xs sm:text-sm font-semibold mb-1 block">
+                                    Adresse e-mail <span className="text-orange-600">*</span>
+                                </label>
                                 <Input 
                                     type={'email'}
                                     value={email}
@@ -258,25 +266,24 @@ export default function InfosLogin(){
                                     onChange={(e)=>{setEmail(e.target.value),
                                         infos.reset()
                                     }}
-                                        className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 label-2 text-sm border-1 border-gray-300`}
-            
+                                    className={`w-full ${successInfos ? 'bg-gray-200' : ''} focus:outline-none focus:ring-1 focus:ring-orange-600 rounded-lg p-2 text-xs sm:text-sm border border-gray-300`}
                                 />
                             </div>
                         </div>
 
-
-
                         {otpStep && (
                             <>
-                                <hr className=" mb-3 mt-3 text-gray-200"/>
-
-                                <div className="py-5 px-8">
-                                    <p className="mb-4 text-xl fuzzy-bubbles-bold">Confirmer votre adresse email</p>
-
+                                <hr className="my-3 text-gray-200"/>
+                                <div className="py-4 sm:py-5 px-4 sm:px-6 md:px-8">
+                                    <p className="mb-4 text-lg sm:text-xl fuzzy-bubbles-bold">
+                                        Confirmer votre adresse email
+                                    </p>
                                     
-                            
                                     <div>
-                                        <p className="text-sm text-gray-600 font-semibold mb-1">Un code de vérification a été envoyé sur <span className="text-orange-600 italic underline"> {email} </span> </p>
+                                        <p className="text-xs sm:text-sm text-gray-600 font-semibold mb-2">
+                                            Un code de vérification a été envoyé sur 
+                                            <span className="text-orange-600 italic underline ml-1"> {email} </span>
+                                        </p>
                                         
                                         <Input 
                                             type={'tel'}
@@ -286,92 +293,96 @@ export default function InfosLogin(){
                                             onChange={(e)=>{setOtp(e.target.value),
                                                 code.reset()
                                             }}
-                                            className={'w-full focus:outline-none focus:ring-1 focus:ring-orange-600 text-center rounded-lg p-2 text-sm border-1 border-gray-300'}  
-                                        /> 
-
+                                            className="w-full focus:outline-none focus:ring-1 focus:ring-orange-600 text-center rounded-lg p-2 text-sm sm:text-base border border-gray-300"  
+                                        />
                                     </div>
                                 </div>
                             </>
                         )}
 
-                        
-
-
-                        <div className="bg-orange-50  flex justify-end px-8 py-5">
+                        <div className="bg-orange-50 flex justify-end px-4 sm:px-6 md:px-8 py-4 sm:py-5 rounded-b-xl">
                             {otpStep ? (
                                 <motion.button
                                     whileTap={{scale: 0.95}}
                                     disabled={loadingCode || !otp.trim() || otp.length !== 6 }
-                                    className={`${
-                                        !otp.trim() || otp.length !== 6 ? 'bg-gray-300 border-1 border-gray-300' : 'hover:bg-white hover:text-black bg-orange-600 border-1 border-orange-600'} 
-                                        text-xs font-bold w-45 justify-center  text-white flex gap-1 items-center py-2 px-4  rounded-lg
-                                        `}
+                                    className={`w-full sm:w-auto ${
+                                        !otp.trim() || otp.length !== 6 
+                                            ? 'bg-gray-300 border border-gray-300 cursor-not-allowed' 
+                                            : 'hover:bg-white hover:text-black bg-orange-600 border border-orange-600 cursor-pointer'} 
+                                        text-xs sm:text-sm font-bold justify-center text-white flex gap-2 items-center py-2 px-4 sm:px-6 rounded-lg transition-colors duration-200
+                                    `}
                                 >
                                     {loadingCode ? (
                                         <>
-                                        <Loader2 className="h-4 w-4 animate-spin"/>
+                                            <Loader2 className="h-4 w-4 animate-spin"/>
+                                            <span>Vérification...</span>
                                         </>
                                     ):(
                                         <>
-                                        Etape suivante : Salle
-                                        <ArrowRight className="h-4 w-4"/>
+                                            <span>Etape suivante : Salle</span>
+                                            <ArrowRight className="h-4 w-4"/>
                                         </>
                                     )}
-                                    
                                 </motion.button>
                             ):(
-                                
                                 <motion.button
                                     whileTap={{scale: 0.95}}
                                     disabled={loadingInfos || !email.trim() || !nom.trim() ||
                                         !prenom.trim() || !tel.trim() || tel.length < 8
                                     }
-                                    className={`${
-                                        !email.trim() || !nom.trim() || !prenom.trim() || !tel.trim() || tel.length < 8 ? 'bg-orange-200 border border-orange-200' : 'hover:bg-white hover:text-black bg-orange-600 border-1 border-orange-600'} 
-                                        text-xs font-bold w-30 justify-center text-white flex gap-1 items-center py-2 px-4 rounded-lg
-                                        `}
+                                    className={`w-full sm:w-auto ${
+                                        !email.trim() || !nom.trim() || !prenom.trim() || !tel.trim() || tel.length < 8 
+                                            ? 'bg-orange-200 border border-orange-200 cursor-not-allowed' 
+                                            : 'hover:bg-white hover:text-black bg-orange-600 border border-orange-600 cursor-pointer'} 
+                                        text-xs sm:text-sm font-bold justify-center text-white flex gap-2 items-center py-2 px-4 sm:px-6 rounded-lg transition-colors duration-200
+                                    `}
                                 >
                                     {loadingInfos ? (
                                         <>
-                                        <Loader2 className="h-4 w-4 animate-spin"/>
+                                            <Loader2 className="h-4 w-4 animate-spin"/>
+                                            <span>Enregistrement...</span>
                                         </>
                                     ):(
                                         <>
-                                        Continuer
-                                        <ArrowRight className="h-4 w-4"/>
+                                            <span>Continuer</span>
+                                            <ArrowRight className="h-4 w-4"/>
                                         </>
                                     )}
-                                    
                                 </motion.button>
-                                
                             )}
-                            
                         </div>
-
                     </form>
 
-                    <div className="text-sm">
-                        En continuant, vous accepter nos
-                        <Link className="text-orange-600 ml-1">Conditions d'utilisation</Link> et notre
-                        <Link className="text-orange-600 ml-1">Politique de confidentialité</Link>
+                    <div className="text-xs sm:text-sm text-center px-2">
+                        <p>
+                            En continuant, vous acceptez nos
+                            <Link to="/conditions" className="text-orange-600 ml-1 hover:underline">Conditions d'utilisation</Link> 
+                            <span> et notre</span>
+                            <Link to="/confidentialite" className="text-orange-600 ml-1 hover:underline">Politique de confidentialité</Link>
+                        </p>
                     </div>
                 </div>
             </div>
 
             {errorInfos && (
-                <ToastError title={'Erreur survenue !'} message={'Une erreur est survenue, vérifier vos informationset réesssayez à nouveau.'}/>
+                <ToastError 
+                    title="Erreur survenue !" 
+                    message="Une erreur est survenue, vérifiez vos informations et réessayez à nouveau."
+                />
             )}
             {successInfos && (
-                <ToastSuccess title={'Succès !'} message={'Infos enregistrées avec succès'}/>
+                <ToastSuccess title="Succès !" message="Infos enregistrées avec succès"/>
             )}
 
             {errorCode && (
-                <ToastError title={'Erreur survenue !'} message={'Une erreur est survenue, vérifier vos informationset réesssayez à nouveau.'}/>
+                <ToastError 
+                    title="Erreur survenue !" 
+                    message="Code OTP invalide, vérifiez et réessayez."
+                />
             )}
             {successCode && (
-                <ToastSuccess title={'Inscription réussie !'} message={'Votre compte GymPlus a été créé avec succès.'}/>
+                <ToastSuccess title="Inscription réussie !" message="Votre compte GymPlus a été créé avec succès."/>
             )}
-
         </>
     )
 }
