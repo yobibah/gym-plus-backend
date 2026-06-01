@@ -1970,7 +1970,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
     const financeLoading = FinanceAI.isPending
     const financeError = FinanceAI.isError
     const financeSuccess = FinanceAI.isSuccess
-    // const Analyse = FinanceAI.refetch
 
     async function handleFinanceAI(e){
         e.preventDefault()
@@ -1991,7 +1990,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
 
     return(
         <div className="flex flex-col lg:grid lg:grid-cols-5 h-screen bg-gray-100 overflow-hidden">
-            {/* Bouton hamburger pour mobile/tablette */}
+       
             <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="lg:hidden fixed top-4 right-4 z-50 bg-orange-600 text-white p-2 rounded-lg shadow-lg"
@@ -2005,7 +2004,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                 )}
             </button>
 
-            {/* Overlay pour fermer la sidebar sur mobile/tablette */}
             {sidebarOpen && (
                 <div
                     className="lg:hidden fixed inset-0 bg-black/50 z-40"
@@ -2013,7 +2011,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                 />
             )}
 
-            {/* Sidebar */}
+            
             <div className={`
                 fixed lg:sticky top-0 left-0 z-40 bg-white shadow-lg flex flex-col transition-all duration-300 ease-in-out
                 h-screen overflow-y-auto
@@ -2021,10 +2019,8 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                 w-64 lg:w-auto lg:col-span-1 lg:relative lg:block
             `}>
                 
-                {/* En-tête - Version desktop en ligne, mobile en colonne */}
                 <div className="p-4 lg:p-5 border-b border-gray-100">
                     <div className="flex items-center justify-between lg:justify-start lg:gap-4">
-                        {/* Logo + Nom - alignés horizontalement sur desktop */}
                         <div className="flex items-center gap-3">
                             <div className="rounded-full flex items-center justify-center border border-orange-500 bg-orange-500 h-12 w-12 lg:h-14 lg:w-14 shrink-0">
                                 {infosSalle?.logo_salle ? (
@@ -2043,8 +2039,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                             </div>
                         </div>
 
-
-                        {/* Bouton déconnexion - aligné à droite sur desktop */}
                         <motion.button
                             whileTap={{scale: 0.95}}
                             className="text-red-500 border hover:bg-orange-50 transition-colors duration-200 border-red-500 rounded-lg p-2 lg:ml-auto shrink-0"
@@ -2055,8 +2049,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                     </div>
                 </div>
 
-                {/* Navigation */}
-                <div className="flex flex-col gap-1 px-3 py-4 flex-1">
+                <div className="flex flex-col gap-5 px-3 py-4 flex-1">
                     <motion.div
                         whileHover={{ scale: 1.02 }}
                         whileTap={{scale: 0.95}}
@@ -2130,7 +2123,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                     </motion.div>
                 </div>
 
-                {/* Bouton Mettre à niveau - TOUT EN BAS (margin-top auto) */}
                 <div className="p-4 mt-auto border-t border-gray-100 fixed bottom-4 w-full">
                     <motion.button
                         whileHover={{scale: 1.02}}
@@ -2591,121 +2583,121 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
 
 
                             <div className="mb-1 bg-white flex flex-col gap-3 shadow-md w-full p-4 rounded-lg overflow-x-auto">
-    <h3 className="font-bold">Suivi des Abonnés</h3>
-    <table className="w-full text-center min-w-[600px]" style={{ borderCollapse: "collapse" }}>
-        <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
-            <tr>
-                <th className="p-3 text-left">Adhérant</th>
-                <th className="p-3 hidden md:table-cell">Début</th>
-                <th className="p-3">Fin</th>
-                <th className="p-3">Statut</th>
-            </tr>
-        </thead>
+                                <h3 className="font-bold">Suivi des Abonnés</h3>
+                                <table className="w-full text-center min-w-[600px]" style={{ borderCollapse: "collapse" }}>
+                                    <thead className="uppercase text-xs text-gray-400 bg-gray-200/70">
+                                        <tr>
+                                            <th className="p-3 text-left">Adhérant</th>
+                                            <th className="p-3 hidden md:table-cell">Début</th>
+                                            <th className="p-3">Fin</th>
+                                            <th className="p-3">Statut</th>
+                                        </tr>
+                                    </thead>
 
-        <tbody>
-            {loadingAdh ? (
-                [1,2,3,4,5,6,7,8,9,10].map(item => (
-                    <tr key={item} className="border-b border-gray-200">
-                        <td className="py-5 px-3">
-                            <div className="flex items-center gap-2">
-                                <span className="h-8 w-8 hidden md:block rounded-full bg-gray-200 animate-pulse"></span>
-                                <p className="h-5 w-32 md:w-48 animate-pulse bg-gray-200 rounded"></p>
+                                    <tbody>
+                                        {loadingAdh ? (
+                                            [1,2,3,4,5,6,7,8,9,10].map(item => (
+                                                <tr key={item} className="border-b border-gray-200">
+                                                    <td className="py-5 px-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="h-8 w-8 hidden md:block rounded-full bg-gray-200 animate-pulse"></span>
+                                                            <p className="h-5 w-32 md:w-48 animate-pulse bg-gray-200 rounded"></p>
+                                                        </div>
+                                                    </td>
+                                                    <td className="hidden md:table-cell py-5 px-2">
+                                                        <p className="h-5 w-28 md:w-36 animate-pulse bg-gray-200 rounded mx-auto"></p>
+                                                    </td>
+                                                    <td className="py-5 px-2">
+                                                        <p className="h-5 w-28 md:w-36 animate-pulse bg-gray-200 rounded mx-auto"></p>
+                                                    </td>
+                                                    <td className="py-5 px-2">
+                                                        <p className="h-5 w-16 md:w-24 animate-pulse bg-gray-200 rounded mx-auto"></p>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : adherentsFiltres.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={4} className={`${search.trim() ? '' : 'h-40 md:h-60'} py-10 text-center text-xs md:text-sm text-gray-500`}>
+                                                    {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            adherentsFiltres.map(item => (
+                                                <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                                    <td className="py-3 md:py-4 px-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="rounded-full hidden md:flex bg-gray-200 items-center justify-center p-2 h-8 w-8 shrink-0">
+                                                                <User className="h-4 w-4 text-gray-500"/>
+                                                            </span>
+                                                            <span className="font-medium text-sm md:text-base break-words">
+                                                                {`${item.name} ${item.prenom}` || item.username || 'N/A'}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="hidden md:table-cell py-3 md:py-4 px-2 text-sm md:text-base">
+                                                        {item.dernier_abonnement !== null ? formatDate(item.dernier_abonnement.debut) : '-'}
+                                                    </td>
+                                                    <td className="py-3 md:py-4 px-2 text-sm md:text-base">
+                                                        {item.dernier_abonnement !== null ? formatDate(item.dernier_abonnement.fin) : '-'}
+                                                    </td>
+                                                    <td className="py-3 md:py-4 px-2">
+                                                        {item.dernier_abonnement?.date_suspension !== null ? (
+                                                            <span className="bg-yellow-200 font-semibold py-1 px-2 md:px-3 rounded-full text-xs md:text-sm whitespace-nowrap">
+                                                                suspendu
+                                                            </span>
+                                                        ) : (
+                                                            <span className={`${item.dernier_abonnement?.actif ? 'bg-green-200' : 'bg-red-200 animate-pulse'} font-semibold py-1 px-2 md:px-3 rounded-full text-xs md:text-sm whitespace-nowrap`}>
+                                                                {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+
+                                    {errorAdh && (
+                                        <tbody>
+                                            <tr>
+                                                <td colSpan={4} className="py-10 text-center text-xs md:text-sm text-red-600">
+                                                    <p className="flex items-center justify-center gap-2">
+                                                        <XCircle className="animate-spin h-5 w-5 text-red-600" />
+                                                        Une erreur est survenue
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    )}
+                                </table>
+
+                                <div className="flex p-4 items-center justify-between flex-col md:flex-row gap-2 border-t border-gray-100 mt-2">
+                                    <div>
+                                        <div className="text-xs md:text-sm text-gray-400">
+                                            Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex text-xs md:text-sm items-center gap-2">
+                                        <motion.button
+                                            disabled={page === 1 || loadingAdh}
+                                            onClick={() => setPage(p => p - 1)}
+                                            whileTap={{scale: 0.95}}
+                                            className={`${page === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'} px-3 py-1 rounded border border-gray-300 font-semibold transition-colors`}
+                                        >
+                                            Précedent
+                                        </motion.button>
+
+                                        <motion.button
+                                            disabled={page === mesAdh.data?.adherents?.last_page || loadingAdh}
+                                            onClick={() => setPage(p => p + 1)}
+                                            whileTap={{scale: 0.95}}
+                                            className={`${page === mesAdh.data?.adherents?.last_page ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'} px-3 py-1 rounded border border-gray-300 font-semibold transition-colors`}
+                                        >
+                                            Suivant
+                                        </motion.button>
+                                    </div>
+                                </div>
                             </div>
-                        </td>
-                        <td className="hidden md:table-cell py-5 px-2">
-                            <p className="h-5 w-28 md:w-36 animate-pulse bg-gray-200 rounded mx-auto"></p>
-                        </td>
-                        <td className="py-5 px-2">
-                            <p className="h-5 w-28 md:w-36 animate-pulse bg-gray-200 rounded mx-auto"></p>
-                        </td>
-                        <td className="py-5 px-2">
-                            <p className="h-5 w-16 md:w-24 animate-pulse bg-gray-200 rounded mx-auto"></p>
-                        </td>
-                    </tr>
-                ))
-            ) : adherentsFiltres.length === 0 ? (
-                <tr>
-                    <td colSpan={4} className={`${search.trim() ? '' : 'h-40 md:h-60'} py-10 text-center text-xs md:text-sm text-gray-500`}>
-                        {search.trim() ? "Aucun résultat trouvé pour votre recherche" : "Aucun abonnement enregistré"}
-                    </td>
-                </tr>
-            ) : (
-                adherentsFiltres.map(item => (
-                    <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="py-3 md:py-4 px-3">
-                            <div className="flex items-center gap-2">
-                                <span className="rounded-full hidden md:flex bg-gray-200 items-center justify-center p-2 h-8 w-8 shrink-0">
-                                    <User className="h-4 w-4 text-gray-500"/>
-                                </span>
-                                <span className="font-medium text-sm md:text-base break-words">
-                                    {`${item.name} ${item.prenom}` || item.username || 'N/A'}
-                                </span>
-                            </div>
-                        </td>
-                        <td className="hidden md:table-cell py-3 md:py-4 px-2 text-sm md:text-base">
-                            {item.dernier_abonnement !== null ? formatDate(item.dernier_abonnement.debut) : '-'}
-                        </td>
-                        <td className="py-3 md:py-4 px-2 text-sm md:text-base">
-                            {item.dernier_abonnement !== null ? formatDate(item.dernier_abonnement.fin) : '-'}
-                        </td>
-                        <td className="py-3 md:py-4 px-2">
-                            {item.dernier_abonnement?.date_suspension !== null ? (
-                                <span className="bg-yellow-200 font-semibold py-1 px-2 md:px-3 rounded-full text-xs md:text-sm whitespace-nowrap">
-                                    suspendu
-                                </span>
-                            ) : (
-                                <span className={`${item.dernier_abonnement?.actif ? 'bg-green-200' : 'bg-red-200 animate-pulse'} font-semibold py-1 px-2 md:px-3 rounded-full text-xs md:text-sm whitespace-nowrap`}>
-                                    {item.dernier_abonnement?.actif ? 'actif' : 'expiré'}
-                                </span>
-                            )}
-                        </td>
-                    </tr>
-                ))
-            )}
-        </tbody>
-
-        {errorAdh && (
-            <tbody>
-                <tr>
-                    <td colSpan={4} className="py-10 text-center text-xs md:text-sm text-red-600">
-                        <p className="flex items-center justify-center gap-2">
-                            <XCircle className="animate-spin h-5 w-5 text-red-600" />
-                            Une erreur est survenue
-                        </p>
-                    </td>
-                </tr>
-            </tbody>
-        )}
-    </table>
-
-    <div className="flex p-4 items-center justify-between flex-col md:flex-row gap-2 border-t border-gray-100 mt-2">
-        <div>
-            <div className="text-xs md:text-sm text-gray-400">
-                Page <span className="font-bold text-black">{mesAdh.data?.adherents?.current_page}</span> sur <span className="font-bold text-black">{mesAdh.data?.adherents?.last_page}</span>
-            </div>
-        </div>
-
-        <div className="flex text-xs md:text-sm items-center gap-2">
-            <motion.button
-                disabled={page === 1 || loadingAdh}
-                onClick={() => setPage(p => p - 1)}
-                whileTap={{scale: 0.95}}
-                className={`${page === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'} px-3 py-1 rounded border border-gray-300 font-semibold transition-colors`}
-            >
-                Précedent
-            </motion.button>
-
-            <motion.button
-                disabled={page === mesAdh.data?.adherents?.last_page || loadingAdh}
-                onClick={() => setPage(p => p + 1)}
-                whileTap={{scale: 0.95}}
-                className={`${page === mesAdh.data?.adherents?.last_page ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'} px-3 py-1 rounded border border-gray-300 font-semibold transition-colors`}
-            >
-                Suivant
-            </motion.button>
-        </div>
-    </div>
-</div>
                         </div>
                     </div>
                 </>
@@ -4497,9 +4489,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                                                             placeholder="Saisissez le tarif par an"
                                                         />
                                                     )}
-
-
-
                                                 </div>
                                             )}
                                         </div>
@@ -4546,7 +4535,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                             <>
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:col-span-4 mt-6">
                                     
-                                    {/* Colonne 1 : Formulaire (sticky sur desktop) */}
                                     <div className="lg:sticky lg:top-6 h-fit">
                                         <div className="bg-white p-4 md:p-5 rounded-lg shadow-md">
                                             <div className="flex flex-col gap-1">
@@ -4670,11 +4658,9 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* Colonne 2 et 3 : Filtres + Liste des activités (2 colonnes) avec scroll */}
                                     <div className="lg:col-span-2 flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-120px)]">
                                         
-                                        {/* Filtres */}
+                                     
                                         <div className="bg-white w-full flex flex-col md:flex-row items-center justify-between shadow-md rounded-lg p-4 gap-4 shrink-0">
                                             <p className="text-base md:text-xl">Filtrer par statut :</p>
                                             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
@@ -4716,7 +4702,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                                             </div>
                                         </div>
 
-                                        {/* Grille des activités : 2 colonnes sur tablette/desktop, 1 sur mobile */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
                                             {loadingActivity ? (
                                                 [1,2,3,4,5,6].map(item => (

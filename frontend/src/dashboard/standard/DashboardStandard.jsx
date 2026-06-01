@@ -1,3 +1,4 @@
+
 import { AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, ArrowRight, BadgeCheck, Calendar, Calendar1, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, CreditCard, Edit, LayoutDashboard, LayoutDashboardIcon, Loader2, LogOut, Pencil, Plus, PlusSquare, RefreshCcw, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, Wallet, WalletCards, X, XCircle } from "lucide-react";
 import React, {useState, useEffect, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
@@ -1008,7 +1009,7 @@ export default function DashboardStandard(){
 
             <div className="col-span-1 py-3 bg-white shadow-lg flex flex-col 2xl:gap-10 xl:gap-10 md:gap-10 gap-5  h-screen overflow-y-auto sticky top-0">
                 <div className="flex items-center gap-2  px-5 my-5">
-                    <div className="rounded-full md:hidden xl:block flex items-center justify-center border border-orange-500 bg-orange-500 xl:w-15 xl:h-15 2xl:w-15 2xl:h-15 h-10">
+                    <div className="rounded-full md:hidden xl:block flex items-center justify-center xl:flex xl:items-center xl:justify-center border border-orange-500 bg-orange-500 xl:w-15 xl:h-15 2xl:w-15 2xl:h-15 h-10 w-10">
                         {infosSalle?.logo_salle ? (
                             <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                         ):(
@@ -1236,7 +1237,7 @@ export default function DashboardStandard(){
                                 </div>
                             </div>
 
-                            <div className="rounded-full 2xl:block xl:block md:block hidden h-10 w-13 border bg-orange-500 border-orange-500 flex items-center justify-center ">
+                            <div className="rounded-full 2xl:block xl:block md:block xl:flex xl:items-center xl:justify-center 2xl:flex 2xl:items-center 2xl:justify-center md:flex md:items-center md:justify-center hidden h-10 w-13 border bg-orange-500 border-orange-500 flex items-center justify-center ">
                                 {infosSalle?.logo_salle ? (
                                     <img src={infosSalle?.logo_salle} alt="logo" className="w-full rounded-full h-full object-cover"/>
                                 ):(
@@ -1548,116 +1549,6 @@ export default function DashboardStandard(){
                                     </div>
                                 </div>
                             </div>
-
-                            // <div className="col-span-4">
-                            //     <div className="grid grid-cols-2 gap-5">
-                            //         <div className="bg-white shadow-lg rounded-xl p-4">
-                            //             <span className="text-red-600 font-bold text-xl" >Abonnements Récemment Expirés</span>
-                            //         <div className=" overflow-y-auto scrollbar-hide h-95">
-                            //             <div className="flex flex-col gap-1 text-sm">
-                            //                 {loadingAbExpirer ? (
-                            //                     [1,2,3,4,5,6].map(item => (
-                            //                         <div key={item} className="p-2 flex items-center justify-between w-full">
-                            //                             <div className="flex items-center gap-2 w-full">
-                            //                                 <div className="h-10 w-10 rounded-full bg-gray-300 animate-pulse">
-                                                                
-                            //                                 </div>
-                            //                                 <div className="bg-gray-300 animate-pulse h-5 w-50"></div>
-                            //                             </div>
-                            //                             <div className="bg-gray-300 h-5 w-30 animate-pulse"></div>
-                            //                         </div>
-                            //                     ))
-                            //                 ):listExpirer.length === 0 ? (
-                            //                     <div className="flex text-base w-full h-95 items-center justify-center">
-                            //                         <span className="text-gray-400">Aucun abonnement Expiré</span>
-                            //                     </div>
-                            //                 ):listExpirer.map(item => (
-                            //                     <div className="p-2 flex items-center justify-between w-full">
-                            //                         <div key={item.id} className="flex items-center gap-2">
-                            //                             <div className="flex bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2">
-                            //                                 <User className="h-5 w-5" />
-                            //                             </div>
-                            //                             <div className="">
-                            //                                 <p className="font-bold">{`${item.name} ${item.prenom}` || item.username}</p>
-                            //                             </div>
-                            //                         </div>
-                            //                         <div>
-                            //                                 <p className="text-xs text-gray-400 font-bold">Expiré le : {formatDate(item.created_at)}</p>
-                            //                         </div>
-                            //                     </div>
-                            //                 ))}
-
-                            //                 {errorAbExpirer && (
-                            //                     <div className="flex text-base w-full h-95 items-center justify-center">
-                            //                         <span className="text-red-500">Erreur de récupération de données</span>
-                            //                     </div>
-                            //                 )}
-                                        
-                            //             </div>
-                            //         </div>
-                            //         </div>
-
-                            //         <div className="bg-white shadow-lg rounded-xl p-4 ">
-                            //             <p className="text-yellow-600 font-bold text-xl">Renouvellement à venir <span className="text-sm">(expire bientôt)</span></p>
-                            //         <div className="overflow-y-auto scrollbar-hide h-95">
-
-
-                            //                 <table  className=" w-full text-left mt-3" style={{ borderCollapse: "collapse" }}>
-                            //                     <thead className="">
-                            //                         <tr className="bg-yellow-600">
-                            //                             <th className="p-2 border-b border-gray-400">Adhérant</th>
-                            //                             <th className="p-2 border-b border-gray-400">Type</th>
-                            //                             <th className="p-2 border-b border-gray-400">Expire le</th>
-                            //                         </tr>
-                            //                     </thead>
-                            //                     <tbody >
-
-                            //                         {loadingAbExpirer ? (
-                            //                             <tr className=" h-80">
-                            //                                 <td colSpan={3} className="py-6 text-center">
-                            //                                     Chargement des données
-                            //                                     <Loader2 className="mx-auto animate-spin" />
-                            //                                 </td>
-                            //                             </tr>
-                            //                         ): listExpireBiento.length === 0 ? (
-                            //                             <tr>
-                            //                                 <td colSpan={3} className="py-6 h-80 text-gray-400 text-center">
-                            //                                     Aucun renouvellement à venir
-                            //                                 </td>
-                            //                             </tr>
-                            //                         ):listExpireBiento.map(item => (
-                            //                             <tr key={item.id} className=" ">
-
-                            //                                 <td className="p-2 border-b border-gray-400">{`${item.name} ${item.prenom}` || item?.username || 'N/A'}</td>
-                            //                                 {item?.abonnements?.map(a => (
-                            //                                     <td key={a.id} className="p-2 border-b border-gray-400">{a?.plan || 'N/A'}</td>
-                            //                                 ))}
-
-                            //                                 {item?.abonnements?.map(a => (
-                            //                                     <td key={a.id} className="p-2 border-b border-gray-400">{a?.fin || 'N/A'}</td>
-                            //                                 ))}
-
-                            //                             </tr>
-                            //                         ))}
-
-
-                            //                         {errorExpire && (
-                            //                         <tr className=" h-80">
-                            //                             <td colSpan={3} className="py-6 text-center text-red-500">
-                            //                                 Erreur lors de la récuperation des données
-                            //                             </td>
-                            //                         </tr>
-                            //                         )}
-                                                    
-                                                        
-                                                    
-                            //                     </tbody>
-                            //                 </table>
-
-                            //         </div>
-                            //         </div>
-                            //     </div>
-                            // </div>
                         )}
 
                         {view === "access-adherant" && (
