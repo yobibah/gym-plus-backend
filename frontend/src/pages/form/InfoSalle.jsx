@@ -33,7 +33,7 @@ export default function InfoSalle(){
 
     const forfaitList = [
         {id:1, forfait: "Standard", montant: 7500}, 
-        {id:2, forfait:"Pro", montant: 100}, 
+        {id:2, forfait:"Pro", montant: 12500}, 
         {id:3, forfait:"Premium", montant: 20000}, 
     ]
 
