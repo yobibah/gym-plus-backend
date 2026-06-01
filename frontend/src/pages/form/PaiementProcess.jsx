@@ -4,7 +4,7 @@ import form3 from '../../assets/images/form3.png'
 import { motion } from "framer-motion";
 import { getToken } from "../../hooks/getToken";
 import { useNavigate } from "react-router-dom";
-import { usePayment } from "../../contexts/PaymentContext";
+import { usePayment } from "../../hooks/usePayment";
 import { CheckCircle, Loader2, Lock, WalletCards, Smartphone } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { PaymentProcess } from "../../api/subscribe/PaiementProcess";
@@ -17,11 +17,11 @@ import coris from '../../assets/images/coris.webp'
 export default function PaiementProcess(){
 
     const {forfait, montant} = usePayment()
-    const [params, setParams] = useSearchParams()
+    const [params] = useSearchParams()
     const forfaitUrl = params.get('forfait')
     const montantUrl = params.get('montant')
     const [tel, setTel] = useState('')
-    const [type, setType]= useState('inscription')
+    const [type]= useState('inscription')
     const [provider, setProvider] = useState(null)
     const choix_forfait = JSON.parse(localStorage.getItem('choix_forfait')) 
     const navigate = useNavigate()
@@ -37,7 +37,7 @@ export default function PaiementProcess(){
             navigate('/form-subscribe', {replace: true})
             return
         }
-    }, [])
+    }, [navigate])
 
     useEffect(()=>{
         if(!forfait || !montant){
@@ -48,7 +48,7 @@ export default function PaiementProcess(){
         if(forfaitUrl !== forfait || montantUrl !== montant ){
             navigate(`/paiement-process?forfait=${forfait}&montant=${montant}`, {replace: true})
         }
-    }, [montant,forfait, montantUrl, forfaitUrl])
+    }, [navigate, montant,forfait, montantUrl, forfaitUrl])
 
 
     const paiement = useMutation({

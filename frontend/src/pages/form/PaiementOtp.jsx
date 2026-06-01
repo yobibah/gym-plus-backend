@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getToken } from "../../hooks/getToken";
-import { usePayment } from "../../contexts/PaymentContext";
+import { usePayment } from "../../hooks/usePayment";
 import { Loader2 } from "lucide-react";
 import { PaymentOtp } from "../../api/subscribe/PaiementOtp";
 import ToastError from "../../components/ui/ToastError";
@@ -15,7 +15,7 @@ export default function PaiementOtp(){
     const [otp, setOtp] = useState('')
 
     const {forfait, montant} = usePayment()
-    const [params, setParams] = useSearchParams()
+    const [params] = useSearchParams()
     const forfaitUrl = params.get('forfait')
     const montantUrl = params.get('montant')
 
@@ -35,7 +35,7 @@ export default function PaiementOtp(){
             navigate('/form-subscribe', {replace: true})
             return
         }
-    }, [])
+    }, [navigate])
 
     useEffect(()=>{
         if(!forfait || !montant){
@@ -46,7 +46,7 @@ export default function PaiementOtp(){
         if(forfaitUrl !== forfait || montantUrl !== montant ){
             navigate(`/paiement-otp?forfait=${forfait}&montant=${montant}`, {replace: true})
         }
-    }, [montant,forfait, montantUrl, forfaitUrl])
+    }, [navigate, montant,forfait, montantUrl, forfaitUrl])
 
 
     const paiementOtp = useMutation({

@@ -7,7 +7,7 @@ import { getToken } from "../../hooks/getToken";
 import { useNavigate } from "react-router-dom";
 import form1 from '../../assets/images/form1.png'
 import { motion } from "framer-motion";
-import { usePayment } from "../../contexts/PaymentContext";
+import { usePayment } from "../../hooks/usePayment";
 import { infosPerso } from "../../api/subscribe/infosPerso";
 import { useMutation } from "@tanstack/react-query";
 import { Otp } from "../../api/subscribe/otp";
@@ -65,7 +65,7 @@ export default function InfosLogin(){
         } 
 
 
-    },[])
+    },[navigate, choix_forfait.forfait, choix_forfait.montant])
 
     useEffect(()=>{
         if(!forfait || !montant){
@@ -76,7 +76,7 @@ export default function InfosLogin(){
         if(forfaitUrl !== forfait || Number(montantUrl) !== Number(montant)){
             navigate(`/form-subscribe?forfait=${forfait}&montant=${montant}`, {replace: true})
         }
-    },[forfait, montant, forfaitUrl, montantUrl])
+    },[navigate, forfait, montant, forfaitUrl, montantUrl])
 
 
     const infos = useMutation({

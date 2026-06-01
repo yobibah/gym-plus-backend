@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-scroll";
 import { ArrowUpRight, Users, Receipt, LayoutDashboard, Medal, Settings, Dumbbell, ArrowDownRight, ShieldEllipsis, HeartPlus, Clock, ArrowDown, MousePointerClick, FilePieChart } from "lucide-react";
 import stats from '../assets/images/stats2.png'
-import coverhero from '../assets/images/coverhero.png'
 import {motion} from 'framer-motion'
 import { useNavigate } from "react-router-dom";
 

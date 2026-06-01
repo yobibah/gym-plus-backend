@@ -1,5 +1,5 @@
 import { AlertOctagon, AlertTriangle, AlertTriangleIcon, ArrowDownUpIcon, ArrowLeft, ArrowRight, Bell, Calendar1, CalendarOff, Check, CheckCircle, CheckCircle2, Circle, Clock, Download, Edit, Euro, Eye, File, Info, LayoutDashboard, Loader2, LogOut, NotebookPen, Pencil, Plus, PlusSquare, RefreshCcw, Save, Search, Settings, SquarePlus, Star, Timer, Trash, Trash2, UploadCloud, User, UserCog, UserPlus, Users, Users2, WalletCards, X, XCircle } from "lucide-react";
-import React, {useState, useEffect, useMemo, useRef} from "react";
+import React, {useState, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/input";
@@ -93,7 +93,7 @@ export default function DashboardPro(){
 
 
     const [activeTab, setActiveTab] = useState('dashboard')
-    const [view, setView] = useState("part-dashboard");
+    const [setView] = useState("part-dashboard");
     const [nom, setNom] = useState('')
     const [prenom, setPrenom] = useState('')
     const [email, setEmail] = useState('')
@@ -115,7 +115,7 @@ export default function DashboardPro(){
     const [editMois, setEditMois] = useState(true)
     const [editTrim, setEditTrim] = useState(true)
     const [editAn, setEditAn] = useState(true)
-    const [action, setAction] = useState("POST");
+    const [action] = useState("POST");
     const [nom_salle, setNomSalle] = useState('')
     const [pays_salle, setPaysSalle] = useState('')
     const [region, setRegion] = useState('')
@@ -160,7 +160,7 @@ export default function DashboardPro(){
 
     const [coachOuvert, setCoachOuvert] = useState(null)
     const [deleteCoach, setDeleteCoach] = useState(null)
-    const [coachSup, setCoachSup] = useState(null)
+    const [setCoachSup] = useState(null)
     const [selectCoach, setSelectCoach] = useState(null)
     const [coachEdit, setCoachEdit] = useState(null)
 
@@ -179,7 +179,7 @@ export default function DashboardPro(){
     const [horaire, setHoraire] = useState([])
     const [heure, setHeure] = useState(null)
     const [heureFin, setHeureFin] = useState(null)
-    const [selectAdherant, setSelectAdherant] = useState(null)
+    const [setSelectAdherant] = useState(null)
     const [adherantChoice, setAdherantChoice] = useState([])
     const [adherantChoiceId, setAdherantChoiceId] = useState([])
     const [program, setProgram] = useState(null)
@@ -219,19 +219,8 @@ export default function DashboardPro(){
 
     const [apercu, setApercu] = useState('mois_actuel')
     const [selectActivity, setSelectActivity] = useState(null)
-    const [showSwhitch, setShowSwhitch] = useState(false)
 
-    // Ajoute cet état au début du composant avec les autres useState
-const [sidebarOpen, setSidebarOpen] = useState(false)
-
-    // Ajoute cette fonction pour fermer la sidebar quand on clique sur un lien (optionnel)
-    const handleSidebarNavigation = (tab) => {
-        setActiveTab(tab)
-        if (window.innerWidth < 1024) {
-            setSidebarOpen(false)
-        }
-    }
-
+    const [sidebarOpen, setSidebarOpen] = useState(false)
 
     const navigate = useNavigate()
     const token = getToken()
@@ -279,7 +268,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
     function ActiveTab(){
 
          if(activeTab === 'dashboard'){
-            setActiveTab('dashboard')
             setView('part-dashboard')
             setShowAdd(false)
             setCoachOuvert(null)
@@ -289,7 +277,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
         }
 
         if(activeTab === 'adherant'){
-            setActiveTab('adherant')
             setNotifModal(false)
             setCoachOuvert(null)
             setDeleteCoach(null)
@@ -298,7 +285,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
         }
 
         if(activeTab === 'abonnement'){
-            setActiveTab('abonnement')
             setShowAdd(false)
             setNotifModal(false)
             setCoachOuvert(null)
@@ -309,7 +295,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
         }
 
         if(activeTab === 'coach'){
-            setActiveTab('coach')
             setShowAdd(false)
             setNotifModal(false)
             setHistoryP(false)
@@ -317,7 +302,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
         }
 
         if(activeTab === 'cours'){
-            setActiveTab('cours')
             setShowAdd(false)
             setNotifModal(false)
             setCoachOuvert(null)
@@ -328,8 +312,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
         }
 
         if(activeTab === 'settings'){
-            setActiveTab('settings')
-            paramTab()
             setShowAdd(false)
             setNotifModal(false)
             setCoachOuvert(null)
@@ -337,64 +319,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
             return
         }
     }
-
-    function paramTab(){
-        if(paramsTab === 'salle'){
-            setParamstab('salle')
-            if(historyP){
-                setHistoryP(false)
-            }
-            return
-        }
-
-        if(paramsTab === 'perso'){
-            setParamstab('perso')
-            if(historyP){
-                setHistoryP(false)
-            }
-            return
-        }
-
-        if(paramsTab === 'visuel'){
-            setParamstab('visuel')
-            if(historyP){
-                setHistoryP(false)
-            }
-            return
-        }
-
-        if(paramsTab === 'tarif'){
-            setParamstab('tarif')
-            if(historyP){
-                setHistoryP(false)
-            }
-            return
-        }
-
-        if(paramsTab === 'activity'){
-            setParamstab('activity')
-            setActivityTab('tous')
-            setStatus('publie')
-            if(historyP){
-                setHistoryP(false)
-            }
-            return
-        }
-
-
-        if(paramsTab === 'support'){
-            setParamstab('support')
-            if(historyP){
-                setHistoryP(false)
-            }
-            return
-        }
-    }
-
-    useEffect(()=>{
-        ActiveTab()
-        paramTab()
-    }, [activeTab, paramsTab])
 
     const nbrAdh = useQuery({
         queryKey : ['nbr_adherant'],
@@ -424,9 +348,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
     const prix_trimestriel = Number(prix.data?.montant?.montant_2) || ''
     const prix_annuel = Number(prix.data?.montant?.montant_3) || ''
     const loading = prix.isPending
-    const error = prix.isError
-
-
 
     const queryClient = useQueryClient()
     const addAdh = useMutation({
@@ -473,7 +394,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
     const loadingExpire = expire.isPending
     const errorExpire = expire.isError
     const totalExpire = Number(expire.data?.NBexpirer)
-    const listExpireBiento = expire.data?.Bientoexpirer || []
 
 
 
@@ -481,7 +401,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
         queryKey : ['abonner-expirer'],
         queryFn : AbonnementExpirer
     })
-    const listExpirer = abonnerExpire.data?.expirer || []
     const loadingAbExpirer = abonnerExpire.isPending
     const errorAbExpirer = abonnerExpire.isError
     const totalAbExpirer = Number(abonnerExpire.data?.nbr)
@@ -494,7 +413,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
         keepPreviousData: true,
         staleTime: 1000 * 60 * 30
     })
-    const dataAdh = mesAdh.data?.adherents?.data || []
+    const dataAdh = useMemo(() => mesAdh?.data?.adherents?.data || [], [mesAdh.data?.adherents?.data])
     const loadingAdh = mesAdh.isPending
     const errorAdh = mesAdh.isError
     const successAdh = mesAdh.isSuccess
@@ -1190,7 +1109,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
     })
     const mesCoachLoad = mesCoach.isPending
     const mesCoachError = mesCoach.isError
-    const mes_coach = mesCoach.data?.coach || []
+    const mes_coach = useMemo(() => mesCoach?.data?.coach || [], [mesCoach.data?.coach])
 
 
     const filterCoach = useMemo(() => {
@@ -1328,9 +1247,6 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
     const dataHistory = history.data?.historiques || []
     const totalHistory = history.data?.historiques.length
 
-
-    const fin = formatDate(planChoisit?.data?.abonnement?.fin)
-
     const getDaysDifference = (date1, date2) => {
         const diffTime = date2.getTime() - date1.getTime();
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -1444,7 +1360,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
         staleTime: 1000 * 60 * 30
     })
 
-    const dataCours = mesCours?.data?.cours?.data || []
+    const dataCours = useMemo(() => mesCours?.data?.cours?.data || [], [mesCours.data?.cours?.data ])
     const coursLoading = mesCours.isPending
     const coursError = mesCours.isError
     const coursSuccess = mesCours.isSuccess
@@ -1594,38 +1510,38 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
     const recette3MoisDernier = dataRecette?.[1]?.montant_total
     const recetteAnneDernier = dataRecette?.[0]?.montant_total
 
-    function pourcentageMois(){
-        if(recetteMoisDernier === 0 || recette3MoisDernier === 0 || recetteAnneDernier === 0 ){
-            return 0
-        } else{
-            const percentRecetteMois = ((recetteMois - recetteMoisDernier) / recetteMoisDernier) * 100
-            const percentRecette3Mois = ((recetteMois - recette3MoisDernier) / recette3MoisDernier) * 100
-            const percentRecetteAn = ((recetteMois - recetteAnneDernier) / recetteAnneDernier) * 100
-
-            if(apercu === 'mois_actuel'){
-                const percetMonth = percentRecetteMois.toFixed(2)
-                return Number(percetMonth)
-            }
-
-            if(apercu === 'mois_dernier'){
-                const percetMonth = percentRecette3Mois.toFixed(2)
-                return Number(percetMonth)
-            }
-
-            if(apercu === 'annee_passe'){
-                const percetMonth = percentRecetteAn.toFixed(2)
-                return Number(percetMonth)
-            }
-
-            return 0
+    const pourcentageMois = () => {
+        if (
+            recetteMoisDernier === 0 ||
+            recette3MoisDernier === 0 ||
+            recetteAnneDernier === 0
+        ) {
+            return 0;
         }
-    }
 
-    useEffect(()=>{
-        pourcentageMois()
-    }, [apercu])
-    
-    
+        const percentRecetteMois =
+            ((recetteMois - recetteMoisDernier) / recetteMoisDernier) * 100;
+
+        const percentRecette3Mois =
+            ((recetteMois - recette3MoisDernier) / recette3MoisDernier) * 100;
+
+        const percentRecetteAn =
+            ((recetteMois - recetteAnneDernier) / recetteAnneDernier) * 100;
+
+        if (apercu === "mois_actuel") {
+            return Number(percentRecetteMois.toFixed(2));
+        }
+
+        if (apercu === "mois_dernier") {
+            return Number(percentRecette3Mois.toFixed(2));
+        }
+
+        if (apercu === "annee_passe") {
+            return Number(percentRecetteAn.toFixed(2));
+        }
+
+        return 0;
+    };
     
     
 
@@ -1694,7 +1610,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
         staleTime: 1000 * 60 * 30
     })
 
-    const listeCoursData = listeCours?.data?.data || []
+    const listeCoursData = useMemo(() => listeCours?.data?.data || [], [listeCours.data?.data])
     const loadingCoursListe = listeCours.isPending
     const errorCoursListe = listeCours.isError
 
@@ -1725,7 +1641,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
 
     const loadingActivity = mesActivites.isPending
     const errorgActivity = mesActivites.isError
-    const dataActivity = mesActivites?.data?.activites || []
+    const dataActivity = useMemo(() => mesActivites?.data?.activites || [], [mesActivites.data?.activites])
 
     const filteredActiviy = useMemo(()=>{
         if(!dataActivity || !Array.isArray(dataActivity)) return []
@@ -2287,7 +2203,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                                         </div>
                                     ):(
                                         <div>
-                                            <p className="font-bold text-2xl md:text-3xl">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}` || 0} / 1000</p>
+                                            <p className="font-bold text-2xl md:text-3xl">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}`} / 1000</p>
                                         </div>
                                     )}
 
@@ -2309,7 +2225,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                                         </div>
                                     ):(
                                         <div>
-                                            <p className="font-bold text-2xl md:text-3xl text-green-500">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}` || 0}</p>
+                                            <p className="font-bold text-2xl md:text-3xl text-green-500">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}`}</p>
                                         </div>
                                     )}
 
@@ -2630,7 +2546,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                                                                 <User className="h-4 w-4 text-gray-500"/>
                                                             </span>
                                                             <span className="font-medium text-sm md:text-base break-words">
-                                                                {`${item.name} ${item.prenom}` || item.username || 'N/A'}
+                                                                {`${item.name ?? ""} ${item.prenom ?? ""}`.trim() || item.username}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -2787,7 +2703,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
 
                                                 <td className="flex items-center font-bold gap-2 py-3 md:py-5 px-3">
                                                 <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                                {`${item.name} ${item.prenom}` || item.username }
+                                                {`${item.name ?? ""} ${item.prenom ?? ""}`.trim() || item.username}
 
                                                  </td>
                                                 <td className="px-3 py-3 md:py-5">{item.email || '-'}</td>
@@ -2986,7 +2902,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
 
                                                     <td className="flex items-center font-bold gap-2 py-3 md:py-5 px-3">
                                                     <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                                    {`${item.name} ${item.prenom}` || item.username }
+                                                    {`${item.name ?? ""} ${item.prenom ?? ""}`.trim() || item.username}
 
                                                     </td>
                                                     <td className="px-3 py-3 md:py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
@@ -4666,35 +4582,35 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                                             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
                                                 <motion.button
                                                     whileTap={{scale: 0.95}}
-                                                    onClick={(e)=>{setActivityTab('tous')}}
+                                                    onClick={()=>{setActivityTab('tous')}}
                                                     className={`py-1 px-3 md:px-4 text-xs md:text-sm ${activityTab === 'tous' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'} transition-all duration-200 rounded-lg font-semibold`}
                                                 >
                                                     Tous
                                                 </motion.button>
                                                 <motion.button
                                                     whileTap={{scale: 0.95}}
-                                                    onClick={(e)=>{setActivityTab('publie')}}
+                                                    onClick={()=>{setActivityTab('publie')}}
                                                     className={`py-1 px-3 md:px-4 text-xs md:text-sm ${activityTab === 'publie' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'} transition-all duration-200 rounded-lg font-semibold`}
                                                 >
                                                     Publiées
                                                 </motion.button>
                                                 <motion.button
                                                     whileTap={{scale: 0.95}}
-                                                    onClick={(e)=>{setActivityTab('attente')}}
+                                                    onClick={()=>{setActivityTab('attente')}}
                                                     className={`py-1 px-3 md:px-4 text-xs md:text-sm ${activityTab === 'attente' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'} transition-all duration-200 rounded-lg font-semibold`}
                                                 >
                                                     En attente
                                                 </motion.button>
                                                 <motion.button
                                                     whileTap={{scale: 0.95}}
-                                                    onClick={(e)=>{setActivityTab('annule')}}
+                                                    onClick={()=>{setActivityTab('annule')}}
                                                     className={`py-1 px-3 md:px-4 text-xs md:text-sm ${activityTab === 'annule' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'} transition-all duration-200 rounded-lg font-semibold`}
                                                 >
                                                     Annulées
                                                 </motion.button>
                                                 <motion.button
                                                     whileTap={{scale: 0.95}}
-                                                    onClick={(e)=>{setActivityTab('passe')}}
+                                                    onClick={()=>{setActivityTab('passe')}}
                                                     className={`py-1 px-3 md:px-4 text-xs md:text-sm ${activityTab === 'passe' ? 'bg-orange-500 text-white' : 'bg-gray-100 border-gray-200'} transition-all duration-200 rounded-lg font-semibold`}
                                                 >
                                                     Passées
@@ -5335,14 +5251,14 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                                     <div className="flex items-center justify-between border rounded-lg bg-orange-50 border-orange-500">
                                         <button
                                             type="button"
-                                            onClick={(e)=>{setNiveaux('debutant'),  setCoursToUp({...coursToUp,niveaux: 'debutant'})}}
+                                            onClick={()=>{setNiveaux('debutant'),  setCoursToUp({...coursToUp,niveaux: 'debutant'})}}
                                             className={`${coursToUp?.niveaux === 'debutant' ? 'bg-orange-500 font-bold text-white' : ''} p-2 w-full rounded-lg transition-colors duration-200 text-sm md:text-base`}
                                         >
                                             Débutant
                                         </button>
                                         <button 
                                             type="button"
-                                            onClick={(e)=>{setNiveaux('intermediaire'),  setCoursToUp({...coursToUp,niveaux: 'intermediaire'})}}
+                                            onClick={()=>{setNiveaux('intermediaire'),  setCoursToUp({...coursToUp,niveaux: 'intermediaire'})}}
                                             className={`${coursToUp?.niveaux === 'intermediaire' ? 'bg-orange-500 font-bold text-white' : ''} p-2 w-full rounded-lg transition-colors duration-200 text-sm md:text-base`}
                                         >
                                             Intermédiare
@@ -6404,12 +6320,12 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
                             <label className="text-sm md:text-base">Statut <span className="text-red-500 font-bold">*</span></label>
                             <div className="flex items-center w-full justify-between bg-gray-100 rounded-lg">
                                 <button 
-                                    onClick={(e)=>{setStatus('publie'), setActivityToUp({...activityToUp, status: 'publie'})}}
+                                    onClick={()=>{setStatus('publie'), setActivityToUp({...activityToUp, status: 'publie'})}}
                                     className={`text-xs md:text-sm ${activityToUp?.status === 'publie' ? 'text-white bg-blue-500' : ''} cursor-pointer transition-all duration-200 rounded-lg w-full px-4 py-2`}>
                                     publier maintenant
                                 </button>
                                 <button 
-                                    onClick={(e)=>{setStatus('attente'), setActivityToUp({...activityToUp, status: 'attente'})}}
+                                    onClick={()=>{setStatus('attente'), setActivityToUp({...activityToUp, status: 'attente'})}}
                                     className={`${activityToUp?.status === 'attente' ? 'text-white bg-blue-500' : ''} text-xs md:text-sm rounded-lg w-full px-4 py-2 cursor-pointer transition-all duration-200`}>
                                     mettre en attente
                                 </button>

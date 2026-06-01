@@ -1,14 +1,14 @@
 import { CheckCircle2, LayoutDashboard, Mail, MessageCircle } from "lucide-react";
-import React, {useState, useEffect} from "react";
+import React, {useEffect} from "react";
 import success from '../../assets/images/success.png'
-import { usePayment } from "../../contexts/PaymentContext";
+import { usePayment } from "../../hooks/usePayment";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 export default function Statut(){
 
     const {forfait, montant} = usePayment()
-    const [params, setParams] = useSearchParams()
+    const [params] = useSearchParams()
     const forfaitUrl = params.get('forfait')
     const montantUrl = params.get('montant')
 
@@ -28,7 +28,7 @@ export default function Statut(){
         if(forfaitUrl !== forfait || montantUrl !== montant ){
             navigate(`/statut?forfait=${forfait}&montant=${montant}`, {replace: true})
         }
-    }, [montant,forfait, montantUrl, forfaitUrl])
+    }, [navigate, montant,forfait, montantUrl, forfaitUrl])
 
 
     return(

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import coverhero from '../../assets/images/coverhero.png'
 import ImageComponent from "../../components/ui/image"
 import Input from "../../components/ui/input";

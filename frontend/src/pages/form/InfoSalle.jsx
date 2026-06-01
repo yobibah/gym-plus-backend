@@ -1,10 +1,10 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState, useEffect} from "react";
 import Input from "../../components/ui/input";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle, Download, Loader2, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import form2 from '../../assets/images/form2.png'
-import { usePayment } from "../../contexts/PaymentContext";
+import { usePayment } from "../../hooks/usePayment";
 import { infosSalle } from "../../api/subscribe/infosSalle";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getToken } from "../../hooks/getToken";
@@ -61,7 +61,7 @@ export default function InfoSalle(){
         if(token && status_salle === 'salle_info_remplie' && infosEnregistre && otp_valide === 'otp_verifie'){
             navigate(`/paiement?forfait=${choix_forfait.forfait}&montant=${choix_forfait.montant}`)
         }
-    }, [])
+    }, [navigate, choix_forfait.forfait, choix_forfait.montant])
 
     useEffect(()=>{
         if(!forfait || !montant){
@@ -72,7 +72,7 @@ export default function InfoSalle(){
         if(forfaitUrl !== forfait || montantUrl !== montant ){
             navigate(`/infos-salle?forfait=${forfait}&montant=${montant}`, {replace: true})
         }
-    }, [montant,forfait, montantUrl, forfaitUrl])
+    }, [navigate, montant,forfait, montantUrl, forfaitUrl])
 
 
     const paysS = useQueryClient()

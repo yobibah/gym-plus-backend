@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import tarifimg from '../assets/images/sucribeimg.png'
-import { usePayment } from "../contexts/PaymentContext";
+import { usePayment } from "../hooks/usePayment";
 
 export default function Suscribe(){
 

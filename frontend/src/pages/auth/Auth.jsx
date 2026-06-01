@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import coverhero from '../../assets/images/coverhero.png'
 import ImageComponent from "../../components/ui/image";
 import { Eye, EyeOff, Lock, User, KeyIcon, Loader2, CheckCircle2 } from "lucide-react";

@@ -1,6 +1,6 @@
 
 import { AlertCircle, AlertCircleIcon, AlertOctagon, AlertTriangle, ArrowLeft, ArrowRight, BadgeCheck, Calendar, Calendar1, CalendarOff, CalendarX, Check, CheckCheck, CheckCircle, CheckCircle2, CheckLine, CreditCard, Edit, LayoutDashboard, LayoutDashboardIcon, Loader2, LogOut, Pencil, Plus, PlusSquare, RefreshCcw, Search, Settings, Settings2, SquarePlus, Trash, User, UserPlus, UserPlus2, Users, Wallet, WalletCards, X, XCircle } from "lucide-react";
-import React, {useState, useEffect, useMemo, useRef} from "react";
+import React, {useState, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/input";
@@ -26,7 +26,6 @@ import { addLogo } from "../../api/dashboard/standard/parametres/addLogo";
 import { UpdateLogo } from "../../api/dashboard/standard/parametres/changeLogo";
 import { DeleteLogo } from "../../api/dashboard/standard/parametres/deleteLogo";
 import { DeleteAdh } from "../../api/dashboard/standard/adherants/deleteAdh";
-import checkvideo from '../../assets/videos/check2.gif'
 import { UpdateAdh } from "../../api/dashboard/standard/adherants/updateAdh";
 import logoGym from '../../assets/images/coverhero.png'
 import { Reabonner } from "../../api/dashboard/standard/abonnements/reabonner";
@@ -78,7 +77,7 @@ export default function DashboardStandard(){
     const [editMois, setEditMois] = useState(true)
     const [editTrim, setEditTrim] = useState(true)
     const [editAn, setEditAn] = useState(true)
-    const [action, setAction] = useState("POST");
+    const [action] = useState("POST");
     const [nom_salle, setNomSalle] = useState('')
     const [pays_salle, setPaysSalle] = useState('')
     const [region, setRegion] = useState('')
@@ -98,7 +97,7 @@ export default function DashboardStandard(){
     const [reabonner, setReabonner] = useState(null)
     const [reabonnerModal, setReabonnerModal] = useState(false)
     const [abonnementTab, setAbonnementTab] = useState('tous')
-    const [type, setType] = useState('reinscription')
+    const [type] = useState('reinscription')
     const [modalReab, setModalReab] = useState(false)
     const [modalNext, setModalNext] = useState(false)
     const [provider, setProvider] = useState(null)
@@ -133,7 +132,6 @@ export default function DashboardStandard(){
     function ActiveTab(){
 
          if(activeTab === 'dashboard'){
-            setActiveTab('dashboard')
             setView('part-dashboard')
             setShowAdd(false)
             setHistoryP(false)
@@ -141,13 +139,11 @@ export default function DashboardStandard(){
         }
 
         if(activeTab === 'adherant'){
-            setActiveTab('adherant')
             setHistoryP(false)
             return
         }
 
         if(activeTab === 'abonnement'){
-            setActiveTab('abonnement')
             setShowAdd(false)
             setAbonnementTab('tous')
             setHistoryP(false)
@@ -155,59 +151,12 @@ export default function DashboardStandard(){
         }
 
         if(activeTab === 'settings'){
-            setActiveTab('settings')
             setShowAdd(false)
             return
         }
     }
 
-    function paramTab(){
-        if(paramsTab === 'salle'){
-            setParamstab('salle')
-            if(historyP){
-                setHistoryP(false)
-            }
-            return
-        }
-
-        if(paramsTab === 'perso'){
-            setParamstab('perso')
-            if(historyP){
-                setHistoryP(false)
-            }
-            return
-        }
-
-        if(paramsTab === 'visuel'){
-            setParamstab('visuel')
-            if(historyP){
-                setHistoryP(false)
-            }
-            return
-        }
-
-        if(paramsTab === 'tarif'){
-            setParamstab('tarif')
-            if(historyP){
-                setHistoryP(false)
-            }
-            return
-        }
-
-
-        if(paramsTab === 'support'){
-            setParamstab('support')
-            if(historyP){
-                setHistoryP(false)
-            }
-            return
-        }
-    }
-
-    useEffect(()=>{
-        ActiveTab()
-        paramTab()
-    }, [activeTab])
+  
 
     const nbrAdh = useQuery({
         queryKey : ['nbr_adherant'],
@@ -236,7 +185,6 @@ export default function DashboardStandard(){
     const prix_trimestriel = Number(prix.data?.montant?.montant_2) || ''
     const prix_annuel = Number(prix.data?.montant?.montant_3) || ''
     const loading = prix.isPending
-    const error = prix.isError
 
 
 
@@ -308,7 +256,7 @@ export default function DashboardStandard(){
         queryFn : mesAdherants,
         keepPreviousData: true
     })
-    const dataAdh = mesAdh.data?.adherents?.data || []
+    const dataAdh = useMemo(() => mesAdh.data?.adherents?.data || [], [mesAdh.data?.adherents?.data])
     const loadingAdh = mesAdh.isPending
     const errorAdh = mesAdh.isError
     const successAdh = mesAdh.isSuccess
@@ -812,9 +760,6 @@ export default function DashboardStandard(){
     }
 
 
-
-
-    // Debut
     const paiQuery = useQueryClient()
     const paiementOtp = useMutation({
         mutationFn : PaymentOtp,
@@ -826,7 +771,7 @@ export default function DashboardStandard(){
 
         onError: (()=>{
             setTimeout(()=>{
-                paiement.reset()
+                paiementOtp.reset()
             }, 4000)
         })
     })
@@ -857,7 +802,7 @@ export default function DashboardStandard(){
 
 
 
-    async function handlePaymentOtp(e) {
+    async function handlePaymentOtp() {
         if(!otp || !otp.trim()) return
         paiementOtp.mutate({otp})
     }
@@ -977,7 +922,6 @@ export default function DashboardStandard(){
     const history = useQuery({
         queryKey : ['history'],
         queryFn : History,
-        // refetchInterval: 60000
 
     })
     const historyLoading = historyQuery.isPending
@@ -987,7 +931,6 @@ export default function DashboardStandard(){
 
     const date = new Date
     const d = date.toLocaleDateString('fr-FR')
-    const fin = formatDate(planChoisit?.data?.abonnement?.fin)
 
     const debutReab = planChoisit?.data?.abonnement?.debut
     const finReab = planChoisit?.data?.abonnement?.fin
@@ -1272,7 +1215,7 @@ export default function DashboardStandard(){
 
                                             <div className="flex w-full flex-col gap-2">
                                                 
-                                                <p className="font-bold text-3xl text-black font-bold">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}` || 0}<span className="text-xl font-normal text-gray-400">/200</span></p>
+                                                <p className="font-bold text-3xl text-black font-bold">{nbrAdherants > 9 ? nbrAdherants : `0${nbrAdherants}`}<span className="text-xl font-normal text-gray-400">/200</span></p>
                                                 <div className="w-full bg-gray-300 h-2 rounded-xl overflow-hidden">
                                                     <div className="bg-orange-600 h-2 rounded-xl transition-all duration-500" style={{width: `${progressBarAdherant}%`}}></div>
                                                 </div>
@@ -1309,7 +1252,7 @@ export default function DashboardStandard(){
                                         <div className="flex items-center justify-between">
                                             
 
-                                            <p className="font-bold text-3xl text-black font-bold">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}` || 0}</p>
+                                            <p className="font-bold text-3xl text-black font-bold">{nbrAdherantsActif > 9 ? nbrAdherantsActif : `0${nbrAdherantsActif}`} </p>
 
                                             <div className="border-1 border-green-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-green-600"><BadgeCheck className="h-8 w-8"/></div>
                                         </div>
@@ -1348,7 +1291,7 @@ export default function DashboardStandard(){
                                         <div className="flex items-center justify-between">
 
                                             <div className="flex flex-col gap-2">
-                                                <p className="font-bold text-3xl text-yellow-600">{totalExpire > 9 ? totalExpire : `0${totalExpire}` || 0} </p>
+                                                <p className="font-bold text-3xl text-yellow-600">{totalExpire > 9 ? totalExpire : `0${totalExpire}`} </p>
                                                 <div className="w-full overflow-hidden">
                                                     <p className="text-[14px] text-gray-400 italic">7 jours avant la fin de l'abonnement</p>
                                                 </div>
@@ -1386,8 +1329,8 @@ export default function DashboardStandard(){
                                     <>
                                         <div className="flex items-center justify-between">
 
-                                            <p className="font-bold text-3xl text-black font-bold">{totalAbExpirer > 9 ? totalAbExpirer : `0${totalAbExpirer}` || 0} </p>
-                                        <div className="border-1 border-red-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-red-600"><CalendarOff className="h-8 w-8"/></div>
+                                            <p className="font-bold text-3xl text-black font-bold">{totalAbExpirer > 9 ? totalAbExpirer : `0${totalAbExpirer}`} </p>
+                                            <div className="border-1 border-red-600 p-2 rounded-full bg-gradient-to-r from-black/10 to-red-600"><CalendarOff className="h-8 w-8"/></div>
                                         </div>
 
                                     </>
@@ -1462,13 +1405,13 @@ export default function DashboardStandard(){
                                                         <span className="text-gray-400">Aucun abonnement Expiré</span>
                                                     </div>
                                                 ):listExpirer.map(item => (
-                                                    <div className="p-2 flex items-center justify-between w-full">
-                                                        <div key={item.id} className="flex items-center gap-2">
+                                                    <div key={item.id} className="p-2 flex items-center justify-between w-full">
+                                                        <div className="flex items-center gap-2">
                                                             <div className="flex hidden 2xl:block xl:block md:block bg-gray-300 h-10 w-10 rounded-full items-center justify-center p-2">
                                                                 <User className="h-5 w-5" />
                                                             </div>
                                                             <div className="">
-                                                                <p className="font-bold">{`${item.name} ${item.prenom}` || item.username}</p>
+                                                                <p className="font-bold">{`${item.name ?? ""} ${item.prenom ?? ""}`.trim() || item.username}</p>
                                                             </div>
                                                         </div>
                                                         <div>
@@ -1519,7 +1462,7 @@ export default function DashboardStandard(){
                                                         ):listExpireBiento.map(item => (
                                                             <tr key={item.id} className=" ">
 
-                                                                <td className="p-2 border-b border-gray-400">{`${item.name} ${item.prenom}` || item?.username || 'N/A'}</td>
+                                                                <td className="p-2 border-b border-gray-400">{`${item.name ?? ""} ${item.prenom ?? ""}`.trim() || item.username``}</td>
                                                                 {item?.abonnements?.map(a => (
                                                                     <td key={a.id} className="p-2 border-b border-gray-400">{a?.plan || 'N/A'}</td>
                                                                 ))}
@@ -1581,7 +1524,6 @@ export default function DashboardStandard(){
                                                 />
                                             </div>
                                         </div>
-                                        {/* <div className="flex items-center gap-5 w-full"> */}
                                         <div className="flex-col flex gap-2 mb-3 w-full">
                                             <label className="font-bold">Adresse e-mail <span className="text-red-600">*</span></label>
                                             <Input
@@ -1724,7 +1666,7 @@ export default function DashboardStandard(){
 
                                                     <td className="flex items-center  font-bold  gap-2 py-5 px-3">
                                                     <span className="rounded-full bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                                    {`${item.name} ${item.prenom}` || item.username }
+                                                    {`${item.name ?? ""} ${item.prenom ?? ""}`.trim() || item.username}
 
                                                     </td>
                                                     <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
@@ -1837,7 +1779,7 @@ export default function DashboardStandard(){
 
                                             <td className="flex items-center  font-bold  gap-2 py-5 px-3">
                                             <span className="rounded-full hidden 2xl:block xl:block md:block bg-gray-200 flex items-center p-2"><User className="h-4 w-4"/></span>
-                                            {`${item.name} ${item.prenom}` || item.username }
+                                            {`${item.name ?? ""} ${item.prenom ?? ""}`.trim() || item.username}
 
                                             </td>
                                             <td className=" px-3 py-5">{item.email || '-'}</td>
@@ -1884,7 +1826,7 @@ export default function DashboardStandard(){
                                             <td colSpan={7} className=" 2xl:h-110 xl:h-100 md:h-200 h-85 text-center  text-red-600">
                                                 <p className="flex items-center justify-center gap-2 ">
                                                 <XCircle className="animate-spin text-red-600" />
-                                                {/* {mesAdh.error.message} */}Une erreur est survenue
+                                               Une erreur est survenue
                                                 </p>
                                             </td>
                                         </tr>
@@ -2011,7 +1953,7 @@ export default function DashboardStandard(){
 
                                             <td className="flex items-center  font-bold  gap-2 py-5 px-3">
                                             <span className="rounded-full bg-gray-200 flex items-center p-2 hidden 2xl:block xl:block  md:block "><User className="h-4 w-4"/></span>
-                                            {`${item.name} ${item.prenom}` || item.username }
+                                            {`${item.name ?? ""} ${item.prenom ?? ""}`.trim() || item.username}
 
                                             </td>
                                             <td className=" px-3 py-5">{item.dernier_abonnement !== null ? item.dernier_abonnement.debut : '-'}</td>
