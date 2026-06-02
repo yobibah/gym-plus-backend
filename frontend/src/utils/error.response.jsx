@@ -20,7 +20,7 @@ export default function ResponseError({
     return (
         <>
             {
-                (coachError || errorTarif || sendError || financeError,
+                (coachError || errorTarif || sendError || financeError ||
                 errorTarifUp || errorTarifDel || errorSupActivity ||
                 persoError || passwordError || swhitchError ||
                 signError || signEditError || signDelError || 
