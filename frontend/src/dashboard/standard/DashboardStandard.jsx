@@ -930,8 +930,6 @@ export default function DashboardStandard(){
     const dataHistory = history.data?.historiques || []
     const totalHistory = history.data?.historiques.length
 
-    const date = new Date
-    const d = date.toLocaleDateString('fr-FR')
 
     const debutReab = planChoisit?.data?.abonnement?.debut
     const finReab = planChoisit?.data?.abonnement?.fin

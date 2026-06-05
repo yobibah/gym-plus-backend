@@ -20,7 +20,7 @@ async function request(endpoint, options = {}) {
             ...options,
             headers,
         })
-    } catch (networkError) {
+    } catch  {
         throw new Error('Impossible de contacter le serveur. Vérifiez votre connexion.')
     }
 
