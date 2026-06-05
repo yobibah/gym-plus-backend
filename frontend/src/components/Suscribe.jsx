@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import CardTarif from "./ui/cardTarifs";
 import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
@@ -7,6 +7,8 @@ import tarifimg from '../assets/images/sucribeimg.png'
 import { usePayment } from "../hooks/usePayment";
 
 export default function Suscribe(){
+
+    const [dispo, setDispo] = useState(false)
 
     const navigate = useNavigate()
     const {setForfait, setMontant} = usePayment()
@@ -147,7 +149,8 @@ export default function Suscribe(){
                     icon7={<CheckCircle size={20} className="text-green-400 flex-shrink-0"/>}
                     text9={"Support Prioritaire"}
                     onClick={()=>{handleSubscribe("Premium", 20000)}}
-                    classNameButton={"flex w-full hover:text-white hover:bg-orange-600 cursor-pointer mx-auto items-center font-bold justify-center p-3 bg-orange-100 text-orange-600 rounded-lg transition-colors duration-200"}
+                    disabled={true}
+                    classNameButton={"flex w-full cursor-not-allowed mx-auto items-center font-bold justify-center p-3 bg-orange-100 text-orange-400 rounded-lg transition-colors duration-200"}
                     titleButton={"Choisir Premium"}
                 />
                 </motion.div>

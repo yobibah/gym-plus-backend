@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 
 export default function CardTarif({title, text1,
-    onClick, classNameButton, className, popular, iconButon, text3, titleButton, icon4, icon5,
+    onClick, classNameButton, className, popular, iconButon, text3, titleButton, icon4, icon5,disabled,
     text4, icon2, icon3,text5,text6,text7,textClass,titleClass, popClass, text8, text9, text10,icon8, icon7, icon6, text, icon,}){
     return <div className={className}>
             <div className={popClass}>{popular}</div>
@@ -55,6 +55,7 @@ export default function CardTarif({title, text1,
                 whileHover={{scale: 1.05}}
             >
                 <button
+                    disabled={disabled}
                     onClick={onClick}
                     className={classNameButton}
                 
