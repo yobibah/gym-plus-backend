@@ -200,8 +200,7 @@ class DepensesController extends Controller
 
             DB::commit();
 
-            return 
-               json_encode( $result);
+            return  response()->json( $result);
            
         } catch (\Exception $e) {
             DB::rollBack();
