@@ -204,6 +204,9 @@ class CoachController extends Controller
             }
 
 
+            // $comp = skills::where('coach_id',$coach->id)->get();
+            // print_r($comp);
+
             $coach->update([
 
                 'nom' => $request->nom ?? $coach->nom,
@@ -211,6 +214,8 @@ class CoachController extends Controller
                 'telephone' => $request->telephone ?? $coach->telephone
             ]);
 
+        
+            // dd($request->competence);
 
             // if (is_array($request->competence)) {
             //     $skills = $request->competence;
@@ -226,6 +231,26 @@ class CoachController extends Controller
             //         'comptence' => $request->competence
             //     ]);
             // }
+
+            // recuperer les skills du entrant
+
+            if($request->filled('competence')){
+            
+                $coach->skills()->delete();
+
+                $skills = is_array($request->competence) 
+                    ? $request->competence 
+                    : [$request->competence];
+
+                foreach ($skills as $skill) {
+                    $coach->skills()->create([
+                        'comptence' => $skill
+                    ]);
+                }
+            }
+
+
+
             DB::commit();
 
 

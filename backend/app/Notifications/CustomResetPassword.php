@@ -19,7 +19,7 @@ public function toMail($notifiable)
         . '&email=' . urlencode($notifiable->email);
 
     return (new MailMessage)
-        ->subject('🔑 Réinitialisation de votre mot de passe')
+        ->subject(' Réinitialisation de votre mot de passe')
         ->view('emails.reset', [
             'user' => $notifiable,
             'resetLink' => $url,
