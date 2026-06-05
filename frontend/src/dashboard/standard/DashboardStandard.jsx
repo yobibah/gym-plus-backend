@@ -243,7 +243,6 @@ export default function DashboardStandard(){
     const loadingAbExpirer = abonnerExpire.isPending
     const errorAbExpirer = abonnerExpire.isError
     const totalAbExpirer = Number(abonnerExpire.data?.nbr)
-    console.log(listExpirer);
     
 
 
