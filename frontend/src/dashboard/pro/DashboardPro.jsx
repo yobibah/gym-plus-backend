@@ -1,4 +1,4 @@
-import { AlertOctagon, AlertTriangle, AlertTriangleIcon, ArrowDownUpIcon, ArrowLeft, ArrowRight, Bell, Calendar1, CalendarOff, Check, CheckCircle, CheckCircle2, Circle, Clock, Download, Edit, Euro, Eye, File, Info, LayoutDashboard, Loader2, LogOut, NotebookPen, Pencil, Plus, PlusSquare, RefreshCcw, Save, Search, Settings, SquarePlus, Star, Timer, Trash, Trash2, UploadCloud, User, UserCog, UserPlus, Users, Users2, WalletCards, X, XCircle } from "lucide-react";
+import { AlertOctagon, AlertTriangle, AlertTriangleIcon, ArrowDownUpIcon, ArrowLeft, ArrowRight, Bell, Calendar1, CalendarOff, Check, CheckCircle, CheckCircle2, Circle, Clock, CreditCard, Download, Edit, Euro, Eye, File, Info, LayoutDashboard, Loader2, LogOut, NotebookPen, Pencil, Plus, PlusSquare, RefreshCcw, Save, Search, Settings, SquarePlus, Star, Timer, Trash, Trash2, UploadCloud, User, UserCog, UserPlus, Users, Users2, WalletCards, X, XCircle } from "lucide-react";
 import React, {useState, useMemo, useRef} from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -88,6 +88,13 @@ import { LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line } from "r
 import { SwitchStatut } from "../../api/dashboard/pro/params/switch-activity";
 import { AnalyzeAi } from "../../api/dashboard/pro/params/analyseAI";
 import { NombreReactiver } from "../../api/dashboard/pro/abonnements/nbrReactiver";
+import { PaymentOtp } from "../../api/subscribe/PaiementOtp";
+import { PaymentProcess } from "../../api/subscribe/PaiementProcess";
+import orange from '../../assets/images/orange.png'
+import moov from '../../assets/images/moov.png'
+import sank from '../../assets/images/sank.png'
+import coris from '../../assets/images/coris.webp'
+import ok from '../../assets/images/ok.png'
 
 export default function DashboardPro(){
 
@@ -143,6 +150,17 @@ export default function DashboardPro(){
     const [reabonnerModal, setReabonnerModal] = useState(false)
     const [abonnementTab, setAbonnementTab] = useState('tous')
 
+    const [type] = useState('reinscription')
+    const [modalReab, setModalReab] = useState(false)
+    const [modalNext, setModalNext] = useState(false)
+    const [provider, setProvider] = useState(null)
+    const [otp, setOtp] = useState('')
+    const [step, setStep] = useState('1')
+    const [desc, setDesc]= useState(null)
+    const [montantReab, setMontantReab]= useState(null)
+    const [telReab, setTelReab] = useState('')
+    const [errorStep, setErrorStep] = useState(null)
+
     const [notifModal, setNotifModal] = useState(false)
     const [suspen, setSuspen] = useState(null)
     const [suspendreModal, setSuspendreModal] = useState(false)
@@ -160,7 +178,6 @@ export default function DashboardPro(){
 
     const [coachOuvert, setCoachOuvert] = useState(null)
     const [deleteCoach, setDeleteCoach] = useState(null)
-    const [setCoachSup] = useState(null)
     const [selectCoach, setSelectCoach] = useState(null)
     const [coachEdit, setCoachEdit] = useState(null)
 
@@ -179,7 +196,7 @@ export default function DashboardPro(){
     const [horaire, setHoraire] = useState([])
     const [heure, setHeure] = useState(null)
     const [heureFin, setHeureFin] = useState(null)
-    const [setSelectAdherant] = useState(null)
+    const [, setSelectAdherant] = useState(null)
     const [adherantChoice, setAdherantChoice] = useState([])
     const [adherantChoiceId, setAdherantChoiceId] = useState([])
     const [program, setProgram] = useState(null)
@@ -195,6 +212,7 @@ export default function DashboardPro(){
 
     const [sideBar, setSideBar] = useState(false)
     const [filtreJour, setFiltreJour] = useState('')
+    const [selectedSkill, setSelectedSkill] = useState('')
 
     const [images_activte, setImg] = useState(null)
     const [previewActivity, setPreviewActivity] = useState(null)
@@ -211,6 +229,7 @@ export default function DashboardPro(){
     const [modalUpActivity, setModalUpActivity] = useState(false)
 
     const [activityTab, setActivityTab] = useState('tous')
+    const [activitySearch, setActivitySearch] = useState('')
     const [detailActivity,setDetailActivity] = useState(false)
     const [modalImage,setModalImage] = useState(false)
     const [showImage,setShowImage] = useState(null)
@@ -263,6 +282,57 @@ export default function DashboardPro(){
         setPreviewActivityUp(URL.createObjectURL(imgSelection))
     }
 
+    function handleNext(e){
+        e.preventDefault()
+        if(step === '1'){
+            if(!desc){
+                setErrorStep('Veuillez choisir un forfait pour continuer')
+                setTimeout(()=>{
+                    setErrorStep('')
+                }, 2500)
+
+                return
+            }
+            setStep('2')
+        }else if(step === '2'){
+            if(!provider || !telReab){
+                setErrorStep('Informations manquantes (moyen de paiement non sélectionné ou numero de telephone mal renseigné)')
+                setTimeout(()=>{
+                    setErrorStep('')
+                }, 2500)
+
+                return
+            }
+            handleReinscription()
+        } else if(step === '3'){
+            if(!otp){
+                setErrorStep('Veuillez saisir un code OTP')
+                setTimeout(()=>{
+                    setErrorStep('')
+                }, 2500)
+
+                return
+            }
+            handlePaymentOtp()
+        } else if(step === '4'){
+            setModalReab(false)
+            setModalNext(false)
+            setProvider(null)
+            setMontantReab(null)
+            setDesc(null)
+            setTelReab('')
+            setStep('1')
+            setErrorStep('')
+
+        }
+    }
+
+    function handleModalReab(){
+        if(modalNext){
+            setModalNext(false)
+        }
+        setModalReab(true)
+    }
 
 
     function ActiveTab(){
@@ -791,6 +861,15 @@ export default function DashboardPro(){
                 setTimeout(()=>{
                     signUpload.reset()
                 }, 4000)
+            }),
+
+            onError : (()=>{
+                setPreviewSign(null)
+                setSign(null)
+
+                setTimeout(()=>{
+                    signUpload.reset()
+                }, 4000)
             })
         })
         const signLoading = signUpload.isPending
@@ -805,6 +884,15 @@ export default function DashboardPro(){
                 setSign(null)
 
                 signEditQuery.invalidateQueries(['mes-infos'])
+
+                setTimeout(()=>{
+                    signEditUpload.reset()
+                }, 4000)
+            }),
+
+            onError : (()=>{
+                setPreviewSign(null)
+                setSign(null)
 
                 setTimeout(()=>{
                     signEditUpload.reset()
@@ -832,6 +920,9 @@ export default function DashboardPro(){
             }),
             onError : (()=>{
                 setSignModal(false)
+                setTimeout(()=>{
+                    signDelUpload.reset()
+                }, 4000)
             })
         })
         const signDelLoading = signDelUpload.isPending
@@ -1051,6 +1142,9 @@ export default function DashboardPro(){
         queryFn : fetchDataPlan
     })
     const planActuel = planChoisit?.data?.plan
+    const debutReab = planChoisit?.data?.abonnement?.debut
+    const finReab = planChoisit?.data?.abonnement?.fin
+    const montantActu = planChoisit?.data?.abonnement?.montant
 
 
     const misNiveauQuery = useQueryClient()
@@ -1079,6 +1173,78 @@ export default function DashboardPro(){
     async function handleNiveau(){
         misNiveau.mutate({
             forfait : planActuel
+        })
+    }
+
+
+    function handleBack(e){
+        e.preventDefault()
+
+        if(step === '3'){
+            setStep('2')
+        }else if(step === '2'){
+            setStep('1')
+        }
+    }
+
+
+    const paiQuery = useQueryClient()
+    const paiementOtp = useMutation({
+        mutationFn : PaymentOtp,
+        onSuccess : (()=>{
+            setStep('4'),
+            paiQuery.invalidateQueries(['mes-infos'])
+
+        }),
+
+        onError: (()=>{
+            setTimeout(()=>{
+                paiementOtp.reset()
+            }, 4000)
+        })
+    })
+
+    const loadingOtp = paiementOtp.isPending
+    const errorOtp = paiementOtp.isError
+    const successOtp = paiementOtp.isSuccess
+
+
+
+    const reinscription = useMutation({
+        mutationFn: PaymentProcess,
+
+        onSuccess: (()=>{
+            setStep('3')
+        }),
+
+        onError: (()=>{
+            setTimeout(()=>{
+                reinscription.reset()
+            }, 4000)
+        })
+    })
+
+    const loadingReab = reinscription.isPending
+    const errorReab = reinscription.isError
+    const successReab = reinscription.isSuccess
+
+
+
+    async function handlePaymentOtp() {
+        if(!otp || !otp.trim()) return
+        paiementOtp.mutate({otp})
+    }
+
+
+    async function handleReinscription(){
+        if(!montantReab || !telReab || !desc || !type || !provider) return
+        if(!telReab.trim()) return
+        reinscription.mutate({
+            montant: montantReab,
+            numero: telReab,
+            forfait: desc,
+            type,
+            provider
         })
     }
 
@@ -1113,16 +1279,25 @@ export default function DashboardPro(){
 
 
     const filterCoach = useMemo(() => {
-        if (!search.trim()) return mes_coach
+        let result = mes_coach
 
-        const s = search.toLowerCase()
+        if (search.trim()) {
+            const s = search.toLowerCase()
+            result = result.filter(item =>
+                item?.nom?.toLowerCase().includes(s) ||
+                item?.prenom?.toLowerCase().includes(s) ||
+                item?.telephone?.includes(s)
+            )
+        }
 
-        return mes_coach.filter(item =>
-            item?.nom?.toLowerCase().includes(s) ||
-            item?.prenom?.toLowerCase().includes(s) ||
-            item?.telephone?.includes(s)
-        )
-    }, [mes_coach, search])
+        if (selectedSkill) {
+            result = result.filter(item =>
+                item?.competence?.some(c => c.toLowerCase() === selectedSkill.toLowerCase())
+            )
+        }
+
+        return result
+    }, [mes_coach, search, selectedSkill])
 
 
 
@@ -1155,7 +1330,6 @@ export default function DashboardPro(){
     async function handleDeleteCoach(e, id){
         e.preventDefault()
         if (!id) return
-        setCoachSup(id)
         supCoach.mutate({id})
     }
 
@@ -1508,13 +1682,13 @@ export default function DashboardPro(){
     const recetteMois = dataRecette?.[0]?.montant_total
     const recetteMoisDernier = dataRecette?.[2]?.montant_total
     const recette3MoisDernier = dataRecette?.[1]?.montant_total
-    const recetteAnneDernier = dataRecette?.[0]?.montant_total
+    const recetteAnneDernier = dataRecette?.[3]?.montant_total
 
     const pourcentageMois = () => {
         if (
-            recetteMoisDernier === 0 ||
-            recette3MoisDernier === 0 ||
-            recetteAnneDernier === 0
+            !recetteMoisDernier ||
+            !recette3MoisDernier ||
+            !recetteAnneDernier
         ) {
             return 0;
         }
@@ -1549,8 +1723,11 @@ export default function DashboardPro(){
     const programCours = useMutation({
         mutationFn: ProgrammerCours,
 
-        onSuccess: (()=>{
+            onSuccess: (()=>{
             setModalProgram(false)
+            setProgram(null)
+            setModalSelect(false)
+            setModalSelectCoach(false)
             programCoursQuery.invalidateQueries(['liste-cours'])
             setSelectAdherant(null), 
             setAdherantChoice([]), 
@@ -1590,7 +1767,7 @@ export default function DashboardPro(){
 
     async function handleProgram(e) {
         e.preventDefault()
-        if(!validateProgram) return
+        if(!validateProgram()) return
         const heuree = horaire.find(h => h.heure)?.heure
         const heureFine = horaire.find(h => h.heureFin)?.heureFin
         const heures = [heuree, heureFine]
@@ -1662,8 +1839,14 @@ export default function DashboardPro(){
             data = data.filter(item => item?.ispast === true)
         }
 
+        if(activitySearch.trim()){
+            data = data.filter(item =>
+                item?.nom_activite?.toLowerCase().includes(activitySearch.trim().toLowerCase())
+            )
+        }
+
         return data
-    },[dataActivity, activityTab] )
+    },[dataActivity, activityTab, activitySearch] )
 
 
     const activityQuery = useQueryClient()
@@ -2037,7 +2220,58 @@ export default function DashboardPro(){
                             Paramètres
                         </span>
                     </motion.div>
+
+                    <div
+                    className="py-3 px-5"
+                >
+                    {daysRemaining <= 0 && (
+                        <div className="flex flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
+                            
+                            <p className="text-red-500 font-bold hidden md:block">
+                                {daysRemaining === 0
+                                    ? "Votre abonnement expire aujourd'hui !"
+                                    : "Votre abonnement est expiré !"
+                                }
+                            </p>
+                            <p className="text-gray-500 hidden md:block text-xs">À l'expiration définitive de votre abonnement, certaines fonctionalités seront désactivées ! Veuillez-vous réabonnez pour continuer la gestion de votre salle.</p>
+                            <motion.button
+                                type="button"
+                                onClick={handleModalReab}
+                                whileTap={{scale:0.95}}
+                                className="border hover:bg-transparent hover:text-black transition-colors duration-200 p-2 bg-blue-500 text-white font-bold border-blue-500 rounded-lg"
+                            >
+                                <p className="hidden md:block text-sm">Me Réabonner</p>
+                                <CreditCard className="md:hidden h-5 w-5"/>
+                            </motion.button>
+                        </div>
+                    )}
+
+                    {0 < daysRemaining && daysRemaining <= 7 &&(
+                        <div className="flex flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
+                            
+                            <p className="text-red-500 font-bold hidden md:block text-sm">
+                            {daysRemaining === 1
+                                ? "Votre abonnement expire demain !"
+                                : `Votre abonnement expirera dans ${daysRemaining} jours !`
+                            }
+                            </p>
+                            <p className="text-gray-500 hidden md:block text-xs">À l'expiration définitive de votre abonnement, certaines fonctionalités seront désactivées ! Veuillez-vous réabonnez pour continuer la gestion de votre salle.</p>
+                            <motion.button
+                                type="button"
+                                onClick={handleModalReab}
+                                whileTap={{scale:0.95}}
+                                className="border hover:bg-transparent hover:text-black transition-colors duration-200 p-2 bg-blue-500 text-white font-bold border-blue-500 rounded-lg"
+                            >
+                                <p className="hidden md:block text-sm">Me Réabonner</p>
+                                <CreditCard className="md:hidden h-5 w-5"/>
+                            </motion.button>
+                        </div>
+                    )}
+
                 </div>
+                </div>
+
+                
 
                 <div className="p-4 mt-auto border-t border-gray-100 fixed bottom-4 w-full">
                     <motion.button
@@ -2096,7 +2330,7 @@ export default function DashboardPro(){
                                     )}
 
                                 </div>
-                                <p className="text-base md:text-[18px] text-gray-400">Bienvenue {infosUser?.name || ''} {infosUser?.prenom || ''} !</p>
+                                <p className="text-base md:text-[18px] text-gray-400">{(() => { const h = new Date().getHours(); return h >= 6 && h < 12 ? 'Bonjour' : h >= 12 && h < 18 ? 'Bon après-midi' : 'Bonsoir'; })()} {infosUser?.name || ''} {infosUser?.prenom || ''} !</p>
 
                             </div>
 
@@ -2344,10 +2578,11 @@ export default function DashboardPro(){
                                     </div>
 
                                     <div className="flex items-center justify-center h-64 md:h-80 lg:h-100 w-full">
-                                        {(dataRecette?.[0]?.montant_total === 0 &&
+                                        {(dataRecette.length === 0 ||
+                                            (dataRecette?.[0]?.montant_total === 0 &&
                                             dataRecette?.[1]?.montant_total === 0 &&
                                             dataRecette?.[2]?.montant_total === 0 &&
-                                            dataRecette?.[3]?.montant_total === 0) ? (
+                                            dataRecette?.[3]?.montant_total === 0)) ? (
                                             <p className="text-gray-400">Aucune recette enregistré pour le moment</p>
                                         ):(
                                             <LineChart style={{ width: '100%', aspectRatio: 2.4, maxWidth: 1000, margin: 'auto' }} responsive data={dataRecette}>
@@ -3049,7 +3284,12 @@ export default function DashboardPro(){
                         <div className="flex items-center gap-2 my-4 p-1 overflow-x-auto">
                             <motion.button
                                 whileTap={{scale: 0.95}}
-                                className="rounded-lg bg-orange-500 py-1 px-3 md:px-5 font-bold border border-orange-500 text-white text-sm shrink-0"
+                                onClick={() => setSelectedSkill('')}
+                                className={`rounded-lg py-1 px-3 md:px-5 font-bold border text-sm shrink-0 ${
+                                    !selectedSkill
+                                        ? 'bg-orange-500 border-orange-500 text-white'
+                                        : 'bg-gray-200 border-gray-400 text-black'
+                                }`}
                             >
                                 Tous
                             </motion.button>
@@ -3063,9 +3303,14 @@ export default function DashboardPro(){
                                             <motion.button
                                                 key={index}
                                                 whileTap={{ scale: 0.95 }}
-                                                className="rounded-lg bg-white py-1 md:py-2 px-3 md:px-5 border border-gray-300 text-xs md:text-sm shrink-0"
+                                                onClick={() => setSelectedSkill(comp)}
+                                                className={`rounded-lg py-1 md:py-2 px-3 md:px-5 border text-xs md:text-sm shrink-0 ${
+                                                    selectedSkill === comp
+                                                        ? 'bg-orange-500 border-orange-500 text-white'
+                                                        : 'bg-white border-gray-300 text-gray-500'
+                                                }`}
                                             >
-                                                <p className="text-gray-500 font-bold">{comp}</p>
+                                                <p className="font-bold">{comp}</p>
                                             </motion.button>
                                         ))}
 
@@ -3624,7 +3869,12 @@ export default function DashboardPro(){
                                                     <motion.button
                                                         type="button"
                                                         whileTap={{scale:0.95}}
-                                                        onClick={()=>{setShowButtonSalle(true) }}
+                                                        onClick={()=>{
+                                                        setShowButtonSalle(true)
+                                                        setNomSalle(infosSalle.nom_salle || '')
+                                                        setPaysSalle(infosSalle.pays_salle || '')
+                                                        setRegion(infosSalle.region_salle || '')
+                                                    }}
                                                         className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg text-sm md:text-base"
                                                     >
                                                         Modifier
@@ -3724,7 +3974,7 @@ export default function DashboardPro(){
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                                         <div className="flex flex-col items-center">
-                                                        <PlusSquare size={30} className="md:size-50" />
+                                                        <PlusSquare size={30} className="md:size-30" />
                                                         <span className="font-bold text-xs md:text-sm">Ajouter votre logo</span>
                                                         </div>
                                                     </div>
@@ -3838,7 +4088,7 @@ export default function DashboardPro(){
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                                         <div className="flex flex-col items-center">
-                                                        <PlusSquare size={30} className="md:size-50" />
+                                                        <PlusSquare size={30} className="md:size-30" />
                                                         <span className="font-bold text-xs md:text-sm text-center">Ajouter votre signature/cachet</span>
                                                         </div>
                                                     </div>
@@ -4092,7 +4342,12 @@ export default function DashboardPro(){
                                                         type="button"
                                                         whileTap={{scale:0.95}}
                                                         disabled={showPasswordChange}
-                                                        onClick={()=>{setShowButtonProfil(true) }}
+                                                        onClick={()=>{
+                                                            setShowButtonProfil(true)
+                                                            setNomPerso(infosUser.name || '')
+                                                            setPrenomPerso(infosUser.prenom || '')
+                                                            setTelPerso(infosUser.telephone || '')
+                                                        }}
                                                         className={`my-3 ${showPasswordChange ? 'bg-gray-200 text-gray-400 border-gray-200' : 'cursor-pointer bg-gray-300 border-gray-200 text-black/80'} border font-semibold py-2 px-4 rounded-lg text-sm md:text-base`}
                                                     >
                                                         Modifier
@@ -4269,7 +4524,7 @@ export default function DashboardPro(){
                                                             <div>
                                                                 <motion.button
                                                                     type="button"
-                                                                    onClick={()=>{setEditMois(!editMois), setMensuel('')}}
+                                                                    onClick={()=>{setEditMois(!editMois), setMensuel(editMois ? '' : String(prix_mensuel))}}
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-2 md:p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
@@ -4328,7 +4583,7 @@ export default function DashboardPro(){
                                                             <div>
                                                                 <motion.button
                                                                     type="button"
-                                                                    onClick={()=>{setEditTrim(!editTrim), setTrimestriel('')}}
+                                                                    onClick={()=>{setEditTrim(!editTrim), setTrimestriel(editTrim ? '' : String(prix_trimestriel))}}
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-2 md:p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
@@ -4387,7 +4642,7 @@ export default function DashboardPro(){
                                                             <div>
                                                                 <motion.button
                                                                     type="button"
-                                                                    onClick={()=>{setEditAn(!editAn), setAnnuel('')}}
+                                                                    onClick={()=>{setEditAn(!editAn), setAnnuel(editAn ? '' : String(prix_annuel))}}
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-2 md:p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
@@ -4435,12 +4690,12 @@ export default function DashboardPro(){
                         )}
 
                         {paramsTab === 'support' && (
-                            <div className="lg:col-span-4 h-64 md:h-80 lg:h-96 flex items-center justify-center">
-                                <div className="flex relative flex-col items-center">
-                                    <div className="absolute z-10 inset-0 text-lg md:text-2xl lg:text-[75px] font-bold text-orange-500 opacity-40 flex items-center justify-center text-center p-4">
+                            <div className="lg:col-span-4 flex items-center justify-center py-8">
+                                <div className="flex relative flex-col items-center w-full max-w-lg">
+                                    <div className="absolute z-10 inset-0 text-lg md:text-2xl lg:text-[75px] font-bold text-orange-500 opacity-40 flex items-center justify-center text-center p-4 break-words">
                                         <p>gymplus2025.gym@gmail.com</p>
                                     </div>
-                                    <ImageComponent source={support} style={"w-40 md:w-60 lg:w-200"} label={''} />
+                                    <ImageComponent source={support} style={"w-full max-w-sm h-auto object-contain"} label={''} />
                                     <p><span className="italic text-gray-500 text-sm md:text-xl">Service ouvert 24h/7j</span></p>
                                 </div>
                             </div>
@@ -4578,7 +4833,17 @@ export default function DashboardPro(){
                                         
                                      
                                         <div className="bg-white w-full flex flex-col md:flex-row items-center justify-between shadow-md rounded-lg p-4 gap-4 shrink-0">
-                                            <p className="text-base md:text-xl">Filtrer par statut :</p>
+                                            <div className="flex flex-col md:flex-row items-center gap-3">
+                                                <div className="relative w-full md:w-48">
+                                                    <input type="text" value={activitySearch}
+                                                        onChange={(e)=>setActivitySearch(e.target.value)}
+                                                        placeholder="Rechercher..."
+                                                        className="block w-full p-2 pl-8 text-sm rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                                                    />
+                                                    <Search className="h-4 w-4 text-gray-400 absolute top-2.5 left-2"/>
+                                                </div>
+                                                <p className="text-base md:text-xl">Filtrer par statut :</p>
+                                            </div>
                                             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
                                                 <motion.button
                                                     whileTap={{scale: 0.95}}
@@ -4729,11 +4994,11 @@ export default function DashboardPro(){
                         initial={{opacity:0, scale:0.75}}
                         animate={{opacity:1, scale:1}}
                         transition={{duration:0.3}}
-                        className="w-64 h-64 md:w-96 md:h-96 lg:w-200 lg:h-200"
+                        className="max-w-[90vw] max-h-[85vh] w-auto h-auto"
 
                     >
                         
-                        <ImageComponent source={`${documentUrl}${showImage?.images_activte}`} label={'image'} style={'w-full h-full object-cover '}/>
+                        <ImageComponent source={`${documentUrl}${showImage?.images_activte}`} label={'image'} style={'max-w-full max-h-[85vh] object-contain rounded-lg'}/>
                     </motion.div>
                     <button 
                             className="absolute top-4 right-4 md:top-10 md:right-20 text-gray-300 hover:text-gray-400 transition-all duration-200"
@@ -5498,7 +5763,7 @@ export default function DashboardPro(){
                                 </div>
                                 
                                 <div className="flex-col flex gap-2 mb-5">
-                                    <label className="font-bold text-base md:text-lg">Téléphone <span className="text-red-500 text-xs">(maximum 8 chiffres)</span> </label>
+                                    <label className="font-bold text-base md:text-lg">Téléphone</label>
                                     <Input
                                         type={'text'}
                                         value={telCoach}
@@ -5610,7 +5875,7 @@ export default function DashboardPro(){
                             </div>
                             
                             <div className="flex-col flex gap-2 mb-5">
-                                <label className="font-bold text-base md:text-lg">Téléphone <span className="text-red-500 text-xs">(maximum 8 chiffres)</span> </label>
+                                <label className="font-bold text-base md:text-lg">Téléphone</label>
                                 <Input
                                     type={'text'}
                                     value={coachEdit?.telephone}
@@ -6000,12 +6265,15 @@ export default function DashboardPro(){
                                 <button
                                 type="button"
                                     onClick={()=>{
-                                        setModalProgram(false), 
-                                        setSelectAdherant(null), 
-                                        setAdherantChoice([]), 
-                                        setAdherantChoiceId([]),
-                                        setJours([]),
-                                        setHeure(null),
+                                        setModalProgram(false)
+                                        setProgram(null)
+                                        setModalSelect(false)
+                                        setModalSelectCoach(false)
+                                        setSelectAdherant(null)
+                                        setAdherantChoice([])
+                                        setAdherantChoiceId([])
+                                        setJours([])
+                                        setHeure(null)
                                         setHeureFin(null)
                                         setHoraire([])
                                         setCoachChoice(null)
@@ -6355,6 +6623,395 @@ export default function DashboardPro(){
                         >
                             <X className="h-6 w-6 md:h-8 md:w-8 text-gray-400"/>
                         </button>
+                    </motion.div>
+                </div>
+            )}
+
+            {modalReab &&(
+                <div className="absolute z-50 inset-0 bg-black/50 backdrop-blur flex flex-col items-center justify-center">
+
+                    <motion.div
+                        initial={{opacity:0, scale:0.75}}
+                        animate={{opacity:1, scale:1.05}}
+                        transition={{duration:0.4}}
+                        className="bg-white relative px-8 h-130 2xl:w-220 xl:w-220 md:w-180 w-80 py-5"
+                    >
+                        <div className="hidden md:flex items-center justify-center">
+                            <div className="flex items-center justify-center gap-0">
+                                <div className="flex flex-col border border-green-400 p-2 items-center">
+                                    {step === '2' ? (
+                                        <div className="border p-2 rounded-full bg-green-200 border-green-400 transition-colors duration-200">
+                                            <Check className="flex items-center justify-center text-green-500 h-5 w-5 transition-colors duration-200" />
+                                        </div>
+                                    ):(
+                                        <div className="border p-2 rounded-full transition-colors duration-200 bg-gray-200 border-gray-400">
+                                            <p className="font-bold h-5 w-5 flex items-center justify-center">1</p>
+                                        </div>
+                                    )}
+                                    <span className="text-sm text-gray-400">Forfait</span>
+                                </div>
+                                <hr className="h-5 w-24 text-gray-300"/>
+                                <div className="flex flex-col p-2 border-gray-200 items-center border">
+                                    {step === '3' ? (
+                                        <div className="border p-2 rounded-full bg-green-200 border-green-400 transition-colors duration-200">
+                                            <Check className="flex items-center justify-center text-green-500 h-5 w-5 transition-colors duration-200" />
+                                        </div>
+                                    ):(
+                                        <div className="border p-2 rounded-full transition-colors duration-200 bg-gray-200 border-gray-400">
+                                            <p className="font-bold h-5 w-5 flex items-center justify-center">2</p>
+                                        </div>
+                                    )}
+                                    <span className="text-sm text-gray-400">Paiement</span>
+                                </div>
+                                <hr className="h-5 w-24 text-gray-300"/>
+                                <div className="flex flex-col p-2 border-gray-200 border items-center">
+                                    {step === '4' ? (
+                                        <div className="border p-2 rounded-full bg-green-200 border-green-400 transition-colors duration-200">
+                                            <Check className="flex items-center justify-center text-green-500 h-5 w-5 transition-colors duration-200" />
+                                        </div>
+                                    ):(
+                                        <div className="border p-2 rounded-full transition-colors duration-200 bg-gray-200 border-gray-400">
+                                            <p className="font-bold h-5 w-5 flex items-center justify-center">3</p>
+                                        </div>
+                                    )}
+                                    <span className="text-sm text-gray-400">Otp</span>
+                                </div>
+                                <hr className="h-5 w-24 text-gray-300"/>
+                                <div className="flex flex-col p-2 border-gray-200 border items-center">
+                                    {step === '4' ? (
+                                        <div className="border p-2 rounded-full bg-green-200 border-green-400 transition-colors duration-200">
+                                            <Check className="flex items-center justify-center text-green-500 h-5 w-5 transition-colors duration-200" />
+                                        </div>
+                                    ):(
+                                        <div className="border p-2 rounded-full transition-colors duration-200 bg-gray-200 border-gray-400">
+                                            <p className="font-bold h-5 w-5 flex items-center justify-center">4</p>
+                                        </div>
+                                    )}
+                                    <span className="text-sm text-gray-400">Statut</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {step === '1' && (
+                            <motion.div
+                                initial={{opacity:0, scale:0.75}}
+                                animate={{opacity:1, scale:1}}
+                                transition={{duration:0.4}}
+                                className="flex flex-col ">
+                                <div className=" flex 2xl:flex-row xl:flex-row md:flex-row flex-col 2xl:items-center xl:items-center md:items-center 2xl:justify-between xl:justify-between md:justify-between gap-8 my-8">
+                                    <div className="">
+                                        <h3 className=" font-bold mb-2">Forfait actuel</h3>
+                                        <motion.button
+                                            onClick={()=>{setDesc('standard'), setMontantReab(100)}}
+                                            whileHover={{scale: 1.1}}
+                                            whileTap={{scale: 0.95}}
+                                            className={`border ${desc === 'standard' ? 'shadow-[0_0_10px_rgba(255,100,0,0.8)] border-orange-500' : 'border-gray-200'} `}>
+                                            <p className="border-b text-gray-500 bg-gray-100 px-2 border-gray-200 py-5">{planActuel}</p>
+                                            <p className="bg-orange-50  px-2 py-1 text-sm">Montant: {montantActu} XOF</p>
+                                        </motion.button>
+                                    </div>
+
+                                    <div className="">
+                                        <h3 className=" font-bold mb-2">Choisir un autre forfait</h3>
+                                        <div className="flex items-center gap-5">
+                                            <motion.button
+                                                onClick={()=>{setDesc('pro'), setMontantReab(100)}}
+                                                whileHover={{scale: 1.1}}
+                                                whileTap={{scale: 0.95}}
+                                                className={`border relative ${desc === 'pro' ? 'shadow-[0_0_10px_rgba(255,100,0,0.8)] border-orange-500' : 'border-gray-200'} `}>
+                                                <p className="border-b text-gray-500 bg-gray-100 px-2 border-gray-200 py-5">pro</p>
+                                                <p className="bg-orange-50  px-2 py-1 text-sm">Montant: 25000 XOF</p>
+
+                                                <p className="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-2 rounded-bl-lg">Le plus utilisé</p>
+                                            </motion.button>
+
+                                            <motion.button
+                                                onClick={()=>{setDesc('premium'), setMontantReab(100)}}
+                                                whileHover={{scale: 1.1}}
+                                                whileTap={{scale: 0.95}}
+                                                className={`border ${desc === 'premium' ? 'shadow-[0_0_10px_rgba(255,100,0,0.8)] border-orange-500' : 'border-gray-200'} `}>
+                                                <p className="border-b text-gray-500 bg-gray-100 px-2 border-gray-200 py-5">premium</p>
+                                                <p className="bg-orange-50  px-2 py-1 text-sm">Montant: 40000 XOF</p>
+                                            </motion.button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div>
+                                    {errorStep && (
+                                        <p className="text-red-600 text-xs 2xl:text-base xl:text-base md:text-base">{errorStep}</p>
+                                    )}
+                                    {desc === 'standard' && (
+                                        <div className="hidden md:block">
+                                        <h2 className="font-bold">Idéal pour les petites salles et les studios qui débutent.</h2>
+                                        <p className="text-gray-500">
+                                            Gérer jusqu'à 200 membres,
+                                            Gestion des adhérents (fiches + activités),
+                                            Gestion basique des abonnements,
+                                            Suivi des dates d'expiration,
+                                            Enregistrement des paiements,
+                                            Alertes simples sur les abonnements expirés.
+
+                                        </p>
+                                        </div>
+                                    )}
+
+                                    {desc === 'pro' && (
+                                        <div className="hidden md:block">
+                                        <h2 className="font-bold">Pour les salles en croissance qui veulent plus d'outils.</h2>
+                                        <p className="text-gray-500">
+                                            Gérez jusqu'à 1000 membres,
+                                            Tout dans Standard+,
+                                            Gestion avancée des abonnements (suspension, réactivation...),
+                                            Gestion recettes et dépenses + créances,
+                                            Rapports financiers de base,
+                                            Statistiques et rapports avancés,
+                                            Emailing manuel pour les rappels ou annonces,
+                                            Alertes avancées sur les abonnements expirés / bientôt expirés.
+
+                                        </p>
+                                        </div>
+                                    )}
+
+
+                                    {desc === 'premium' && (
+                                        <div className="hidden md:block">
+                                        <h2 className="font-bold">Pour les grandes salles et réseaux de gyms.</h2>
+                                        <p className="text-gray-500">
+                                            Membres illimités,
+                                            Tout dans Pro+,
+                                            Emailing automatique (rappels, annonces, fermetures...),
+                                            Tableau de bord avancés,
+                                            Analyse détaillées + prévision des revenus,
+                                            Alertes intelligentes (adhérants à risque, expiration proche...),
+                                            Support Prioritaire.
+
+                                        </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {step === '2' && (
+                            <motion.div
+                                initial={{opacity:0, scale:0.75}}
+                                animate={{opacity:1, scale:1}}
+                                transition={{duration:0.4}}
+                                className=" relative bg-orange-50 my-7 px-5 pb-5 flex flex-col"
+                            >
+                                <div className="my-5 flex items-center gap-2">
+                                    <p className="text-gray-500 text-sm 2xl:text-base xl:text-base md:text-base">Veuillez choisir votre moyen de paiement</p>
+                                    {errorStep && (
+                                        <p className="text-red-600 text-sm">{errorStep}</p>
+                                    )}
+                                    {successReab && (
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <p className="text-green-600">Redirection, patientez...</p>
+                                            <Loader2 className="animate-spin h-5 w-5 text-green-600"/>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex items-center justify-center gap-5">
+
+                                    <motion.button
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}}
+                                        onClick={()=>{setProvider('orange_bf')}}
+                                        className={`border p-1 2xl:h-30 xl:h-30 md:h-30 2xl:w-70 xl:w-70 md:w-70 h-10 w-30 bg-white ${provider === 'orange_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={orange} alt="orange-logo" className="h-full w-full" />
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}}
+                                        onClick={()=>{setProvider('moov_bf')}}
+                                        className={`border p-1 2xl:h-30 xl:h-30 md:h-30 2xl:w-70 xl:w-70 md:w-70 h-10 w-30 bg-white ${provider === 'moov_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={moov} alt="moov-logo" className="h-full w-full"/>
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}}
+                                        onClick={()=>{setProvider('corismoney_bf')}}
+                                        className={`border p-1 2xl:h-30 xl:h-30 md:h-30 2xl:w-70 xl:w-70 md:w-70 h-10 w-30 bg-white ${provider === 'corismoney_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={coris} alt="coris-logo" className="h-full w-full"/>
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.95}}
+                                        onClick={()=>{setProvider('sank_bf')}}
+                                        className={`border p-1 2xl:h-30 xl:h-30 md:h-30 2xl:w-70 xl:w-70 md:w-70 h-10 w-30 bg-white ${provider === 'sank_bf' ? 'border-orange-500 shadow-[0_0_18px_rgba(255,100,0,0.8)]' : 'border-gray-300'}  rounded-lg`}>
+                                        <img src={sank} alt="sank-logo" className="h-full w-full"/>
+                                    </motion.button>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label
+                                        className="text-gray-500 my-5 text-sm 2xl:text-base xl:text-base md:text-base"
+                                    >Entrez votre numéro de telephone pour procéder au paiement</label>
+                                    <input type="text"
+                                        value={telReab}
+                                        onChange={(e)=>{setTelReab(e.target.value)}}
+                                        placeholder="Saisissez içi"
+                                        className="border-b border-gray-400 text-center p-1 rounded-lg text-sm 2xl:text-xl xl:text-xl md:text-xl px-3 focus:outline-none "
+                                    />
+                                </div>
+
+                                {errorReab && (
+                                    <motion.div
+                                        initial={{opacity:0, scale:0.75}}
+                                        animate={{opacity:1, scale:0.95}}
+                                        transition={{duration:0.4}}
+                                        className="absolute flex items-center justify-center inset-0 bg-black/80 backdrop-blur"
+                                    >
+                                        <p className="text-red-600 flex items-center gap-2 font-bold bg-white p-2">
+                                            <XCircle className=" text-red-600" />
+                                            {reinscription.error.message || 'Erreur veuillez reessayez !'}
+                                        </p>
+
+                                    </motion.div>
+                                )}
+                            </motion.div>
+                        )}
+
+                        {step === '3' && (
+                            <motion.div
+                                initial={{opacity:0, scale:0.75}}
+                                animate={{opacity:1, scale:1}}
+                                transition={{duration:0.4}}
+                                className="realtive my-20"
+                            >
+                                <div className="flex flex-col gap-5 text-center bg-orange-50  rounded-lg px-5 py-6 ">
+                                    <div>
+                                        <p className="text-gray-600">Composez</p>
+                                        <p className="font-bold">*144*4*6*100#</p>
+                                        <p className="text-gray-600">sur votre téléphone pour obtenir le code OTP à entrez dans</p>
+                                        <p className="text-gray-600">le champ ci-dessous pour valider le paiement</p>
+                                    </div>
+                                    <div className="flex flex-col gap-2 2xl:px-40 xl:px-40 md:px-40 px-5">
+                                        <input
+                                            type="tel"
+                                            placeholder="Saisissez le code OTP içi"
+                                            value={otp}
+                                            onChange={(e)=>{setOtp(e.target.value)}}
+                                            className="border-b p-2 rounded-lg text-center border-gray-400 2xl:text-xl xl:text-xl md:text-xl text-sm focus:outline-none"
+                                        />
+                                    </div>
+                                    {errorStep && (
+                                        <p className="text-red-600 text-sm">{errorStep}</p>
+                                    )}
+                                    {successOtp && (
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <p>Réabonnement réussi...</p>
+                                            <Loader2 className="animate-spin h-5 w-5 text-green-600"/>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {errorOtp && (
+                                    <motion.div
+                                        initial={{opacity:0, scale:0.75}}
+                                        animate={{opacity:1, scale:0.95}}
+                                        transition={{duration:0.4}}
+                                        className="absolute flex items-center justify-center inset-0 bg-black/80 backdrop-blur"
+                                    >
+                                        <p className="text-red-600 flex items-center gap-2 font-bold bg-white p-2">
+                                            <XCircle className=" text-red-600" />
+                                            {paiementOtp.error.message || 'Erreur veuillez reessayez !'}
+                                        </p>
+
+                                    </motion.div>
+                                )}
+
+                            </motion.div>
+                        )}
+
+
+                        {step === '4' && (
+                            <motion.div
+                                initial={{opacity:0, scale:0.75}}
+                                animate={{opacity:1, scale:1}}
+                                transition={{duration:0.4}}
+                                className="my-8 flex items-center justify-center gap-5">
+                                <div className="w-100 hidden md:block">
+                                    <img src={ok} alt="success" className="object-contain" />
+                                </div>
+                                <div className="flex flex-col gap-3">
+                                    <h3 className="font-bold text-xl">Votre abonnement sur le forfait standard a été réactivé avec succès</h3>
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-gray-400 text-[18px]">Informations de paiement</p>
+                                        <div className="flex text-sm items-center gap-5">
+                                            <p className="">Moyen de paiement:</p>
+                                            <p className="text-gray-500">
+                                                {provider === 'orange_bf' && 'Orange Money'}
+                                                {provider === 'moov_bf' && 'Moov Money'}
+                                                {provider === 'corismoney_bf' && 'Coris Money'}
+                                                {provider === 'sank_bf' && 'Sank Money'}
+                                            </p>
+                                        </div>
+                                        <div className="flex text-sm  items-center gap-5">
+                                            <p>Montant facturé:</p>
+                                            <p className="text-gray-500">{montantReab} XOF</p>
+                                        </div>
+                                        <div className="flex text-sm  items-center gap-5">
+                                            <p>Date de la transaction:</p>
+                                            <p className="text-gray-500">{new Date().toLocaleDateString('fr-FR')}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-gray-400 text-[18px]">Informations sur le réabonnement</p>
+                                        <div className="flex text-sm items-center gap-5">
+                                            <p>Début:</p>
+                                            <p className="text-gray-500">{formatDate(debutReab)}</p>
+                                        </div>
+                                        <div className="flex text-sm items-center gap-5">
+                                            <p>Expire le:</p>
+                                            <p className="text-gray-500">{formatDate(finReab)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        <div className="flex absolute bottom-4 items-center gap-5 2xl:w-204 xl:w-204 md:w-165 w-70 justify-between ">
+                            {step !== '4' && (
+                                <motion.button
+                                    type="button"
+                                    onClick={()=>{setModalReab(false), setStep('1'), setDesc(null), setProvider(null), setOtp(''), setTelReab(''), setErrorStep('')}}
+                                    whileTap={{scale: 0.95}}
+                                    className="text-sm 2xl:text-base xl:text-base md:text-base bg-gray-200 font-bold transition-colors duration-200 border border-gray-200 hover:bg-transparent cursor-pointer text-gray-500 px-2 py-1"
+                                >
+
+                                    Annuler l'opération
+                                </motion.button>
+                            )}
+                            <div className=" flex gap-5 items-center">
+                                {(step !== '1' && step !== '4') && (
+                                    <motion.button
+                                        type="button"
+                                        onClick={handleBack}
+                                        whileTap={{scale: 0.95}}
+                                        className="text-sm 2xl:text-base xl:text-base md:text-base bg-gray-200 font-bold transition-colors duration-200 border border-gray-200 hover:bg-transparent cursor-pointer text-gray-500 px-2 py-1"
+                                    >
+
+                                        Retour
+                                    </motion.button>
+                                )}
+                                <motion.button
+                                    onClick={handleNext}
+                                    disabled={loadingReab || loadingOtp}
+                                    whileTap={{scale: 0.95}}
+                                    className=" text-sm 2xl:text-base xl:text-base md:text-base bg-orange-500 cursor-pointer hover:text-black transition-colors duration-200 hover:bg-transparent border border-orange-500 text-white font-bold text-gray-500 px-2 py-1"
+                                >
+                                    {step === '4' ? (
+                                        'Fermer'
+                                    ):loadingOtp || loadingReab ? <Loader2 className="animate-spin h-5 w-5 text-white hover:text-black transition-colors duration-200"/> : 'Suivant'
+                                    }
+                                </motion.button>
+                            </div>
+                        </div>
+
                     </motion.div>
                 </div>
             )}

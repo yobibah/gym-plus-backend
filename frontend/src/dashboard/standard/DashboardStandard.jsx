@@ -687,8 +687,9 @@ export default function DashboardStandard(){
                 reabAdh.reset()
             }, 4000)
 
-            reabQuery.invalidateQueries(['nbr_actif'])
-            reabQuery.invalidateQueries(['abonner-expirer'])
+            reabQuery.invalidateQueries({ queryKey: ['nbr_actif'] })
+            reabQuery.invalidateQueries({ queryKey: ['abonner-expirer'] })
+            reabQuery.invalidateQueries({ queryKey: ['mes-adherant'] })
         }),
 
         onError : (()=>{
@@ -1026,7 +1027,7 @@ export default function DashboardStandard(){
                 >
                     {daysRemaining <= 0 && (
                         <div className="flex relative flex-col gap-2 bg-blue-100 shadow-[0_0_18px_rgba(0,0,255,0.5)] py-3 px-5 rounded-lg">
-                            {/* <AlertTriangle className="text-red-500" /> */}
+                            
                             <p className="text-red-500 font-bold 2xl:block hidden xl:block">
                                 {daysRemaining === 0
                                     ? "Votre abonnement expire aujourd'hui !"
@@ -1966,7 +1967,7 @@ export default function DashboardStandard(){
 
                                             <td className="flex justify-center py-5 items-center gap-2 px-3">
 
-                                                {((formatDate(item.dernier_abonnement?.fin) <= d ) && (!item.dernier_abonnement?.actif)) ? (
+                                                {(item.dernier_abonnement?.date_suspension === null && !item.dernier_abonnement?.actif) ? (
                                                     <motion.button
                                                         type="button"
                                                         onClick={()=>{setReabonnerModal(true), setReabonner(item)}}
@@ -2205,7 +2206,7 @@ export default function DashboardStandard(){
                                                 <motion.button
                                                     type="button"
                                                     whileTap={{scale:0.95}}
-                                                    onClick={()=>{setShowButtonSalle(true) }}
+                                                    onClick={()=>{setShowButtonSalle(true); setNomSalle(infosSalle.nom_salle || ''); setPaysSalle(infosSalle.pays_salle || ''); setRegion(infosSalle.region_salle || '')}}
                                                     className="my-3 cursor-pointer bg-gray-200 border-gray-200 text-black/80 border font-semibold py-2 px-4 rounded-lg"
                                                 >
                                                     Modifier
@@ -2561,7 +2562,7 @@ export default function DashboardStandard(){
                                                         type="button"
                                                         whileTap={{scale:0.95}}
                                                         disabled={showPasswordChange}
-                                                        onClick={()=>{setShowButtonProfil(true) }}
+                                                        onClick={()=>{setShowButtonProfil(true); setNomPerso(infosUser.name || ''); setPrenomPerso(infosUser.prenom || ''); setTelPerso(infosUser.telephone || '')}}
                                                         className={`my-3 ${showPasswordChange ? 'bg-gray-200  text-gray-400 border-gray-200' : 'cursor-pointer bg-gray-300 border-gray-200 text-black/80'} border font-semibold py-2 px-4 rounded-lg`}
                                                     >
                                                         Modifier
@@ -2739,7 +2740,7 @@ export default function DashboardStandard(){
                                                             <div >
                                                                 <motion.button
                                                                     type="button"
-                                                                    onClick={()=>{setEditMois(!editMois), setMensuel('')}}
+                                                                    onClick={()=>{setEditMois(!editMois), setMensuel(editMois ? '' : prix_mensuel || '')}}
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
@@ -2798,7 +2799,7 @@ export default function DashboardStandard(){
                                                             <div >
                                                                 <motion.button
                                                                     type="button"
-                                                                    onClick={()=>{setEditTrim(!editTrim), setTrimestriel('')}}
+                                                                    onClick={()=>{setEditTrim(!editTrim), setTrimestriel(editTrim ? '' : prix_trimestriel || '')}}
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
@@ -2857,7 +2858,7 @@ export default function DashboardStandard(){
                                                             <div >
                                                                 <motion.button
                                                                     type="button"
-                                                                    onClick={()=>{setEditAn(!editAn), setAnnuel('')}}
+                                                                    onClick={()=>{setEditAn(!editAn), setAnnuel(editAn ? '' : prix_annuel || '')}}
                                                                     whileTap={{scale:0.95}}
                                                                     className="border p-3 rounded-lg bg-orange-600 border-orange-600"
                                                                 >
@@ -2908,13 +2909,13 @@ export default function DashboardStandard(){
                         )}
 
                         {paramsTab === 'support' && (
-                            <div className="col-span-4 2xl:h-200 xl:h-135 md:h-200 flex items-center justify-center">
-                                <div className="flex relative flex-col items-center">
-                                    <div className="absolute z-10 inset-0 2xl:text-[75px] xl:text-[65px] md:text-[40px] font-bold text-orange-500 opacity-40 flex items-center justify-center">
+                            <div className="col-span-4 flex items-center justify-center py-8">
+                                <div className="flex relative flex-col items-center w-full max-w-lg">
+                                    <div className="absolute z-10 inset-0 text-lg md:text-2xl lg:text-[75px] font-bold text-orange-500 opacity-40 flex items-center justify-center text-center p-4 break-words">
                                         <p>gymplus2025.gym@gmail.com</p>
                                     </div>
-                                    <ImageComponent source={support} style={"2xl:w-200 xl:w-120"} label={''} />
-                                    <p><span className="italic text-gray-500 2xl:text-xl xl:text-xl md:text-xl text-sm">Service ouvert 24h/7j</span></p>
+                                    <ImageComponent source={support} style={"w-full max-w-sm h-auto object-contain"} label={''} />
+                                    <p><span className="italic text-gray-500 text-sm md:text-xl">Service ouvert 24h/7j</span></p>
                                 </div>
                             </div>
                         )}
@@ -3339,7 +3340,7 @@ export default function DashboardStandard(){
                         className="bg-white relative px-8 h-130 2xl:w-220 xl:w-220 md:w-180 w-80 py-5"
                     >
                         <div className="flex hidden 2xl:block xl:block  items-center justify-center">
-                            {/* Etape */}
+                           
                             <div className="flex items-center justify-center">
                                 <div className="flex items-center  w-full" >
                                     <div className="flex items-center">
@@ -3419,7 +3420,6 @@ export default function DashboardStandard(){
                             </div>
                         </div>
 
-                        {/* etape de forfait 1 */}
                         {step === '1' && (
                             <motion.div
                                 initial={{opacity:0, scale:0.75}}
@@ -3522,8 +3522,6 @@ export default function DashboardStandard(){
                             </motion.div>
                         )}
 
-
-                        {/* Etape de Paiement */}
                         {step === '2' && (
                             <motion.div
                                 initial={{opacity:0, scale:0.75}}
@@ -3604,8 +3602,6 @@ export default function DashboardStandard(){
                             </motion.div>
                         )}
 
-
-                        {/* Etape de otp */}
                         {step === '3' && (
                             <motion.div
                                 initial={{opacity:0, scale:0.75}}
@@ -3659,7 +3655,6 @@ export default function DashboardStandard(){
                         )}
 
 
-                        {/* etape success */}
                         {step === '4' && (
                             <motion.div
                                 initial={{opacity:0, scale:0.75}}
@@ -3707,9 +3702,6 @@ export default function DashboardStandard(){
                             </motion.div>
                         )}
 
-
-
-                        {/* etape validation */}
                         <div className="flex absolute bottom-4 items-center gap-5 2xl:w-204 xl:w-204 md:w-165 w-70 justify-between ">
                             {step !== '4' && (
                                 <motion.button
