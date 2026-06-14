@@ -81,7 +81,7 @@ export default function InfoSalle(){
         queryFn : ListPays
     })
 
-    const list = paysQuery?.data?.pays || []
+    const list = Array.isArray(paysQuery?.data?.pays) ? paysQuery?.data?.pays : []
     const paysLoading = paysS.isPending
     const paysError = paysS.isError
     
