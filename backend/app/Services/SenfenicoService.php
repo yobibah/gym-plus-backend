@@ -169,4 +169,8 @@ class SenfenicoService
     public function AnnulerRegelement(string $ref){
         return $this->senfenico->settlement->cancel($ref);
     }
+
+   public function PayementDirect (){
+    
+   }
 }

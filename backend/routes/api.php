@@ -18,6 +18,7 @@ use App\Http\Controllers\YengaPayController;
 use App\Http\Controllers\ActivitesController;
 use App\Http\Controllers\AbonnementController;
 use App\Http\Controllers\AiAgent;
+use App\Http\Controllers\AdminController;
 
 Route::post('/login', [AuthController::class, 'Login']);
 Route::post('/infos-perso', [AuthController::class, 'Register']);
@@ -27,11 +28,13 @@ Route::post('/accueil-form', [AuthController::class, 'demo']);
 Route::get('/pays', [AuthController::class, 'PaysList']);
 Route::post('/ville-pays', [AuthController::class, 'RegionVille']);
 
+Route::get('/paiement/success', [YengaPayController::class, 'success'])->name('paiement.success');
+Route::get('/paiement/cancel', [YengaPayController::class, 'cancel'])->name('paiement.cancel');
 
 Route::middleware(['auth:sanctum'])->group(function () {
   Route::middleware('isGerant')->group(function () {
     Route::post('/validation-email', [AuthController::class, 'VerifieEmail']);
-    Route::post('/payment-process', [YengaPayController::class, 'charge']);
+    Route::post('/payment-process', [YengaPayController::class, 'payer']);
     Route::post('/payment-otp', [YengaPayController::class, 'chargeOtp']);
 
     Route::get('/mes-infos', [UserController::class, 'mesInfo']);
@@ -124,9 +127,75 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //  creer un middleware pour chaque les actions specifiques a chaque plan
   });
+    Route::middleware('isGerant')->group(function () {
+
+
+// Route::prefix('admin')->group(function () {
+//     // Auth
+//     Route::post('/login', [AdminController::class, 'login']);
+//     Route::post('/logout', [AdminController::class, 'logout'])->middleware('auth');
+    
+//     // Dashboard
+//     Route::get('/dashboard', [AdminController::class, 'dashboard'])->middleware('auth');
+    
+//     // Users
+//     Route::post('/users', [AdminController::class, 'createUser'])->middleware('auth');
+//     Route::put('/profile', [AdminController::class, 'updateProfile'])->middleware('auth');
+    
+//     // Paiements
+//     Route::get('/paiements', [AdminController::class, 'paiements'])->middleware('auth');
+    
+//     // Salles
+//     Route::get('/salles', [AdminController::class, 'salles'])->middleware('auth');
+//     Route::get('/salles/{id}', [AdminController::class, 'showSalle'])->middleware('auth');
+//     Route::put('/salles/{id}', [AdminController::class, 'updateSalle'])->middleware('auth');
+//     Route::patch('/salles/{id}/toggle', [AdminController::class, 'toggleSalle'])->middleware('auth');
+    
+//     // Gérants
+//     Route::get('/gerants', [AdminController::class, 'Gerant'])->middleware('auth');
+    
+//     // Membres
+//     Route::get('/membres', [AdminController::class, 'Membre'])->middleware('auth');
+    
+//     // Règlements
+//     Route::post('/reglement', [AdminController::class, 'Reglement'])->middleware('auth');
+//     Route::post('/annuler', [AdminController::class, 'Annuler'])->middleware('auth');
+// });
+    });
 });
 
 
+Route::prefix('admin')->group(function () {
+    // Auth
+    Route::post('/login', [AdminController::class, 'login']);
+    Route::post('/logout', [AdminController::class, 'logout']);
+    
+    // Dashboard
+    Route::get('/dashboard', [AdminController::class, 'dashboard']);
+    
+    // Users
+    Route::post('/users', [AdminController::class, 'createUser']);
+    Route::put('/profile', [AdminController::class, 'updateProfile']);
+    
+    // Paiements
+    Route::get('/paiements', [AdminController::class, 'paiements']);
+    
+    // Salles
+    Route::get('/salles', [AdminController::class, 'salles']);
+    Route::get('/salles/{id}', [AdminController::class, 'showSalle']);
+    Route::put('/salles/{id}', [AdminController::class, 'updateSalle']);
+    Route::patch('/salles/{id}/toggle', [AdminController::class, 'toggleSalle']);
+    
+    // Gérants
+    Route::get('/gerants', [AdminController::class, 'Gerant']);
+    
+    // Membres
+    Route::get('/membres', [AdminController::class, 'Membre']);
+    
+    // Règlements
+    Route::post('/reglement', [AdminController::class, 'Reglement']);
+    Route::post('/annuler', [AdminController::class, 'Annuler']);
+});
 
 
 //pour gerant

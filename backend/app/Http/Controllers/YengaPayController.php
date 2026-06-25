@@ -35,158 +35,193 @@ class YengaPayController extends Controller
     }
 
 
-    // public function payer(Request $request)
-    // {
-    //     $current = $request->user();
-    //     $otp = new Otp($current);
+    public function payer(Request $request)
+    {
+        $current = $request->user();
+        $otp = new Otp($current);
 
-    //     $validator = Validator::make($request->all(), [
-    //         "montant" => "required|numeric",
-    //         "forfait" => "required|in:pro,standard,premium",
-    //         'fin' => "nullable|integer"
-    //     ]);
+        $validator = Validator::make($request->all(), [
+            "montant" => "required|numeric",
+            "forfait" => "required|in:pro,standard,premium",
+            'fin' => "nullable|integer"
+        ]);
 
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'message' => 'une erreur est survenue'
-    //         ], 400);
-    //     }
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'une erreur est survenue'
+            ], 400);
+        }
 
-    //     try {
-    //         $fin = $request->fin ?? 1;
+        try {
+            $fin = $request->fin ?? 1;
 
-    //         switch ($request->forfait) {
+            switch ($request->forfait) {
 
-    //         }
-    //         $hasAbonnement = $current->paiements()
-    //             ->where('fin', '>=', Carbon::now())
-    //             ->exists();
+            }
+            $hasAbonnement = $current->paiements()
+                ->where('fin', '>=', Carbon::now())
+                ->exists();
 
-    //         if ($hasAbonnement) {
-    //             return response()->json([
-    //                 'message' => 'Vous avez déjà un abonnement en cours'
-    //             ], 400);
-    //         }
+            if ($hasAbonnement) {
+                return response()->json([
+                    'message' => 'Vous avez déjà un abonnement en cours'
+                ], 400);
+            }
 
-    //         $paiement = paiement::create([
-    //             'debut' => Carbon::now(),
-    //             'fin' => Carbon::today()->addMonths((int) $fin),
-    //             'montant' => $request->montant,
-    //             'plan' => strtolower($request->forfait),
-    //             'gerant_id' => $current->id,
-    //             'status' => 'attente',
-    //             'moyen paiment' => 'OM',
-    //             'transId' => Str::random(4) . Carbon::now()->format('Ymd') . '@' . rand(111, 999)
-    //         ]);
-    //         $response = $this->senfenico->initialize([
-    //             'email' => $current->email,
-    //             'amount' => (float) $request->montant,
-    //             'success_url' => route('paiement.success'),
-    //             'cancel_url' => route('paiement.cancel'),
+            $paiement = paiement::create([
+                'debut' => Carbon::now(),
+                'fin' => Carbon::today()->addMonths((int) $fin),
+                'montant' => $request->montant,
+                'plan' => strtolower($request->forfait),
+                'gerant_id' => $current->id,
+                'status' => 'attente',
+                'moyen paiment' => 'OM',
+                'transId' => Str::random(4) . Carbon::now()->format('Ymd') . '@' . rand(111, 999)
+            ]);
+            $response = $this->senfenico->initialize([
+                'email' => $current->email,
+                'amount' => (float) $request->montant,
+                'success_url' => 'https://api.gymplus-bf.com/api/paiement/success',
+                'cancel_url' => 'https://api.gymplus-bf.com/api/paiement/cancel',
 
-    //         ]);
+            ]);
 
-    //         $reference = $response->data->reference;
+            $reference = $response->data->reference;
 
-    //         $paiement->update(attributes: [
-    //             'transId' => $reference,
-    //             'moyen paiment' => 'OM',
-    //         ]);
-
-
-
-    //         // URL de paiement Senfenico
-    //         $reference = $response->data->reference;
-    //         return response()->json($response->data->authorization_url);
-
-    //     } catch (Exception $e) {
-    //         return response()->json([
-    //             'message' => 'une erreur est survenue',
-    //             'error' => $e->getMessage()
-    //         ]);
-
-    //     }
-
-    // }
-
-    // public function success(Request $request)
-    // {
-    //     $reference = $request->query('reference');
-
-    //     if (!$reference) {
-    //         return response()->json([
-    //             'message' => 'Référence manquante'
-    //         ], 400);
-    //     }
-    //     $checkout = $this->senfenico->fetch($reference);
-
-
-    //     if ($checkout->data->status === 'success') {
-
-    //         $paiement = $this->RetournerPaiement($reference);
-    //         $paiement->update([
-    //             'moyen paiment' => $checkout->data->provider,
-    //             'status' => 'reussi'
-    //         ]);
-
-    //         // Générer mot de passe temporaire
-    //         $mdp = Str::random(10);
-
-    //         $current = User::where('email', $checkout->data->email)
-    //             ->whereHas('roles', fn($q) => $q->where('name', 'Gerant'))
-    //             ->first();
-    //         $current->update([
-    //             'password' => bcrypt($mdp),
-    //             'otp' => null
-    //         ]);
-
-    //         $otp = new Otp($current);
-    //         // Envoyer les informations de connexion
-    //         $otp->sendLoginInformation($mdp);
-    //     }
-    //     return response()->json([
-    //         'message' => 'Paiement réussi',
-    //         'paiement' => $paiement,
-    //         // 'mdp_temporaire' => $mdp
-    //     ], 201);
+            $paiement->update(attributes: [
+                'transId' => $reference,
+                'moyen paiment' => 'OM',
+            ]);
 
 
 
-    // }
+            // URL de paiement Senfenico
+            $reference = $response->data->reference;
+            return response()->json($response->data->authorization_url);
 
-    // public function cancel(Request $request)
-    // {
-    //     $reference = $request->query('reference');
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'une erreur est survenue',
+                'error' => $e->getMessage()
+            ]);
 
-    //     if (!$reference) {
-    //         return response()->json([
-    //             'message' => 'Référence manquante'
-    //         ], 400);
-    //     }
-    //     $checkout = $this->senfenico->fetch($reference);
+        }
+
+    }
+
+public function success(Request $request)
+{
+    $reference = $request->query('reference');
+
+    if (!$reference) {
+        return response()->json([
+            'message' => 'Référence manquante'
+        ], 400);
+    }
+
+    $checkout = $this->senfenico->fetch($reference);
+
+    if ($checkout->data->status === 'success') {
+        $paiement = $this->RetournerPaiement($reference);
+        $paiement->update([
+            'moyen paiment' => $checkout->data->provider,
+            'status' => 'reussi'
+        ]);
+
+        $mdp = Str::random(10);
+
+        $current = User::where('email', $checkout->data->email)
+            ->whereHas('roles', fn($q) => $q->where('name', 'Gerant'))
+            ->first();
+
+        if ($current) {
+            $current->update([
+                'password' => bcrypt($mdp),
+                'otp' => null
+            ]);
+
+            $otp = new Otp($current);
+            $otp->sendLoginInformation($mdp);
+        }
+
+       
+        $paiementArray = $paiement->toArray();
+        $paiementArray = $this->cleanUtf8Array($paiementArray);
 
 
-    //     if ($checkout->data->status === 'failed') {
+          $url = env('FRONTEND_URL').'/statut';
+        //   return $url;
+        return response()->json([
+            'message' => 'Paiement reussi',
+            'paiement' => $paiementArray,
+             'url'=>$url
+        ], 201);
+    }
 
-    //         $paiement = $this->RetournerPaiement($reference);
-    //         $paiement->update([
-    //             'moyen paiment' => $checkout->data->provider,
-    //         ]);
+  
 
-    //         // Générer mot de passe temporaire
-    //         return response()->json([
-    //             'message' => 'Paiement echouer',
-    //             'paiement' => $paiement,
-    //             // 'mdp_temporaire' => $mdp
-    //         ], 500);
+    return response()->json([
+        'message' => 'Statut du paiement non valide'
+    ], 400);
+}
+
+public function cancel(Request $request)
+{
+    $reference = $request->query('reference');
+
+    if (!$reference) {
+        return response()->json([
+            'message' => 'Reference manquante'
+        ], 400);
+    }
+
+    $checkout = $this->senfenico->fetch($reference);
+
+    if ($checkout->data->status === 'failed') {
+        $paiement = $this->RetournerPaiement($reference);
+        $paiement->update([
+            'moyen paiment' => $checkout->data->provider,
+        ]);
+
+   
+        $paiementArray = $paiement->toArray();
+        $paiementArray = $this->cleanUtf8Array($paiementArray);
+
+        return response()->json([
+            'message' => 'Paiement echouer',
+            'paiement' => $paiementArray
+        ], 500);
+    }
+
+    return response()->json([
+        'message' => 'Statut du paiement non valide'
+    ], 400);
+}
 
 
+private function cleanUtf8Array($data)
+{
+    if (is_string($data)) {
+        // Supprimer les caractères UTF-8 mal formés
+        return mb_convert_encoding($data, 'UTF-8', 'UTF-8');
+    }
 
-    //     }
+    if (is_array($data)) {
+        foreach ($data as $key => $value) {
+            $data[$key] = $this->cleanUtf8Array($value);
+        }
+        return $data;
+    }
 
+    if (is_object($data)) {
+        foreach ($data as $key => $value) {
+            $data->$key = $this->cleanUtf8Array($value);
+        }
+        return $data;
+    }
 
-    // }
-
+    return $data;
+}
 
     /// ces methodes sont reserver pour faire le sans redirection
 
@@ -373,8 +408,6 @@ class YengaPayController extends Controller
                 'reference' => $ref
             ]);
         }
-
-        // ✅ Si l'appel senfenico échoue, on supprime le paiement créé
         $paiement->delete();
 
         return response()->json([
