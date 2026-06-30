@@ -1206,9 +1206,16 @@ class UserController extends Controller
         }
     }
 
+    
 
   // juste reserver au premium
-    public function AddFacebook() {}
+    public function GenererPass() {
+
+    }
+
+    public function VerifierQr(){
+        
+    }
 
     public function FacebookCallback() {}
 }
