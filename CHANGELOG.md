@@ -6,7 +6,7 @@
 
 ### Changed
 - Updated authentication logic
-- Adjusted the pricing for the Pro plan from $100 to $12,500
+- Adjusted the pricing for the Pro plan from 100 to 12,500
 - Improved layout and responsiveness of the Pro and Standard dashboards
 - Improved overall API logic, responsiveness, and other enhancements
 

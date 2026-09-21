@@ -27,7 +27,7 @@ The GymPlus backend is built using the following technologies:
 - **Database**: PostgreSQL
 - **Caching**: Redis
 - **Object Storage**: MinIO
-- **Front-end**: React
+- **Front-end**: React (integrated via Vite and Tailwind CSS)
 
 ## Prerequisites
 To use GymPlus, you will need the following:
